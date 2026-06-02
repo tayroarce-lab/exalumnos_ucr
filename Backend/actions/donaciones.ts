@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { notificarDonacionAprobada } from '@/lib/email';
 
 export interface CrearDonacionInput {
   proyecto_estudiante_id: string;
@@ -121,6 +122,35 @@ export async function actualizarEstadoDonacion(donacion_id: string, estado: 'con
   if (error) {
     console.error('Error al actualizar donación:', error);
     throw new Error('Error al actualizar el estado de la donación');
+  }
+
+  // Si se confirmó exitosamente, enviamos el correo al estudiante
+  if (estado === 'confirmada') {
+    const { data: donacionRecord } = await adminClient
+      .from('donaciones')
+      .select(`
+        monto,
+        moneda,
+        estudiante:users!donaciones_proyecto_estudiante_id_fkey(nombre, email)
+      `)
+      .eq('id', donacion_id)
+      .single();
+
+    if (donacionRecord && donacionRecord.estudiante) {
+      // En caso de que TS asuma que estudiante es un arreglo (dependiendo de la versión del tipado), extraemos el primero o el objeto.
+      const estudianteData = Array.isArray(donacionRecord.estudiante) 
+        ? donacionRecord.estudiante[0] 
+        : donacionRecord.estudiante;
+        
+      if (estudianteData && estudianteData.email && estudianteData.nombre) {
+        await notificarDonacionAprobada(
+          estudianteData.email,
+          estudianteData.nombre,
+          donacionRecord.monto,
+          donacionRecord.moneda
+        );
+      }
+    }
   }
 
   return { success: true };
