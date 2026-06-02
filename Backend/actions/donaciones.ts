@@ -1,8 +1,8 @@
 'use server';
 
-import { createClient } from '@/lib/supabase/server';
-import { createAdminClient } from '@/lib/supabase/admin';
-import { notificarDonacionAprobada } from '@/lib/email';
+import { createClient } from '../lib/supabase/server';
+import { createAdminClient } from '../lib/supabase/admin';
+import { notificarDonacionAprobada } from '../lib/email';
 
 export interface CrearDonacionInput {
   proyecto_estudiante_id: string;

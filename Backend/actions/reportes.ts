@@ -1,7 +1,8 @@
 'use server';
 
-import { createClient } from '@/lib/supabase/server';
-import { createAdminClient } from '@/lib/supabase/admin';
+import { createClient } from '../lib/supabase/server';
+import { createAdminClient } from '../lib/supabase/admin';
+import { notificarSuspensionAdmin } from '../lib/email';
 
 export interface CrearReporteInput {
   perfil_reportado: string;
@@ -32,6 +33,33 @@ export async function crearReporte(data: CrearReporteInput) {
   if (error) {
     console.error('Error al crear reporte:', error);
     throw new Error('Error al registrar el reporte');
+  }
+
+  // Verificar si el perfil fue suspendido por el trigger (>= 3 reportes)
+  const adminClient = createAdminClient();
+  const { data: usuarioReportado } = await adminClient
+    .from('users')
+    .select('email, reportes_recibidos, activo')
+    .eq('id', data.perfil_reportado)
+    .single();
+
+  if (usuarioReportado && usuarioReportado.reportes_recibidos >= 3 && usuarioReportado.activo === false) {
+    // Buscar todos los admins para notificar
+    const { data: admins } = await adminClient
+      .from('users')
+      .select('email')
+      .eq('tipo', 'admin')
+      .eq('activo', true);
+
+    if (admins && admins.length > 0) {
+      const adminEmails = admins.map(a => a.email);
+      await notificarSuspensionAdmin(
+        adminEmails,
+        'Equipo Administrador',
+        usuarioReportado.email,
+        usuarioReportado.reportes_recibidos
+      );
+    }
   }
 
   return { success: true };
