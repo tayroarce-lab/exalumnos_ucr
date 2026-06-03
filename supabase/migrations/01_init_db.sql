@@ -89,6 +89,11 @@ CREATE TABLE IF NOT EXISTS public.estudiantes (
 CREATE TABLE IF NOT EXISTS public.posiciones (
   id                    UUID        PRIMARY KEY DEFAULT uuid_generate_v4(),
   exalumno_id           UUID        NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  tipo                  TEXT        NOT NULL CHECK (tipo IN ('empleo', 'pasantia')),
+  titulo                TEXT        NOT NULL,
+  modalidad             TEXT        NOT NULL CHECK (modalidad IN ('presencial', 'remoto', 'hibrido')),
+  jornada               TEXT        NOT NULL CHECK (jornada IN ('tiempo_completo', 'medio_tiempo', 'por_proyecto')),
+  lugar                 TEXT        NOT NULL,
   empresa               TEXT        NOT NULL,
   sector                TEXT[]      NOT NULL DEFAULT '{}',
   habilidades_requeridas TEXT[]     NOT NULL DEFAULT '{}',
@@ -263,6 +268,42 @@ FOR EACH ROW
 EXECUTE FUNCTION public.fn_incrementar_reportes_y_suspender();
 
 -- ============================================================
+-- TRIGGER DE SEGURIDAD: Prevención de escalada de privilegios
+-- Evita que usuarios normales modifiquen campos críticos.
+-- ============================================================
+CREATE OR REPLACE FUNCTION public.fn_users_protect_columns()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  -- Si el usuario que hace la petición es admin o es el service_role (uid null) lo permitimos
+  IF current_setting('request.jwt.claims', true) IS NOT NULL THEN
+    IF EXISTS (
+      SELECT 1 FROM public.users 
+      WHERE id = (current_setting('request.jwt.claims', true)::jsonb ->> 'sub')::uuid 
+      AND tipo = 'admin'
+    ) THEN
+      RETURN NEW;
+    END IF;
+  END IF;
+
+  -- Si no es admin/service_role, forzamos que los campos críticos no cambien
+  NEW.tipo = OLD.tipo;
+  NEW.reportes_recibidos = OLD.reportes_recibidos;
+  NEW.email_verified = OLD.email_verified;
+  
+  RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER trg_users_protect_columns
+BEFORE UPDATE ON public.users
+FOR EACH ROW
+EXECUTE FUNCTION public.fn_users_protect_columns();
+
+-- ============================================================
 -- ÍNDICES DE RENDIMIENTO
 -- ============================================================
 CREATE INDEX IF NOT EXISTS idx_matches_exalumno   ON public.matches(exalumno_id);
@@ -410,7 +451,8 @@ CREATE POLICY "posiciones_insert_exalumno"
 CREATE POLICY "posiciones_update_own"
   ON public.posiciones FOR UPDATE
   TO authenticated
-  USING (exalumno_id = auth.uid());
+  USING (exalumno_id = auth.uid())
+  WITH CHECK (exalumno_id = auth.uid());
 
 CREATE POLICY "posiciones_delete_own"
   ON public.posiciones FOR DELETE
@@ -446,8 +488,9 @@ CREATE POLICY "matches_update_allowed"
   TO authenticated
   USING (
     EXISTS (SELECT 1 FROM public.users u WHERE u.id = auth.uid() AND u.tipo = 'admin')
-    OR exalumno_id = auth.uid()
-    OR estudiante_id = auth.uid()
+  )
+  WITH CHECK (
+    EXISTS (SELECT 1 FROM public.users u WHERE u.id = auth.uid() AND u.tipo = 'admin')
   );
 
 -- ============================================================
@@ -668,6 +711,11 @@ CREATE POLICY "aplicaciones_update_exalumno_admin"
     )
     OR EXISTS (SELECT 1 FROM public.users u WHERE u.id = auth.uid() AND u.tipo = 'admin')
   );
+
+CREATE POLICY "aplicaciones_delete_own"
+  ON public.aplicaciones FOR DELETE
+  TO authenticated
+  USING (estudiante_id = auth.uid() AND estado = 'enviada');
 
 -- ============================================================
 -- POLÍTICAS RLS: reportes_perfil
