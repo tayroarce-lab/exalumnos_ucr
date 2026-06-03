@@ -8,7 +8,7 @@
     "allowJs": true,
     "skipLibCheck": true,
     "strict": false,
-    "noEmit": true,
+    "noEmit": ushtrue,
     "incremental": true,
     "module": "esnext",
     "esModuleInterop": true,
