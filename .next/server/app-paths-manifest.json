@@ -1,0 +1,5 @@
+{
+  "/api/cron/check-donations/route": "app/api/cron/check-donations/route.js",
+  "/api/cron/check-matches/route": "app/api/cron/check-matches/route.js",
+  "/api/cron/close-positions/route": "app/api/cron/close-positions/route.js"
+}
