@@ -10,7 +10,7 @@ export interface CrearReporteInput {
 }
 
 export async function crearReporte(data: CrearReporteInput) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
 
   if (authError || !user) {
@@ -27,7 +27,7 @@ export async function crearReporte(data: CrearReporteInput) {
 }
 
 export async function obtenerReportesPendientes() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
 
   if (authError || !user) {
@@ -44,7 +44,7 @@ export async function obtenerReportesPendientes() {
 }
 
 export async function resolverReporte(reporte_id: string) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
 
   if (authError || !user) {

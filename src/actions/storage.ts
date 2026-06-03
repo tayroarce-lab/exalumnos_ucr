@@ -5,7 +5,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import crypto from 'crypto';
 
 export async function uploadFileAction(formData: FormData, bucket: 'avatars' | 'comprobantes', prefix?: string) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
 
   if (authError || !user) {
@@ -36,7 +36,7 @@ export async function uploadFileAction(formData: FormData, bucket: 'avatars' | '
 }
 
 export async function getSignedUrlAction(bucket: 'comprobantes' | 'avatars', path: string, expiresIn: number = 3600) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) {
