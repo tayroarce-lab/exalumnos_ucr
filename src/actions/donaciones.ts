@@ -15,7 +15,7 @@ export interface CrearDonacionInput {
 }
 
 export async function crearDonacion(data: CrearDonacionInput) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
 
   if (authError || !user) {
@@ -32,7 +32,7 @@ export async function crearDonacion(data: CrearDonacionInput) {
 }
 
 export async function obtenerMisDonaciones() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
 
   if (authError || !user) {
@@ -49,7 +49,7 @@ export async function obtenerMisDonaciones() {
 }
 
 export async function actualizarEstadoDonacion(donacion_id: string, estado: 'confirmada' | 'rechazada', motivo_rechazo?: string) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
 
   if (authError || !user) {

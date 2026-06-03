@@ -3,30 +3,32 @@
   "middleware": {
     "/": {
       "files": [
-        "server/edge-runtime-webpack.js",
-        "server/src/middleware.js"
+        "server/edge/chunks/node_modules_next_dist_esm_build_templates_edge-wrapper_0_kjzx3.js",
+        "server/edge/chunks/[root-of-the-server]__13lenmt._.js",
+        "server/edge/chunks/turbopack-node_modules_next_dist_esm_build_templates_edge-wrapper_15t5l6z.js"
       ],
-      "name": "src/middleware",
+      "name": "middleware",
       "page": "/",
+      "entrypoint": "server/edge/chunks/turbopack-node_modules_next_dist_esm_build_templates_edge-wrapper_15t5l6z.js",
       "matchers": [
         {
-          "regexp": "^(?:\\/(_next\\/data\\/[^/]{1,}))?(?:\\/((?!_next\\/static|_next\\/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*))(.json)?[\\/#\\?]?$",
+          "regexp": "^(?:\\/(_next\\/data\\/[^/]{1,}))?(?:\\/((?!_next\\/static|_next\\/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*))(\\.json|\\.rsc|\\.segments\\/.+\\.segment\\.rsc)?[\\/#\\?]?$",
           "originalSource": "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"
         }
       ],
       "wasm": [],
       "assets": [],
       "env": {
-        "__NEXT_BUILD_ID": "EdpFofEVwtxSOlOzcj5-g",
-        "NEXT_SERVER_ACTIONS_ENCRYPTION_KEY": "6b+Ge9g6bAx2NUYE7T6BX62HULZW/Z9ElUF44k+vFT0=",
-        "__NEXT_PREVIEW_MODE_ID": "6a609bf081f6335cb1ed2737fa718e97",
-        "__NEXT_PREVIEW_MODE_ENCRYPTION_KEY": "66f0ab43671588a654390fcae5f521f219de327571ef41cc3b9776ed3f29af5d",
-        "__NEXT_PREVIEW_MODE_SIGNING_KEY": "3be8b344f5e02c9796ebd968b27d88b7efeb40a66279367b2beaa69fb784d2fc"
+        "__NEXT_BUILD_ID": "EnLgX-_z118PYsmGzhJx1",
+        "NEXT_SERVER_ACTIONS_ENCRYPTION_KEY": "1unqXXCMUu94smsRmaDfa6dzkZp52U7U0W4Dx6p6daM=",
+        "__NEXT_PREVIEW_MODE_ID": "51cc841f4ab36bf24313b2c26163de49",
+        "__NEXT_PREVIEW_MODE_ENCRYPTION_KEY": "50b55a2d5139e1059626a2ff5365374b95f11e00b7618ddd7cfb326c812b1851",
+        "__NEXT_PREVIEW_MODE_SIGNING_KEY": "7e5bc446650f9c2c0410886bbcb55bfb083ba1f4f49e9adf026661bcc93908c3"
       }
     }
   },
-  "functions": {},
   "sortedMiddleware": [
     "/"
-  ]
+  ],
+  "functions": {}
 }

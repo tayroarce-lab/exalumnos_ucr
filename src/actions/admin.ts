@@ -6,7 +6,7 @@ import { calculateDashboardMetrics } from '@/services/admin.service';
 
 export async function getDashboardMetrics() {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
