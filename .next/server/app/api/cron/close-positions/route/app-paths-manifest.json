@@ -1,0 +1,3 @@
+{
+  "/api/cron/close-positions/route": "app/api/cron/close-positions/route.js"
+}
