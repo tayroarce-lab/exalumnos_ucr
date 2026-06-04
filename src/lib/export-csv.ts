@@ -7,10 +7,10 @@ export function exportToCSV(filename: string, rows: object[]) {
   const csvContent =
     keys.join(separator) +
     '\n' +
-    rows.map(row => {
+    rows.map((row: any) => {
       return keys.map(k => {
-        let cell = row[k as keyof typeof row] === null || row[k as keyof typeof row] === undefined ? '' : row[k as keyof typeof row];
-        cell = cell instanceof Date ? cell.toLocaleString() : cell.toString().replace(/"/g, '""');
+        let cell = row[k] === null || row[k] === undefined ? '' : row[k];
+        cell = cell instanceof Date ? cell.toLocaleString() : String(cell).replace(/"/g, '""');
         if (cell.search(/("|,|\n)/g) >= 0) {
           cell = `"${cell}"`;
         }
