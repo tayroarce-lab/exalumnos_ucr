@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
-import { fetchUserRole } from '@/repositories/admin.repository'
 
 export async function GET(request: Request) {
   try {
@@ -12,15 +11,19 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
     }
 
-    const userRole = await fetchUserRole(user.id)
-    if (userRole !== 'admin') {
+    const adminClient = createAdminClient()
+    const { data: profile } = await adminClient
+      .from('users')
+      .select('tipo')
+      .eq('id', user.id)
+      .single()
+
+    if (profile?.tipo !== 'admin') {
       return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
     }
 
     const { searchParams } = new URL(request.url)
     const tipo = searchParams.get('tipo') || 'matches'
-
-    const adminClient = createAdminClient()
 
     if (tipo === 'matches') {
       const { data, error } = await adminClient
