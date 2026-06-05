@@ -50,7 +50,7 @@ export async function getSignedUrlAction(bucket: 'comprobantes' | 'avatars', pat
   // Validar el rol del usuario
   const { data: userProfile } = await adminClient
     .from('users')
-    .select('tipo')
+    .select('tipo').is('deleted_at', null)
     .eq('id', user.id)
     .single();
 
@@ -60,7 +60,7 @@ export async function getSignedUrlAction(bucket: 'comprobantes' | 'avatars', pat
     // Validar si es el exalumno que donó, o el estudiante que recibe
     const { data: donacion } = await adminClient
       .from('donaciones')
-      .select('exalumno_id, proyecto_estudiante_id')
+      .select('exalumno_id, proyecto_estudiante_id').is('deleted_at', null)
       .eq('comprobante_url', path)
       .single();
       
