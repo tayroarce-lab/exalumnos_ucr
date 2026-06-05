@@ -1,0 +1,137 @@
+/* src/styles/admin-table.css */
+
+/* Animación de giro para el ícono de carga (Loader2 de lucide-react) */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+.admin-table-container {
+  background: #FFFFFF;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02), 0 4px 12px rgba(0,0,0,0.04);
+  border: 1px solid #E2E8F0;
+  overflow-x: auto;
+}
+
+.admin-table-header {
+  margin-bottom: 24px;
+}
+
+.admin-table-header h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0A2540;
+  margin: 0;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.admin-table th {
+  padding: 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.admin-table td {
+  padding: 16px;
+  font-size: 14px;
+  color: #334155;
+  border-bottom: 1px solid #F0F4F8;
+  vertical-align: middle;
+}
+
+.admin-table tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-table tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+.admin-table-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-table-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 9999px;
+  background-color: #e2e8f0;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.admin-table-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.admin-table-pill.orange {
+  background-color: #fff7ed;
+  color: #ea580c;
+}
+
+.admin-table-pill.teal {
+  background-color: #f0fdfa;
+  color: #0d9488;
+}
+
+.admin-table-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.admin-btn-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: transparent;
+}
+
+.admin-btn-icon.check {
+  color: #10b981;
+}
+
+.admin-btn-icon.check:hover {
+  background-color: #ecfdf5;
+  border-color: #10b981;
+}
+
+.admin-btn-icon.close {
+  color: #ef4444;
+}
+
+.admin-btn-icon.close:hover {
+  background-color: #fef2f2;
+  border-color: #ef4444;
+}

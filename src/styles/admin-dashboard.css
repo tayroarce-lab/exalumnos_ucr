@@ -1,0 +1,147 @@
+/* src/styles/admin-dashboard.css */
+
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: #F0F4F8;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.admin-main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-left: 260px; /* Sidebar width */
+  min-height: 100vh;
+  width: calc(100% - 260px);
+}
+
+.admin-page-container {
+  padding: 32px;
+  flex: 1;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.admin-header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #0A2540;
+  margin: 0 0 8px 0;
+}
+
+.admin-header p {
+  color: #64748b;
+  font-size: 15px;
+  margin: 0;
+}
+
+.admin-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.admin-date-picker-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.admin-date-picker-icon {
+  position: absolute;
+  left: 12px;
+  color: #64748b;
+  pointer-events: none;
+}
+
+.admin-date-select {
+  padding: 10px 36px 10px 40px;
+  border-radius: 9999px; /* Pill shape */
+  border: 1px solid #E2E8F0;
+  background-color: #FFFFFF;
+  color: #0A2540;
+  font-size: 14px;
+  font-weight: 600;
+  appearance: none;
+  cursor: pointer;
+  outline: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.admin-date-select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.admin-export-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background-color: #0A2540;
+  color: #FFFFFF;
+  border-radius: 9999px; /* Pill shape */
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+  box-shadow: 0 4px 6px -1px rgba(10, 37, 64, 0.2);
+}
+
+.admin-export-btn:hover {
+  background-color: #0f3458;
+}
+
+.admin-export-btn:active {
+  transform: translateY(1px);
+}
+
+.admin-export-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.admin-loading-state,
+.admin-error-state {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 300px;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  gap: 16px;
+}
+
+.admin-error-state {
+  color: #ef4444;
+  background: #fef2f2;
+  border-color: #fca5a5;
+}
+
+.admin-dashboard-content {
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.admin-last-updated {
+  text-align: center;
+  font-size: 13px;
+  color: #94a3b8;
+  margin-top: 24px;
+}
