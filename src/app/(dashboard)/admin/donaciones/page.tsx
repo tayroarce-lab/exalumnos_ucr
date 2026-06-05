@@ -1,10 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Loader2 } from 'lucide-react';
 import { DonationAdminView, DonationsHistoryFilters } from '@/types/donations';
 import { getPendingDonations, getDonationsHistory, processDonation } from '@/actions/donations';
 import { PendingDonations } from './_components/pending-donations';
 import { DonationsHistory } from './_components/donations-history';
+import '@/styles/admin-dashboard.css';
+import '@/styles/admin-donaciones.css';
 
 export default function AdminDonationsPage() {
   const [activeTab, setActiveTab] = useState<'pending' | 'history'>('pending');
@@ -16,18 +19,14 @@ export default function AdminDonationsPage() {
   const fetchPending = async () => {
     setLoading(true);
     const { data, error } = await getPendingDonations();
-    if (!error && data) {
-      setPendingDonations(data);
-    }
+    if (!error && data) setPendingDonations(data);
     setLoading(false);
   };
 
   const fetchHistory = async (filters: DonationsHistoryFilters) => {
     setLoading(true);
     const { data, error } = await getDonationsHistory(filters);
-    if (!error && data) {
-      setHistoryDonations(data);
-    }
+    if (!error && data) setHistoryDonations(data);
     setLoading(false);
   };
 
@@ -42,8 +41,6 @@ export default function AdminDonationsPage() {
   const handleProcessDonation = async (id: string, action: 'confirm' | 'reject', reason?: string) => {
     const res = await processDonation(id, action, reason);
     if (res.success) {
-      alert(`Donación ${action === 'confirm' ? 'confirmada' : 'rechazada'} exitosamente.`);
-      // Refrescar lista de pendientes
       fetchPending();
     } else {
       alert(`Error al procesar la donación: ${res.error}`);
@@ -51,43 +48,48 @@ export default function AdminDonationsPage() {
   };
 
   return (
-    <div style={{ padding: '2rem' }}>
-      <header style={{ marginBottom: '2rem' }}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>Gestión de Donaciones</h1>
-        <p style={{ color: '#666' }}>Confirma donaciones pendientes y revisa el historial de ingresos.</p>
-      </header>
+    <div className="admin-page-container">
+      {/* Encabezado principal de la página */}
+      <div className="donations-header">
+        <h1>Gestión de Donaciones</h1>
+        <p>Confirma donaciones pendientes y revisa el historial de ingresos.</p>
+      </div>
 
-      {/* Tabs / Pestañas */}
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', borderBottom: '1px solid #ccc', paddingBottom: '0.5rem' }}>
-        <button 
+      {/* Pestañas de navegación */}
+      <div className="donations-tabs">
+        <button
+          className={`donations-tab-btn ${activeTab === 'pending' ? 'active' : ''}`}
           onClick={() => setActiveTab('pending')}
-          style={{ padding: '0.5rem 1rem', fontWeight: activeTab === 'pending' ? 'bold' : 'normal', borderBottom: activeTab === 'pending' ? '2px solid black' : 'none' }}
         >
-          Pendientes ({pendingDonations.length})
+          Pendientes
+          <span className="donations-tab-badge">{pendingDonations.length}</span>
         </button>
-        <button 
+        <button
+          className={`donations-tab-btn ${activeTab === 'history' ? 'active' : ''}`}
           onClick={() => setActiveTab('history')}
-          style={{ padding: '0.5rem 1rem', fontWeight: activeTab === 'history' ? 'bold' : 'normal', borderBottom: activeTab === 'history' ? '2px solid black' : 'none' }}
         >
           Historial / Auditoría
         </button>
       </div>
 
+      {/* Contenido principal */}
       <main>
         {loading ? (
-          <p>Cargando datos...</p>
+          <div className="donations-loading">
+            <Loader2 size={28} className="animate-spin" />
+            <p>Cargando datos...</p>
+          </div>
         ) : (
           <>
             {activeTab === 'pending' && (
-              <PendingDonations 
-                donations={pendingDonations} 
+              <PendingDonations
+                donations={pendingDonations}
                 onRefresh={fetchPending}
-                onProcess={handleProcessDonation} 
+                onProcess={handleProcessDonation}
               />
             )}
-            
             {activeTab === 'history' && (
-              <DonationsHistory 
+              <DonationsHistory
                 donations={historyDonations}
                 onFilterChange={setHistoryFilters}
               />

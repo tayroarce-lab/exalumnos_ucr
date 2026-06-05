@@ -1,5 +1,8 @@
 import { Metadata } from 'next';
+import { Download } from 'lucide-react';
 import { MatchesTable } from './_components/matches-table';
+import '@/styles/admin-dashboard.css';
+import '@/styles/admin-matches.css';
 
 export const metadata: Metadata = {
   title: 'Gestión de Matches | Admin | Fundación Exalumnos UCR',
@@ -8,11 +11,14 @@ export const metadata: Metadata = {
 
 export default function AdminMatchesPage() {
   return (
-    <div style={{ padding: '2rem' }}>
-      <header style={{ marginBottom: '2rem' }}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>Panel Administrativo - Matches</h1>
-        <p style={{ color: '#666' }}>Gestiona, filtra y exporta las relaciones de apoyo entre estudiantes y exalumnos.</p>
-      </header>
+    <div className="admin-page-container">
+      {/* Encabezado con título y botón de exportación */}
+      <div className="matches-header">
+        <div className="matches-header-titles">
+          <h1>Gestión de Matches</h1>
+          <p>Gestiona, filtra y exporta las relaciones de apoyo entre estudiantes y exalumnos.</p>
+        </div>
+      </div>
 
       <main>
         <MatchesTable />
