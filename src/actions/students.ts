@@ -161,12 +161,12 @@ export async function obtenerEstudiantePorId(id: string) {
   if (user?.id !== id) {
     // Si no es el propio usuario, verificamos si hay match activo o si es admin
     let puedeVerSensible = false
-    const { data: adminCheck } = await supabase.from('users').select('tipo').eq('id', user?.id || '').single()
+    const { data: adminCheck } = await supabase.from('users').select('tipo').is('deleted_at', null).eq('id', user?.id || '').single()
     if (adminCheck?.tipo === 'admin') puedeVerSensible = true
 
     if (!puedeVerSensible && user) {
       const { data: match } = await supabase.from('matches')
-        .select('id')
+        .select('id').is('deleted_at', null)
         .eq('estudiante_id', id)
         .eq('exalumno_id', user.id)
         .eq('estado', 'activo')

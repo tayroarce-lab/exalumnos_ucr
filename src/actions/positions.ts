@@ -73,7 +73,7 @@ export async function obtenerMisPosiciones() {
 
   const { data, error } = await supabase
     .from('posiciones')
-    .select('*')
+    .select('*').is('deleted_at', null)
     .eq('exalumno_id', user.id)
     .order('created_at', { ascending: false })
 
@@ -89,7 +89,7 @@ export async function listarPosicionesPublicas(filtros?: {
 }) {
   const supabase = await createClient()
   let query = supabase.from('posiciones')
-    .select('*, exalumno:users!posiciones_exalumno_id_fkey(nombre, foto_url)')
+    .select('*, exalumno:users!posiciones_exalumno_id_fkey(nombre, foto_url)').is('deleted_at', null)
     .eq('estado', 'activa')
     .order('created_at', { ascending: false })
 
@@ -113,7 +113,7 @@ export async function obtenerPosicionPorId(id: string) {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('posiciones')
-    .select('*, exalumno:users!posiciones_exalumno_id_fkey(nombre, email, foto_url)')
+    .select('*, exalumno:users!posiciones_exalumno_id_fkey(nombre, email, foto_url)').is('deleted_at', null)
     .eq('id', id)
     .single()
 
