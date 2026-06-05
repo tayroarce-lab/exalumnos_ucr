@@ -1,0 +1,32 @@
+/* src/styles/admin-footer.css */
+
+.admin-footer {
+  background-color: #0A2540;
+  color: #94a3b8;
+  padding: 24px 32px;
+  font-family: 'Inter', system-ui, sans-serif;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+}
+
+.admin-footer-links {
+  display: flex;
+  gap: 24px;
+}
+
+.admin-footer-link {
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 13px;
+  transition: color 0.2s;
+}
+
+.admin-footer-link:hover {
+  color: #FFFFFF;
+}
+
+.admin-footer-copy {
+  font-size: 13px;
+}
