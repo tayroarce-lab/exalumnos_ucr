@@ -97,21 +97,29 @@ export async function verificarPerfilCompleto(userId: string) {
   return estaCompleto
 }
 
-export async function listarEstudiantes(filtros?: {
-  carrera?: string[]
-  proyecto_area_tematica?: string[]
-  areas_de_interes?: string[]
-  tipos_apoyo?: string[]
-  proyecto_tipo?: string
-  sede?: string
-}) {
+export async function listarEstudiantes(
+  filtros?: {
+    carrera?: string[]
+    proyecto_area_tematica?: string[]
+    areas_de_interes?: string[]
+    tipos_apoyo?: string[]
+    proyecto_tipo?: string
+    sede?: string
+  },
+  opciones?: {
+    busqueda?: string
+    page?: number
+    limit?: number
+  }
+) {
   const supabase = await createClient()
   let query = supabase.from('estudiantes')
-    .select('*, users!inner(nombre, foto_url, activo)')
+    .select('*, users!inner(nombre, foto_url, activo)', { count: 'exact' })
     .eq('visible_en_directorio', true)
     .eq('perfil_completo', true)
     .eq('proyecto_activo', true)
     .eq('users.activo', true)
+    .order('proyecto_porcentaje_avance', { ascending: false })
 
   if (filtros) {
     if (filtros.carrera && filtros.carrera.length > 0) {
@@ -139,9 +147,21 @@ export async function listarEstudiantes(filtros?: {
     }
   }
 
-  const { data, error } = await query
+  if (opciones?.busqueda) {
+    query = query.ilike('users.nombre', `%${opciones.busqueda}%`)
+  }
+
+  if (opciones?.page && opciones?.limit) {
+    const from = (opciones.page - 1) * opciones.limit
+    const to = from + opciones.limit - 1
+    query = query.range(from, to)
+  } else if (opciones?.limit) {
+    query = query.limit(opciones.limit)
+  }
+
+  const { data, count, error } = await query
   if (error) throw new Error(error.message)
-  return data
+  return { data, count: count || 0 }
 }
 
 export async function obtenerEstudiantePorId(id: string) {
