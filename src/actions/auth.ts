@@ -5,6 +5,9 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 
 export async function registrarEstudiante(data: { email: string; password: string; nombre: string }) {
+  if (data.email.toLowerCase().endsWith('@gmail.com')) {
+    throw new Error('Los correos de Gmail no están permitidos para estudiantes.')
+  }
   if (!data.email.endsWith('@ucr.ac.cr')) {
     throw new Error('El correo debe terminar en @ucr.ac.cr')
   }
@@ -40,7 +43,14 @@ export async function registrarEstudiante(data: { email: string; password: strin
   return { success: true }
 }
 
-export async function registrarExalumno(data: { email: string; password: string; nombre: string }) {
+export async function registrarExalumno(data: { 
+  email: string; 
+  password: string; 
+  nombre: string;
+  escuela_facultad: string;
+  carreras: number[];
+  anio_graduacion: number;
+}) {
   const supabase = await createClient()
   const adminClient = createAdminClient()
 
@@ -64,6 +74,32 @@ export async function registrarExalumno(data: { email: string; password: string;
     
     if (dbError && dbError.code !== '23505') {
       console.error('Error insertando en public.users:', dbError)
+    }
+
+    // Insertar el perfil extendido de exalumno
+    const { error: exError } = await adminClient.from('exalumnos').insert({
+      user_id: authData.user.id,
+      escuela_facultad: data.escuela_facultad,
+      anio_graduacion: data.anio_graduacion,
+      perfil_completo: false
+    })
+
+    if (exError && exError.code !== '23505') {
+      console.error('Error insertando en public.exalumnos:', exError)
+    }
+
+    // Insertar las carreras en la tabla intermedia
+    if (data.carreras && data.carreras.length > 0) {
+      const relaciones = data.carreras.map((cId) => ({
+        exalumno_id: authData.user.id,
+        carrera_id: cId
+      }))
+      
+      const { error: relError } = await adminClient.from('exalumnos_carreras').insert(relaciones)
+      
+      if (relError) {
+        console.error('Error insertando en exalumnos_carreras:', relError)
+      }
     }
   }
 
