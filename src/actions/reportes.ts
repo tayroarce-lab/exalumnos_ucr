@@ -17,7 +17,7 @@ async function assertAdmin(userId: string): Promise<void> {
   const adminClient = createAdminClient();
   const { data: profile } = await adminClient
     .from('users')
-    .select('tipo')
+    .select('tipo').is('deleted_at', null)
     .eq('id', userId)
     .single();
 
@@ -63,7 +63,7 @@ export async function crearReporte(data: CrearReporteInput) {
     // Verificar si el usuario fue suspendido por trigger (>= 3 reportes)
     const { data: usuarioReportado } = await adminClient
       .from('users')
-      .select('email, reportes_recibidos, activo')
+      .select('email, reportes_recibidos, activo').is('deleted_at', null)
       .eq('id', data.perfil_reportado)
       .single();
 
@@ -75,7 +75,7 @@ export async function crearReporte(data: CrearReporteInput) {
       // Notificar a todos los admins activos
       const { data: admins } = await adminClient
         .from('users')
-        .select('email')
+        .select('email').is('deleted_at', null)
         .eq('tipo', 'admin')
         .eq('activo', true);
 

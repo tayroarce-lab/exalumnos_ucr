@@ -26,7 +26,7 @@ export async function getMatches(filters?: MatchFilters): Promise<{ data: MatchA
       exalumno:users!matches_exalumno_id_fkey(nombre),
       estudiante:users!matches_estudiante_id_fkey(nombre),
       perfil_estudiante:estudiantes!matches_estudiante_id_fkey(carrera)
-    `);
+    `).is('deleted_at', null);
 
   if (filters?.estado && filters.estado !== 'todos') {
     query = query.eq('estado', filters.estado);

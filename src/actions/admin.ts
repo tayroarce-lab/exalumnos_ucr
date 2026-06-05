@@ -21,7 +21,7 @@ async function getAuthenticatedAdmin() {
   const adminClient = createAdminClient();
   const { data: profile } = await adminClient
     .from('users')
-    .select('tipo')
+    .select('tipo').is('deleted_at', null)
     .eq('id', user.id)
     .single();
 
@@ -39,7 +39,7 @@ async function fetchUserRole(userId: string) {
   const adminClient = createAdminClient();
   const { data: profile } = await adminClient
     .from('users')
-    .select('tipo')
+    .select('tipo').is('deleted_at', null)
     .eq('id', userId)
     .single();
   return profile?.tipo;
@@ -75,7 +75,7 @@ export async function getDashboardMetrics() {
     // 1. Donaciones confirmadas → totales CRC / USD y proyectos con donación
     const { data: donaciones } = await adminClient
       .from('donaciones')
-      .select('monto, moneda, proyecto_estudiante_id')
+      .select('monto, moneda, proyecto_estudiante_id').is('deleted_at', null)
       .eq('estado', 'confirmada');
 
     let totalDonadoCRC = 0;
@@ -91,13 +91,13 @@ export async function getDashboardMetrics() {
     // 2. Matches activos
     const { count: matchesActivos, data: matchesDataActivos } = await adminClient
       .from('matches')
-      .select('estudiante_id', { count: 'exact' })
+      .select('estudiante_id', { count: 'exact' }).is('deleted_at', null)
       .eq('estado', 'activo');
 
     // 3. Matches cerrados exitosamente
     const { count: matchesCerrados, data: matchesDataCerrados } = await adminClient
       .from('matches')
-      .select('estudiante_id', { count: 'exact' })
+      .select('estudiante_id', { count: 'exact' }).is('deleted_at', null)
       .eq('estado', 'cerrado')
       .eq('resultado', 'exitoso');
 
@@ -114,13 +114,13 @@ export async function getDashboardMetrics() {
     // 4. Usuarios activos por tipo
     const { count: exalumnosActivos } = await adminClient
       .from('users')
-      .select('id', { count: 'exact', head: true })
+      .select('id', { count: 'exact', head: true }).is('deleted_at', null)
       .eq('tipo', 'exalumno')
       .eq('activo', true);
 
     const { count: estudiantesActivos } = await adminClient
       .from('users')
-      .select('id', { count: 'exact', head: true })
+      .select('id', { count: 'exact', head: true }).is('deleted_at', null)
       .eq('tipo', 'estudiante')
       .eq('activo', true);
 
@@ -140,7 +140,7 @@ export async function getDashboardMetrics() {
     // 6. Donantes nuevos vs recurrentes
     const { data: todasDonaciones } = await adminClient
       .from('donaciones')
-      .select('exalumno_id')
+      .select('exalumno_id').is('deleted_at', null)
       .eq('estado', 'confirmada');
 
     const donantesCount: Record<string, number> = {};
@@ -233,7 +233,7 @@ export async function listarMatchesAdmin(filtros?: { estado?: string; tipo_apoyo
       `*,
       exalumno:users!matches_exalumno_id_fkey(nombre, email),
       estudiante:users!matches_estudiante_id_fkey(nombre, email)`,
-    )
+    ).is('deleted_at', null)
     .order('created_at', { ascending: false });
 
   if (filtros?.estado) query = query.eq('estado', filtros.estado);
@@ -256,7 +256,7 @@ export async function listarDonacionesPendientes() {
       `*,
       exalumno:users!donaciones_exalumno_id_fkey(nombre, email),
       estudiante:users!donaciones_proyecto_estudiante_id_fkey(nombre, email)`,
-    )
+    ).is('deleted_at', null)
     .eq('estado', 'pendiente')
     .order('created_at', { ascending: true }); // más antiguas primero
 

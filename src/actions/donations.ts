@@ -17,7 +17,7 @@ export async function getPendingDonations(): Promise<{ data: DonationAdminView[]
       *,
       donor:users!donaciones_exalumno_id_fkey(nombre),
       student:users!donaciones_proyecto_estudiante_id_fkey(nombre)
-    `)
+    `).is('deleted_at', null)
     .eq('estado', 'pendiente')
     .order('created_at', { ascending: true }); // Cola FIFO (oldest first)
 
@@ -50,7 +50,7 @@ export async function getDonationsHistory(filters?: DonationsHistoryFilters): Pr
       donor:users!donaciones_exalumno_id_fkey(nombre),
       student:users!donaciones_proyecto_estudiante_id_fkey(nombre),
       admin:users!donaciones_confirmado_por_fkey(nombre)
-    `)
+    `).is('deleted_at', null)
     .neq('estado', 'pendiente')
     .order('updated_at', { ascending: false });
 
@@ -107,7 +107,7 @@ export async function processDonation(
       *,
       donor:users!donaciones_exalumno_id_fkey(email),
       student:users!donaciones_proyecto_estudiante_id_fkey(email)
-    `)
+    `).is('deleted_at', null)
     .eq('id', donationId)
     .single();
 
