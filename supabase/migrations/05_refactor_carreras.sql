@@ -1,5 +1,5 @@
 -- ============================================================
--- MIGRACIÓN 02: Tabla intermedia carrera_campus
+-- MIGRACIÓN 05: Tabla intermedia carrera_campus
 --               Tabla de carreras UCR
 --               Refactorización de estudiantes y exalumnos
 -- Proyecto: Plataforma Digital Fundación Exalumnos UCR
@@ -12,31 +12,36 @@
 
 -- ============================================================
 -- BLOQUE 1: TABLA DE CARRERAS
---   Catálogo de todas las carreras disponibles en la UCR.
---   Referencia ucr_faculties para saber a qué facultad pertenece.
+--   Si ya existe (creada manualmente en el dashboard), la extendemos.
+--   Si no existe, la creamos completa.
 -- ============================================================
 
+-- Paso 1.1: Crear tabla si no existe (sin facultad_id para compatibilidad)
 CREATE TABLE IF NOT EXISTS public.carreras (
   id          SERIAL      PRIMARY KEY,
   nombre      TEXT        NOT NULL,
-  facultad_id UUID        REFERENCES public.ucr_faculties(id) ON DELETE SET NULL,
   created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-
-  -- Evita duplicar el nombre de la carrera
   CONSTRAINT uq_carrera_nombre UNIQUE (nombre)
 );
 
-COMMENT ON TABLE  public.carreras            IS 'Catálogo de carreras ofrecidas por la UCR.';
-COMMENT ON COLUMN public.carreras.facultad_id IS 'FK a ucr_faculties.id. Indica a qué facultad pertenece la carrera.';
+-- Paso 1.2: Agregar columna facultad_id si no existe (ALTER idempotente)
+ALTER TABLE public.carreras
+  ADD COLUMN IF NOT EXISTS facultad_id UUID
+    REFERENCES public.ucr_faculties(id) ON DELETE SET NULL;
 
--- RLS: catálogo de solo lectura para usuarios autenticados
+COMMENT ON TABLE  public.carreras             IS 'Catálogo de carreras ofrecidas por la UCR.';
+COMMENT ON COLUMN public.carreras.facultad_id  IS 'FK a ucr_faculties.id. Indica a qué facultad pertenece la carrera.';
+
+-- Paso 1.3: RLS (DROP antes de CREATE para idempotencia)
 ALTER TABLE public.carreras ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "carreras_select_authenticated" ON public.carreras;
 CREATE POLICY "carreras_select_authenticated"
   ON public.carreras FOR SELECT
   TO authenticated
   USING (TRUE);
 
+DROP POLICY IF EXISTS "carreras_write_admin" ON public.carreras;
 CREATE POLICY "carreras_write_admin"
   ON public.carreras FOR ALL
   TO authenticated
@@ -67,16 +72,16 @@ COMMENT ON TABLE  public.carrera_campus           IS 'Tabla intermedia: qué car
 COMMENT ON COLUMN public.carrera_campus.carrera_id IS 'FK a carreras.id (INT serial).';
 COMMENT ON COLUMN public.carrera_campus.campus_id  IS 'FK a ucr_campuses.id (UUID).';
 
--- RLS
+-- RLS (DROP antes de CREATE para idempotencia)
 ALTER TABLE public.carrera_campus ENABLE ROW LEVEL SECURITY;
 
--- Cualquier usuario autenticado puede leer el catálogo (para los formularios)
+DROP POLICY IF EXISTS "carrera_campus_select_authenticated" ON public.carrera_campus;
 CREATE POLICY "carrera_campus_select_authenticated"
   ON public.carrera_campus FOR SELECT
   TO authenticated
   USING (TRUE);
 
--- Solo administradores pueden modificar el catálogo
+DROP POLICY IF EXISTS "carrera_campus_write_admin" ON public.carrera_campus;
 CREATE POLICY "carrera_campus_write_admin"
   ON public.carrera_campus FOR ALL
   TO authenticated
@@ -148,10 +153,10 @@ COMMENT ON COLUMN public.exalumno_carreras.id_carrera_campus
 COMMENT ON COLUMN public.exalumno_carreras.anio_graduacion
   IS 'Año de graduación para esta carrera específica (no del perfil global).';
 
--- RLS
+-- RLS (DROP antes de CREATE para idempotencia)
 ALTER TABLE public.exalumno_carreras ENABLE ROW LEVEL SECURITY;
 
--- El propio exalumno y administradores pueden ver
+DROP POLICY IF EXISTS "ex_carreras_select" ON public.exalumno_carreras;
 CREATE POLICY "ex_carreras_select"
   ON public.exalumno_carreras FOR SELECT
   TO authenticated
@@ -162,18 +167,19 @@ CREATE POLICY "ex_carreras_select"
     )
   );
 
--- Solo el propio exalumno puede agregar sus carreras
+DROP POLICY IF EXISTS "ex_carreras_insert_own" ON public.exalumno_carreras;
 CREATE POLICY "ex_carreras_insert_own"
   ON public.exalumno_carreras FOR INSERT
   TO authenticated
   WITH CHECK (exalumno_id = auth.uid());
 
--- Actualización y borrado: propio exalumno o admin
+DROP POLICY IF EXISTS "ex_carreras_update_own" ON public.exalumno_carreras;
 CREATE POLICY "ex_carreras_update_own"
   ON public.exalumno_carreras FOR UPDATE
   TO authenticated
   USING (exalumno_id = auth.uid());
 
+DROP POLICY IF EXISTS "ex_carreras_delete_own" ON public.exalumno_carreras;
 CREATE POLICY "ex_carreras_delete_own"
   ON public.exalumno_carreras FOR DELETE
   TO authenticated
