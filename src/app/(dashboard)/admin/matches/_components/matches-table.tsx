@@ -1,11 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Loader2, Download } from 'lucide-react';
 import { MatchAdminView, MatchFilters } from '@/types/matches';
 import { getMatches, updateMatch } from '@/actions/matches';
 import { MatchesFiltersComponent } from './matches-filters';
 import { MatchActionDialog } from './match-action-dialog';
 import { exportToCSV } from '@/lib/export-csv';
+import '@/styles/admin-table.css';
+import '@/styles/admin-matches.css';
 
 export function MatchesTable() {
   const [matches, setMatches] = useState<MatchAdminView[]>([]);
@@ -16,9 +19,7 @@ export function MatchesTable() {
   const fetchMatches = async (appliedFilters: MatchFilters) => {
     setLoading(true);
     const { data, error } = await getMatches(appliedFilters);
-    if (!error && data) {
-      setMatches(data);
-    }
+    if (!error && data) setMatches(data);
     setLoading(false);
   };
 
@@ -30,8 +31,8 @@ export function MatchesTable() {
     setFilters(newFilters);
   };
 
+  // Exportar la tabla actual a CSV
   const handleExportCSV = () => {
-    // Preparar datos para CSV (aplanar objetos si es necesario)
     const exportData = matches.map(m => ({
       ID: m.id,
       Exalumno: m.exalumno_nombre,
@@ -41,97 +42,139 @@ export function MatchesTable() {
       Score: m.score_match,
       Estado: m.estado,
       Resultado: m.resultado || 'N/A',
-      Fecha: new Date(m.created_at).toLocaleDateString(),
+      Fecha: new Date(m.created_at).toLocaleDateString('es-CR'),
       'Notas Internas': m.notas_admin || ''
     }));
     exportToCSV('matches_export.csv', exportData);
   };
 
-  const handleSaveMatch = async (id: string, estado: MatchAdminView['estado'], resultado: MatchAdminView['resultado'], notas: string | null) => {
+  const handleSaveMatch = async (
+    id: string,
+    estado: MatchAdminView['estado'],
+    resultado: MatchAdminView['resultado'],
+    notas: string | null
+  ) => {
     const res = await updateMatch(id, estado, resultado, notas);
     if (res.success) {
-      // Refrescar tabla
       fetchMatches(filters);
     } else {
       alert('Error al actualizar el match');
     }
   };
 
-  // Función para determinar si el match tiene más de 6 meses activo
+  // Detectar si un match lleva más de 6 meses activo (alerta visual)
   const checkIsAlertable = (match: MatchAdminView) => {
     if (match.estado !== 'activo') return false;
     const sixMonthsAgo = new Date();
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-    const matchDate = new Date(match.created_at);
-    return matchDate < sixMonthsAgo;
+    return new Date(match.created_at) < sixMonthsAgo;
+  };
+
+  // Determinar clase CSS del badge de estado
+  const getStatusClass = (estado: string) => {
+    const map: Record<string, string> = {
+      sugerido: 'sugerido',
+      contactado: 'contactado',
+      activo: 'activo',
+      cerrado: 'cerrado',
+    };
+    return `matches-status-pill ${map[estado] || ''}`;
   };
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-        <h2>Gestión de Matches</h2>
-        <button onClick={handleExportCSV} style={{ padding: '0.5rem 1rem' }}>
-          Exportar a CSV
-        </button>
-      </div>
-
       <MatchesFiltersComponent onFilterChange={handleFilterChange} />
 
       {loading ? (
-        <p>Cargando matches...</p>
+        <div className="matches-loading">
+          <Loader2 size={28} className="animate-spin" />
+          <p>Cargando matches...</p>
+        </div>
       ) : (
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-          <thead>
-            <tr style={{ borderBottom: '2px solid #ccc' }}>
-              <th style={{ padding: '0.5rem' }}>Exalumno</th>
-              <th style={{ padding: '0.5rem' }}>Estudiante</th>
-              <th style={{ padding: '0.5rem' }}>Carrera</th>
-              <th style={{ padding: '0.5rem' }}>Tipo Apoyo</th>
-              <th style={{ padding: '0.5rem' }}>Score</th>
-              <th style={{ padding: '0.5rem' }}>Estado</th>
-              <th style={{ padding: '0.5rem' }}>Fecha</th>
-              <th style={{ padding: '0.5rem' }}>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {matches.length === 0 ? (
-              <tr>
-                <td colSpan={8} style={{ padding: '1rem', textAlign: 'center' }}>No hay matches encontrados.</td>
-              </tr>
-            ) : (
-              matches.map((match) => {
-                const isAlertable = checkIsAlertable(match);
-                return (
-                  <tr key={match.id} style={{ borderBottom: '1px solid #eee', backgroundColor: isAlertable ? '#fff3cd' : 'transparent' }}>
-                    <td style={{ padding: '0.5rem' }}>{match.exalumno_nombre}</td>
-                    <td style={{ padding: '0.5rem' }}>{match.estudiante_nombre}</td>
-                    <td style={{ padding: '0.5rem' }}>{match.estudiante_carrera}</td>
-                    <td style={{ padding: '0.5rem' }}>{match.tipo_apoyo}</td>
-                    <td style={{ padding: '0.5rem' }}>{match.score_match}%</td>
-                    <td style={{ padding: '0.5rem' }}>
-                      {match.estado}
-                      {isAlertable && (
-                        <span style={{ color: 'red', fontSize: '0.75rem', display: 'block', fontWeight: 'bold' }}>
-                          ⚠️ +6 meses activo
-                        </span>
-                      )}
-                    </td>
-                    <td style={{ padding: '0.5rem' }}>{new Date(match.created_at).toLocaleDateString()}</td>
-                    <td style={{ padding: '0.5rem' }}>
-                      <button onClick={() => setSelectedMatch(match)}>Gestionar</button>
+        <>
+          <p className="matches-record-count">{matches.length} match(es) encontrado(s)</p>
+          <div className="admin-table-container">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Exalumno</th>
+                  <th>Estudiante</th>
+                  <th>Carrera</th>
+                  <th>Tipo Apoyo</th>
+                  <th>Score</th>
+                  <th>Estado</th>
+                  <th>Fecha</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {matches.length === 0 ? (
+                  <tr>
+                    <td colSpan={8} style={{ textAlign: 'center', padding: '40px', color: '#94a3b8' }}>
+                      No hay matches encontrados con los filtros aplicados.
                     </td>
                   </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
+                ) : (
+                  matches.map((match) => {
+                    const isAlertable = checkIsAlertable(match);
+                    return (
+                      <tr key={match.id} className={isAlertable ? 'matches-row-alert' : ''}>
+                        <td>
+                          <div className="admin-table-user">
+                            <div className="admin-table-avatar">
+                              {match.exalumno_nombre.charAt(0).toUpperCase()}
+                            </div>
+                            <span>{match.exalumno_nombre}</span>
+                          </div>
+                        </td>
+                        <td>
+                          <div className="admin-table-user">
+                            <div className="admin-table-avatar" style={{ background: '#ecfdf5', color: '#059669' }}>
+                              {match.estudiante_nombre.charAt(0).toUpperCase()}
+                            </div>
+                            <span>{match.estudiante_nombre}</span>
+                          </div>
+                        </td>
+                        <td style={{ color: '#64748b', fontSize: '13px' }}>{match.estudiante_carrera}</td>
+                        <td style={{ color: '#64748b', fontSize: '13px' }}>{match.tipo_apoyo}</td>
+                        <td>
+                          <span className="matches-score-badge">{match.score_match}%</span>
+                        </td>
+                        <td>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <span className={getStatusClass(match.estado)}>
+                              {match.estado.charAt(0).toUpperCase() + match.estado.slice(1)}
+                            </span>
+                            {isAlertable && (
+                              <span className="matches-alert-badge">⚠ +6 meses activo</span>
+                            )}
+                          </div>
+                        </td>
+                        <td style={{ color: '#64748b', fontSize: '13px' }}>
+                          {new Date(match.created_at).toLocaleDateString('es-CR')}
+                        </td>
+                        <td>
+                          <button
+                            className="matches-action-btn"
+                            onClick={() => setSelectedMatch(match)}
+                          >
+                            Gestionar
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
 
-      <MatchActionDialog 
-        isOpen={!!selectedMatch} 
-        match={selectedMatch} 
-        onClose={() => setSelectedMatch(null)} 
+      <MatchActionDialog
+        isOpen={!!selectedMatch}
+        match={selectedMatch}
+        onClose={() => setSelectedMatch(null)}
         onSave={handleSaveMatch}
       />
     </div>

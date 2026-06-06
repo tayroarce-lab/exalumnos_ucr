@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { sendMatchStatusUpdateEmail } from '@/services/email-service';
 
 // ---------------------------------------------------------------------------
 // Helper interno: verifica que el usuario autenticado sea admin
@@ -194,6 +195,29 @@ export async function gestionarMatch(
     .eq('id', matchId);
 
   if (error) throw new Error(error.message);
+
+  if (estado === 'activo' || estado === 'cerrado') {
+    const { data } = await adminClient
+      .from('matches')
+      .select(`
+        exalumno:users!matches_exalumno_id_fkey(nombre, email),
+        estudiante:users!matches_estudiante_id_fkey(nombre, email)
+      `)
+      .eq('id', matchId)
+      .single();
+    const matchDetails = data as any;
+
+    if (matchDetails) {
+      const exNombre = Array.isArray(matchDetails.exalumno) ? matchDetails.exalumno[0]?.nombre : matchDetails.exalumno?.nombre;
+      const exEmail = Array.isArray(matchDetails.exalumno) ? matchDetails.exalumno[0]?.email : matchDetails.exalumno?.email;
+      const estNombre = Array.isArray(matchDetails.estudiante) ? matchDetails.estudiante[0]?.nombre : matchDetails.estudiante?.nombre;
+      const estEmail = Array.isArray(matchDetails.estudiante) ? matchDetails.estudiante[0]?.email : matchDetails.estudiante?.email;
+
+      if (exEmail && exNombre) await sendMatchStatusUpdateEmail(exEmail, exNombre, estado);
+      if (estEmail && estNombre) await sendMatchStatusUpdateEmail(estEmail, estNombre, estado);
+    }
+  }
+
   return { success: true };
 }
 
@@ -239,3 +263,47 @@ export async function listarDonacionesPendientes() {
   if (error) throw new Error(error.message);
   return data;
 }
+
+// ---------------------------------------------------------------------------
+// listarTodasLasVacantes — lista todas las posiciones sin importar el estado
+// Usa el cliente admin para bypassear RLS y ver posiciones de todos los exalumnos
+// ---------------------------------------------------------------------------
+export async function listarTodasLasVacantes(filtros?: {
+  estado?: string;
+  tipo?: string;
+}) {
+  const { adminClient } = await getAuthenticatedAdmin();
+
+  let query = adminClient
+    .from('posiciones')
+    .select(
+      `*,
+      exalumno:users!posiciones_exalumno_id_fkey(nombre, email)`
+    )
+    .order('created_at', { ascending: false });
+
+  if (filtros?.estado) query = query.eq('estado', filtros.estado);
+
+  const { data, error } = await query;
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+// ---------------------------------------------------------------------------
+// actualizarEstadoVacanteAdmin — permite al admin cambiar estado de cualquier vacante
+// ---------------------------------------------------------------------------
+export async function actualizarEstadoVacanteAdmin(
+  id: string,
+  estado: 'activa' | 'pausada' | 'cerrada' | 'cubierta'
+) {
+  const { adminClient } = await getAuthenticatedAdmin();
+
+  const { error } = await adminClient
+    .from('posiciones')
+    .update({ estado, updated_at: new Date().toISOString() })
+    .eq('id', id);
+
+  if (error) throw new Error(error.message);
+  return { success: true };
+}
+

@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { MatchAdminView, MatchFilters } from '@/types/matches';
+import { sendMatchStatusUpdateEmail } from '@/services/email-service';
 
 export async function getMatches(filters?: MatchFilters): Promise<{ data: MatchAdminView[] | null; error: string | null }> {
   const supabase = await createClient();
@@ -98,6 +99,30 @@ export async function updateMatch(
   if (error) {
     console.error('Error updating match:', error);
     return { success: false, error: error.message };
+  }
+
+  // Si el estado pasa a "activo" o "cerrado", enviamos notificaciones
+  if (estado === 'activo' || estado === 'cerrado') {
+    // Obtenemos los correos del exalumno y estudiante
+    const { data } = await supabase
+      .from('matches')
+      .select(`
+        exalumno:users!matches_exalumno_id_fkey(nombre, email),
+        estudiante:users!matches_estudiante_id_fkey(nombre, email)
+      `)
+      .eq('id', id)
+      .single();
+    const matchDetails = data as any;
+
+    if (matchDetails) {
+      const exNombre = Array.isArray(matchDetails.exalumno) ? matchDetails.exalumno[0]?.nombre : matchDetails.exalumno?.nombre;
+      const exEmail = Array.isArray(matchDetails.exalumno) ? matchDetails.exalumno[0]?.email : matchDetails.exalumno?.email;
+      const estNombre = Array.isArray(matchDetails.estudiante) ? matchDetails.estudiante[0]?.nombre : matchDetails.estudiante?.nombre;
+      const estEmail = Array.isArray(matchDetails.estudiante) ? matchDetails.estudiante[0]?.email : matchDetails.estudiante?.email;
+
+      if (exEmail && exNombre) await sendMatchStatusUpdateEmail(exEmail, exNombre, estado, resultado);
+      if (estEmail && estNombre) await sendMatchStatusUpdateEmail(estEmail, estNombre, estado, resultado);
+    }
   }
 
   return { success: true };
