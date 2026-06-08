@@ -37,9 +37,10 @@ function BarraNavegacion() {
         <Image 
           src={logoUCR} 
           alt="Logo UCR" 
-          width={150} 
-          height={150} 
+          width={180} 
+          height={60} 
           className="logo-imagen"
+          style={{ objectFit: 'contain' }}
           priority
         />
         <span className="logo-texto">
@@ -52,7 +53,7 @@ function BarraNavegacion() {
           <User size={18} className="icono-signin" />
           <span>Sign In</span>
         </Link>
-        <Link href="/register" className="boton-register">
+        <Link href="/registro" className="boton-register">
           Register
         </Link>
       </div>

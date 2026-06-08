@@ -138,6 +138,14 @@
   justify-content: center;
 }
 
+.login-logo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 2rem;
+  z-index: 1;
+}
+
 .login-form-header {
   margin-bottom: 2.5rem;
 }
