@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
 import { Download } from 'lucide-react';
 import { MatchesTable } from './_components/matches-table';
-import '@/styles/admin-dashboard.css';
-import '@/styles/admin-matches.css';
+import '../../../../styles/admin-dashboard.css';
+import '../../../../styles/admin-matches.css';
 
 export const metadata: Metadata = {
   title: 'Gestión de Matches | Admin | Fundación Exalumnos UCR',

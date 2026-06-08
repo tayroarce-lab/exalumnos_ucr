@@ -15,7 +15,7 @@ import {
   ClipboardList,
   ShieldAlert
 } from 'lucide-react';
-import '@/styles/admin-sidebar.css';
+import '../../../styles/admin-sidebar.css';
 
 interface NavItem {
   href: string;

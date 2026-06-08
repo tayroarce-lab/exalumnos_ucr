@@ -2,8 +2,8 @@ import { Metadata } from 'next';
 import { AlertTriangle, ShieldAlert, CheckCircle } from 'lucide-react';
 import { obtenerReportesPendientes } from '@/actions/reportes';
 import { DenunciasTable } from './_components/denuncias-table';
-import '@/styles/admin-dashboard.css';
-import '@/styles/admin-denuncias.css';
+import '../../../../styles/admin-dashboard.css';
+import '../../../../styles/admin-denuncias.css';
 
 export const metadata: Metadata = {
   title: 'Gestión de Denuncias | Admin | Fundación Exalumnos UCR',

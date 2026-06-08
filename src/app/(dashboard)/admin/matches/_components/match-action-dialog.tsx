@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { MatchAdminView } from '@/types/matches';
-import '@/styles/admin-matches.css';
+import '../../../../../styles/admin-matches.css';
 
 interface MatchActionDialogProps {
   match: MatchAdminView | null;

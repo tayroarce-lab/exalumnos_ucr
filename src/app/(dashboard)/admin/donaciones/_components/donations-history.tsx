@@ -3,8 +3,8 @@
 import { DonationAdminView, DonationsHistoryFilters } from '@/types/donations';
 import { useState, useMemo } from 'react';
 import { Filter } from 'lucide-react';
-import '@/styles/admin-table.css';
-import '@/styles/admin-donaciones.css';
+import '../../../../../styles/admin-table.css';
+import '../../../../../styles/admin-donaciones.css';
 
 interface DonationsHistoryProps {
   donations: DonationAdminView[];
