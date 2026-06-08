@@ -8,7 +8,7 @@ import { DashboardCharts } from '@/components/admin/reportes/DashboardCharts';
 import { PendingDonationsTable } from '@/components/admin/reportes/PendingDonationsTable';
 import { useDashboardMetrics } from '@/hooks/useDashboardMetrics';
 import { exportToPDF } from '@/lib/pdfExport';
-import '@/styles/admin-dashboard.css';
+import '../../../../styles/admin-dashboard.css';
 
 export default function AdminReportesPage() {
   const [dateRange, setDateRange] = useState<'all' | '7days' | '30days' | 'thisYear'>('30days');

@@ -2,8 +2,8 @@ import { Metadata } from 'next';
 import { Users, GraduationCap, UserCheck } from 'lucide-react';
 import { listarUsuarios } from '@/actions/users';
 import { UsersTable } from './_components/users-table';
-import '@/styles/admin-dashboard.css';
-import '@/styles/admin-usuarios.css';
+import '../../../../styles/admin-dashboard.css';
+import '../../../../styles/admin-usuarios.css';
 
 export const metadata: Metadata = {
   title: 'Gestión de Usuarios | Admin | Fundación Exalumnos UCR',
