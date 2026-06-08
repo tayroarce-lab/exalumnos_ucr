@@ -3,8 +3,8 @@
 import { useState, useCallback } from 'react';
 import { Loader2, Search, UserCheck, UserX } from 'lucide-react';
 import { suspenderUsuario, reactivarUsuario } from '@/actions/users';
-import '@/styles/admin-table.css';
-import '@/styles/admin-usuarios.css';
+import '../../../../../styles/admin-table.css';
+import '../../../../../styles/admin-usuarios.css';
 
 interface UserRecord {
   id: string;

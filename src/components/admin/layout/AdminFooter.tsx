@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import '@/styles/admin-footer.css';
+import '../../../styles/admin-footer.css';
 
 export const AdminFooter: React.FC = () => {
   return (

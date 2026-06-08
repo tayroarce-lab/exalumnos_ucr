@@ -7,7 +7,7 @@ import {
   Briefcase,
   UserPlus
 } from 'lucide-react';
-import '@/styles/admin-metrics.css';
+import '../../../styles/admin-metrics.css';
 
 interface MetricCardProps {
   title: string;

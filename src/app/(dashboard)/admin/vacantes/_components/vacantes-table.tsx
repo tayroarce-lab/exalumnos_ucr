@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { Search, Loader2 } from 'lucide-react';
 import { actualizarEstadoVacanteAdmin } from '@/actions/admin';
-import '@/styles/admin-table.css';
-import '@/styles/admin-vacantes.css';
+import '../../../../../styles/admin-table.css';
+import '../../../../../styles/admin-vacantes.css';
 
 type EstadoVacante = 'activa' | 'pausada' | 'cerrada' | 'cubierta';
 

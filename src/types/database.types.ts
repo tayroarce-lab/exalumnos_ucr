@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -671,36 +671,81 @@ export type Database = {
       users: {
         Row: {
           activo: boolean
+          areas_de_interes: string[] | null
+          busca_empleo: boolean | null
+          busca_financiamiento: boolean | null
+          busca_mentoria: boolean | null
+          busca_pasantia: boolean | null
+          carrera: string | null
           created_at: string
           email: string
           email_verified: boolean
+          escuela_facultad: string | null
           foto_url: string | null
           id: string
           nombre: string
+          proyecto_area_tematica: string | null
+          proyecto_descripcion: string | null
+          proyecto_porcentaje_avance: number | null
+          proyecto_tipo: string | null
+          proyecto_titulo: string | null
           reportes_recibidos: number
+          rol: string
+          sede: string | null
           tipo: string
+          visible_en_directorio: boolean | null
         }
         Insert: {
           activo?: boolean
+          areas_de_interes?: string[] | null
+          busca_empleo?: boolean | null
+          busca_financiamiento?: boolean | null
+          busca_mentoria?: boolean | null
+          busca_pasantia?: boolean | null
+          carrera?: string | null
           created_at?: string
           email: string
           email_verified?: boolean
+          escuela_facultad?: string | null
           foto_url?: string | null
           id?: string
           nombre: string
+          proyecto_area_tematica?: string | null
+          proyecto_descripcion?: string | null
+          proyecto_porcentaje_avance?: number | null
+          proyecto_tipo?: string | null
+          proyecto_titulo?: string | null
           reportes_recibidos?: number
+          rol: string
+          sede?: string | null
           tipo: string
+          visible_en_directorio?: boolean | null
         }
         Update: {
           activo?: boolean
+          areas_de_interes?: string[] | null
+          busca_empleo?: boolean | null
+          busca_financiamiento?: boolean | null
+          busca_mentoria?: boolean | null
+          busca_pasantia?: boolean | null
+          carrera?: string | null
           created_at?: string
           email?: string
           email_verified?: boolean
+          escuela_facultad?: string | null
           foto_url?: string | null
           id?: string
           nombre?: string
+          proyecto_area_tematica?: string | null
+          proyecto_descripcion?: string | null
+          proyecto_porcentaje_avance?: number | null
+          proyecto_tipo?: string | null
+          proyecto_titulo?: string | null
           reportes_recibidos?: number
+          rol?: string
+          sede?: string | null
           tipo?: string
+          visible_en_directorio?: boolean | null
         }
         Relationships: []
       }

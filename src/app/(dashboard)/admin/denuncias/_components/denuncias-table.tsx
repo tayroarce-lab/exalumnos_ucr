@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { Loader2, CheckCircle } from 'lucide-react';
 import { resolverReporte } from '@/actions/reportes';
-import '@/styles/admin-table.css';
-import '@/styles/admin-denuncias.css';
+import '../../../../../styles/admin-table.css';
+import '../../../../../styles/admin-denuncias.css';
 
 interface UserInfo {
   nombre: string;
