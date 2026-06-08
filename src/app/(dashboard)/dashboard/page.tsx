@@ -13,6 +13,21 @@ import {
   MapPin
 } from 'lucide-react'
 
+// Aplica un gradiente dinámico via ref para evitar estilos inline en JSX
+function GradientBox({
+  from, to, className, children,
+}: {
+  from: string; to: string; className?: string; children?: React.ReactNode
+}) {
+  const ref = React.useRef<HTMLDivElement>(null)
+  React.useEffect(() => {
+    if (ref.current) {
+      ref.current.style.background = `linear-gradient(135deg, ${from}, ${to})`
+    }
+  }, [from, to])
+  return <div ref={ref} className={className}>{children}</div>
+}
+
 export default function DashboardPage() {
   const currentDate = new Date().toLocaleDateString('es-CR', {
     weekday: 'long',
@@ -37,8 +52,8 @@ export default function DashboardPage() {
       link: '/events',
       linkLabel: 'Ver eventos',
       icon: Users,
-      iconBg: 'bg-blue-700 text-white',
-      valueBg: 'text-blue-700'
+      iconBg: 'bg-institutional text-white',
+      valueBg: 'text-institutional'
     },
     {
       label: 'Vacantes disponibles',
@@ -106,24 +121,21 @@ export default function DashboardPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-100 to-white py-8 px-6 lg:px-10">
+    <div className="py-8 px-6 lg:px-10">
       <div className="max-w-6xl mx-auto space-y-10">
 
         {/* Encabezado Principal */}
         <div className="space-y-1 pt-2">
-          <h1 className="text-4xl font-extrabold uppercase font-display text-slate-900 tracking-wide">
+          <h1 className="text-4xl font-extrabold uppercase font-display text-institutional tracking-wide">
             Dashboard
           </h1>
           <p className="text-sm font-medium text-slate-600">
-            Bienvenido(a) de nuevo, <span className="font-bold text-blue-700">{userName}</span> 👋 · {currentDate}
+            Bienvenido(a) de nuevo, <span className="font-bold text-institutional">{userName}</span> 👋 · {currentDate}
           </p>
         </div>
 
         {/* Banner Principal */}
-        <div
-          className="rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-8 overflow-hidden relative shadow-md text-white"
-          style={{ background: 'linear-gradient(135deg, #1a5f9e 0%, #0ea5e9 100%)' }}
-        >
+        <div className="rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-8 overflow-hidden relative shadow-md text-white bg-institutional">
           <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-white/5 rounded-l-full hidden md:block" />
           <div className="absolute right-1/4 top-1/4 w-20 h-20 bg-white/10 rounded-full blur-2xl" />
 
@@ -138,17 +150,14 @@ export default function DashboardPage() {
               Sigue formando parte del cambio desde donde estés.
             </p>
             <Link href="/jobs" className="inline-block pt-2">
-              <Button variant="primary" className="bg-white text-blue-700 hover:bg-slate-100 font-bold uppercase tracking-wider text-xs px-6 shadow-md">
+              <Button variant="primary" className="bg-white text-institutional hover:bg-slate-100 font-bold uppercase tracking-wider text-xs px-6 shadow-md">
                 Explorar oportunidades →
               </Button>
             </Link>
           </div>
 
           {/* Imagen decorativa con gradiente */}
-          <div
-            className="relative w-full md:w-72 h-44 rounded-2xl overflow-hidden shadow-lg shrink-0 flex items-center justify-center"
-            style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%)' }}
-          >
+          <div className="dashboard-banner-overlay relative w-full md:w-72 h-44 rounded-2xl overflow-hidden shadow-lg shrink-0 flex items-center justify-center">
             <div className="text-center text-white/80 space-y-2">
               <div className="text-5xl font-black font-display">UCR</div>
               <div className="text-xs font-bold uppercase tracking-widest">Exalumnos · 2026</div>
@@ -202,13 +211,14 @@ export default function DashboardPage() {
               <div key={event.id} className="p-5 hover:bg-slate-50/60 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-5">
                 <div className="flex items-center gap-4">
                   {/* Cuadro de Fecha con color real */}
-                  <div
+                  <GradientBox
+                    from={event.gradientFrom}
+                    to={event.gradientTo}
                     className="w-14 h-14 rounded-xl text-white flex flex-col items-center justify-center shrink-0 shadow-md"
-                    style={{ background: `linear-gradient(135deg, ${event.gradientFrom}, ${event.gradientTo})` }}
                   >
                     <span className="text-lg font-black font-display leading-none">{event.date}</span>
                     <span className="text-[9px] font-bold tracking-wider leading-none mt-1">{event.month}</span>
-                  </div>
+                  </GradientBox>
 
                   <div className="space-y-1">
                     <h4 className="text-sm font-bold text-slate-900 uppercase tracking-wide">

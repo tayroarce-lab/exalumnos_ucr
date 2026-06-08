@@ -19,6 +19,9 @@ const config: Config = {
           light: '#F8FAFC',
           gray: '#F1F5F9',
         },
+        institutional: '#1B2A4A',
+        cream: '#F8F5EE',
+        'soft-green': '#E8F3ED',
       },
       fontFamily: {
         sans: ['var(--font-sans)', 'Barlow', 'Work Sans', 'sans-serif'],

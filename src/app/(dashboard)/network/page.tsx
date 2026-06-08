@@ -4,7 +4,7 @@ import React, { useState, useMemo } from 'react'
 import Link from 'next/link'
 import {
   Search, SlidersHorizontal, MapPin, Briefcase, GraduationCap,
-  Heart, Users, X, Handshake, Building
+  Heart, Users, X, Handshake, Building, ChevronDown
 } from 'lucide-react'
 import Card from '@/components/ui/card'
 import Button from '@/components/ui/button'
@@ -173,42 +173,33 @@ function ExalumnoCard({ ex }: { ex: ExalumnoPublic }) {
   const apoyos = APOYO_FILTROS.filter(a => ex[a.key as keyof ExalumnoPublic])
   
   return (
-    <Card hoverEffect={true} className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col gap-4">
+    <Card hoverEffect={true} className="bg-white border border-slate-200 border-t-4 border-t-institutional rounded-2xl p-5 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col gap-4">
       {/* Header */}
       <div className="flex items-start gap-4">
-        <div className={`w-14 h-14 rounded-full ${ex.avatarBg} text-white flex items-center justify-center font-black text-lg shrink-0 shadow-md`}>
+        <div className={`w-14 h-14 rounded-xl ${ex.avatarBg} text-white flex items-center justify-center font-bold text-lg shrink-0 shadow-sm`}>
           {ex.initials}
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="font-display font-extrabold text-slate-900 text-sm uppercase tracking-wide leading-tight">{ex.nombre}</h3>
-          <p className="text-xs font-bold text-blue-700 mt-0.5">{ex.cargo_actual}</p>
-          <p className="text-xs text-slate-500 font-semibold flex items-center gap-1 mt-0.5">
-            <Building className="w-3 h-3 shrink-0" />{ex.empresa_actual}
-          </p>
-          <p className="text-xs text-slate-400 font-medium flex items-center gap-1 mt-0.5">
-            <MapPin className="w-3 h-3 shrink-0" />{ex.pais_ciudad}
-          </p>
+          <h3 className="font-sans font-semibold text-institutional text-base leading-tight">{ex.nombre}</h3>
+          <p className="text-xs text-slate-500 mt-1">{ex.carrera_ucr[0]}{(ex.anio_graduacion) ? `, ${ex.anio_graduacion}` : ''}</p>
+          <p className="text-xs font-bold text-blue-600 mt-0.5">{ex.cargo_actual}</p>
+          <div className="mt-2">
+            <span className="inline-block bg-slate-100 text-slate-500 text-[9px] font-bold px-2 py-0.5 rounded flex items-center gap-1 w-max">
+              <Briefcase className="w-3 h-3" /> {new Date().getFullYear() - ex.anio_graduacion} AÑOS EXP.
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* Carrera */}
-      <div className="flex flex-wrap gap-1.5">
-        {ex.carrera_ucr.map(c => (
-          <span key={c} className="bg-blue-50 text-blue-700 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide flex items-center gap-1">
-            <GraduationCap className="w-3 h-3" />{c}
-          </span>
-        ))}
-      </div>
-
       {/* Áreas de interés */}
-      <div>
-        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Áreas de interés</p>
+      <div className="pt-2 border-t border-slate-100">
+        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2">Intereses</p>
         <div className="flex flex-wrap gap-1.5">
           {ex.areas_de_interes.slice(0, 3).map(a => (
-            <span key={a} className="bg-slate-100 text-slate-600 text-[10px] font-semibold px-2 py-0.5 rounded-full">{a}</span>
+            <span key={a} className="bg-soft-green text-institutional text-[10px] font-semibold px-2.5 py-1 rounded-full">{a}</span>
           ))}
           {ex.areas_de_interes.length > 3 && (
-            <span className="bg-slate-100 text-slate-400 text-[10px] font-semibold px-2 py-0.5 rounded-full">+{ex.areas_de_interes.length - 3}</span>
+            <span className="bg-soft-green text-institutional text-[10px] font-semibold px-2.5 py-1 rounded-full">+{ex.areas_de_interes.length - 3}</span>
           )}
         </div>
       </div>
@@ -228,10 +219,16 @@ function ExalumnoCard({ ex }: { ex: ExalumnoPublic }) {
       )}
 
       {/* Botón */}
-      <div className="mt-auto pt-2 border-t border-slate-100">
-        <Link href={`/network/${ex.id}`}>
-          <Button variant="primary" className="w-full bg-blue-700 hover:bg-blue-800 font-bold uppercase tracking-wider text-xs py-2.5">
-            Conectar →
+      <div className="mt-auto pt-4 flex gap-2">
+        <Button variant="secondary" className="p-2 border-slate-200 hover:bg-slate-50 text-slate-400" aria-label="LinkedIn">
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+        </Button>
+        <Button variant="secondary" className="p-2 border-slate-200 hover:bg-slate-50 text-slate-400" aria-label="Mail">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+        </Button>
+        <Link href={`/network/${ex.id}`} className="flex-1">
+          <Button variant="secondary" className="w-full bg-white border-slate-300 text-institutional hover:bg-slate-50 font-medium text-xs py-2">
+            Ver Perfil
           </Button>
         </Link>
       </div>
@@ -244,11 +241,11 @@ function ExalumnoCard({ ex }: { ex: ExalumnoPublic }) {
 // ============================================================
 interface Filters {
   search: string
-  carreras: string[]
-  sectores: string[]
-  areas: string[]
-  apoyo: string[]
-  pais: string
+  facultad: string
+  escuela: string
+  carrera: string
+  sector: string
+  apoyo: string
 }
 
 function FilterPanel({
@@ -260,26 +257,26 @@ function FilterPanel({
   setFilters: React.Dispatch<React.SetStateAction<Filters>>
   onClose?: () => void
 }) {
-  const toggle = (field: 'carreras' | 'sectores' | 'areas' | 'apoyo', value: string) => {
-    setFilters(prev => ({
-      ...prev,
-      [field]: prev[field].includes(value)
-        ? prev[field].filter(v => v !== value)
-        : [...prev[field], value],
-    }))
-  }
+  const clearAll = () => setFilters({ search: '', facultad: '', escuela: '', carrera: '', sector: '', apoyo: '' })
+  const hasFilters = filters.facultad || filters.escuela || filters.carrera || filters.sector || filters.apoyo
 
-  const clearAll = () => setFilters({ search: '', carreras: [], sectores: [], areas: [], apoyo: [], pais: '' })
-  const hasFilters = filters.carreras.length > 0 || filters.sectores.length > 0 || filters.areas.length > 0 || filters.apoyo.length > 0 || filters.pais
+  const SelectWrapper = ({ children }: { children: React.ReactNode }) => (
+    <div className="relative">
+      {children}
+      <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+    </div>
+  )
+
+  const selectClassName = "w-full text-sm py-2 pl-3 pr-8 border-[0.5px] border-slate-300 rounded-md appearance-none bg-white focus:outline-none focus:border-institutional text-slate-800"
 
   return (
-    <div className="space-y-5">
-    <div className="flex items-center justify-between">
-        <h3 className="text-xs font-black text-slate-800 uppercase tracking-wider">Filtros</h3>
+    <div className="space-y-5 max-w-[280px] w-full">
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">FILTROS</h3>
         <div className="flex items-center gap-2">
           {hasFilters && (
-            <button type="button" onClick={clearAll} className="text-[10px] font-bold text-rose-600 hover:text-rose-800 uppercase tracking-wider transition-colors">
-              Limpiar todo
+            <button type="button" onClick={clearAll} className="text-[10px] font-bold text-slate-500 hover:text-slate-800 uppercase tracking-wider transition-colors underline">
+              Limpiar
             </button>
           )}
           {onClose && (
@@ -290,99 +287,102 @@ function FilterPanel({
         </div>
       </div>
 
-      {/* País */}
-      <div>
-        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">País / Ciudad</p>
-        <input
-          type="text"
-          value={filters.pais}
-          onChange={e => setFilters(p => ({ ...p, pais: e.target.value }))}
-          placeholder="Ej: Costa Rica, Madrid…"
-          className="w-full h-9 px-3 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-600 text-slate-800"
-        />
-      </div>
-
-      {/* Tipo de Apoyo */}
-      <div>
-        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Tipo de Apoyo</p>
-        <div className="space-y-1.5">
-          {APOYO_FILTROS.map(a => (
-            <label key={a.key} className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={filters.apoyo.includes(a.key)}
-                onChange={() => toggle('apoyo', a.key)}
-                className="w-3.5 h-3.5 rounded text-blue-700 focus:ring-blue-600"
-              />
-              <span className="text-xs font-semibold text-slate-700">{a.icon} {a.label}</span>
-            </label>
-          ))}
+      <div className="space-y-5">
+        {/* Facultad */}
+        <div>
+          <label id="label-facultad" className="block text-[13px] font-medium text-slate-700 mb-1.5">Facultad</label>
+          <SelectWrapper>
+            <select
+              aria-labelledby="label-facultad"
+              value={filters.facultad}
+              onChange={e => setFilters(p => ({ ...p, facultad: e.target.value }))}
+              className={selectClassName}
+            >
+              <option value="">Todas las facultades</option>
+              <option value="Ciencias">Facultad de Ciencias</option>
+              <option value="Ingeniería">Facultad de Ingeniería</option>
+            </select>
+          </SelectWrapper>
         </div>
-      </div>
 
-      {/* Carreras */}
-      <div>
-        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Carrera UCR</p>
-        <div className="max-h-40 overflow-y-auto space-y-1.5 pr-1">
-          {CARRERAS_UCR.slice(0, 15).map(c => (
-            <label key={c} className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={filters.carreras.includes(c)}
-                onChange={() => toggle('carreras', c)}
-                className="w-3.5 h-3.5 rounded text-blue-700 focus:ring-blue-600"
-              />
-              <span className="text-xs font-semibold text-slate-700">{c}</span>
-            </label>
-          ))}
+        {/* Escuela */}
+        <div>
+          <label id="label-escuela" className="block text-[13px] font-medium text-slate-700 mb-1.5">Escuela</label>
+          <SelectWrapper>
+            <select
+              aria-labelledby="label-escuela"
+              value={filters.escuela}
+              onChange={e => setFilters(p => ({ ...p, escuela: e.target.value }))}
+              className={selectClassName}
+            >
+              <option value="">Todas las escuelas</option>
+              <option value="Escuela de Ciencias de la Computación e Informática (ECCI)">Escuela de Ciencias de la Computación e Informática</option>
+              <option value="Escuela de Ingeniería Eléctrica">Escuela de Ingeniería Eléctrica</option>
+            </select>
+          </SelectWrapper>
         </div>
-      </div>
 
-      {/* Sectores */}
-      <div>
-        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Sector / Industria</p>
-        <div className="max-h-40 overflow-y-auto space-y-1.5 pr-1">
-          {SECTORES_INDUSTRIA.map(s => (
-            <label key={s} className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={filters.sectores.includes(s)}
-                onChange={() => toggle('sectores', s)}
-                className="w-3.5 h-3.5 rounded text-blue-700 focus:ring-blue-600"
-              />
-              <span className="text-xs font-semibold text-slate-700">{s}</span>
-            </label>
-          ))}
+        {/* Carrera UCR */}
+        <div>
+          <label id="label-carrera" className="block text-[13px] font-medium text-slate-700 mb-1.5">Carrera UCR</label>
+          <SelectWrapper>
+            <select
+              aria-labelledby="label-carrera"
+              value={filters.carrera}
+              onChange={e => setFilters(p => ({ ...p, carrera: e.target.value }))}
+              className={selectClassName}
+            >
+              <option value="">Todas las carreras</option>
+              {CARRERAS_UCR.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </SelectWrapper>
         </div>
-      </div>
 
-      {/* Áreas de Interés */}
-      <div>
-        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Áreas de Interés</p>
-        <div className="space-y-1.5">
-          {AREAS_INTERES.map(a => (
-            <label key={a} className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={filters.areas.includes(a)}
-                onChange={() => toggle('areas', a)}
-                className="w-3.5 h-3.5 rounded text-blue-700 focus:ring-blue-600"
-              />
-              <span className="text-xs font-semibold text-slate-700">{a}</span>
-            </label>
-          ))}
+        {/* Sector */}
+        <div>
+          <label id="label-sector" className="block text-[13px] font-medium text-slate-700 mb-1.5">Sector</label>
+          <SelectWrapper>
+            <select
+              aria-labelledby="label-sector"
+              value={filters.sector}
+              onChange={e => setFilters(p => ({ ...p, sector: e.target.value }))}
+              className={selectClassName}
+            >
+              <option value="">Todos los sectores</option>
+              {['Tecnología e Informática', 'Finanzas y Banca', 'Salud y Ciencias Médicas', 'Educación e Investigación'].map(s => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
+          </SelectWrapper>
+        </div>
+
+        {/* Tipo de Apoyo */}
+        <div>
+          <label id="label-apoyo" className="block text-[13px] font-medium text-slate-700 mb-1.5">Tipo de Apoyo</label>
+          <SelectWrapper>
+            <select
+              aria-labelledby="label-apoyo"
+              value={filters.apoyo}
+              onChange={e => setFilters(p => ({ ...p, apoyo: e.target.value }))}
+              className={selectClassName}
+            >
+              <option value="">Todos los tipos</option>
+              {APOYO_FILTROS.map(a => (
+                <option key={a.key} value={a.key}>{a.label}</option>
+              ))}
+            </select>
+          </SelectWrapper>
         </div>
       </div>
     </div>
   )
 }
-
 // ============================================================
 // PÁGINA PRINCIPAL — DIRECTORIO
 // ============================================================
 export default function NetworkPage() {
   const [filters, setFilters] = useState<Filters>({
-    search: '', carreras: [], sectores: [], areas: [], apoyo: [], pais: ''
+    search: '', facultad: '', escuela: '', carrera: '', sector: '', apoyo: ''
   })
   const [showMobileFilters, setShowMobileFilters] = useState(false)
 
@@ -390,21 +390,21 @@ export default function NetworkPage() {
     return MOCK_EXALUMNOS.filter(ex => {
       // Búsqueda por nombre (case-insensitive)
       if (filters.search && !ex.nombre.toLowerCase().includes(filters.search.toLowerCase())) return false
-      // País
-      if (filters.pais && !ex.pais_ciudad.toLowerCase().includes(filters.pais.toLowerCase())) return false
-      // Carreras (AND: todas las seleccionadas deben estar presentes)
-      if (filters.carreras.length > 0 && !filters.carreras.some(c => ex.carrera_ucr.includes(c))) return false
+      // Facultad (simulado en escuela_facultad)
+      if (filters.facultad && !ex.escuela_facultad.includes(filters.facultad)) return false
+      // Escuela
+      if (filters.escuela && !ex.escuela_facultad.includes(filters.escuela)) return false
+      // Carrera
+      if (filters.carrera && !ex.carrera_ucr.includes(filters.carrera)) return false
       // Sectores
-      if (filters.sectores.length > 0 && !filters.sectores.some(s => ex.sector_industria.includes(s))) return false
-      // Áreas de interés
-      if (filters.areas.length > 0 && !filters.areas.some(a => ex.areas_de_interes.includes(a))) return false
+      if (filters.sector && !ex.sector_industria.includes(filters.sector)) return false
       // Tipo de apoyo
-      if (filters.apoyo.length > 0 && !filters.apoyo.every(k => ex[k as keyof ExalumnoPublic] === true)) return false
+      if (filters.apoyo && !ex[filters.apoyo as keyof ExalumnoPublic]) return false
       return true
     })
   }, [filters])
 
-  const activeFilterCount = filters.carreras.length + filters.sectores.length + filters.areas.length + filters.apoyo.length + (filters.pais ? 1 : 0)
+  const activeFilterCount = (filters.facultad ? 1 : 0) + (filters.escuela ? 1 : 0) + (filters.carrera ? 1 : 0) + (filters.sector ? 1 : 0) + (filters.apoyo ? 1 : 0)
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-100 to-white py-8 px-6 lg:px-10">
@@ -443,26 +443,36 @@ export default function NetworkPage() {
         {/* Chips de filtros activos */}
         {activeFilterCount > 0 && (
           <div className="flex flex-wrap gap-2 mb-5">
-            {[...filters.carreras, ...filters.sectores, ...filters.areas].map(v => (
-              <span key={v} className="flex items-center gap-1.5 bg-blue-100 text-blue-800 text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wide">
-                {v}
-                <button type="button" aria-label={`Quitar filtro ${v}`} onClick={() => setFilters(p => ({
-                  ...p,
-                  carreras: p.carreras.filter(c => c !== v),
-                  sectores: p.sectores.filter(s => s !== v),
-                  areas: p.areas.filter(a => a !== v),
-                }))} className="hover:text-blue-900"><X className="w-3 h-3" /></button>
+            {filters.sector && (
+              <span className="flex items-center gap-1.5 bg-institutional/10 text-institutional text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wide">
+                Sector: {filters.sector}
+                <button type="button" aria-label="Quitar filtro sector" onClick={() => setFilters(p => ({ ...p, sector: '' }))} className="hover:text-institutional/70"><X className="w-3 h-3" /></button>
               </span>
-            ))}
-            {filters.apoyo.map(k => {
-              const a = APOYO_FILTROS.find(f => f.key === k)
-              return a ? (
-                <span key={k} className="flex items-center gap-1.5 bg-emerald-100 text-emerald-800 text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wide">
-                  {a.icon} {a.label}
-                  <button type="button" aria-label={`Quitar filtro ${a.label}`} onClick={() => setFilters(p => ({ ...p, apoyo: p.apoyo.filter(v => v !== k) }))} className="hover:text-emerald-900"><X className="w-3 h-3" /></button>
-                </span>
-              ) : null
-            })}
+            )}
+            {filters.apoyo && (
+              <span className="flex items-center gap-1.5 bg-institutional/10 text-institutional text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wide">
+                Apoyo: {APOYO_FILTROS.find(a => a.key === filters.apoyo)?.label || filters.apoyo}
+                <button type="button" aria-label="Quitar filtro apoyo" onClick={() => setFilters(p => ({ ...p, apoyo: '' }))} className="hover:text-institutional/70"><X className="w-3 h-3" /></button>
+              </span>
+            )}
+            {filters.facultad && (
+              <span className="flex items-center gap-1.5 bg-institutional/10 text-institutional text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wide">
+                Facultad: {filters.facultad}
+                <button type="button" aria-label="Quitar filtro facultad" onClick={() => setFilters(p => ({ ...p, facultad: '' }))} className="hover:text-institutional/70"><X className="w-3 h-3" /></button>
+              </span>
+            )}
+            {filters.escuela && (
+              <span className="flex items-center gap-1.5 bg-institutional/10 text-institutional text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wide">
+                Escuela: {filters.escuela}
+                <button type="button" aria-label="Quitar filtro escuela" onClick={() => setFilters(p => ({ ...p, escuela: '' }))} className="hover:text-institutional/70"><X className="w-3 h-3" /></button>
+              </span>
+            )}
+            {filters.carrera && (
+              <span className="flex items-center gap-1.5 bg-institutional/10 text-institutional text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wide">
+                Carrera: {filters.carrera}
+                <button type="button" aria-label="Quitar filtro carrera" onClick={() => setFilters(p => ({ ...p, carrera: '' }))} className="hover:text-institutional/70"><X className="w-3 h-3" /></button>
+              </span>
+            )}
           </div>
         )}
 
@@ -494,7 +504,7 @@ export default function NetworkPage() {
             </div>
 
             {filtered.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 {filtered.map(ex => <ExalumnoCard key={ex.id} ex={ex} />)}
               </div>
             ) : (
@@ -503,7 +513,7 @@ export default function NetworkPage() {
                 <h3 className="text-sm font-bold text-slate-600 uppercase tracking-wide mb-2">Sin resultados</h3>
                 <p className="text-xs text-slate-400 font-medium mb-4">Ningún exalumno coincide con los filtros seleccionados.</p>
                 <button
-                  onClick={() => setFilters({ search: '', carreras: [], sectores: [], areas: [], apoyo: [], pais: '' })}
+                  onClick={() => setFilters({ search: '', facultad: '', escuela: '', carrera: '', sector: '', apoyo: '' })}
                   className="text-xs font-bold text-blue-700 hover:underline uppercase tracking-wider"
                 >
                   Limpiar filtros

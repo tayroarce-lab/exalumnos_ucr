@@ -74,7 +74,7 @@ export default function ProfilePage() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-100 to-white py-8 px-6 lg:px-10">
+    <div className="py-8 px-6 lg:px-10">
       <div className="max-w-3xl mx-auto space-y-6">
         {/* Header */}
         <div className="pt-2 space-y-1">
@@ -88,7 +88,7 @@ export default function ProfilePage() {
           onClick={() => setActiveTab('personal')}
           className={`px-4 py-2.5 text-xs font-bold uppercase tracking-wider border-b-2 whitespace-nowrap transition-colors ${
             activeTab === 'personal'
-              ? 'border-brand-blue text-brand-blue'
+              ? 'border-institutional text-institutional'
               : 'border-transparent text-slate-400 hover:text-slate-600'
           }`}
         >
@@ -98,7 +98,7 @@ export default function ProfilePage() {
           onClick={() => setActiveTab('academica')}
           className={`px-4 py-2.5 text-xs font-bold uppercase tracking-wider border-b-2 whitespace-nowrap transition-colors ${
             activeTab === 'academica'
-              ? 'border-brand-blue text-brand-blue'
+              ? 'border-institutional text-institutional'
               : 'border-transparent text-slate-400 hover:text-slate-600'
           }`}
         >
@@ -108,7 +108,7 @@ export default function ProfilePage() {
           onClick={() => setActiveTab('profesional')}
           className={`px-4 py-2.5 text-xs font-bold uppercase tracking-wider border-b-2 whitespace-nowrap transition-colors ${
             activeTab === 'profesional'
-              ? 'border-brand-blue text-brand-blue'
+              ? 'border-institutional text-institutional'
               : 'border-transparent text-slate-400 hover:text-slate-600'
           }`}
         >
@@ -130,10 +130,10 @@ export default function ProfilePage() {
               <div className="flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left">
                 {/* Foto circular con avatar dinámico */}
                 <div className="relative shrink-0">
-                  <div className="w-20 h-20 rounded-full bg-slate-200 border border-slate-300 overflow-hidden flex items-center justify-center font-bold text-blue-700 text-3xl">
+                  <div className="w-20 h-20 rounded-xl bg-slate-200 border border-slate-300 overflow-hidden flex items-center justify-center font-bold text-institutional text-3xl">
                     {profile.initials}
                   </div>
-                  <div className="absolute -bottom-1 -right-1 bg-blue-700 text-white rounded-full p-1 border border-white">
+                  <div className="absolute -bottom-1 -right-1 bg-institutional text-white rounded-full p-1 border border-white">
                     <CheckCircle2 className="w-4 h-4" />
                   </div>
                 </div>
@@ -175,13 +175,13 @@ export default function ProfilePage() {
               <div className="space-y-2">
                 <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Redes sociales</h4>
                 <div className="flex items-center gap-3">
-                  <a href={`https://${profile.linkedin}`} target="_blank" rel="noopener noreferrer" className="p-2.5 bg-slate-100 hover:bg-brand-blue hover:text-white text-slate-500 rounded-xl transition-all">
+                  <a href={`https://${profile.linkedin}`} target="_blank" rel="noopener noreferrer" title="Ver perfil de LinkedIn" className="p-2.5 bg-slate-100 hover:bg-brand-blue hover:text-white text-slate-500 rounded-xl transition-all">
                     <Linkedin className="w-4 h-4" />
                   </a>
-                  <a href={`https://${profile.twitter}`} target="_blank" rel="noopener noreferrer" className="p-2.5 bg-slate-100 hover:bg-brand-blue hover:text-white text-slate-500 rounded-xl transition-all">
+                  <a href={`https://${profile.twitter}`} target="_blank" rel="noopener noreferrer" title="Ver perfil de Twitter" className="p-2.5 bg-slate-100 hover:bg-brand-blue hover:text-white text-slate-500 rounded-xl transition-all">
                     <Twitter className="w-4 h-4" />
                   </a>
-                  <a href={`https://${profile.instagram}`} target="_blank" rel="noopener noreferrer" className="p-2.5 bg-slate-100 hover:bg-brand-blue hover:text-white text-slate-500 rounded-xl transition-all">
+                  <a href={`https://${profile.instagram}`} target="_blank" rel="noopener noreferrer" title="Ver perfil de Instagram" className="p-2.5 bg-slate-100 hover:bg-brand-blue hover:text-white text-slate-500 rounded-xl transition-all">
                     <Instagram className="w-4 h-4" />
                   </a>
                 </div>

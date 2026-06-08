@@ -104,7 +104,7 @@ self.__SERVER_FILES_MANIFEST={
         "transform": "lodash/{{member}}"
       }
     },
-    "outputFileTracingRoot": "C:\\Users\\fwdco\\Downloads\\exalumnos_ucr",
+    "outputFileTracingRoot": "C:\\Users\\Forward\\OneDrive\\Desktop\\Exalumnos UCR\\exalumnos_ucr",
     "cacheComponents": false,
     "cacheLife": {
       "default": {
@@ -305,11 +305,11 @@ self.__SERVER_FILES_MANIFEST={
     "bundlePagesRouterDependencies": false,
     "configFileName": "next.config.js",
     "turbopack": {
-      "root": "C:\\Users\\fwdco\\Downloads\\exalumnos_ucr"
+      "root": "C:\\Users\\Forward\\OneDrive\\Desktop\\Exalumnos UCR\\exalumnos_ucr"
     },
     "distDirRoot": ".next"
   },
-  "appDir": "C:\\Users\\fwdco\\Downloads\\exalumnos_ucr",
+  "appDir": "C:\\Users\\Forward\\OneDrive\\Desktop\\Exalumnos UCR\\exalumnos_ucr",
   "relativeAppDir": "",
   "files": [
     ".next\\package.json",

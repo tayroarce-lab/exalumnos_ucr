@@ -58,29 +58,45 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
   }, [])
 
   return (
-    <header className="h-16 w-full bg-slate-50 flex items-center justify-between px-6 lg:px-8 shrink-0">
-      {/* Lado izquierdo: Botón menú móvil (oculto en escritorio) */}
-      <div className="flex items-center gap-4">
-        {onMenuToggle && (
-          <button
-            onClick={onMenuToggle}
-            className="p-2 rounded-lg text-slate-500 hover:bg-slate-200 lg:hidden"
-            aria-label="Toggle menu"
-          >
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-        )}
+    <header className="h-16 w-full bg-institutional text-white flex items-center justify-between px-6 lg:px-8 shrink-0 shadow-md">
+      {/* Lado izquierdo: Logo */}
+      <div className="flex items-center gap-8">
+        <Link href="/dashboard" className="flex items-center gap-3">
+          <div className="flex flex-col">
+            <span className="font-serif font-black text-white text-lg leading-none tracking-wide">
+              Exalumnos
+            </span>
+            <span className="font-serif font-bold text-white/80 text-sm leading-none tracking-widest mt-0.5">
+              UCR
+            </span>
+          </div>
+        </Link>
+
+        {/* Navegación central (desktop) */}
+        <nav className="hidden lg:flex items-center gap-6">
+          <Link href="/network" className="text-sm font-semibold hover:text-blue-200 transition-colors py-5 border-b-2 border-transparent hover:border-blue-300">Directorios</Link>
+          <Link href="/donations" className="text-sm font-semibold hover:text-blue-200 transition-colors py-5 border-b-2 border-transparent hover:border-blue-300">Donaciones</Link>
+          <Link href="/mentorships" className="text-sm font-semibold hover:text-blue-200 transition-colors py-5 border-b-2 border-transparent hover:border-blue-300">Mentorías</Link>
+          <Link href="/events" className="text-sm font-semibold hover:text-blue-200 transition-colors py-5 border-b-2 border-transparent hover:border-blue-300">Eventos</Link>
+        </nav>
       </div>
 
-      {/* Lado derecho: Notificaciones y Perfil */}
+      {/* Lado derecho: Búsqueda, Notificaciones y Perfil */}
       <div className="flex items-center gap-4 ml-auto">
+        
+        {/* Búsqueda rápida (opcional visual) */}
+        <div className="hidden md:flex items-center bg-white/10 rounded-full px-3 py-1.5 border border-white/20">
+          <svg className="w-4 h-4 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input type="text" placeholder="Buscar exalumnos..." className="bg-transparent border-none text-xs text-white placeholder:text-white/60 focus:outline-none w-32 focus:w-48 transition-all ml-2" />
+        </div>
+
         {/* Notificaciones */}
         <div className="relative">
           <button
             onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-            className="p-2 rounded-full text-slate-500 hover:bg-slate-200 relative transition-colors"
+            className="p-2 rounded-full text-white/80 hover:bg-white/10 relative transition-colors"
           >
             <Bell className="w-5 h-5" />
             {notifications.length > 0 && (
@@ -91,7 +107,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
           </button>
 
           {isNotificationsOpen && (
-            <div className="absolute right-0 mt-2 w-80 bg-white border border-slate-200 rounded-2xl shadow-lg py-2 z-50">
+            <div className="absolute right-0 mt-2 w-80 bg-white border border-slate-200 rounded-2xl shadow-lg py-2 z-50 text-slate-800">
               <div className="px-4 py-2 border-b border-slate-100 font-semibold font-display text-slate-800 uppercase tracking-wide text-xs">
                 Notificaciones
               </div>
@@ -103,7 +119,6 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
                       href={notif.link}
                       onClick={() => {
                         setIsNotificationsOpen(false)
-                        // Remover notificación de la lista
                         setNotifications(prev => prev.filter(n => n.id !== notif.id))
                       }}
                       className="block px-4 py-3 border-b border-slate-50 hover:bg-slate-50 transition-colors cursor-pointer"
@@ -129,18 +144,17 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             className="flex items-center gap-2 hover:opacity-90 transition-opacity focus:outline-none"
           >
-            {/* Foto de perfil con iniciales reales */}
-            <div className="w-9 h-9 rounded-full bg-slate-200 border border-slate-300 overflow-hidden shrink-0 flex items-center justify-center text-xs font-bold text-blue-700 uppercase">
+            <div className="w-9 h-9 rounded-full bg-white text-institutional flex items-center justify-center text-xs font-bold uppercase shrink-0 shadow-sm">
               {user.initials}
             </div>
-            <span className="text-xs font-bold text-slate-700 hidden sm:inline uppercase tracking-wider">
+            <span className="text-xs font-bold text-white hidden sm:inline uppercase tracking-wider">
               {user.name}
             </span>
-            <ChevronDown className="w-4 h-4 text-slate-400 hidden sm:block" />
+            <ChevronDown className="w-4 h-4 text-white/80 hidden sm:block" />
           </button>
 
           {isDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-52 bg-white border border-slate-200 rounded-2xl shadow-lg py-2 z-50">
+            <div className="absolute right-0 mt-2 w-52 bg-white border border-slate-200 rounded-2xl shadow-lg py-2 z-50 text-slate-800">
               <div className="px-4 py-2 border-b border-slate-100">
                 <p className="text-[10px] text-slate-400 uppercase font-semibold">Sesión iniciada como</p>
                 <p className="text-xs font-bold text-slate-800 truncate">{user.email}</p>

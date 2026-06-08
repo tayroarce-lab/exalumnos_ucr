@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import Card from '@/components/ui/card'
 import Button from '@/components/ui/button'
@@ -8,6 +8,22 @@ import {
   Heart, History, CheckCircle2, Upload, X, AlertCircle,
   Smartphone, Building2, Clock, FileText, Info
 } from 'lucide-react'
+
+// Barra de progreso dinámica sin estilos inline en JSX
+function ProgressFill({ value }: { value: number }) {
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (ref.current) {
+      ref.current.style.width = `${value}%`
+    }
+  }, [value])
+  return (
+    <div
+      ref={ref}
+      className="bg-blue-700 h-2 rounded-full transition-all"
+    />
+  )
+}
 
 // ============================================================
 // DATOS — reemplazarán con query a Supabase
@@ -122,7 +138,7 @@ function FondoCard({
             <span className="text-blue-700">{pct}%</span>
           </div>
           <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-            <div className="bg-blue-700 h-2 rounded-full transition-all" style={{ width: `${pct}%` }} />
+            <ProgressFill value={pct} />
           </div>
           <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">{fondo.donors} donantes · Meta: ₡{fondo.meta.toLocaleString()}</p>
         </div>
