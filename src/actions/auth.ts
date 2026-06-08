@@ -30,6 +30,7 @@ export async function registrarEstudiante(data: { email: string; password: strin
       email: data.email,
       nombre: data.nombre,
       tipo: 'estudiante',
+      rol: 'estudiante',
       email_verified: false,
       activo: true
     })
@@ -67,37 +68,14 @@ export async function registrarExalumno(data: {
       email: data.email,
       nombre: data.nombre,
       tipo: 'exalumno',
+      rol: 'exalumno',
+      carrera_principal_id: data.carreras && data.carreras.length > 0 ? data.carreras[0] : null,
       email_verified: false,
       activo: true
     })
     
     if (dbError && dbError.code !== '23505') {
       console.error('Error insertando en public.users:', dbError)
-    }
-
-    // Insertar el perfil extendido de exalumno
-    const { error: exError } = await adminClient.from('exalumnos').insert({
-      user_id: authData.user.id,
-      anio_graduacion: data.anio_graduacion,
-      perfil_completo: false
-    })
-
-    if (exError && exError.code !== '23505') {
-      console.error('Error insertando en public.exalumnos:', exError)
-    }
-
-    // Insertar las carreras en la tabla intermedia
-    if (data.carreras && data.carreras.length > 0) {
-      const relaciones = data.carreras.map((cId) => ({
-        exalumno_id: authData.user.id,
-        carrera_id: cId
-      }))
-      
-      const { error: relError } = await adminClient.from('exalumnos_carreras').insert(relaciones)
-      
-      if (relError) {
-        console.error('Error insertando en exalumnos_carreras:', relError)
-      }
     }
   }
 
