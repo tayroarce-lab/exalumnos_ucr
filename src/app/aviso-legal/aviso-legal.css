@@ -1,0 +1,215 @@
+/* =========================================================================
+   AVISO LEGAL — Styles
+   ========================================================================= */
+
+.aviso-legal-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f8fafc;
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+/* ---- Header ---- */
+.aviso-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.aviso-header-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0.875rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.aviso-back-link {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #475569;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.aviso-back-link:hover {
+  color: #0f172a;
+}
+
+.aviso-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+/* ---- Hero ---- */
+.aviso-hero {
+  background: linear-gradient(135deg, #0c4a6e 0%, #164e63 50%, #134e4a 100%);
+  color: #ffffff;
+  text-align: center;
+  padding: 4rem 1.5rem 3.5rem;
+}
+
+.aviso-hero-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  margin-bottom: 1.5rem;
+  color: #67e8f9;
+}
+
+.aviso-hero h1 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  margin: 0 0 0.5rem;
+}
+
+.aviso-hero-subtitle {
+  font-size: 1.0625rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+}
+
+/* ---- Content ---- */
+.aviso-content {
+  flex: 1;
+  max-width: 900px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 4rem;
+}
+
+.aviso-article {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.02);
+  padding: 2.5rem;
+}
+
+.aviso-section {
+  margin-bottom: 2.25rem;
+  padding-bottom: 2.25rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+.aviso-section:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.aviso-section h2 {
+  font-size: 1.25rem;
+  font-weight: 650;
+  color: #0f172a;
+  margin: 0 0 1rem;
+  letter-spacing: -0.01em;
+  position: relative;
+  padding-left: 1rem;
+}
+.aviso-section h2::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.15em;
+  bottom: 0.15em;
+  width: 3px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #0891b2, #0e7490);
+}
+
+.aviso-section p {
+  font-size: 0.9375rem;
+  line-height: 1.75;
+  color: #475569;
+  margin: 0 0 0.875rem;
+}
+.aviso-section p:last-child {
+  margin-bottom: 0;
+}
+
+.aviso-email-link {
+  color: #0891b2;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+.aviso-email-link:hover {
+  color: #0e7490;
+  text-decoration: underline;
+}
+
+/* ---- Footer ---- */
+.aviso-footer {
+  background: #0f172a;
+  color: rgba(255, 255, 255, 0.6);
+  padding: 1.5rem;
+  text-align: center;
+  font-size: 0.8125rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.aviso-footer p {
+  margin: 0;
+}
+
+.aviso-footer-links {
+  display: flex;
+  gap: 1.5rem;
+}
+.aviso-footer-links a {
+  color: rgba(255, 255, 255, 0.5);
+  text-decoration: none;
+  font-size: 0.8125rem;
+  transition: color 0.2s;
+}
+.aviso-footer-links a:hover {
+  color: #ffffff;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 768px) {
+  .aviso-hero {
+    padding: 3rem 1.25rem 2.5rem;
+  }
+  .aviso-hero h1 {
+    font-size: 1.75rem;
+  }
+  .aviso-hero-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+  }
+  .aviso-article {
+    padding: 1.5rem;
+    border-radius: 12px;
+  }
+  .aviso-content {
+    padding: 2rem 1rem 3rem;
+  }
+  .aviso-section h2 {
+    font-size: 1.125rem;
+  }
+  .aviso-section p {
+    font-size: 0.875rem;
+  }
+}

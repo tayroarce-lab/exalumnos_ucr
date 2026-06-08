@@ -1,89 +1,205 @@
 "use client";
 
 import { useState } from "react";
-import { enviarEnlaceMagico } from "@/actions/authActions";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import Link from "next/link";
+import { Mail, Lock, Eye, EyeOff, LogIn, GraduationCap, Users, ShieldCheck } from "lucide-react";
+import { iniciarSesion } from "@/actions/authActions";
+import { obtenerMiPerfil } from "@/actions/users";
+import logoUCR from "@/images/Logo_UCR.png";
+import "@/styles/loginStyles.css";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState<"estudiante" | "exalumno">("estudiante");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ text: string; type: "error" | "success" } | null>(null);
 
-  // [VERDE - FUNCION: manejarInicioSesion]
-  // Función que gestiona el clic del botón de inicio de sesión, validando los datos en el cliente antes de llamar a la acción.
   const manejarInicioSesion = async () => {
     setMessage(null);
+
     if (!email.trim()) {
       setMessage({ text: "Por favor, ingresa tu correo electrónico.", type: "error" });
       return;
     }
-    
-    // Validación estricta del dominio para estudiantes en el cliente
-    if (role === "estudiante" && !email.toLowerCase().endsWith("@ucr.ac.cr")) {
-      setMessage({ text: "Los estudiantes deben usar su correo institucional (@ucr.ac.cr).", type: "error" });
+
+    if (!password.trim()) {
+      setMessage({ text: "Por favor, ingresa tu contraseña.", type: "error" });
       return;
     }
 
     setLoading(true);
-    const result = await enviarEnlaceMagico(email, role);
-    setLoading(false);
+    const result = await iniciarSesion(email, password);
 
     if (result?.error) {
+      setLoading(false);
       setMessage({ text: result.error, type: "error" });
     } else if (result?.success) {
-      setMessage({ text: "Enlace mágico enviado. Por favor revisa tu bandeja de entrada.", type: "success" });
+      setMessage({ text: "Inicio de sesión exitoso. Redirigiendo...", type: "success" });
+      try {
+        const perfil = await obtenerMiPerfil();
+        setLoading(false);
+        if (perfil?.tipo === "admin") {
+          router.push("/admin");
+        } else {
+          router.push("/dashboard");
+        }
+        router.refresh();
+      } catch (err) {
+        setLoading(false);
+        router.push("/dashboard");
+        router.refresh();
+      }
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !loading) {
+      manejarInicioSesion();
     }
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-80px)] items-center justify-center p-4">
-      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-xl border shadow-sm">
-        <h2 className="text-2xl font-bold text-center text-gray-900">Iniciar Sesión</h2>
-        <p className="text-center text-gray-500">Ingresa a tu cuenta con un enlace mágico</p>
-        
-        <div className="space-y-4 mt-6">
-          <div className="flex flex-col space-y-2">
-            <label className="text-sm font-medium text-gray-700">Tipo de Usuario</label>
-            <div className="flex gap-4">
-              <button
-                className={`flex-1 py-2 px-4 rounded-md border text-sm font-medium transition-colors ${role === "estudiante" ? "bg-blue-50 border-blue-200 text-blue-700" : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"}`}
-                onClick={() => setRole("estudiante")}
-              >
-                Estudiante
-              </button>
-              <button
-                className={`flex-1 py-2 px-4 rounded-md border text-sm font-medium transition-colors ${role === "exalumno" ? "bg-blue-50 border-blue-200 text-blue-700" : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"}`}
-                onClick={() => setRole("exalumno")}
-              >
-                Exalumno
-              </button>
-            </div>
+    <div className="login-page-wrapper">
+      <div className="login-container">
+        {/* Panel Izquierdo — Decorativo */}
+        <div className="login-left">
+          <div className="login-logo-container">
+            <Link href="/">
+              <Image
+                src={logoUCR}
+                alt="Logo Alumni UCR"
+                width={320}
+                height={105}
+                className="login-brand-logo"
+                style={{ objectFit: 'contain', cursor: 'pointer' }}
+                priority
+              />
+            </Link>
+          </div>
+          <div className="login-hero-text" style={{ marginTop: '1.5rem' }}>
+            <h2>Bienvenido de vuelta</h2>
+            <p>
+              Accede a tu cuenta para conectar con la comunidad UCR,
+              gestionar tus proyectos y seguir transformando el futuro
+              de la educación costarricense.
+            </p>
           </div>
 
-          <div className="flex flex-col space-y-2">
-            <label className="text-sm font-medium text-gray-700">Correo Electrónico</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder={role === "estudiante" ? "usuario@ucr.ac.cr" : "correo@ejemplo.com"}
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-            />
+          <div className="login-features">
+            <div className="login-feature-item">
+              <div className="login-feature-icon">
+                <GraduationCap size={18} />
+              </div>
+              <span>Mentoría y apoyo académico</span>
+            </div>
+            <div className="login-feature-item">
+              <div className="login-feature-icon">
+                <Users size={18} />
+              </div>
+              <span>Red de profesionales UCR</span>
+            </div>
+            <div className="login-feature-item">
+              <div className="login-feature-icon">
+                <ShieldCheck size={18} />
+              </div>
+              <span>Acceso seguro y verificado</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Panel Derecho — Formulario */}
+        <div className="login-right">
+          <div className="login-form-header">
+            <h1>Iniciar Sesión</h1>
+            <p className="login-subtitle">
+              Ingresa tus credenciales para acceder a la plataforma
+            </p>
           </div>
 
-          {message && (
-            <div className={`p-3 rounded-md text-sm ${message.type === "error" ? "bg-red-50 text-red-600 border border-red-200" : "bg-green-50 text-green-600 border border-green-200"}`}>
-              {message.text}
+          <div className="login-form" onKeyDown={handleKeyDown}>
+            {/* Campo: Correo Electrónico */}
+            <div className="login-form-group">
+              <label htmlFor="login-email">Correo Electrónico</label>
+              <div className="login-input-wrapper">
+                <span className="login-input-icon">
+                  <Mail size={18} />
+                </span>
+                <input
+                  id="login-email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="correo@ejemplo.com"
+                  autoComplete="email"
+                />
+              </div>
             </div>
-          )}
 
-          <button
-            onClick={manejarInicioSesion}
-            disabled={loading}
-            className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? "Enviando..." : "Enviar Enlace Mágico"}
-          </button>
+            {/* Campo: Contraseña */}
+            <div className="login-form-group">
+              <label htmlFor="login-password">Contraseña</label>
+              <div className="login-input-wrapper">
+                <span className="login-input-icon">
+                  <Lock size={18} />
+                </span>
+                <input
+                  id="login-password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Ingresa tu contraseña"
+                  autoComplete="current-password"
+                />
+                <button
+                  type="button"
+                  className="login-password-toggle"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+            </div>
+
+            {/* Mensaje de error o éxito */}
+            {message && (
+              <div className={`login-message ${message.type}`}>
+                {message.text}
+              </div>
+            )}
+
+            {/* Botón de Iniciar Sesión */}
+            <button
+              onClick={manejarInicioSesion}
+              disabled={loading}
+              className="login-submit-btn"
+              id="login-submit-button"
+            >
+              {loading ? (
+                <>
+                  <span className="login-spinner"></span>
+                  Ingresando...
+                </>
+              ) : (
+                <>
+                  <LogIn size={18} />
+                  Iniciar Sesión
+                </>
+              )}
+            </button>
+          </div>
+
+          <div className="login-divider">o</div>
+
+          <div className="login-footer-links">
+            ¿No tienes una cuenta?{" "}
+            <Link href="/register">Regístrate aquí</Link>
+          </div>
         </div>
       </div>
     </div>

@@ -15,6 +15,8 @@ import {
   ClipboardList,
   ShieldAlert
 } from 'lucide-react';
+import Image from 'next/image';
+import logoUCR from '@/images/Logo_UCR.png';
 import '../../../styles/admin-sidebar.css';
 
 interface NavItem {
@@ -47,9 +49,16 @@ export const Sidebar: React.FC = () => {
     <aside className="admin-sidebar">
       {/* Logo / Nombre de la plataforma */}
       <div className="admin-sidebar-header">
-        <Link href="/admin/reportes" className="admin-sidebar-logo">
-          <GraduationCap className="admin-sidebar-logo-icon" size={28} />
-          <span>Exalumnos UCR</span>
+        <Link href="/" className="admin-sidebar-logo">
+          <Image 
+            src={logoUCR} 
+            alt="Logo Alumni UCR" 
+            width={220} 
+            height={75} 
+            className="admin-sidebar-logo-img"
+            style={{ objectFit: 'contain' }}
+            priority
+          />
         </Link>
       </div>
 

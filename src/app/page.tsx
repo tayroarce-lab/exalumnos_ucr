@@ -37,23 +37,21 @@ function BarraNavegacion() {
         <Image 
           src={logoUCR} 
           alt="Logo UCR" 
-          width={150} 
-          height={150} 
+          width={280} 
+          height={100} 
           className="logo-imagen"
+          style={{ objectFit: 'contain' }}
           priority
         />
-        <span className="logo-texto">
-          Fundación Exalumnos
-        </span>
       </div>
       
       <div className="contenedor-acciones">
         <Link href="/login" className="boton-signin">
           <User size={18} className="icono-signin" />
-          <span>Sign In</span>
+          <span>Iniciar Sesión</span>
         </Link>
-        <Link href="/registro" className="boton-register">
-          Register
+        <Link href="/register" className="boton-register">
+          Registrarse
         </Link>
       </div>
     </header>
@@ -83,7 +81,7 @@ function SeccionHero() {
           Conectamos el legado de nuestros exalumnos con el talento de la nueva generación para impulsar proyectos de graduación de alto impacto social.
         </p>
         <div className="hero-botones">
-          <button className="boton-registro" id="boton-hero-registrarse">REGISTRARSE</button>
+          <Link href="/register" className="boton-registro" id="boton-hero-registrarse">REGISTRARSE</Link>
           <button className="boton-impacto" id="boton-hero-impacto">
             <Play size={20} fill="currentColor" />
             <span>Ver nuestro impacto</span>
