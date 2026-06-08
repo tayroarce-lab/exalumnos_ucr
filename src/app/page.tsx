@@ -52,7 +52,7 @@ function BarraNavegacion() {
           <User size={18} className="icono-signin" />
           <span>Sign In</span>
         </Link>
-        <Link href="/registro" className="boton-register">
+        <Link href="/register" className="boton-register">
           Register
         </Link>
       </div>
@@ -83,7 +83,7 @@ function SeccionHero() {
           Conectamos el legado de nuestros exalumnos con el talento de la nueva generación para impulsar proyectos de graduación de alto impacto social.
         </p>
         <div className="hero-botones">
-          <button className="boton-registro" id="boton-hero-registrarse">REGISTRARSE</button>
+          <Link href="/register" className="boton-registro" id="boton-hero-registrarse">REGISTRARSE</Link>
           <button className="boton-impacto" id="boton-hero-impacto">
             <Play size={20} fill="currentColor" />
             <span>Ver nuestro impacto</span>
