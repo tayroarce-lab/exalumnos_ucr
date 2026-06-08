@@ -17,7 +17,7 @@
   
   /* Fuentes */
   --fuente-principal: 'Inter', sans-serif;
-  --fuente-titulo: 'Inter', sans-serif; /* Mantenemos Inter para alineación idéntica */
+  --fuente-titulo: 'Outfit', sans-serif;
 }
 
 /* Reset básico */
@@ -209,7 +209,7 @@ body {
 }
 
 .hero-titulo {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: var(--fuente-titulo);
   font-size: 3.45rem;
   font-weight: 700;
   line-height: 1.2;
@@ -239,7 +239,7 @@ body {
   padding: 0.9rem 2.75rem;
   font-size: 0.95rem;
   font-weight: 700;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
   letter-spacing: 0.5px;
   transition: background-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -281,21 +281,23 @@ body {
 }
 
 .tarjeta-estadistica {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.07);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
   padding: 1.75rem 2.25rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  transition: transform 0.2s ease, background-color 0.2s ease;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .tarjeta-estadistica:hover {
-  transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.14);
+  transform: translateY(-4px);
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(84, 188, 235, 0.45);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25), 0 0 15px rgba(84, 188, 235, 0.15);
 }
 
 .estadistica-numero {
@@ -681,3 +683,103 @@ body {
     text-align: center;
   }
 }
+
+/* --- ANIMACIONES DE APARICIÓN (PÁGINA DE INICIO) --- */
+@keyframes anim-slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes anim-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes anim-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Aplicación de animaciones */
+.cabecera {
+  animation: anim-slide-down 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.hero-fondo {
+  animation: anim-fade-in 1.5s ease both;
+}
+
+.hero-titulo {
+  animation: anim-slide-up 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.1s;
+}
+
+.hero-descripcion {
+  animation: anim-slide-up 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.25s;
+}
+
+.hero-botones {
+  animation: anim-slide-up 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.4s;
+}
+
+/* Tarjetas de estadísticas escalonadas */
+.hero-estadisticas .tarjeta-estadistica:nth-child(1) {
+  animation: anim-slide-up 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.55s;
+}
+
+.hero-estadisticas .tarjeta-estadistica:nth-child(2) {
+  animation: anim-slide-up 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.65s;
+}
+
+.hero-estadisticas .tarjeta-estadistica:nth-child(3) {
+  animation: anim-slide-up 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.75s;
+}
+
+/* Sección de apoyo y sus componentes */
+.apoyo-cabecera {
+  animation: anim-slide-up 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.85s;
+}
+
+.tarjeta-mentoria {
+  animation: anim-slide-up 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.95s;
+}
+
+.columna-secundaria .tarjeta-secundaria:nth-child(1) {
+  animation: anim-slide-up 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 1.05s;
+}
+
+.columna-secundaria .tarjeta-secundaria:nth-child(2) {
+  animation: anim-slide-up 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 1.15s;
+}
+
+/* Pie de página con aparición suave */
+.pie-pagina {
+  animation: anim-fade-in 1.2s ease both;
+  animation-delay: 1.25s;
+}
+

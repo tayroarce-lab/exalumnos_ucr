@@ -11,7 +11,6 @@ import {
 } from 'lucide-react';
 import logoUCR from '@/images/Logo_UCR.png';
 import fondoUCR from '@/images/UCRbackground.png';
-import inicio from '@/styles/inicio.css';
 
 export const metadata = {
   title: 'Fundación Exalumnos UCR | Inicio',

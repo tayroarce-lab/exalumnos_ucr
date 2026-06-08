@@ -14,7 +14,7 @@ export async function obtenerMiPerfil() {
 
   const { data: perfil, error: dbError } = await supabase
     .from('users')
-    .select('*')
+    .select('*').is('deleted_at', null)
     .eq('id', user.id)
     .single()
 
@@ -62,7 +62,7 @@ async function verificarAdmin() {
   const adminClient = createAdminClient()
   const { data } = await adminClient
     .from('users')
-    .select('tipo')
+    .select('tipo').is('deleted_at', null)
     .eq('id', user.id)
     .single()
 
@@ -103,7 +103,7 @@ export async function listarUsuarios(filtros?: { tipo?: string; activo?: boolean
   await verificarAdmin()
   const adminClient = createAdminClient()
 
-  let query = adminClient.from('users').select('*').order('created_at', { ascending: false })
+  let query = adminClient.from('users').select('*').is('deleted_at', null).order('created_at', { ascending: false })
 
   if (filtros?.tipo) {
     query = query.eq('tipo', filtros.tipo)

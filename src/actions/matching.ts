@@ -238,7 +238,7 @@ export async function generarMatchesMentoria(
         // Verificar si ya existe un match de mentoría entre este par
         const { data: matchExistente } = await supabase
           .from('matches')
-          .select('id')
+          .select('id').is('deleted_at', null)
           .eq('estudiante_id', est.user_id)
           .eq('exalumno_id', ex.user_id)
           .eq('tipo_apoyo', 'mentoria')
@@ -308,7 +308,7 @@ export async function calcularScorePuesto(
       .single(),
     supabase
       .from('posiciones')
-      .select('sector, habilidades_requeridas, estado')
+      .select('sector, habilidades_requeridas, estado').is('deleted_at', null)
       .eq('id', posicionId)
       .single(),
     supabase
@@ -421,7 +421,7 @@ export async function generarScoresPuestos(
         .or('busca_empleo.eq.true,busca_pasantia.eq.true'),
       supabase
         .from('posiciones')
-        .select('id')
+        .select('id').is('deleted_at', null)
         .eq('estado', 'activa'),
     ])
 

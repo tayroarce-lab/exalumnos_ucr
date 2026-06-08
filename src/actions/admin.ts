@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { sendMatchStatusUpdateEmail } from '@/services/email-service';
 
 // ---------------------------------------------------------------------------
 // Helper interno: verifica que el usuario autenticado sea admin
@@ -20,7 +21,7 @@ async function getAuthenticatedAdmin() {
   const adminClient = createAdminClient();
   const { data: profile } = await adminClient
     .from('users')
-    .select('tipo')
+    .select('tipo').is('deleted_at', null)
     .eq('id', user.id)
     .single();
 
@@ -38,7 +39,7 @@ async function fetchUserRole(userId: string) {
   const adminClient = createAdminClient();
   const { data: profile } = await adminClient
     .from('users')
-    .select('tipo')
+    .select('tipo').is('deleted_at', null)
     .eq('id', userId)
     .single();
   return profile?.tipo;
@@ -74,7 +75,7 @@ export async function getDashboardMetrics() {
     // 1. Donaciones confirmadas → totales CRC / USD y proyectos con donación
     const { data: donaciones } = await adminClient
       .from('donaciones')
-      .select('monto, moneda, proyecto_estudiante_id')
+      .select('monto, moneda, proyecto_estudiante_id').is('deleted_at', null)
       .eq('estado', 'confirmada');
 
     let totalDonadoCRC = 0;
@@ -90,13 +91,13 @@ export async function getDashboardMetrics() {
     // 2. Matches activos
     const { count: matchesActivos, data: matchesDataActivos } = await adminClient
       .from('matches')
-      .select('estudiante_id', { count: 'exact' })
+      .select('estudiante_id', { count: 'exact' }).is('deleted_at', null)
       .eq('estado', 'activo');
 
     // 3. Matches cerrados exitosamente
     const { count: matchesCerrados, data: matchesDataCerrados } = await adminClient
       .from('matches')
-      .select('estudiante_id', { count: 'exact' })
+      .select('estudiante_id', { count: 'exact' }).is('deleted_at', null)
       .eq('estado', 'cerrado')
       .eq('resultado', 'exitoso');
 
@@ -113,13 +114,13 @@ export async function getDashboardMetrics() {
     // 4. Usuarios activos por tipo
     const { count: exalumnosActivos } = await adminClient
       .from('users')
-      .select('id', { count: 'exact', head: true })
+      .select('id', { count: 'exact', head: true }).is('deleted_at', null)
       .eq('tipo', 'exalumno')
       .eq('activo', true);
 
     const { count: estudiantesActivos } = await adminClient
       .from('users')
-      .select('id', { count: 'exact', head: true })
+      .select('id', { count: 'exact', head: true }).is('deleted_at', null)
       .eq('tipo', 'estudiante')
       .eq('activo', true);
 
@@ -139,7 +140,7 @@ export async function getDashboardMetrics() {
     // 6. Donantes nuevos vs recurrentes
     const { data: todasDonaciones } = await adminClient
       .from('donaciones')
-      .select('exalumno_id')
+      .select('exalumno_id').is('deleted_at', null)
       .eq('estado', 'confirmada');
 
     const donantesCount: Record<string, number> = {};
@@ -194,6 +195,29 @@ export async function gestionarMatch(
     .eq('id', matchId);
 
   if (error) throw new Error(error.message);
+
+  if (estado === 'activo' || estado === 'cerrado') {
+    const { data } = await adminClient
+      .from('matches')
+      .select(`
+        exalumno:users!matches_exalumno_id_fkey(nombre, email),
+        estudiante:users!matches_estudiante_id_fkey(nombre, email)
+      `)
+      .eq('id', matchId)
+      .single();
+    const matchDetails = data as any;
+
+    if (matchDetails) {
+      const exNombre = Array.isArray(matchDetails.exalumno) ? matchDetails.exalumno[0]?.nombre : matchDetails.exalumno?.nombre;
+      const exEmail = Array.isArray(matchDetails.exalumno) ? matchDetails.exalumno[0]?.email : matchDetails.exalumno?.email;
+      const estNombre = Array.isArray(matchDetails.estudiante) ? matchDetails.estudiante[0]?.nombre : matchDetails.estudiante?.nombre;
+      const estEmail = Array.isArray(matchDetails.estudiante) ? matchDetails.estudiante[0]?.email : matchDetails.estudiante?.email;
+
+      if (exEmail && exNombre) await sendMatchStatusUpdateEmail(exEmail, exNombre, estado);
+      if (estEmail && estNombre) await sendMatchStatusUpdateEmail(estEmail, estNombre, estado);
+    }
+  }
+
   return { success: true };
 }
 
@@ -209,7 +233,7 @@ export async function listarMatchesAdmin(filtros?: { estado?: string; tipo_apoyo
       `*,
       exalumno:users!matches_exalumno_id_fkey(nombre, email),
       estudiante:users!matches_estudiante_id_fkey(nombre, email)`,
-    )
+    ).is('deleted_at', null)
     .order('created_at', { ascending: false });
 
   if (filtros?.estado) query = query.eq('estado', filtros.estado);
@@ -232,10 +256,54 @@ export async function listarDonacionesPendientes() {
       `*,
       exalumno:users!donaciones_exalumno_id_fkey(nombre, email),
       estudiante:users!donaciones_proyecto_estudiante_id_fkey(nombre, email)`,
-    )
+    ).is('deleted_at', null)
     .eq('estado', 'pendiente')
     .order('created_at', { ascending: true }); // más antiguas primero
 
   if (error) throw new Error(error.message);
   return data;
 }
+
+// ---------------------------------------------------------------------------
+// listarTodasLasVacantes — lista todas las posiciones sin importar el estado
+// Usa el cliente admin para bypassear RLS y ver posiciones de todos los exalumnos
+// ---------------------------------------------------------------------------
+export async function listarTodasLasVacantes(filtros?: {
+  estado?: string;
+  tipo?: string;
+}) {
+  const { adminClient } = await getAuthenticatedAdmin();
+
+  let query = adminClient
+    .from('posiciones')
+    .select(
+      `*,
+      exalumno:users!posiciones_exalumno_id_fkey(nombre, email)`
+    )
+    .order('created_at', { ascending: false });
+
+  if (filtros?.estado) query = query.eq('estado', filtros.estado);
+
+  const { data, error } = await query;
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+// ---------------------------------------------------------------------------
+// actualizarEstadoVacanteAdmin — permite al admin cambiar estado de cualquier vacante
+// ---------------------------------------------------------------------------
+export async function actualizarEstadoVacanteAdmin(
+  id: string,
+  estado: 'activa' | 'pausada' | 'cerrada' | 'cubierta'
+) {
+  const { adminClient } = await getAuthenticatedAdmin();
+
+  const { error } = await adminClient
+    .from('posiciones')
+    .update({ estado, updated_at: new Date().toISOString() })
+    .eq('id', id);
+
+  if (error) throw new Error(error.message);
+  return { success: true };
+}
+

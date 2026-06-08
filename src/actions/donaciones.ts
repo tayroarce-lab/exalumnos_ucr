@@ -34,7 +34,7 @@ export async function crearDonacion(data: CrearDonacionInput) {
   // Verificar rol con el cliente autenticado (RLS permite que cada usuario lea su propio perfil)
   const { data: profile } = await supabase
     .from('users')
-    .select('tipo')
+    .select('tipo').is('deleted_at', null)
     .eq('id', user.id)
     .single();
 
@@ -85,7 +85,7 @@ export async function obtenerMisDonaciones() {
         `*,
         exalumno:users!donaciones_exalumno_id_fkey(nombre, email, foto_url),
         estudiante:users!donaciones_proyecto_estudiante_id_fkey(nombre, email, foto_url)`,
-      )
+      ).is('deleted_at', null)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
@@ -121,7 +121,7 @@ export async function actualizarEstadoDonacion(
   // Verificar que quien actualiza es admin
   const { data: profile } = await adminClient
     .from('users')
-    .select('tipo')
+    .select('tipo').is('deleted_at', null)
     .eq('id', user.id)
     .single();
 
@@ -161,7 +161,7 @@ export async function actualizarEstadoDonacion(
         .select(
           `monto, moneda,
           estudiante:users!donaciones_proyecto_estudiante_id_fkey(nombre, email)`,
-        )
+        ).is('deleted_at', null)
         .eq('id', donacion_id)
         .single();
 

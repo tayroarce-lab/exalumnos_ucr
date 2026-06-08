@@ -16,7 +16,7 @@ export async function aplicarAPosicion(
   // Validar que la posición existe y está activa
   const { data: posicion, error: posError } = await supabase
     .from('posiciones')
-    .select('estado, exalumno:users!posiciones_exalumno_id_fkey(nombre, email)')
+    .select('estado, exalumno:users!posiciones_exalumno_id_fkey(nombre, email)').is('deleted_at', null)
     .eq('id', posicionId)
     .single()
 
@@ -42,7 +42,7 @@ export async function aplicarAPosicion(
   // Enviar notificación al exalumno (opcional, en background)
   const exalumno = posicion.exalumno as any
   if (exalumno && !Array.isArray(exalumno)) {
-    const { data: estudiante } = await supabase.from('users').select('nombre').eq('id', user.id).single()
+    const { data: estudiante } = await supabase.from('users').select('nombre').is('deleted_at', null).eq('id', user.id).single()
     if (estudiante && exalumno.email) {
       notificarNuevaAplicacion(
         exalumno.email, 

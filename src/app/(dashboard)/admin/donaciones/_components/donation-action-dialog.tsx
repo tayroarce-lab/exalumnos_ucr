@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { DonationAdminView } from '@/types/donations';
+import '../../../../../styles/admin-matches.css';
 
 interface DonationActionDialogProps {
   donation: DonationAdminView | null;
@@ -15,7 +16,7 @@ export function DonationActionDialog({ donation, isOpen, onClose, onProcess }: D
   const [rejectionReason, setRejectionReason] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Si no está abierto o no hay donación, no renderizar nada
+  // Si el modal no está abierto o no hay donación seleccionada, no renderizar
   if (!isOpen || !donation) return null;
 
   const handleConfirm = async () => {
@@ -43,57 +44,64 @@ export function DonationActionDialog({ donation, isOpen, onClose, onProcess }: D
   };
 
   return (
-    <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
-      <div style={{ backgroundColor: 'white', padding: '2rem', borderRadius: '8px', minWidth: '500px', maxWidth: '800px' }}>
-        <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '1rem' }}>Procesar Donación</h3>
-        
-        <div style={{ marginBottom: '1rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-          <div>
+    <div className="admin-dialog-overlay" onClick={resetAndClose}>
+      {/* Evitar que clicks dentro del modal cierren el overlay */}
+      <div className="admin-dialog" onClick={(e) => e.stopPropagation()}>
+        <h3>Procesar Donación</h3>
+
+        {/* Información de la donación en dos columnas */}
+        <div className="admin-dialog-info-grid">
+          <div className="admin-dialog-info-item">
             <p><strong>Donante:</strong> {donation.donor_name}</p>
             <p><strong>Estudiante:</strong> {donation.student_name}</p>
-            <p><strong>Monto:</strong> {donation.moneda} {donation.monto}</p>
+            <p><strong>Monto:</strong> {donation.moneda} {Number(donation.monto).toLocaleString()}</p>
             <p><strong>Método:</strong> {donation.metodo_pago}</p>
-            <p><strong>Referencia:</strong> {donation.numero_referencia}</p>
+            <p><strong>Referencia:</strong> <span style={{ fontFamily: 'monospace', fontSize: '13px' }}>{donation.numero_referencia}</span></p>
           </div>
-          <div>
-            <p style={{ fontWeight: 'bold' }}>Comprobante:</p>
-            {/* Visor de comprobante básico. Dependiendo de si es PDF o imagen se puede ajustar, aquí asumimos un iframe o img */}
+          <div className="admin-dialog-info-item">
+            <p><strong>Comprobante:</strong></p>
+            {/* Visor de comprobante: iframe para PDF, img para imágenes */}
             {donation.comprobante_url.endsWith('.pdf') ? (
-              <iframe src={donation.comprobante_url} width="100%" height="200px" title="Comprobante PDF" />
+              <iframe src={donation.comprobante_url} width="100%" height="180px" title="Comprobante PDF" style={{ borderRadius: '8px', border: '1px solid #E2E8F0' }} />
             ) : (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={donation.comprobante_url} alt="Comprobante" style={{ maxWidth: '100%', maxHeight: '200px', objectFit: 'contain' }} />
+              <img src={donation.comprobante_url} alt="Comprobante" style={{ maxWidth: '100%', maxHeight: '180px', objectFit: 'contain', borderRadius: '8px', border: '1px solid #E2E8F0' }} />
             )}
-            <a href={donation.comprobante_url} target="_blank" rel="noreferrer" style={{ display: 'block', marginTop: '0.5rem', color: 'blue', textDecoration: 'underline' }}>
-              Abrir comprobante completo
+            <a href={donation.comprobante_url} target="_blank" rel="noreferrer" className="admin-dialog-comprobante-link">
+              Abrir comprobante completo ↗
             </a>
           </div>
         </div>
 
+        {/* Sección de rechazo: mostrar textarea de motivo */}
         {isRejecting ? (
-          <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold', color: 'red' }}>Motivo de Rechazo (Obligatorio)</label>
+          <div className="admin-dialog-field">
+            <label className="admin-dialog-rejection-label">Motivo de Rechazo (Obligatorio)</label>
             <textarea
+              className="admin-dialog-textarea"
               value={rejectionReason}
               onChange={(e) => setRejectionReason(e.target.value)}
               rows={4}
-              style={{ width: '100%', padding: '0.5rem', border: '1px solid #ccc' }}
-              placeholder="Ej: El comprobante está borroso o el número de referencia no coincide con nuestros registros."
+              placeholder="Ej: El comprobante está borroso o el número de referencia no coincide."
             />
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1rem' }}>
-              <button onClick={() => setIsRejecting(false)} disabled={isProcessing} style={{ padding: '0.5rem 1rem' }}>Atrás</button>
-              <button onClick={handleReject} disabled={isProcessing} style={{ padding: '0.5rem 1rem', backgroundColor: 'red', color: 'white' }}>
+            <div className="admin-dialog-actions">
+              <button className="admin-dialog-btn-cancel" onClick={() => setIsRejecting(false)} disabled={isProcessing}>
+                Atrás
+              </button>
+              <button className="admin-dialog-btn-danger" onClick={handleReject} disabled={isProcessing}>
                 {isProcessing ? 'Procesando...' : 'Confirmar Rechazo'}
               </button>
             </div>
           </div>
         ) : (
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1.5rem' }}>
-            <button onClick={resetAndClose} disabled={isProcessing} style={{ padding: '0.5rem 1rem' }}>Cancelar</button>
-            <button onClick={() => setIsRejecting(true)} disabled={isProcessing} style={{ padding: '0.5rem 1rem', backgroundColor: '#fca5a5', color: '#991b1b', border: 'none', borderRadius: '4px' }}>
+          <div className="admin-dialog-actions">
+            <button className="admin-dialog-btn-cancel" onClick={resetAndClose} disabled={isProcessing}>
+              Cancelar
+            </button>
+            <button className="admin-dialog-btn-danger" onClick={() => setIsRejecting(true)} disabled={isProcessing}>
               Rechazar
             </button>
-            <button onClick={handleConfirm} disabled={isProcessing} style={{ padding: '0.5rem 1rem', backgroundColor: '#86efac', color: '#166534', border: 'none', borderRadius: '4px' }}>
+            <button className="admin-dialog-btn-confirm" onClick={handleConfirm} disabled={isProcessing}>
               {isProcessing ? 'Procesando...' : 'Confirmar Donación'}
             </button>
           </div>
