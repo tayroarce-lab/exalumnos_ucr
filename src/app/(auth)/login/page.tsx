@@ -34,10 +34,10 @@ export default function LoginPage() {
     setLoading(true);
     const result = await iniciarSesion(email, password);
 
-    if (result?.error) {
+    if (result && "error" in result && result.error) {
       setLoading(false);
       setMessage({ text: result.error, type: "error" });
-    } else if (result?.success) {
+    } else if (result && "success" in result && result.success) {
       setMessage({ text: "Inicio de sesión exitoso. Redirigiendo...", type: "success" });
       try {
         const perfil = await obtenerMiPerfil();
