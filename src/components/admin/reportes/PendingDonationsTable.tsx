@@ -1,6 +1,6 @@
 import React from 'react';
 import { Check, X } from 'lucide-react';
-import '@/styles/admin-table.css';
+import '../../../styles/admin-table.css';
 
 interface PendingDonation {
   id: string;

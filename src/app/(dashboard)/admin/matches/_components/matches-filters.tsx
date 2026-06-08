@@ -3,7 +3,7 @@
 import { MatchFilters } from '@/types/matches';
 import { useState } from 'react';
 import { SlidersHorizontal } from 'lucide-react';
-import '@/styles/admin-matches.css';
+import '../../../../../styles/admin-matches.css';
 
 interface MatchesFiltersProps {
   onFilterChange: (filters: MatchFilters) => void;

@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { Settings, Save, Bell, Shield, Mail } from 'lucide-react';
-import '@/styles/admin-dashboard.css';
+import '../../../../styles/admin-dashboard.css';
 
 export const metadata: Metadata = {
   title: 'Configuración | Admin | Fundación Exalumnos UCR',

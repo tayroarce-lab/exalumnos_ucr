@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { DonationAdminView } from '@/types/donations';
-import '@/styles/admin-matches.css';
+import '../../../../../styles/admin-matches.css';
 
 interface DonationActionDialogProps {
   donation: DonationAdminView | null;

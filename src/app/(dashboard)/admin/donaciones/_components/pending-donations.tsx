@@ -3,8 +3,8 @@
 import { DonationAdminView } from '@/types/donations';
 import { DonationActionDialog } from './donation-action-dialog';
 import { useState } from 'react';
-import '@/styles/admin-table.css';
-import '@/styles/admin-donaciones.css';
+import '../../../../../styles/admin-table.css';
+import '../../../../../styles/admin-donaciones.css';
 
 interface PendingDonationsProps {
   donations: DonationAdminView[];
