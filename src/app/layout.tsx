@@ -13,6 +13,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
+      <link rel="icon" href="/images/Logo_UCR.png" />
       <body>{children}</body>
     </html>
   );

@@ -37,24 +37,21 @@ function BarraNavegacion() {
         <Image 
           src={logoUCR} 
           alt="Logo UCR" 
-          width={180} 
-          height={60} 
+          width={280} 
+          height={100} 
           className="logo-imagen"
           style={{ objectFit: 'contain' }}
           priority
         />
-        <span className="logo-texto">
-          Fundación Exalumnos
-        </span>
       </div>
       
       <div className="contenedor-acciones">
         <Link href="/login" className="boton-signin">
           <User size={18} className="icono-signin" />
-          <span>Sign In</span>
+          <span>Iniciar Sesión</span>
         </Link>
-        <Link href="/registro" className="boton-register">
-          Register
+        <Link href="/register" className="boton-register">
+          Registrarse
         </Link>
       </div>
     </header>
