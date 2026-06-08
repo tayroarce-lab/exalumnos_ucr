@@ -1,0 +1,146 @@
+/* src/styles/admin-sidebar.css */
+
+.admin-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 260px;
+  background-color: #FFFFFF;
+  border-right: 1px solid #E2E8F0;
+  display: flex;
+  flex-direction: column;
+  z-index: 50;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.admin-sidebar-header {
+  padding: 24px;
+  border-bottom: 1px solid #F0F4F8;
+}
+
+.admin-sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #0A2540;
+  text-decoration: none;
+}
+
+.admin-sidebar-logo-icon {
+  color: #3b82f6;
+}
+
+.admin-sidebar-nav {
+  flex: 1;
+  padding: 24px 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.admin-nav-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-nav-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 0 12px;
+  margin-bottom: 4px;
+}
+
+.admin-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.admin-nav-link:hover {
+  background-color: #F0F4F8;
+  color: #0A2540;
+}
+
+.admin-nav-link.active {
+  background-color: #0A2540;
+  color: #FFFFFF;
+}
+
+.admin-nav-link.active .admin-nav-icon {
+  color: #FFFFFF;
+}
+
+.admin-nav-icon {
+  color: #94a3b8;
+  transition: color 0.2s;
+}
+
+.admin-nav-link:hover .admin-nav-icon {
+  color: #3b82f6;
+}
+
+.admin-sidebar-footer {
+  padding: 20px;
+  border-top: 1px solid #F0F4F8;
+}
+
+.admin-user-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  transition: background-color 0.2s;
+  cursor: pointer;
+}
+
+.admin-user-profile:hover {
+  background-color: #F0F4F8;
+}
+
+.admin-user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  background-color: #0A2540;
+  color: #FFFFFF;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.admin-user-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-user-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0A2540;
+  margin: 0;
+}
+
+.admin-user-role {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0;
+}

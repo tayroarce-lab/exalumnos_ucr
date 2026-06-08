@@ -1,0 +1,110 @@
+/* src/styles/admin-metrics.css */
+
+.admin-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 24px;
+}
+
+@media (min-width: 768px) {
+  .admin-metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .admin-metrics-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.admin-metric-card {
+  background: #FFFFFF;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02), 0 4px 12px rgba(0,0,0,0.04);
+  border: 1px solid #E2E8F0;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.admin-metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.04), 0 10px 24px rgba(0,0,0,0.06);
+}
+
+.admin-metric-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.admin-metric-icon-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+}
+
+.admin-metric-icon-wrapper.blue { background: #eff6ff; color: #3b82f6; }
+.admin-metric-icon-wrapper.green { background: #ecfdf5; color: #10b981; }
+.admin-metric-icon-wrapper.orange { background: #fffbeb; color: #f59e0b; }
+.admin-metric-icon-wrapper.purple { background: #f5f3ff; color: #8b5cf6; }
+
+.admin-metric-trend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.admin-metric-trend.positive {
+  background: #ecfdf5;
+  color: #10b981;
+}
+
+.admin-metric-trend.neutral {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.admin-metric-trend.negative {
+  background: #fef2f2;
+  color: #ef4444;
+}
+
+.admin-metric-content h3 {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 8px 0;
+}
+
+.admin-metric-content .admin-metric-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #0A2540;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.admin-metric-footer {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.admin-metric-description {
+  font-size: 13px;
+  color: #94a3b8;
+  margin: 0;
+}

@@ -17,7 +17,7 @@ export async function getPendingDonations(): Promise<{ data: DonationAdminView[]
       *,
       donor:users!donaciones_exalumno_id_fkey(nombre),
       student:users!donaciones_proyecto_estudiante_id_fkey(nombre)
-    `)
+    `).is('deleted_at', null)
     .eq('estado', 'pendiente')
     .order('created_at', { ascending: true }); // Cola FIFO (oldest first)
 
@@ -29,6 +29,7 @@ export async function getPendingDonations(): Promise<{ data: DonationAdminView[]
   const formattedData: DonationAdminView[] = (data || []).map((d: any) => ({
     ...d,
     donor_name: Array.isArray(d.donor) ? d.donor[0]?.nombre || 'Unknown' : d.donor?.nombre || 'Unknown',
+    admin_name: Array.isArray(d.donor) ? d.donor[0]?.nombre || null : d.donor?.nombre || null,
     student_name: Array.isArray(d.student) ? d.student[0]?.nombre || 'Unknown' : d.student?.nombre || 'Unknown',
   }));
 
@@ -49,7 +50,7 @@ export async function getDonationsHistory(filters?: DonationsHistoryFilters): Pr
       donor:users!donaciones_exalumno_id_fkey(nombre),
       student:users!donaciones_proyecto_estudiante_id_fkey(nombre),
       admin:users!donaciones_confirmado_por_fkey(nombre)
-    `)
+    `).is('deleted_at', null)
     .neq('estado', 'pendiente')
     .order('updated_at', { ascending: false });
 
@@ -106,7 +107,7 @@ export async function processDonation(
       *,
       donor:users!donaciones_exalumno_id_fkey(email),
       student:users!donaciones_proyecto_estudiante_id_fkey(email)
-    `)
+    `).is('deleted_at', null)
     .eq('id', donationId)
     .single();
 
@@ -130,14 +131,20 @@ export async function processDonation(
     return { success: false, error: updateError.message };
   }
 
-  // 4. Enviar correos / Send emails
+  // Extraer emails y nombres de donante y estudiante para los correos
   const donorEmail = Array.isArray(donation.donor) ? donation.donor[0]?.email : donation.donor?.email;
+  const donorName  = Array.isArray(donation.donor) ? donation.donor[0]?.nombre : donation.donor?.nombre || 'Estimado/a';
   const studentEmail = Array.isArray(donation.student) ? donation.student[0]?.email : donation.student?.email;
+  const studentName  = Array.isArray(donation.student) ? donation.student[0]?.nombre : donation.student?.nombre || 'Estudiante';
 
   if (action === 'confirm' && donorEmail && studentEmail) {
-    await sendDonationConfirmationEmails(donorEmail, studentEmail, donation.monto, donation.moneda);
+    await sendDonationConfirmationEmails(
+      donorEmail, donorName,
+      studentEmail, studentName,
+      donation.monto, donation.moneda
+    );
   } else if (action === 'reject' && donorEmail && rejectionReason) {
-    await sendDonationRejectionEmail(donorEmail, rejectionReason);
+    await sendDonationRejectionEmail(donorEmail, donorName, rejectionReason);
   }
 
   return { success: true };
