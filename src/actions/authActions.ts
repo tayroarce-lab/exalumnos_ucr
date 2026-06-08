@@ -20,3 +20,16 @@ export async function enviarEnlaceMagico(email: string, role: "estudiante" | "ex
     return { error: "Hubo un error al intentar enviar el enlace mágico. Inténtalo de nuevo." };
   }
 }
+
+// Acción para iniciar sesión con correo y contraseña
+import { iniciarSesion as iniciarSesionSupabase } from "./auth";
+
+export async function iniciarSesion(email: string, password: string) {
+  try {
+    const result = await iniciarSesionSupabase({ email, password });
+    return result;
+  } catch (error: any) {
+    return { error: error.message || "Credenciales incorrectas" };
+  }
+}
+
