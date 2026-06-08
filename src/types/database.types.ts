@@ -700,6 +700,7 @@ export type Database = {
           deleted_at: string | null
           email: string
           email_verified: boolean
+          escuela_facultad: string | null
           foto_url: string | null
           id: string
           nombre: string
@@ -726,18 +727,20 @@ export type Database = {
           deleted_at?: string | null
           email: string
           email_verified?: boolean
+          escuela_facultad?: string | null
           foto_url?: string | null
           id?: string
           nombre: string
-          ofrece_donacion_dinero?: boolean
-          ofrece_empleo?: boolean
-          ofrece_mentoria?: boolean
-          ofrece_pasantia?: boolean
+          proyecto_area_tematica?: string | null
+          proyecto_descripcion?: string | null
+          proyecto_porcentaje_avance?: number | null
+          proyecto_tipo?: string | null
+          proyecto_titulo?: string | null
           reportes_recibidos?: number
           rol: string
-          sector_industria?: string[] | null
-          tipo?: string
-          visible_en_directorio?: boolean
+          sede?: string | null
+          tipo: string
+          visible_en_directorio?: boolean | null
         }
         Update: {
           activo?: boolean
@@ -752,6 +755,7 @@ export type Database = {
           deleted_at?: string | null
           email?: string
           email_verified?: boolean
+          escuela_facultad?: string | null
           foto_url?: string | null
           id?: string
           nombre?: string

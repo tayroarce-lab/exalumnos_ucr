@@ -4,27 +4,19 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
 export type PerfilEstudianteInput = {
-  carnet_ucr?: string
   carrera?: string
   escuela_facultad?: string
   sede?: string
-  anio_ingreso?: number
-  nivel_academico?: 'bachillerato' | 'licenciatura' | 'maestria' | 'doctorado'
-  promedio_ponderado?: number
-  beca_socioeconomica?: 'ninguna' | 'nivel1' | 'nivel2' | 'nivel3' | 'nivel4' | 'nivel5'
   proyecto_titulo?: string
   proyecto_descripcion?: string
   proyecto_area_tematica?: string
-  proyecto_tipo?: 'tfg' | 'tesis' | 'practica_dirigida' | 'seminario'
+  proyecto_tipo?: string
   proyecto_porcentaje_avance?: number
-  proyecto_necesidades?: string[]
   areas_de_interes?: string[]
-  habilidades?: string[]
   busca_financiamiento?: boolean
   busca_mentoria?: boolean
   busca_empleo?: boolean
   busca_pasantia?: boolean
-  proyecto_activo?: boolean
   visible_en_directorio?: boolean
 }
 
@@ -33,19 +25,13 @@ export async function actualizarPerfilEstudiante(datos: PerfilEstudianteInput) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('No autenticado')
 
-  // Validaciones
-  if (datos.carnet_ucr && !/^[A-Z0-9]+$/.test(datos.carnet_ucr)) {
-    throw new Error('Formato de carné inválido')
-  }
-
   const { error } = await supabase
-    .from('estudiantes')
-    .upsert({ user_id: user.id, ...datos })
+    .from('users')
+    .update({ ...datos })
+    .eq('id', user.id)
+    .eq('rol', 'estudiante')
 
   if (error) throw new Error(error.message)
-
-  // Verificar si el perfil está completo
-  await verificarPerfilCompleto(user.id)
 
   revalidatePath('/mi-perfil')
   return { success: true }
@@ -57,9 +43,10 @@ export async function obtenerMiPerfilEstudiante() {
   if (!user) throw new Error('No autenticado')
 
   const { data, error } = await supabase
-    .from('estudiantes')
-    .select('*, users(nombre, email, foto_url)')
-    .eq('user_id', user.id)
+    .from('users')
+    .select('*')
+    .eq('id', user.id)
+    .eq('rol', 'estudiante')
     .single()
 
   if (error && error.code !== 'PGRST116') throw new Error(error.message)
@@ -69,30 +56,25 @@ export async function obtenerMiPerfilEstudiante() {
 export async function verificarPerfilCompleto(userId: string) {
   const supabase = await createClient()
   const { data: estudiante, error } = await supabase
-    .from('estudiantes')
+    .from('users')
     .select('*')
-    .eq('user_id', userId)
+    .eq('id', userId)
+    .eq('rol', 'estudiante')
     .single()
 
   if (error || !estudiante) return false
 
   const camposRequeridos = [
-    'carnet_ucr', 'carrera', 'escuela_facultad', 'sede', 
-    'anio_ingreso', 'nivel_academico', 'beca_socioeconomica',
+    'carrera', 'escuela_facultad', 'sede',
     'proyecto_titulo', 'proyecto_descripcion', 'proyecto_area_tematica',
-    'proyecto_tipo', 'proyecto_porcentaje_avance', 'proyecto_necesidades',
-    'areas_de_interes'
+    'proyecto_tipo', 'proyecto_porcentaje_avance', 'areas_de_interes'
   ]
 
   const estaCompleto = camposRequeridos.every(campo => {
-    const val = estudiante[campo as keyof typeof estudiante]
+    const val = (estudiante as any)[campo]
     if (Array.isArray(val)) return val.length > 0
     return val !== null && val !== undefined && val !== ''
   })
-
-  if (estaCompleto !== estudiante.perfil_completo) {
-    await supabase.from('estudiantes').update({ perfil_completo: estaCompleto }).eq('user_id', userId)
-  }
 
   return estaCompleto
 }
@@ -113,13 +95,12 @@ export async function listarEstudiantes(
   }
 ) {
   const supabase = await createClient()
-  let query = supabase.from('estudiantes')
-    .select('*, users!inner(nombre, foto_url, activo)', { count: 'exact' })
-    .eq('visible_en_directorio', true)
-    .eq('perfil_completo', true)
-    .eq('proyecto_activo', true)
-    .eq('users.activo', true)
-    .order('proyecto_porcentaje_avance', { ascending: false })
+  let query = supabase
+    .from('users')
+    .select('*', { count: 'exact' })
+    .eq('rol', 'estudiante')
+    .eq('activo', true)
+    .order('nombre', { ascending: true })
 
   if (filtros) {
     if (filtros.carrera && filtros.carrera.length > 0) {
@@ -148,7 +129,7 @@ export async function listarEstudiantes(
   }
 
   if (opciones?.busqueda) {
-    query = query.ilike('users.nombre', `%${opciones.busqueda}%`)
+    query = query.ilike('nombre', `%${opciones.busqueda}%`)
   }
 
   if (opciones?.page && opciones?.limit) {
@@ -167,40 +148,15 @@ export async function listarEstudiantes(
 export async function obtenerEstudiantePorId(id: string) {
   const supabase = await createClient()
   const { data, error } = await supabase
-    .from('estudiantes')
-    .select('*, users(nombre, foto_url, activo)')
-    .eq('user_id', id)
+    .from('users')
+    .select('*')
+    .eq('id', id)
+    .eq('rol', 'estudiante')
     .single()
 
   if (error) throw new Error(error.message)
 
-  // RLS ya protege la beca para usuarios no autorizados, pero nos aseguramos
-  const perfilSeguro = { ...data }
-  
-  const { data: { user } } = await supabase.auth.getUser()
-  if (user?.id !== id) {
-    // Si no es el propio usuario, verificamos si hay match activo o si es admin
-    let puedeVerSensible = false
-    const { data: adminCheck } = await supabase.from('users').select('tipo').is('deleted_at', null).eq('id', user?.id || '').single()
-    if (adminCheck?.tipo === 'admin') puedeVerSensible = true
-
-    if (!puedeVerSensible && user) {
-      const { data: match } = await supabase.from('matches')
-        .select('id').is('deleted_at', null)
-        .eq('estudiante_id', id)
-        .eq('exalumno_id', user.id)
-        .eq('estado', 'activo')
-        .single()
-      if (match) puedeVerSensible = true
-    }
-
-    if (!puedeVerSensible) {
-      delete perfilSeguro.beca_socioeconomica
-      delete perfilSeguro.promedio_ponderado
-    }
-  }
-
-  return perfilSeguro
+  return data
 }
 
 export async function pausarPerfilEstudiante(pausar: boolean = true) {
@@ -209,9 +165,10 @@ export async function pausarPerfilEstudiante(pausar: boolean = true) {
   if (!user) throw new Error('No autenticado')
 
   const { error } = await supabase
-    .from('estudiantes')
+    .from('users')
     .update({ visible_en_directorio: !pausar })
-    .eq('user_id', user.id)
+    .eq('id', user.id)
+    .eq('rol', 'estudiante')
 
   if (error) throw new Error(error.message)
   revalidatePath('/mi-perfil')
