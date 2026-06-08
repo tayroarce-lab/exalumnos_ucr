@@ -2,8 +2,8 @@ import { Metadata } from 'next';
 import { Briefcase, CheckCircle, Clock, XCircle } from 'lucide-react';
 import { listarTodasLasVacantes } from '@/actions/admin';
 import { VacantesTable } from './_components/vacantes-table';
-import '@/styles/admin-dashboard.css';
-import '@/styles/admin-vacantes.css';
+import '../../../../styles/admin-dashboard.css';
+import '../../../../styles/admin-vacantes.css';
 
 export const metadata: Metadata = {
   title: 'Gestión de Vacantes | Admin | Fundación Exalumnos UCR',

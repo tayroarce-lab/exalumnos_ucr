@@ -1,4 +1,5 @@
-import './globals.css'
+import "./globals.css";
+import "../styles/layout.css";
 
 export const metadata = {
   title: 'Fundación Exalumnos UCR',

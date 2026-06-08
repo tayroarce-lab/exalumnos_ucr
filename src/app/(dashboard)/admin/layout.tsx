@@ -1,7 +1,7 @@
 import React from 'react';
 import { Sidebar } from '@/components/admin/layout/Sidebar';
 import { AdminFooter } from '@/components/admin/layout/AdminFooter';
-import '@/styles/admin-dashboard.css';
+import '../../../styles/admin-dashboard.css';
 
 export default function AdminLayout({
   children,

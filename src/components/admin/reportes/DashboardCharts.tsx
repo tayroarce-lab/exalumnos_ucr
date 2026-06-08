@@ -12,7 +12,7 @@ import {
   Cell,
   Legend
 } from 'recharts';
-import '@/styles/admin-charts.css';
+import '../../../styles/admin-charts.css';
 
 interface DashboardChartsProps {
   graficosCarrera: { name: string; value: number }[];

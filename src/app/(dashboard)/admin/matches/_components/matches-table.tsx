@@ -7,8 +7,8 @@ import { getMatches, updateMatch } from '@/actions/matches';
 import { MatchesFiltersComponent } from './matches-filters';
 import { MatchActionDialog } from './match-action-dialog';
 import { exportToCSV } from '@/lib/export-csv';
-import '@/styles/admin-table.css';
-import '@/styles/admin-matches.css';
+import '../../../../../styles/admin-table.css';
+import '../../../../../styles/admin-matches.css';
 
 export function MatchesTable() {
   const [matches, setMatches] = useState<MatchAdminView[]>([]);
