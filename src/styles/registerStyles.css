@@ -85,6 +85,14 @@
   background-color: #ffffff;
 }
 
+.register-logo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 2rem;
+  z-index: 1;
+}
+
 .register-header {
   margin-bottom: 2rem;
 }

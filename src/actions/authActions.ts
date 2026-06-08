@@ -24,7 +24,7 @@ export async function enviarEnlaceMagico(email: string, role: "estudiante" | "ex
 // Acción para iniciar sesión con correo y contraseña
 import { iniciarSesion as iniciarSesionSupabase } from "./auth";
 
-export async function iniciarSesion(email: string, password: string) {
+export async function iniciarSesion(email: string, password: string): Promise<{ success?: boolean; error?: string }> {
   try {
     const result = await iniciarSesionSupabase({ email, password });
     return result;

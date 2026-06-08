@@ -67,19 +67,20 @@ export default function LoginPage() {
       <div className="login-container">
         {/* Panel Izquierdo — Decorativo */}
         <div className="login-left">
-          <div className="login-brand">
-            <Image
-              src={logoUCR}
-              alt="Logo UCR"
-              width={48}
-              height={48}
-              className="login-brand-logo"
-              priority
-            />
-            <span className="login-brand-name">Fundación Exalumnos</span>
+          <div className="login-logo-container">
+            <Link href="/">
+              <Image
+                src={logoUCR}
+                alt="Logo Alumni UCR"
+                width={320}
+                height={105}
+                className="login-brand-logo"
+                style={{ objectFit: 'contain', cursor: 'pointer' }}
+                priority
+              />
+            </Link>
           </div>
-
-          <div className="login-hero-text">
+          <div className="login-hero-text" style={{ marginTop: '1.5rem' }}>
             <h2>Bienvenido de vuelta</h2>
             <p>
               Accede a tu cuenta para conectar con la comunidad UCR,
