@@ -165,6 +165,8 @@ DROP TABLE IF EXISTS public.carrera_campus CASCADE;
 DROP TABLE IF EXISTS public.carreras CASCADE;
 DROP TABLE IF EXISTS public.ucr_campuses CASCADE;
 DROP TABLE IF EXISTS public.ucr_faculties CASCADE;
+DROP TABLE IF EXISTS public.facultades CASCADE;
+DROP TABLE IF EXISTS public.campus CASCADE;
 
 -- Renombrar V2 a tablas finales
 ALTER TABLE public.facultades_v2 RENAME TO facultades;
@@ -240,7 +242,7 @@ USING (visible_en_directorio = true AND deleted_at IS NULL);
 DROP POLICY IF EXISTS "users_update_own" ON public.users;
 CREATE POLICY "Modificar propio perfil" ON public.users FOR UPDATE 
 USING (auth.uid() = id) 
-WITH CHECK (auth.uid() = id AND OLD.rol = NEW.rol AND OLD.email = NEW.email);
+WITH CHECK (auth.uid() = id);
 
 -- Índices Parciales B-Tree
 CREATE INDEX IF NOT EXISTS idx_users_busca_mentoria ON public.users (id) WHERE busca_mentoria = true AND deleted_at IS NULL;
