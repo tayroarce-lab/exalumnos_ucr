@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/client';
+import { generarPdfAtsFriendly, DatosPerfilUCR } from './pdfService';
 
 // =============================================================================
 // SERVICIO: applicationService
@@ -12,6 +13,7 @@ export interface DatosAplicacion {
   position_id: string;
   cover_message?: string;
   cv_file?: File;
+  usar_perfil_ucr?: boolean;
 }
 
 export interface RespuestaServicio {
@@ -21,7 +23,8 @@ export interface RespuestaServicio {
 }
 
 // [VERDE - FUNCION: enviarAplicacion]
-// Permite al estudiante aplicar a una posición. Sube el CV si se provee.
+// Permite al estudiante aplicar a una posición. Sube el CV si se provee, o 
+// autogenera el PDF ATS-Friendly basado en el perfil UCR si se solicita.
 export async function enviarAplicacion(datos: DatosAplicacion): Promise<RespuestaServicio> {
   const supabase = createClient();
 
@@ -32,8 +35,43 @@ export async function enviarAplicacion(datos: DatosAplicacion): Promise<Respuest
 
   let cvUrl = null;
 
-  // Subir el CV si el usuario adjuntó un archivo
-  if (datos.cv_file) {
+  // 1. Lógica de CV: Autogenerado vs Subido Manualmente
+  if (datos.usar_perfil_ucr) {
+    // Modo Autogenerado ATS-Friendly: Obtener datos de las tablas modulares
+    const { data: estudianteData } = await supabase.from('users').select('*').eq('id', user.id).single();
+    const { data: educacion } = await supabase.from('cv_educacion').select('*').eq('estudiante_id', user.id);
+    const { data: experiencia } = await supabase.from('cv_experiencia').select('*').eq('estudiante_id', user.id);
+    const { data: proyectos } = await supabase.from('cv_proyectos').select('*').eq('estudiante_id', user.id);
+    const { data: habilidades } = await supabase.from('cv_habilidades').select('*').eq('estudiante_id', user.id).single();
+
+    const perfil: DatosPerfilUCR = {
+      nombre: estudianteData?.nombre || user.user_metadata?.nombre || 'Estudiante UCR',
+      correo: estudianteData?.email || user.email || 'sin-correo@ucr.ac.cr',
+      telefono: estudianteData?.telefono,
+      linkedin: estudianteData?.linkedin,
+      educacion: educacion || [],
+      experiencia: experiencia || [],
+      proyectos: proyectos || [],
+      habilidades: habilidades || null
+    };
+
+    try {
+      // Generamos el PDF en buffer (memoria) usando el nuevo servicio
+      const pdfBuffer = await generarPdfAtsFriendly(perfil);
+      const filePath = `${user.id}/${Date.now()}_perfil_ats.pdf`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('resumes')
+        .upload(filePath, pdfBuffer, { contentType: 'application/pdf' });
+
+      if (uploadError) throw uploadError;
+      cvUrl = filePath;
+    } catch (err: any) {
+      return { exito: false, mensaje: `Error autogenerando PDF: ${err.message}` };
+    }
+
+  } else if (datos.cv_file) {
+    // Modo Clásico: Subir el archivo que el estudiante adjuntó
     const fileExt = datos.cv_file.name.split('.').pop();
     const filePath = `${user.id}/${Date.now()}_cv.${fileExt}`;
 
@@ -47,7 +85,7 @@ export async function enviarAplicacion(datos: DatosAplicacion): Promise<Respuest
     cvUrl = filePath;
   }
 
-  // Insertar en la base de datos
+  // 2. Insertar en la base de datos la aplicación
   const { data, error } = await supabase
     .from('applications')
     .insert({
