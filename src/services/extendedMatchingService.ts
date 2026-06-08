@@ -20,6 +20,10 @@ export interface PosicionRecomendada {
   lugar: string | null;
   score_match: number;
   created_at: string;
+  /** Campo legacy: carrera preferida para la posición (no en schema actual) */
+  carrera_requerida?: string | null;
+  /** Campo legacy: sede preferida para la posición (no en schema actual) */
+  sede_requerida?: string | null;
 }
 
 // =============================================================================

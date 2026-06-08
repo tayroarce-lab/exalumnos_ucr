@@ -29,7 +29,6 @@ export interface PerfilUsuario {
   activo: boolean;
   deleted_at: string | null;
   created_at: string;
-  updated_at: string;
 }
 
 export interface RespuestaPerfil {
@@ -66,7 +65,7 @@ export async function buscarPerfilesActivos(
     return { exito: false, mensaje: `Error al listar perfiles: ${error.message}` };
   }
 
-  return { exito: true, mensaje: `${data?.length ?? 0} perfiles encontrados`, datos: data };
+  return { exito: true, mensaje: `${data?.length ?? 0} perfiles encontrados`, datos: data as PerfilUsuario[] };
 }
 
 // =============================================================================
@@ -88,7 +87,7 @@ export async function obtenerPerfilPorId(userId: string): Promise<RespuestaPerfi
     return { exito: false, mensaje: `Perfil no encontrado: ${error.message}`, datos: null };
   }
 
-  return { exito: true, mensaje: 'Perfil obtenido', datos: data };
+  return { exito: true, mensaje: 'Perfil obtenido', datos: data as PerfilUsuario };
 }
 
 // =============================================================================
@@ -205,8 +204,8 @@ export async function restaurarPerfilAdmin(userId: string): Promise<RespuestaPer
   const adminClient = createAdminClient();
 
   const { error } = await adminClient.rpc('restaurar_registro', {
-    p_tabla: 'users',
-    p_id: userId
+    p_table_name: 'users',
+    p_record_id: userId
   });
 
   if (error) {

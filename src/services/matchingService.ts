@@ -26,6 +26,9 @@ export interface MatchSugerido {
     busca_mentoria: boolean;
     busca_empleo: boolean;
     busca_pasantia: boolean;
+    carrera?: string | null;
+    proyecto_titulo?: string | null;
+    proyecto_area_tematica?: string | null;
   };
   exalumno: {
     id: string;
@@ -36,6 +39,9 @@ export interface MatchSugerido {
     ofrece_mentoria: boolean;
     ofrece_empleo: boolean;
     ofrece_pasantia: boolean;
+    cargo_actual?: string | null;
+    carrera_ucr?: string | null;
+    empresa_actual?: string | null;
   };
   desglosePuntaje: {
     mismaCarrera: boolean;

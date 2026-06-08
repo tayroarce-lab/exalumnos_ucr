@@ -154,8 +154,8 @@ export async function restaurarPosicionAdmin(posicionId: string) {
   const adminClient = createAdminClient()
 
   const { error } = await adminClient.rpc('restaurar_registro', {
-    p_tabla: 'posiciones',
-    p_id: posicionId
+    p_table_name: 'posiciones',
+    p_record_id: posicionId
   })
 
   if (error) throw new Error(`Error al restaurar posición: ${error.message}`)
