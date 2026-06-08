@@ -52,15 +52,13 @@ export const Sidebar: React.FC = () => {
         <Link href="/" className="admin-sidebar-logo">
           <Image 
             src={logoUCR} 
-            alt="Logo UCR" 
-            width={38} 
-            height={38} 
+            alt="Logo Alumni UCR" 
+            width={220} 
+            height={75} 
             className="admin-sidebar-logo-img"
+            style={{ objectFit: 'contain' }}
             priority
           />
-          <span className="admin-sidebar-logo-text">
-            Fundación Exalumnos
-          </span>
         </Link>
       </div>
 

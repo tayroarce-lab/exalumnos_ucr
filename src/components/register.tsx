@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import '../styles/registerStyles.css';
 import { User, Mail, Lock, AlertCircle, ArrowRight, GraduationCap } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
+import logoUCR from '@/images/Logo_UCR.png';
 import { registrarEstudiante, registrarExalumno } from '@/actions/auth';
 import { createClient } from '@/lib/supabase/client';
 
@@ -177,12 +179,21 @@ export default function Register() {
 
   return (
     <div className={`register-container ${tipoRegistro}`}>
-       <div className="register-left">
-           <div className="register-brand">
-             <GraduationCap size={28} />
-             <span>Alumni UCR Foundation</span>
+      <div className="register-left">
+           <div className="register-logo-container">
+             <Link href="/">
+               <Image
+                 src={logoUCR}
+                 alt="Logo Alumni UCR"
+                 width={320}
+                 height={105}
+                 className="register-brand-logo"
+                 style={{ objectFit: 'contain', cursor: 'pointer' }}
+                 priority
+               />
+             </Link>
            </div>
-           <div className="register-hero-text">
+           <div className="register-hero-text" style={{ marginTop: '1.5rem' }}>
              {tipoRegistro === 'estudiante' ? (
                <>
                  <h2>Comienza tu camino de regreso.</h2>
@@ -190,8 +201,8 @@ export default function Register() {
                </>
              ) : (
                <>
-                 <h2>The Path Back.</h2>
-                 <p>Reconnect with your roots, expand your professional network, and support the next generation of UCR graduates.</p>
+                 <h2>El camino de regreso.</h2>
+                 <p>Reconecta con tus raíces, expande tu red profesional y apoya a la próxima generación de graduados de la UCR.</p>
                </>
              )}
            </div>
@@ -261,9 +272,16 @@ export default function Register() {
                     </div>
                   </div>
 
-                  <div className="form-actions">
-                     <button type="submit" className="submit-btn" disabled={isSubmitting}>
-                       {isSubmitting ? 'Procesando...' : 'Completar Registro'} <ArrowRight size={18} />
+                  <div className="checkbox-group">
+                    <input type="checkbox" id="terminos-estudiante" checked={terminosAceptados} onChange={e => setTerminosAceptados(e.target.checked)} />
+                    <label htmlFor="terminos-estudiante">
+                      Declaro bajo fe de juramento que la información proporcionada es verdadera y acepto los <Link href="#">Términos de Servicio</Link> y la <Link href="#">Política de Privacidad</Link> de Alumni UCR Foundation.
+                    </label>
+                  </div>
+
+                  <div className="form-actions center mt-6">
+                     <button type="submit" className="submit-btn full-width" disabled={isSubmitting}>
+                       {isSubmitting ? 'Procesando...' : 'Completar Registro'}
                      </button>
                      <Link href="/login" className="login-link">
                        ¿Ya tienes cuenta? Inicia sesión aquí
