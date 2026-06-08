@@ -47,7 +47,6 @@ export async function registrarExalumno(data: {
   email: string; 
   password: string; 
   nombre: string;
-  escuela_facultad: string;
   carreras: number[];
   anio_graduacion: number;
 }) {
@@ -79,7 +78,6 @@ export async function registrarExalumno(data: {
     // Insertar el perfil extendido de exalumno
     const { error: exError } = await adminClient.from('exalumnos').insert({
       user_id: authData.user.id,
-      escuela_facultad: data.escuela_facultad,
       anio_graduacion: data.anio_graduacion,
       perfil_completo: false
     })

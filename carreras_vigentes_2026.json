@@ -1,0 +1,832 @@
+[
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "110103",
+    "carrera": "BACHILLERATO Y LICENCIATURA EN ARTES TEATRALES"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "110202",
+    "carrera": "BACH. Y LIC. EN HISTORIA DEL ARTE"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "110213",
+    "carrera": "BACH. Y LIC. EN DISEÑO PLASTICO ENF. DISEÑO PICTOR"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "110214",
+    "carrera": "BACH. Y LIC. EN DISEÑO GRAFICO"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "110302",
+    "carrera": "BACH. Y LIC. EN MUSICA CON ENFASIS EN COMPOSICION"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "110308",
+    "carrera": "BACH. Y LIC. EN MUSICA CON ENFASIS EN PIANO"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "110309",
+    "carrera": "BACH. Y LIC. EN MUSICA CON ENFASIS EN GUITARRA"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "110310",
+    "carrera": "BACH. Y LIC. EN MUSICA CON ENFASIS EN CANTO"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "110311",
+    "carrera": "BACH. Y LIC. EN MUSICA ENF. INSTRUMENTOS DE CUERDA"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "110312",
+    "carrera": "BACH. Y LIC. EN MUSICA ENF. INSTR. DE VIENTO O PER"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "110313",
+    "carrera": "BACH. EN MUSICA CON ENFASIS EN DIRECCION"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "120101",
+    "carrera": "BACH. Y LIC. EN FILOLOGIA ESPAÑOLA"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "120102",
+    "carrera": "BACH. Y LIC. EN FILOLOGIA CLASICA"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "120201",
+    "carrera": "BACH. Y LIC. EN FILOSOFIA"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "120303",
+    "carrera": "BACH. EN INGLES"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "120304",
+    "carrera": "BACH. EN FRANCES"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "210101",
+    "carrera": "BACH. Y LIC. EN BIOLOGIA"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "210201",
+    "carrera": "BACH. EN FISICA"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "210202",
+    "carrera": "BACH. Y LIC. EN METEOROLOGIA"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "210301",
+    "carrera": "BACH. Y LIC. EN GEOLOGIA"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "210401",
+    "carrera": "BACH. Y LIC. EN MATEMATICAS"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "210402",
+    "carrera": "BACH. Y LIC. EN CIENCIAS ACTUARIALES"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "210403",
+    "carrera": "BACH. Y LIC. EN EDUCACION MATEMATICA"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "210501",
+    "carrera": "BACH. Y LIC. EN QUIMICA"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "310101",
+    "carrera": "BACH. Y LIC. EN DERECHO"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "320208",
+    "carrera": "BACH. EN LA ENS. DEL INGLES"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "320209",
+    "carrera": "BACH. EN LA ENS. DEL FRANCES"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "320233",
+    "carrera": "BACH. EN LA ENS. DE LA FILOSOFIA"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "320242",
+    "carrera": "BACH. Y LIC. EN EDUCACION PRIMARIA"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "320244",
+    "carrera": "BACH.YLIC.ENS.ESTUDIOS SOCIALES Y LA EDUC.CIVICA"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "320246",
+    "carrera": "BACH. Y LIC. ENSEÑANZA DE LA MUSICA"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "320251",
+    "carrera": "BACH. Y LIC. EN LA ENS. DEL CASTELLANO Y LITERATUR"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "320257",
+    "carrera": "BACH. EDUC. PREESCOLAR Y LIC. EDUC. PREESCOLAR ENF"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "320259",
+    "carrera": "BACH. Y LIC. EN LA ENSEÑANZA DE CIENCIAS NATURALES"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "320311",
+    "carrera": "BACH. Y LIC. CS. DE LA EDUCACION ENF. ORIENTACION"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "320317",
+    "carrera": "BACH. EN CS. DE LA EDUCACIÓN: EDUCACIÓN ESPECIAL"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "320401",
+    "carrera": "BACH.EN BIBLIOTECOLOGIA ENF.CS. DE LA INFORMACION"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "320402",
+    "carrera": "BACH.EN BIBLIOTECOLOGIA ENF.BIBLIOTECAS EDUCATIVAS"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "320508",
+    "carrera": "BACH. Y LIC. EN CIENCIAS DEL MOVIMIENTO HUMANO"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "330102",
+    "carrera": "BACH. Y LIC. EN DIRECCION DE EMPRESAS"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "330103",
+    "carrera": "BACH. Y LIC. EN CONTADURIA PUBLICA"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "330212",
+    "carrera": "DIPL. ADM. ADUANERA. BACH. ADM. ADUANERA COM. EXT"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "330213",
+    "carrera": "DIPL. Y BACH. EN ADM. PUBLICA Y LIC. EN ADM. PUBLI"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "330302",
+    "carrera": "BACH. EN ECONOMIA"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "330402",
+    "carrera": "BACH. EN ESTADISTICA"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "340105",
+    "carrera": "BACH. CS. COMUNIC. COLECT. LIC. EN CS. COMUNIC. EN"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "340201",
+    "carrera": "BACH.Y LIC.EN PSICOLOGIA"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "340301",
+    "carrera": "BACH.Y LIC.EN CIENCIAS POLITICAS"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "340501",
+    "carrera": "BACH.Y LIC.EN TRABAJO SOCIAL"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "340701",
+    "carrera": "BACH. Y LIC. EN HISTORIA"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "340703",
+    "carrera": "BACHILLERATO Y LICENCIATURA EN ARCHIVISTICA"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "340801",
+    "carrera": "BACH. Y LIC. EN GEOGRAFIA"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "340902",
+    "carrera": "BACHILLERATO EN ANTROPOLOGIA"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "341001",
+    "carrera": "BACH. Y LIC. EN SOCIOLOGIA"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "420101",
+    "carrera": "LIC.EN INGENIERIA CIVIL"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "420201",
+    "carrera": "BACH.Y LIC.EN INGENIERIA ELECTRICA"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "420302",
+    "carrera": "LIC.EN INGENIERIA INDUSTRIAL"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "420401",
+    "carrera": "BACH.Y LIC.EN INGENIERIA MECANICA"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "420501",
+    "carrera": "LIC.EN INGENIERIA QUIMICA"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "420601",
+    "carrera": "LIC.EN ARQUITECTURA"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "420705",
+    "carrera": "BACH. EN COMPUTACION CON VARIOS ENFASIS"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "420805",
+    "carrera": "LIC. EN INGENIERIA AGRICOLA Y DE BIOSISTEMAS"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "420904",
+    "carrera": "BACH. Y LIC. EN INGENIERIA TOPOGRAFICA"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "510109",
+    "carrera": "LICENCIATURA EN ENFERMERIA"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "510201",
+    "carrera": "BACH. EN CS. MEDICAS Y LIC. EN MEDICINA Y CIRUGIA"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "510301",
+    "carrera": "LICENCIATURA EN NUTRICION"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "510408",
+    "carrera": "BACH. Y LIC. EN SALUD AMBIENTAL"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "510418",
+    "carrera": "LIC. EN AUDIOLOGIA"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "510419",
+    "carrera": "BACH. Y LIC. EN ORTOPROTESIS Y ORTOPEDIA"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "510421",
+    "carrera": "BACH. Y LIC. EN IMAG. DIAGNÓSTICA Y TERAPÉUTICA"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "510422",
+    "carrera": "LICENCIATURA EN FISIOTERAPIA"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "510502",
+    "carrera": "BACH. Y LIC. EN PROMOCIÓN DE LA SALUD"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "520101",
+    "carrera": "LIC. EN ODONTOLOGIA"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "530101",
+    "carrera": "LIC. EN MICROBIOLOGIA Y QUIMICA CLINICA"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "530102",
+    "carrera": "DIP. EN ASISTENTE DE LABORATORIO"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "540101",
+    "carrera": "LIC. EN FARMACIA"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "800001",
+    "carrera": "LIC. EN LA ENSEÑANZA BILINGÜE DE LA MATEMÁTICA"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "910102",
+    "carrera": "BACH. Y LIC. EN AGRONOMIA"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "910203",
+    "carrera": "BACH. Y LIC. EN INGENIERIA AGRONOMICA EN ZOOTECNIA"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "910308",
+    "carrera": "BACHILLERATO EN ECONOMIA AGRICOLA Y AGRONEGOCIOS"
+  },
+  {
+    "sede": "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "codigo": "910402",
+    "carrera": "LICENCIATURA EN INGENIERIA DE ALIMENTOS"
+  },
+  {
+    "sede": "RECINTO DE SAN RAMON",
+    "codigo": "110213",
+    "carrera": "BACH. Y LIC. EN DISEÑO PLASTICO ENF. DISEÑO PICTOR"
+  },
+  {
+    "sede": "RECINTO DE SAN RAMON",
+    "codigo": "110214",
+    "carrera": "BACH. Y LIC. EN DISEÑO GRAFICO"
+  },
+  {
+    "sede": "RECINTO DE SAN RAMON",
+    "codigo": "310101",
+    "carrera": "BACH. Y LIC. EN DERECHO"
+  },
+  {
+    "sede": "RECINTO DE SAN RAMON",
+    "codigo": "330102",
+    "carrera": "BACH. Y LIC. EN DIRECCION DE EMPRESAS"
+  },
+  {
+    "sede": "RECINTO DE SAN RAMON",
+    "codigo": "340201",
+    "carrera": "BACH.Y LIC.EN PSICOLOGIA"
+  },
+  {
+    "sede": "RECINTO DE SAN RAMON",
+    "codigo": "420302",
+    "carrera": "LIC.EN INGENIERIA INDUSTRIAL"
+  },
+  {
+    "sede": "RECINTO DE SAN RAMON",
+    "codigo": "600002",
+    "carrera": "BACHILLERATO EN INFORMATICA EMPRESARIAL"
+  },
+  {
+    "sede": "RECINTO DE SAN RAMON",
+    "codigo": "600110",
+    "carrera": "BACH. EN LA ENS. DEL CASTELLANO Y LITERATURA"
+  },
+  {
+    "sede": "RECINTO DE SAN RAMON",
+    "codigo": "600113",
+    "carrera": "BACH. Y LIC. EN LA ENS. DEL INGLES"
+  },
+  {
+    "sede": "RECINTO DE SAN RAMON",
+    "codigo": "600119",
+    "carrera": "BACH. Y LIC. EN TRABAJO SOCIAL"
+  },
+  {
+    "sede": "RECINTO DE SAN RAMON",
+    "codigo": "600123",
+    "carrera": "BACH. EN GESTION DE LOS RECURSOS NATURALES"
+  },
+  {
+    "sede": "RECINTO DE SAN RAMON",
+    "codigo": "600125",
+    "carrera": "BACH.EN LA ENS. ESTUDIOS SOCIALES Y LA EDUC. CIVIC"
+  },
+  {
+    "sede": "RECINTO DE SAN RAMON",
+    "codigo": "600133",
+    "carrera": "BACHILLERATO EN EDUCACION PRIMARIA"
+  },
+  {
+    "sede": "RECINTO DE SAN RAMON",
+    "codigo": "600134",
+    "carrera": "BACHILLERATO EN EDUCACION PRIMARIA EN INGLES"
+  },
+  {
+    "sede": "RECINTO DE SAN RAMON",
+    "codigo": "600135",
+    "carrera": "BACHILLERATO EN EDUCACION INICIAL EN INGLES"
+  },
+  {
+    "sede": "RECINTO DE SAN RAMON",
+    "codigo": "600136",
+    "carrera": "BACHILLERATO Y LICENCIATURA EN EDUCACION INICIAL"
+  },
+  {
+    "sede": "RECINTO DE SAN RAMON",
+    "codigo": "600138",
+    "carrera": "BACH.YLIC.EDUC.CS.MOVI.HUM.PA.SALUDYLACALIDADVIDA"
+  },
+  {
+    "sede": "RECINTO DE SAN RAMON",
+    "codigo": "800001",
+    "carrera": "LIC. EN LA ENSEÑANZA BILINGÜE DE LA MATEMÁTICA"
+  },
+  {
+    "sede": "RECINTO DE GRECIA",
+    "codigo": "320259",
+    "carrera": "BACH. Y LIC. EN LA ENSEÑANZA DE CIENCIAS NATURALES"
+  },
+  {
+    "sede": "RECINTO DE GRECIA",
+    "codigo": "330102",
+    "carrera": "BACH. Y LIC. EN DIRECCION DE EMPRESAS"
+  },
+  {
+    "sede": "RECINTO DE GRECIA",
+    "codigo": "600002",
+    "carrera": "BACHILLERATO EN INFORMATICA EMPRESARIAL"
+  },
+  {
+    "sede": "RECINTO DE GRECIA",
+    "codigo": "600126",
+    "carrera": "BACH. Y LIC. EN LABORATORISTA QUIMICO"
+  },
+  {
+    "sede": "RECINTO DE GRECIA",
+    "codigo": "600127",
+    "carrera": "BACH. EN GESTIÓN INTEGRAL DEL RECURSO HÍDRICO"
+  },
+  {
+    "sede": "RECINTO DE GRECIA",
+    "codigo": "600130",
+    "carrera": "BACHILLERATO EN MODELACIÓN MATEMÁTICA"
+  },
+  {
+    "sede": "RECINTO DE GRECIA",
+    "codigo": "600310",
+    "carrera": "BACH. EN TURISMO SOSTENIBLE CON ENF. ECOTURISMO"
+  },
+  {
+    "sede": "RECINTO DE TURRIALBA",
+    "codigo": "110214",
+    "carrera": "BACH. Y LIC. EN DISEÑO GRAFICO"
+  },
+  {
+    "sede": "RECINTO DE TURRIALBA",
+    "codigo": "320246",
+    "carrera": "BACH. Y LIC. ENSEÑANZA DE LA MUSICA"
+  },
+  {
+    "sede": "RECINTO DE TURRIALBA",
+    "codigo": "320508",
+    "carrera": "BACH. Y LIC. EN CIENCIAS DEL MOVIMIENTO HUMANO"
+  },
+  {
+    "sede": "RECINTO DE TURRIALBA",
+    "codigo": "330103",
+    "carrera": "BACH. Y LIC. EN CONTADURIA PUBLICA"
+  },
+  {
+    "sede": "RECINTO DE TURRIALBA",
+    "codigo": "600002",
+    "carrera": "BACHILLERATO EN INFORMATICA EMPRESARIAL"
+  },
+  {
+    "sede": "RECINTO DE TURRIALBA",
+    "codigo": "600113",
+    "carrera": "BACH. Y LIC. EN LA ENS. DEL INGLES"
+  },
+  {
+    "sede": "RECINTO DE TURRIALBA",
+    "codigo": "600209",
+    "carrera": "LIC. EN INGENIERIA EN DESARROLLO SOSTENIBLE"
+  },
+  {
+    "sede": "RECINTO DE TURRIALBA",
+    "codigo": "800001",
+    "carrera": "LIC. EN LA ENSEÑANZA BILINGÜE DE LA MATEMÁTICA"
+  },
+  {
+    "sede": "RECINTO DE TURRIALBA",
+    "codigo": "910102",
+    "carrera": "BACH. Y LIC. EN AGRONOMIA"
+  },
+  {
+    "sede": "RECINTO DE PARAISO",
+    "codigo": "330102",
+    "carrera": "BACH. Y LIC. EN DIRECCION DE EMPRESAS"
+  },
+  {
+    "sede": "RECINTO DE PARAISO",
+    "codigo": "600002",
+    "carrera": "BACHILLERATO EN INFORMATICA EMPRESARIAL"
+  },
+  {
+    "sede": "RECINTO DE PARAISO",
+    "codigo": "600113",
+    "carrera": "BACH. Y LIC. EN LA ENS. DEL INGLES"
+  },
+  {
+    "sede": "RECINTO DE PARAISO",
+    "codigo": "600310",
+    "carrera": "BACH. EN TURISMO SOSTENIBLE CON ENF. ECOTURISMO"
+  },
+  {
+    "sede": "RECINTO DE GUAPILES",
+    "codigo": "330103",
+    "carrera": "BACH. Y LIC. EN CONTADURIA PUBLICA"
+  },
+  {
+    "sede": "RECINTO DE GUAPILES",
+    "codigo": "600002",
+    "carrera": "BACHILLERATO EN INFORMATICA EMPRESARIAL"
+  },
+  {
+    "sede": "RECINTO DE GUAPILES",
+    "codigo": "600134",
+    "carrera": "BACHILLERATO EN EDUCACION PRIMARIA EN INGLES"
+  },
+  {
+    "sede": "RECINTO DE GUAPILES",
+    "codigo": "910308",
+    "carrera": "BACHILLERATO EN ECONOMIA AGRICOLA Y AGRONEGOCIOS"
+  },
+  {
+    "sede": "RECINTO DE LIBERIA",
+    "codigo": "120303",
+    "carrera": "BACH. EN INGLES"
+  },
+  {
+    "sede": "RECINTO DE LIBERIA",
+    "codigo": "310101",
+    "carrera": "BACH. Y LIC. EN DERECHO"
+  },
+  {
+    "sede": "RECINTO DE LIBERIA",
+    "codigo": "330102",
+    "carrera": "BACH. Y LIC. EN DIRECCION DE EMPRESAS"
+  },
+  {
+    "sede": "RECINTO DE LIBERIA",
+    "codigo": "330212",
+    "carrera": "DIPL. ADM. ADUANERA. BACH. ADM. ADUANERA COM. EXT"
+  },
+  {
+    "sede": "RECINTO DE LIBERIA",
+    "codigo": "340201",
+    "carrera": "BACH.Y LIC.EN PSICOLOGIA"
+  },
+  {
+    "sede": "RECINTO DE LIBERIA",
+    "codigo": "420101",
+    "carrera": "LIC.EN INGENIERIA CIVIL"
+  },
+  {
+    "sede": "RECINTO DE LIBERIA",
+    "codigo": "420201",
+    "carrera": "BACH.Y LIC.EN INGENIERIA ELECTRICA"
+  },
+  {
+    "sede": "RECINTO DE LIBERIA",
+    "codigo": "510408",
+    "carrera": "BACH. Y LIC. EN SALUD AMBIENTAL"
+  },
+  {
+    "sede": "RECINTO DE LIBERIA",
+    "codigo": "600002",
+    "carrera": "BACHILLERATO EN INFORMATICA EMPRESARIAL"
+  },
+  {
+    "sede": "RECINTO DE LIBERIA",
+    "codigo": "600133",
+    "carrera": "BACHILLERATO EN EDUCACION PRIMARIA"
+  },
+  {
+    "sede": "RECINTO DE LIBERIA",
+    "codigo": "600134",
+    "carrera": "BACHILLERATO EN EDUCACION PRIMARIA EN INGLES"
+  },
+  {
+    "sede": "RECINTO DE LIBERIA",
+    "codigo": "600308",
+    "carrera": "BACH Y LIC EN EDUC. DE PRIMERA INFAN. ÉNF. INGLES"
+  },
+  {
+    "sede": "RECINTO DE LIBERIA",
+    "codigo": "600310",
+    "carrera": "BACH. EN TURISMO SOSTENIBLE CON ENF. ECOTURISMO"
+  },
+  {
+    "sede": "RECINTO DE LIBERIA",
+    "codigo": "910102",
+    "carrera": "BACH. Y LIC. EN AGRONOMIA"
+  },
+  {
+    "sede": "RECINTO DE LIBERIA",
+    "codigo": "910402",
+    "carrera": "LICENCIATURA EN INGENIERIA DE ALIMENTOS"
+  },
+  {
+    "sede": "RECINTO DE SANTA CRUZ",
+    "codigo": "910308",
+    "carrera": "BACHILLERATO EN ECONOMIA AGRICOLA Y AGRONEGOCIOS"
+  },
+  {
+    "sede": "RECINTO DE LIMON",
+    "codigo": "120303",
+    "carrera": "BACH. EN INGLES"
+  },
+  {
+    "sede": "RECINTO DE LIMON",
+    "codigo": "330102",
+    "carrera": "BACH. Y LIC. EN DIRECCION DE EMPRESAS"
+  },
+  {
+    "sede": "RECINTO DE LIMON",
+    "codigo": "330103",
+    "carrera": "BACH. Y LIC. EN CONTADURIA PUBLICA"
+  },
+  {
+    "sede": "RECINTO DE LIMON",
+    "codigo": "330212",
+    "carrera": "DIPL. ADM. ADUANERA. BACH. ADM. ADUANERA COM. EXT"
+  },
+  {
+    "sede": "RECINTO DE LIMON",
+    "codigo": "420501",
+    "carrera": "LIC.EN INGENIERIA QUIMICA"
+  },
+  {
+    "sede": "RECINTO DE LIMON",
+    "codigo": "600002",
+    "carrera": "BACHILLERATO EN INFORMATICA EMPRESARIAL"
+  },
+  {
+    "sede": "RECINTO DE LIMON",
+    "codigo": "600004",
+    "carrera": "LIC.ING.MARÍTIMAÉNF.NAÚTICAYTRANSP.MAR.YENMÁQ.MAR"
+  },
+  {
+    "sede": "RECINTO DE LIMON",
+    "codigo": "600135",
+    "carrera": "BACHILLERATO EN EDUCACION INICIAL EN INGLES"
+  },
+  {
+    "sede": "RECINTO DE LIMON",
+    "codigo": "600310",
+    "carrera": "BACH. EN TURISMO SOSTENIBLE CON ENF. ECOTURISMO"
+  },
+  {
+    "sede": "RECINTO SIQUIRRES",
+    "codigo": "600002",
+    "carrera": "BACHILLERATO EN INFORMATICA EMPRESARIAL"
+  },
+  {
+    "sede": "RECINTO DE PUNTARENAS",
+    "codigo": "320208",
+    "carrera": "BACH. EN LA ENS. DEL INGLES"
+  },
+  {
+    "sede": "RECINTO DE PUNTARENAS",
+    "codigo": "330102",
+    "carrera": "BACH. Y LIC. EN DIRECCION DE EMPRESAS"
+  },
+  {
+    "sede": "RECINTO DE PUNTARENAS",
+    "codigo": "420201",
+    "carrera": "BACH.Y LIC.EN INGENIERIA ELECTRICA"
+  },
+  {
+    "sede": "RECINTO DE PUNTARENAS",
+    "codigo": "600002",
+    "carrera": "BACHILLERATO EN INFORMATICA EMPRESARIAL"
+  },
+  {
+    "sede": "RECINTO DE PUNTARENAS",
+    "codigo": "600502",
+    "carrera": "BACH. Y LIC. EN INFORMATICA Y TECNOLOGIA MULTIMEDI"
+  },
+  {
+    "sede": "RECINTO DE PUNTARENAS",
+    "codigo": "600503",
+    "carrera": "BACH. Y LIC. EN INGLES CON FORMACION EN GESTION EM"
+  },
+  {
+    "sede": "RECINTO DE PUNTARENAS",
+    "codigo": "600504",
+    "carrera": "LIC. EN INGENIERIA ELECTROMECANICA INDUSTRIAL"
+  },
+  {
+    "sede": "RECINTO DE PUNTARENAS",
+    "codigo": "600505",
+    "carrera": "BACH. EN GESTION CULTURAL"
+  },
+  {
+    "sede": "RECINTO DE GOLFITO",
+    "codigo": "210403",
+    "carrera": "BACH. Y LIC. EN EDUCACION MATEMATICA"
+  },
+  {
+    "sede": "RECINTO DE GOLFITO",
+    "codigo": "320259",
+    "carrera": "BACH. Y LIC. EN LA ENSEÑANZA DE CIENCIAS NATURALES"
+  },
+  {
+    "sede": "RECINTO DE GOLFITO",
+    "codigo": "600002",
+    "carrera": "BACHILLERATO EN INFORMATICA EMPRESARIAL"
+  },
+  {
+    "sede": "RECINTO DE GOLFITO",
+    "codigo": "600134",
+    "carrera": "BACHILLERATO EN EDUCACION PRIMARIA EN INGLES"
+  },
+  {
+    "sede": "RECINTO DE GOLFITO",
+    "codigo": "600310",
+    "carrera": "BACH. EN TURISMO SOSTENIBLE CON ENF. ECOTURISMO"
+  },
+  {
+    "sede": "RECINTO DE GOLFITO",
+    "codigo": "600601",
+    "carrera": "BACH. Y LIC. EN GESTION Y LOGISTICA EMPRESARIAL"
+  },
+  {
+    "sede": "RECINTO ALAJUELA",
+    "codigo": "110214",
+    "carrera": "BACH. Y LIC. EN DISEÑO GRAFICO"
+  },
+  {
+    "sede": "RECINTO ALAJUELA",
+    "codigo": "420302",
+    "carrera": "LIC.EN INGENIERIA INDUSTRIAL"
+  },
+  {
+    "sede": "RECINTO ALAJUELA",
+    "codigo": "420404",
+    "carrera": "LIC. ING. MECANICA ENF. PROTECC. CONTRA INCENDIOS"
+  }
+]

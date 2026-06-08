@@ -9,7 +9,8 @@ import { createClient } from '@/lib/supabase/client';
 
 export default function Register() {
   const [tipoRegistro, setTipoRegistro] = useState<'estudiante' | 'exalumno'>('estudiante');
-  const [carrerasOpts, setCarrerasOpts] = useState<{id_carreras: number, nombre: string}[]>([]);
+  const [carrerasOpts, setCarrerasOpts] = useState<{id_carreras: number, nombre: string, id_facultades: number | null}[]>([]);
+  const [facultadesOpts, setFacultadesOpts] = useState<{id_facultades: number, nombre: string}[]>([]);
   
   // Estudiante State
   const [estudianteData, setEstudianteData] = useState({ nombre: '', correo: '', password: '' });
@@ -20,7 +21,7 @@ export default function Register() {
     nombre: '',
     correo: '',
     password: '',
-    facultad: '',
+    facultadId: '',
     carreras: [] as number[],
     anioGraduacion: ''
   });
@@ -31,18 +32,26 @@ export default function Register() {
   const [successMsg, setSuccessMsg] = useState('');
 
   useEffect(() => {
-    const fetchCarreras = async () => {
+    const fetchDatos = async () => {
       try {
         const supabase = createClient();
-        const { data } = await supabase.from('carreras').select('id_carreras, nombre').order('nombre');
-        if (data && data.length > 0) {
-          setCarrerasOpts(data);
+        
+        // Cargar Facultades
+        const { data: fData } = await supabase.from('facultades').select('id_facultades, nombre').order('nombre');
+        if (fData && fData.length > 0) {
+          setFacultadesOpts(fData);
+        }
+
+        // Cargar Carreras
+        const { data: cData } = await supabase.from('carreras').select('id_carreras, nombre, id_facultades').order('nombre');
+        if (cData && cData.length > 0) {
+          setCarrerasOpts(cData);
         }
       } catch (err) {
-        console.error("Error fetching carreras:", err);
+        console.error("Error fetching datos:", err);
       }
     };
-    fetchCarreras();
+    fetchDatos();
   }, []);
 
   const handleEstudianteSubmit = async (e: React.FormEvent) => {
@@ -107,11 +116,11 @@ export default function Register() {
     }
     
     try {
+      // Ya no enviamos "escuela_facultad", la relación se da a través de las carreras
       await registrarExalumno({
         nombre: exalumnoData.nombre,
         email: exalumnoData.correo,
         password: exalumnoData.password,
-        escuela_facultad: exalumnoData.facultad,
         carreras: exalumnoData.carreras,
         anio_graduacion: anio
       });
@@ -130,7 +139,6 @@ export default function Register() {
     if (!exalumnoData.carreras.includes(selectedId)) {
       setExalumnoData({ ...exalumnoData, carreras: [...exalumnoData.carreras, selectedId] });
     }
-    // Restablecer el select para que siga mostrando el placeholder
     e.target.value = "";
   };
 
@@ -141,20 +149,19 @@ export default function Register() {
     });
   };
 
-  // Nombres de las opciones hardcodeadas temporalmente por si no hay DB
-  const fallbackCarreras = [
-    { id_carreras: 1, nombre: 'Ingeniería Civil' },
-    { id_carreras: 2, nombre: 'Ingeniería de Sistemas' },
-    { id_carreras: 3, nombre: 'Psicología' },
-    { id_carreras: 4, nombre: 'Derecho' },
-    { id_carreras: 5, nombre: 'Biología' }
-  ];
-
   const getCarreraName = (id: number) => {
-    const list = carrerasOpts.length > 0 ? carrerasOpts : fallbackCarreras;
-    const option = list.find(c => c.id_carreras === id);
+    const option = carrerasOpts.find(c => c.id_carreras === id);
     return option ? option.nombre : `Carrera ${id}`;
   };
+
+  // Filtrar las opciones de carrera dependiendo de la facultad seleccionada.
+  // Si no hay facultad elegida, se muestran todas.
+  // Si hay facultad, se muestran las que pertenecen a esa facultad O las que aún no tienen facultad asignada.
+  const filteredCarreras = exalumnoData.facultadId
+    ? carrerasOpts.filter(c =>
+        c.id_facultades === parseInt(exalumnoData.facultadId) || c.id_facultades === null
+      )
+    : carrerasOpts;
 
   if (successMsg) {
     return (
@@ -301,14 +308,18 @@ export default function Register() {
 
                   <div className="form-group">
                     <label>Facultad / Escuela</label>
-                    <select className="select-input" value={exalumnoData.facultad} onChange={e => setExalumnoData({...exalumnoData, facultad: e.target.value})} required>
-                      <option value="">Seleccione su facultad...</option>
-                      <option value="Ingeniería">Ingeniería</option>
-                      <option value="Ciencias Sociales">Ciencias Sociales</option>
-                      <option value="Ciencias Básicas">Ciencias Básicas</option>
-                      <option value="Salud">Salud</option>
-                      <option value="Letras">Letras</option>
-                      <option value="Derecho">Derecho</option>
+                    <select className="select-input" value={exalumnoData.facultadId} onChange={e => setExalumnoData({...exalumnoData, facultadId: e.target.value})}>
+                      <option value="">Todas las facultades (Mostrar todo)</option>
+                      {facultadesOpts.length > 0 ? (
+                        facultadesOpts.map(f => (
+                          <option key={f.id_facultades} value={f.id_facultades}>{f.nombre}</option>
+                        ))
+                      ) : (
+                        <>
+                          <option value="1">Ingeniería (Demo)</option>
+                          <option value="2">Ciencias Sociales (Demo)</option>
+                        </>
+                      )}
                     </select>
                   </div>
 
@@ -316,7 +327,7 @@ export default function Register() {
                     <label>Carrera(s)</label>
                     <select className="select-input" onChange={handleAddCarrera} defaultValue="">
                       <option value="" disabled>Seleccione una carrera para agregar...</option>
-                      {(carrerasOpts.length > 0 ? carrerasOpts : fallbackCarreras).map(c => (
+                      {filteredCarreras.map(c => (
                         <option key={c.id_carreras} value={c.id_carreras}>{c.nombre}</option>
                       ))}
                     </select>
