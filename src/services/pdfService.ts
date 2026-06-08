@@ -55,7 +55,7 @@ export async function generarPdfAtsFriendly(perfil: DatosPerfilUCR): Promise<Buf
       const agregarTituloSeccion = (titulo: string) => {
         doc.font(fontBold).fontSize(12).text(titulo.toUpperCase());
         // Línea divisoria muy básica que no rompe el flujo del ATS
-        doc.moveTo(doc.x, doc.y).lineTo(doc.page.width - doc.options.margins.right, doc.y).stroke();
+        doc.moveTo(doc.x, doc.y).lineTo(doc.page.width - 50, doc.y).stroke();
         doc.moveDown(0.5);
       };
 
