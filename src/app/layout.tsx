@@ -1,10 +1,9 @@
-import './globals.css';
-import type { Metadata } from 'next';
+import "../styles/layout.css";
 
-export const metadata: Metadata = {
-  title: 'Alumni UCR Foundation',
-  description: 'Plataforma para egresados de la UCR',
-};
+export const metadata = {
+  title: 'Fundación Exalumnos UCR',
+  description: 'Directorio Estudiantil',
+}
 
 export default function RootLayout({
   children,
