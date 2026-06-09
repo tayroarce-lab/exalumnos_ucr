@@ -4,15 +4,19 @@
  * actions/matching.ts
  *
  * Server Actions para el cálculo y generación de scores de compatibilidad.
+ * REESCRITO para schema v20260608: usa public.users (con campo `rol`) y
+ * public.curriculums (renombrada). Las tablas `estudiantes` y `exalumnos`
+ * ya no existen.
  *
  * Algoritmos implementados:
  *   1. calcularScoreMentoria()   — Score Estudiante ↔ Exalumno (máx. 100 pts)
  *   2. generarMatchesMentoria()  — Genera todos los matches de mentoría en lote
  *   3. calcularScorePuesto()     — Score Estudiante ↔ Posición (máx. 100 pts)
- *   4. generarScoresPuestos()    — Calcula scores para todos los pares activos
+ *   4. generarScoresPuestos()    — Persiste scores para todos los pares activos
  */
 
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 
 // ─── Tipos de retorno ─────────────────────────────────────────────────────────
@@ -20,7 +24,7 @@ import { revalidatePath } from 'next/cache'
 export interface DesgloseMentoria {
   carrera: number       // 0 | 30
   areasInteres: number  // 0..30
-  sectorVsArea: number  // 0 | 20
+  sectorVsAreas: number // 0 | 20
   tipoApoyo: number     // 0 | 20
 }
 
@@ -30,10 +34,10 @@ export interface MatchMentoriaResult {
 }
 
 export interface DesglosePuesto {
-  carreraVsSector: number  // 0 | 35
-  habilidades: number      // 0..35
-  areasInteres: number     // 0..20
-  tipoApoyo: number        // 0 | 10
+  areaSector: number    // 0 | 35
+  habilidades: number   // 0..35
+  areasInteres: number  // 0..20
+  tipoApoyo: number     // 0 | 10
 }
 
 export interface MatchPuestoResult {
@@ -56,7 +60,6 @@ export interface ResultadoScoresPuestos {
 /**
  * Calcula qué proporción de los elementos de `referencia` están contenidos
  * en `comparado`. Normaliza a minúsculas para comparación sin diferenciación.
- *
  * @returns Número entre 0.0 y 1.0
  */
 function interseccionProporcional(
@@ -64,23 +67,10 @@ function interseccionProporcional(
   comparado: string[]
 ): number {
   if (referencia.length === 0) return 0
-
   const refNorm = referencia.map((s) => s.toLowerCase().trim())
   const cmpNorm = comparado.map((s) => s.toLowerCase().trim())
   const coincidencias = refNorm.filter((item) => cmpNorm.includes(item))
-
   return coincidencias.length / refNorm.length
-}
-
-/**
- * Compara dos strings ignorando mayúsculas y espacios laterales.
- */
-function coincideCadena(
-  a: string | null | undefined,
-  b: string | null | undefined
-): boolean {
-  if (!a || !b) return false
-  return a.toLowerCase().trim() === b.toLowerCase().trim()
 }
 
 /**
@@ -96,20 +86,36 @@ function incluidoEnArray(
   return arr.map((s) => s.toLowerCase().trim()).includes(valorNorm)
 }
 
+// ─── Tipo de perfil del usuario desde public.users ───────────────────────────
+
+interface PerfilUsuario {
+  id: string
+  rol: string
+  carrera_principal_id: number | null
+  areas_de_interes: string[] | null
+  sector_industria: string[] | null
+  busca_mentoria: boolean
+  busca_empleo: boolean
+  busca_pasantia: boolean
+  busca_financiamiento: boolean
+  ofrece_mentoria: boolean
+  ofrece_empleo: boolean
+  ofrece_pasantia: boolean
+  ofrece_donacion_dinero: boolean
+  visible_en_directorio: boolean
+}
+
 // ─── Algoritmo 1: Mentoría (Estudiante ↔ Exalumno) ───────────────────────────
 
 /**
  * Calcula el score de compatibilidad de mentoría entre un estudiante y un exalumno.
+ * Lee de public.users (schema v20260608).
  *
  * Criterios de puntuación (total máximo: 100 puntos):
- *   - Misma carrera UCR                                    = 30 pts
- *   - Intersección proporcional de áreas de interés        = máx. 30 pts
- *   - Sector exalumno ⊇ área temática del proyecto         = 20 pts
- *   - Al menos un tipo de apoyo coincide (ofrece ↔ busca)  = 20 pts
- *
- * @param estudianteId - UUID del usuario estudiante.
- * @param exalumnoId   - UUID del usuario exalumno.
- * @returns Score total y desglose por criterio.
+ *   - Misma carrera principal (carrera_principal_id)    = 30 pts
+ *   - Intersección proporcional de áreas de interés     = máx. 30 pts
+ *   - Sector exalumno ∩ áreas interés estudiante        = 20 pts
+ *   - Al menos un tipo de apoyo coincide                = 20 pts
  */
 export async function calcularScoreMentoria(
   estudianteId: string,
@@ -117,75 +123,75 @@ export async function calcularScoreMentoria(
 ): Promise<MatchMentoriaResult> {
   const supabase = await createClient()
 
+  const camposRequeridos = `
+    id, rol, carrera_principal_id, areas_de_interes, sector_industria,
+    busca_mentoria, busca_empleo, busca_pasantia, busca_financiamiento,
+    ofrece_mentoria, ofrece_empleo, ofrece_pasantia, ofrece_donacion_dinero,
+    visible_en_directorio
+  `
+
   const [{ data: estudiante, error: errEst }, { data: exalumno, error: errEx }] =
     await Promise.all([
       supabase
-        .from('estudiantes')
-        .select(
-          'carrera, areas_de_interes, proyecto_area_tematica, busca_mentoria, busca_financiamiento, busca_empleo, busca_pasantia'
-        )
-        .eq('user_id', estudianteId)
+        .from('users')
+        .select(camposRequeridos)
+        .eq('id', estudianteId)
+        .eq('rol', 'estudiante')
+        .is('deleted_at', null)
         .single(),
       supabase
-        .from('exalumnos')
-        .select(
-          'carrera_ucr, areas_de_interes, sector_industria, ofrece_mentoria, ofrece_donacion_dinero, ofrece_empleo, ofrece_pasantia'
-        )
-        .eq('user_id', exalumnoId)
+        .from('users')
+        .select(camposRequeridos)
+        .eq('id', exalumnoId)
+        .eq('rol', 'exalumno')
+        .is('deleted_at', null)
         .single(),
     ])
 
-  if (errEst) {
-    throw new Error(`Error al obtener datos del estudiante: ${errEst.message}`)
-  }
-  if (errEx) {
-    throw new Error(`Error al obtener datos del exalumno: ${errEx.message}`)
-  }
-  if (!estudiante) {
-    throw new Error(`Estudiante con ID "${estudianteId}" no encontrado.`)
-  }
-  if (!exalumno) {
-    throw new Error(`Exalumno con ID "${exalumnoId}" no encontrado.`)
-  }
+  if (errEst) throw new Error(`Error al obtener estudiante: ${errEst.message}`)
+  if (errEx)  throw new Error(`Error al obtener exalumno: ${errEx.message}`)
+  if (!estudiante) throw new Error(`Estudiante "${estudianteId}" no encontrado.`)
+  if (!exalumno)   throw new Error(`Exalumno "${exalumnoId}" no encontrado.`)
 
-  // ── Criterio 1: Misma carrera UCR — 30 puntos ───────────────────────────
-  const puntosCarrera = coincideCadena(estudiante.carrera, exalumno.carrera_ucr)
-    ? 30
-    : 0
+  const est = estudiante as PerfilUsuario
+  const exal = exalumno as PerfilUsuario
+
+  // ── Criterio 1: Misma carrera principal — 30 puntos ─────────────────────
+  const puntosCarrera =
+    est.carrera_principal_id !== null &&
+    exal.carrera_principal_id !== null &&
+    est.carrera_principal_id === exal.carrera_principal_id
+      ? 30 : 0
 
   // ── Criterio 2: Intersección proporcional de áreas de interés — máx. 30 pts
-  const areasEstudiante: string[] = estudiante.areas_de_interes ?? []
-  const areasExalumno: string[] = exalumno.areas_de_interes ?? []
-  const ratioAreas = interseccionProporcional(areasEstudiante, areasExalumno)
+  const areasEst:  string[] = est.areas_de_interes ?? []
+  const areasExal: string[] = exal.areas_de_interes ?? []
+  const ratioAreas = interseccionProporcional(areasEst, areasExal)
   const puntosAreas = Math.round(ratioAreas * 30)
 
-  // ── Criterio 3: Sector del exalumno ⊇ área temática del proyecto — 20 pts
-  const sectorExalumno: string[] = exalumno.sector_industria ?? []
-  const areaTematica = estudiante.proyecto_area_tematica ?? ''
-  const puntosSector = incluidoEnArray(areaTematica, sectorExalumno) ? 20 : 0
+  // ── Criterio 3: Sector exalumno ∩ áreas interés estudiante — 20 pts ─────
+  const sectoresExal: string[] = exal.sector_industria ?? []
+  const puntosSector = sectoresExal.some((s) =>
+    areasEst.map((a) => a.toLowerCase()).includes(s.toLowerCase())
+  ) ? 20 : 0
 
   // ── Criterio 4: Al menos un tipo de apoyo coincide — 20 puntos ──────────
-  const paresApoyo: Array<[boolean | null, boolean | null]> = [
-    [exalumno.ofrece_mentoria, estudiante.busca_mentoria],
-    [exalumno.ofrece_donacion_dinero, estudiante.busca_financiamiento],
-    [exalumno.ofrece_empleo, estudiante.busca_empleo],
-    [exalumno.ofrece_pasantia, estudiante.busca_pasantia],
-  ]
-  const hayCoincidenciaApoyo = paresApoyo.some(
-    ([ofrece, busca]) => ofrece === true && busca === true
-  )
+  const hayCoincidenciaApoyo =
+    (exal.ofrece_mentoria       && est.busca_mentoria)      ||
+    (exal.ofrece_empleo         && est.busca_empleo)        ||
+    (exal.ofrece_pasantia       && est.busca_pasantia)      ||
+    (exal.ofrece_donacion_dinero && est.busca_financiamiento)
   const puntosTipoApoyo = hayCoincidenciaApoyo ? 20 : 0
 
-  const scoreTotal =
-    puntosCarrera + puntosAreas + puntosSector + puntosTipoApoyo
+  const scoreTotal = puntosCarrera + puntosAreas + puntosSector + puntosTipoApoyo
 
   return {
     score: Math.min(scoreTotal, 100),
     desglose: {
-      carrera: puntosCarrera,
-      areasInteres: puntosAreas,
-      sectorVsArea: puntosSector,
-      tipoApoyo: puntosTipoApoyo,
+      carrera:       puntosCarrera,
+      areasInteres:  puntosAreas,
+      sectorVsAreas: puntosSector,
+      tipoApoyo:     puntosTipoApoyo,
     },
   }
 }
@@ -193,80 +199,74 @@ export async function calcularScoreMentoria(
 /**
  * Genera y persiste en la tabla `matches` todos los pares Estudiante ↔ Exalumno
  * cuyo score de mentoría supere el `umbralMinimo`. Evita duplicados.
- *
- * @param umbralMinimo - Score mínimo para crear el match (default: 40).
- * @returns Número de matches insertados y lista de errores parciales.
+ * Lee directamente de public.users filtrando por rol y deleted_at.
  */
 export async function generarMatchesMentoria(
   umbralMinimo: number = 40
 ): Promise<ResultadoLote> {
-  const supabase = await createClient()
+  const adminClient = createAdminClient()
 
   const [{ data: estudiantes, error: errEst }, { data: exalumnos, error: errEx }] =
     await Promise.all([
-      supabase
-        .from('estudiantes')
-        .select('user_id')
+      adminClient
+        .from('users')
+        .select('id')
+        .eq('rol', 'estudiante')
         .eq('busca_mentoria', true)
-        .eq('visible_en_directorio', true),
-      supabase
-        .from('exalumnos')
-        .select('user_id')
+        .eq('visible_en_directorio', true)
+        .is('deleted_at', null),
+      adminClient
+        .from('users')
+        .select('id')
+        .eq('rol', 'exalumno')
         .eq('ofrece_mentoria', true)
-        .eq('visible_en_directorio', true),
+        .eq('visible_en_directorio', true)
+        .is('deleted_at', null),
     ])
 
-  if (errEst) {
-    throw new Error(`Error al obtener lista de estudiantes: ${errEst.message}`)
-  }
-  if (errEx) {
-    throw new Error(`Error al obtener lista de exalumnos: ${errEx.message}`)
-  }
+  if (errEst) throw new Error(`Error al obtener estudiantes: ${errEst.message}`)
+  if (errEx)  throw new Error(`Error al obtener exalumnos: ${errEx.message}`)
 
   const estudiantesList = estudiantes ?? []
-  const exalumnosList = exalumnos ?? []
+  const exalumnosList   = exalumnos ?? []
   const errores: string[] = []
   let insertados = 0
 
   for (const est of estudiantesList) {
     for (const ex of exalumnosList) {
       try {
-        const resultado = await calcularScoreMentoria(est.user_id, ex.user_id)
-
+        const resultado = await calcularScoreMentoria(est.id, ex.id)
         if (resultado.score < umbralMinimo) continue
 
         // Verificar si ya existe un match de mentoría entre este par
-        const { data: matchExistente } = await supabase
+        const { data: matchExistente } = await adminClient
           .from('matches')
           .select('id')
-          .eq('estudiante_id', est.user_id)
-          .eq('exalumno_id', ex.user_id)
+          .is('deleted_at', null)
+          .eq('estudiante_id', est.id)
+          .eq('exalumno_id', ex.id)
           .eq('tipo_apoyo', 'mentoria')
           .maybeSingle()
 
         if (matchExistente) continue
 
-        const { error: errInsert } = await supabase.from('matches').insert({
-          exalumno_id: ex.user_id,
-          estudiante_id: est.user_id,
-          tipo_apoyo: 'mentoria',
-          score_match: resultado.score,
-          estado: 'sugerido',
+        const { error: errInsert } = await adminClient.from('matches').insert({
+          exalumno_id:  ex.id,
+          estudiante_id: est.id,
+          tipo_apoyo:   'mentoria',
+          score_match:  resultado.score,
+          estado:       'sugerido',
           iniciado_por: 'plataforma',
         })
 
         if (errInsert) {
-          errores.push(
-            `Error insertando match ${est.user_id} ↔ ${ex.user_id}: ${errInsert.message}`
-          )
+          errores.push(`Error insertando ${est.id} ↔ ${ex.id}: ${errInsert.message}`)
         } else {
           insertados++
         }
       } catch (err) {
         const mensaje = err instanceof Error ? err.message : String(err)
-        errores.push(
-          `Error calculando score ${est.user_id} ↔ ${ex.user_id}: ${mensaje}`
-        )
+        errores.push(`Error calculando score ${est.id} ↔ ${ex.id}: ${mensaje}`)
       }
     }
   }
@@ -279,16 +279,13 @@ export async function generarMatchesMentoria(
 
 /**
  * Calcula el score de compatibilidad entre un estudiante y una posición publicada.
+ * Lee de public.users + public.curriculums (tabla renombrada en migración 20260608).
  *
  * Criterios de puntuación (total máximo: 100 puntos):
- *   - Carrera del estudiante ⊆ sector de la posición             = 35 pts
- *   - Habilidades técnicas CV ∩ habilidades requeridas (prop.)   = máx. 35 pts
- *   - Áreas de interés del estudiante ∩ sector de la posición     = máx. 20 pts
- *   - Tipo de apoyo buscado coincide con el tipo de posición      = 10 pts
- *
- * @param estudianteId - UUID del usuario estudiante.
- * @param posicionId   - UUID de la posición publicada.
- * @returns Score total y desglose por criterio.
+ *   - Área de interés estudiante ⊆ sector de la posición     = 35 pts
+ *   - Habilidades técnicas CV ∩ habilidades requeridas (prop) = máx. 35 pts
+ *   - Áreas de interés ∩ sector de la posición (proporcional) = máx. 20 pts
+ *   - Tipo de apoyo buscado coincide con tipo de posición     = 10 pts
  */
 export async function calcularScorePuesto(
   estudianteId: string,
@@ -298,161 +295,152 @@ export async function calcularScorePuesto(
 
   const [
     { data: estudiante, error: errEst },
-    { data: posicion, error: errPos },
-    { data: curriculumData, error: errCv },
+    { data: posicion,   error: errPos },
+    { data: cvData,     error: errCv  },
   ] = await Promise.all([
     supabase
-      .from('estudiantes')
-      .select('carrera, areas_de_interes, busca_empleo, busca_pasantia')
-      .eq('user_id', estudianteId)
+      .from('users')
+      .select('areas_de_interes, busca_empleo, busca_pasantia')
+      .eq('id', estudianteId)
+      .eq('rol', 'estudiante')
+      .is('deleted_at', null)
       .single(),
     supabase
       .from('posiciones')
-      .select('sector, habilidades_requeridas, estado')
+      .select('sector, habilidades_requeridas, estado, tipo')
+      .is('deleted_at', null)
       .eq('id', posicionId)
       .single(),
+    // curriculums = nombre correcto tras migración 20260608
     supabase
-      .from('curriculum')
+      .from('curriculums')
       .select('habilidades_tecnicas')
-      .eq('estudiante_id', estudianteId)
+      .eq('user_id', estudianteId)
       .maybeSingle(),
   ])
 
-  if (errEst) {
-    throw new Error(`Error al obtener datos del estudiante: ${errEst.message}`)
-  }
-  if (errPos) {
-    throw new Error(`Error al obtener datos de la posición: ${errPos.message}`)
-  }
-  if (errCv) {
-    throw new Error(`Error al obtener curriculum del estudiante: ${errCv.message}`)
-  }
-  if (!estudiante) {
-    throw new Error(`Estudiante con ID "${estudianteId}" no encontrado.`)
-  }
-  if (!posicion) {
-    throw new Error(`Posición con ID "${posicionId}" no encontrada.`)
-  }
+  if (errEst) throw new Error(`Error al obtener estudiante: ${errEst.message}`)
+  if (errPos) throw new Error(`Error al obtener posición: ${errPos.message}`)
+  if (errCv)  throw new Error(`Error al obtener curriculum: ${errCv.message}`)
+  if (!estudiante) throw new Error(`Estudiante "${estudianteId}" no encontrado.`)
+  if (!posicion)   throw new Error(`Posición "${posicionId}" no encontrada.`)
 
-  // Si la posición no está activa, el score es 0
+  // Si la posición no está activa (usa 'activa', no 'abierta'), score = 0
   if (posicion.estado !== 'activa') {
-    return {
-      score: 0,
-      desglose: { carreraVsSector: 0, habilidades: 0, areasInteres: 0, tipoApoyo: 0 },
-    }
+    return { score: 0, desglose: { areaSector: 0, habilidades: 0, areasInteres: 0, tipoApoyo: 0 } }
   }
 
-  // ── Criterio 1: Carrera del estudiante ⊆ sector de la posición — 35 pts ─
-  const sectorPosicion: string[] = posicion.sector ?? []
-  const puntosCarreraSector = incluidoEnArray(estudiante.carrera, sectorPosicion)
-    ? 35
-    : 0
+  const areasEst: string[]        = estudiante.areas_de_interes ?? []
+  const sectorPos: string[]        = posicion.sector ?? []
+  const habilidadesReq: string[]   = posicion.habilidades_requeridas ?? []
 
-  // ── Criterio 2: Habilidades CV ∩ habilidades requeridas — máx. 35 pts ───
-  const habilidadesRequeridas: string[] = posicion.habilidades_requeridas ?? []
-
-  // habilidades_tecnicas es JSONB: puede ser objeto { habilidad: nivel } o array
-  // Se normaliza a un array de strings (claves del objeto o valores del array)
-  const habilidadesCvRaw: unknown = curriculumData?.habilidades_tecnicas ?? {}
+  // Extraer claves del JSONB { "React": "avanzado", ... } → ["React", ...]
+  const habilidadesCvRaw: unknown = cvData?.habilidades_tecnicas ?? {}
   let habilidadesCvArray: string[] = []
-
   if (Array.isArray(habilidadesCvRaw)) {
     habilidadesCvArray = (habilidadesCvRaw as unknown[]).map(String)
-  } else if (
-    typeof habilidadesCvRaw === 'object' &&
-    habilidadesCvRaw !== null
-  ) {
-    habilidadesCvArray = Object.keys(
-      habilidadesCvRaw as Record<string, unknown>
-    )
+  } else if (typeof habilidadesCvRaw === 'object' && habilidadesCvRaw !== null) {
+    habilidadesCvArray = Object.keys(habilidadesCvRaw as Record<string, unknown>)
   }
 
-  const ratioHabilidades = interseccionProporcional(
-    habilidadesRequeridas,
-    habilidadesCvArray
-  )
+  // ── Criterio 1: Área de interés estudiante ⊆ sector posición — 35 pts ───
+  const puntosAreaSector = areasEst.some((a) => incluidoEnArray(a, sectorPos)) ? 35 : 0
+
+  // ── Criterio 2: Habilidades CV ∩ habilidades requeridas — máx. 35 pts ───
+  const ratioHabilidades = interseccionProporcional(habilidadesReq, habilidadesCvArray)
   const puntosHabilidades = Math.round(ratioHabilidades * 35)
 
-  // ── Criterio 3: Áreas de interés ∩ sector de la posición — máx. 20 pts ──
-  const areasEstudiante: string[] = estudiante.areas_de_interes ?? []
-  const ratioAreas = interseccionProporcional(areasEstudiante, sectorPosicion)
+  // ── Criterio 3: Áreas de interés ∩ sector posición — máx. 20 pts ────────
+  const ratioAreas = interseccionProporcional(areasEst, sectorPos)
   const puntosAreas = Math.round(ratioAreas * 20)
 
-  // ── Criterio 4: Tipo de apoyo buscado coincide con el puesto — 10 pts ───
-  const estudianteBuscaEmpleo: boolean = estudiante.busca_empleo ?? false
-  const estudianteBuscaPasantia: boolean = estudiante.busca_pasantia ?? false
+  // ── Criterio 4: Tipo de apoyo buscado coincide — 10 pts ─────────────────
   const puntosTipoApoyo =
-    estudianteBuscaEmpleo || estudianteBuscaPasantia ? 10 : 0
+    (posicion.tipo === 'empleo'   && estudiante.busca_empleo) ||
+    (posicion.tipo === 'pasantia' && estudiante.busca_pasantia)
+      ? 10 : 0
 
-  const scoreTotal =
-    puntosCarreraSector + puntosHabilidades + puntosAreas + puntosTipoApoyo
+  const scoreTotal = puntosAreaSector + puntosHabilidades + puntosAreas + puntosTipoApoyo
 
   return {
     score: Math.min(scoreTotal, 100),
     desglose: {
-      carreraVsSector: puntosCarreraSector,
+      areaSector:  puntosAreaSector,
       habilidades: puntosHabilidades,
       areasInteres: puntosAreas,
-      tipoApoyo: puntosTipoApoyo,
+      tipoApoyo:   puntosTipoApoyo,
     },
   }
 }
 
 /**
- * Calcula los scores de compatibilidad para todos los pares
- * Estudiante activo ↔ Posición activa y retorna el conteo de pares
- * que superan el `umbralMinimo`. El resultado es utilizado por el sistema
- * de recomendaciones del dashboard de empleabilidad.
- *
- * @param umbralMinimo - Score mínimo de relevancia (default: 50).
- * @returns Total de pares relevantes y lista de errores parciales.
+ * Calcula y PERSISTE los scores de compatibilidad para todos los pares
+ * Estudiante activo ↔ Posición activa que superen el `umbralMinimo`.
+ * CORREGIDO: ahora sí inserta en la tabla `matches` (a diferencia de la
+ * versión anterior que solo contaba sin persistir).
  */
 export async function generarScoresPuestos(
   umbralMinimo: number = 50
 ): Promise<ResultadoScoresPuestos> {
-  const supabase = await createClient()
+  const adminClient = createAdminClient()
 
   const [{ data: estudiantes, error: errEst }, { data: posiciones, error: errPos }] =
     await Promise.all([
-      supabase
-        .from('estudiantes')
-        .select('user_id')
-        .eq('visible_en_directorio', true)
-        .or('busca_empleo.eq.true,busca_pasantia.eq.true'),
-      supabase
-        .from('posiciones')
+      adminClient
+        .from('users')
         .select('id')
+        .eq('rol', 'estudiante')
+        .eq('visible_en_directorio', true)
+        .is('deleted_at', null)
+        .or('busca_empleo.eq.true,busca_pasantia.eq.true'),
+      adminClient
+        .from('posiciones')
+        .select('id, exalumno_id')
+        .is('deleted_at', null)
         .eq('estado', 'activa'),
     ])
 
-  if (errEst) {
-    throw new Error(`Error al obtener lista de estudiantes: ${errEst.message}`)
-  }
-  if (errPos) {
-    throw new Error(`Error al obtener lista de posiciones: ${errPos.message}`)
-  }
+  if (errEst) throw new Error(`Error al obtener estudiantes: ${errEst.message}`)
+  if (errPos) throw new Error(`Error al obtener posiciones: ${errPos.message}`)
 
   const estudiantesList = estudiantes ?? []
-  const posicionesList = posiciones ?? []
+  const posicionesList  = posiciones ?? []
   const errores: string[] = []
   let procesados = 0
 
   for (const est of estudiantesList) {
     for (const pos of posicionesList) {
       try {
-        const resultado = await calcularScorePuesto(est.user_id, pos.id)
+        const resultado = await calcularScorePuesto(est.id, pos.id)
+        if (resultado.score < umbralMinimo) continue
 
-        if (resultado.score >= umbralMinimo) {
+        // PERSISTE el match en la tabla matches (corrección de bug)
+        const { error: errUpsert } = await adminClient
+          .from('matches')
+          .upsert(
+            {
+              estudiante_id: est.id,
+              exalumno_id:   pos.exalumno_id,
+              tipo_apoyo:    'puesto',
+              score_match:   resultado.score,
+              estado:        'sugerido',
+              iniciado_por:  'plataforma',
+            },
+            { onConflict: 'estudiante_id,exalumno_id' }
+          )
+
+        if (errUpsert) {
+          errores.push(`Error persistiendo ${est.id} ↔ ${pos.id}: ${errUpsert.message}`)
+        } else {
           procesados++
         }
       } catch (err) {
         const mensaje = err instanceof Error ? err.message : String(err)
-        errores.push(
-          `Error en par estudiante:${est.user_id} ↔ posición:${pos.id}: ${mensaje}`
-        )
+        errores.push(`Error en par estudiante:${est.id} ↔ posición:${pos.id}: ${mensaje}`)
       }
     }
   }
 
+  revalidatePath('/dashboard/admin')
   return { procesados, errores }
 }

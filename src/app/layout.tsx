@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import '../styles/layout.css'
 
 export const metadata: Metadata = {
   title: 'Fundación Exalumnos UCR',
@@ -13,6 +14,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
+      <link rel="icon" href="/images/Logo_UCR.png" />
       <body className="bg-slate-50 text-brand-dark min-h-screen">
         {children}
       </body>

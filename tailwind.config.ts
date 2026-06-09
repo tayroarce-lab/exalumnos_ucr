@@ -9,6 +9,13 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        esmeralda: '#004C63',
+        celeste: '#54BCEB',
+        amarillo: '#FF9B18',
+        naranja: '#F34B26',
+        background: 'var(--background)',
+        foreground: 'var(--foreground)',
+        border: 'var(--border)',
         brand: {
           blue: '#0D4091',
           celeste: '#2A8BF6',
