@@ -11,32 +11,40 @@ export default async function PerfilEstudiantePage({ params }: { params: { id: s
     notFound();
   }
 
+  // Estudiantes relacionados por carrera (único campo confiable disponible en la BD)
   const estudiantesRelacionados = await getEstudiantesRelacionados(
     estudiante.user_id,
-    estudiante.proyecto_area_tematica
+    estudiante.carrera || null
   );
 
   const tagsApoyo = (() => {
     const tags: string[] = [];
-    if (estudiante.busca_financiamiento) tags.push('Financiamiento');
     if (estudiante.busca_mentoria) tags.push('Mentoría');
     if (estudiante.busca_empleo) tags.push('Empleo');
-    if (estudiante.busca_pasantia) tags.push('Pasantía');
     return tags;
   })();
 
   return (
     <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8 font-sans text-slate-900">
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="max-w-5xl mx-auto space-y-0">
+        {/* Breadcrumb */}
         <div className="mb-6">
-          <Link href="/directorio/estudiantes" className="inline-flex items-center text-sm font-medium text-slate-500 hover:text-esmeralda transition-colors">
+          <Link
+            href="/directorio/estudiantes"
+            className="inline-flex items-center text-sm font-medium text-slate-500 hover:text-blue-700 transition-colors"
+          >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
               <path d="m15 18-6-6 6-6" />
             </svg>
             Volver al Directorio
           </Link>
         </div>
-        <StudentProfile estudiante={estudiante} tagsApoyo={tagsApoyo} estudiantesRelacionados={estudiantesRelacionados} />
+
+        <StudentProfile
+          estudiante={estudiante}
+          tagsApoyo={tagsApoyo}
+          estudiantesRelacionados={estudiantesRelacionados}
+        />
       </div>
     </div>
   );
