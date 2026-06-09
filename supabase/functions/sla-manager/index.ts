@@ -1,11 +1,17 @@
+// @ts-ignore: Deno imports
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
+// @ts-ignore: Deno imports
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
+// @ts-ignore: Deno imports
 import { Resend } from 'npm:resend';
+
+// Declaración de entorno de Deno para que el IDE deje de mostrar error "Cannot find name 'Deno'"
+declare const Deno: any;
 
 // Inicializar el cliente de Resend con la variable de entorno
 const clienteResend = new Resend(Deno.env.get('RESEND_API_KEY'));
 
-serve(async (_req) => {
+serve(async (_req: any) => {
   try {
     // Inicializar Supabase con privilegios de administrador para el cron
     const supabase = createClient(
@@ -27,7 +33,7 @@ serve(async (_req) => {
       }),
       { headers: { 'Content-Type': 'application/json' }, status: 200 }
     );
-  } catch (error) {
+  } catch (error: any) {
     console.error('Fallo general en Gestor de SLA:', error);
     return new Response(JSON.stringify({ error: error.message }), { status: 500 });
   }

@@ -276,3 +276,14 @@ s3_secret_key = "env(S3_SECRET_KEY)"
 
 [functions.sla-manager]
   verify_jwt = false
+
+[functions.storage-cleaner]
+  verify_jwt = false
+
+# Cron Job: Garbage Collector para Storage (Corre cada domingo a las 3:00 AM)
+# Cron usa el formato de pg_cron (minuto hora dia_del_mes mes dia_de_la_semana)
+# Ejemplo: "0 3 * * 0" = 3:00 AM todos los Domingos.
+# [TODO: Habilitar según necesidad de entorno]
+# [cron]
+# enabled = true
+
