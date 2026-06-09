@@ -40,7 +40,7 @@ function BarraNavegacion() {
           width={280}
           height={100}
           className="logo-imagen"
-          style={{ objectFit: 'contain' }}
+          style={{ objectFit: 'contain', width: 'auto' }}
           priority
         />
       </div>
