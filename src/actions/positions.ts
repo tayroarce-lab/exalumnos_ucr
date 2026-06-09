@@ -120,3 +120,47 @@ export async function obtenerPosicionPorId(id: string) {
   if (error) throw new Error(error.message)
   return data
 }
+
+// =============================================================================
+// FUNCIÓN: eliminarPosicionLogica
+// Descripción : Ejecuta el BORRADO LÓGICO de una posición del exalumno autenticado.
+//               NO hace DELETE físico. Estampa deleted_at = NOW() vía función SQL.
+//               El trigger de cascada propagará el borrado a matches relacionados.
+// =============================================================================
+export async function eliminarPosicionLogica(posicionId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('No autenticado')
+
+  // Invocar la función SQL SECURITY DEFINER que valida propiedad antes de borrar
+  const { error } = await supabase.rpc('eliminar_posicion_logica', {
+    p_posicion_id: posicionId,
+    p_exalumno_id: user.id
+  })
+
+  if (error) throw new Error(`No se pudo eliminar la posición: ${error.message}`)
+
+  revalidatePath('/mis-posiciones')
+  return { success: true, mensaje: 'Posición eliminada. Puede ser recuperada por un administrador.' }
+}
+
+// =============================================================================
+// FUNCIÓN: restaurarPosicionAdmin
+// Descripción : Revierte el borrado lógico de una posición. Uso exclusivo para
+//               administradores. Llama a la función SQL `restaurar_registro`.
+// =============================================================================
+export async function restaurarPosicionAdmin(posicionId: string) {
+  const { createAdminClient } = await import('@/lib/supabase/admin')
+  const adminClient = createAdminClient()
+
+  const { error } = await adminClient.rpc('restaurar_registro', {
+    p_table_name: 'posiciones',
+    p_record_id: posicionId
+  })
+
+  if (error) throw new Error(`Error al restaurar posición: ${error.message}`)
+
+  revalidatePath('/admin/posiciones')
+  revalidatePath('/mis-posiciones')
+  return { success: true, mensaje: 'Posición restaurada y visible nuevamente.' }
+}

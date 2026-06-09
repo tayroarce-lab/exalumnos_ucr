@@ -516,6 +516,7 @@ export type Database = {
       matches: {
         Row: {
           created_at: string
+          deleted_at: string | null
           estado: string
           estudiante_id: string
           exalumno_id: string
@@ -529,6 +530,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          deleted_at?: string | null
           estado?: string
           estudiante_id: string
           exalumno_id: string
@@ -542,6 +544,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          deleted_at?: string | null
           estado?: string
           estudiante_id?: string
           exalumno_id?: string
@@ -574,6 +577,7 @@ export type Database = {
         Row: {
           contexto_equipo: string | null
           created_at: string
+          deleted_at: string | null
           descripcion_general: string
           empresa: string
           estado: string
@@ -581,13 +585,18 @@ export type Database = {
           fecha_limite: string | null
           habilidades_requeridas: string[]
           id: string
+          lugar: string | null
+          modalidad: string | null
           responsabilidades: string[]
           sector: string[]
+          tipo: string | null
+          titulo: string
           updated_at: string
         }
         Insert: {
           contexto_equipo?: string | null
           created_at?: string
+          deleted_at?: string | null
           descripcion_general: string
           empresa: string
           estado?: string
@@ -595,13 +604,18 @@ export type Database = {
           fecha_limite?: string | null
           habilidades_requeridas?: string[]
           id?: string
+          lugar?: string | null
+          modalidad?: string | null
           responsabilidades?: string[]
           sector?: string[]
+          tipo?: string | null
+          titulo: string
           updated_at?: string
         }
         Update: {
           contexto_equipo?: string | null
           created_at?: string
+          deleted_at?: string | null
           descripcion_general?: string
           empresa?: string
           estado?: string
@@ -609,8 +623,12 @@ export type Database = {
           fecha_limite?: string | null
           habilidades_requeridas?: string[]
           id?: string
+          lugar?: string | null
+          modalidad?: string | null
           responsabilidades?: string[]
           sector?: string[]
+          tipo?: string | null
+          titulo?: string
           updated_at?: string
         }
         Relationships: [
@@ -672,38 +690,41 @@ export type Database = {
         Row: {
           activo: boolean
           areas_de_interes: string[] | null
-          busca_empleo: boolean | null
-          busca_financiamiento: boolean | null
-          busca_mentoria: boolean | null
-          busca_pasantia: boolean | null
-          carrera: string | null
+          bio: string | null
+          busca_empleo: boolean
+          busca_financiamiento: boolean
+          busca_mentoria: boolean
+          busca_pasantia: boolean
+          carrera_principal_id: number | null
           created_at: string
+          deleted_at: string | null
           email: string
           email_verified: boolean
           escuela_facultad: string | null
           foto_url: string | null
           id: string
           nombre: string
-          proyecto_area_tematica: string | null
-          proyecto_descripcion: string | null
-          proyecto_porcentaje_avance: number | null
-          proyecto_tipo: string | null
-          proyecto_titulo: string | null
+          ofrece_donacion_dinero: boolean
+          ofrece_empleo: boolean
+          ofrece_mentoria: boolean
+          ofrece_pasantia: boolean
           reportes_recibidos: number
           rol: string
-          sede: string | null
+          sector_industria: string[] | null
           tipo: string
-          visible_en_directorio: boolean | null
+          visible_en_directorio: boolean
         }
         Insert: {
           activo?: boolean
           areas_de_interes?: string[] | null
-          busca_empleo?: boolean | null
-          busca_financiamiento?: boolean | null
-          busca_mentoria?: boolean | null
-          busca_pasantia?: boolean | null
-          carrera?: string | null
+          bio?: string | null
+          busca_empleo?: boolean
+          busca_financiamiento?: boolean
+          busca_mentoria?: boolean
+          busca_pasantia?: boolean
+          carrera_principal_id?: number | null
           created_at?: string
+          deleted_at?: string | null
           email: string
           email_verified?: boolean
           escuela_facultad?: string | null
@@ -724,37 +745,126 @@ export type Database = {
         Update: {
           activo?: boolean
           areas_de_interes?: string[] | null
-          busca_empleo?: boolean | null
-          busca_financiamiento?: boolean | null
-          busca_mentoria?: boolean | null
-          busca_pasantia?: boolean | null
-          carrera?: string | null
+          bio?: string | null
+          busca_empleo?: boolean
+          busca_financiamiento?: boolean
+          busca_mentoria?: boolean
+          busca_pasantia?: boolean
+          carrera_principal_id?: number | null
           created_at?: string
+          deleted_at?: string | null
           email?: string
           email_verified?: boolean
           escuela_facultad?: string | null
           foto_url?: string | null
           id?: string
           nombre?: string
-          proyecto_area_tematica?: string | null
-          proyecto_descripcion?: string | null
-          proyecto_porcentaje_avance?: number | null
-          proyecto_tipo?: string | null
-          proyecto_titulo?: string | null
+          ofrece_donacion_dinero?: boolean
+          ofrece_empleo?: boolean
+          ofrece_mentoria?: boolean
+          ofrece_pasantia?: boolean
           reportes_recibidos?: number
           rol?: string
-          sede?: string | null
+          sector_industria?: string[] | null
           tipo?: string
-          visible_en_directorio?: boolean | null
+          visible_en_directorio?: boolean
+        }
+        Relationships: []
+      }
+      curriculums: {
+        Row: {
+          created_at: string
+          cursos_relevantes: string[]
+          deleted_at: string | null
+          habilidades_blandas: string[]
+          habilidades_tecnicas: Json
+          id: string
+          idiomas: Json
+          proyecto_graduacion_resumen: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          cursos_relevantes?: string[]
+          deleted_at?: string | null
+          habilidades_blandas?: string[]
+          habilidades_tecnicas?: Json
+          id?: string
+          idiomas?: Json
+          proyecto_graduacion_resumen?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          cursos_relevantes?: string[]
+          deleted_at?: string | null
+          habilidades_blandas?: string[]
+          habilidades_tecnicas?: Json
+          id?: string
+          idiomas?: Json
+          proyecto_graduacion_resumen?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curriculums_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+    }
+    Views: {
+      view_student_position_matches: {
+        Row: {
+          created_at: string | null
+          descripcion_general: string | null
+          empresa: string | null
+          estudiante_id: string | null
+          lugar: string | null
+          modalidad: string | null
+          posicion_id: string | null
+          score_match: number | null
+          sector: string[] | null
+          tipo_posicion: string | null
+          titulo: string | null
         }
         Relationships: []
       }
     }
-    Views: {
-      [_ in never]: never
-    }
     Functions: {
-      [_ in never]: never
+      calcular_score_matching: {
+        Args: {
+          p_estudiante_id: string
+          p_exalumno_id: string
+        }
+        Returns: number
+      }
+      calcular_score_posicion_extendido: {
+        Args: {
+          p_estudiante_id: string
+          p_posicion_id: string
+        }
+        Returns: number
+      }
+      eliminar_perfil_logico: {
+        Args: {
+          p_user_id: string
+        }
+        Returns: boolean
+      }
+      restaurar_registro: {
+        Args: {
+          p_table_name: string
+          p_record_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
