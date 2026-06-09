@@ -182,7 +182,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
                   localStorage.removeItem('authToken')
                   localStorage.removeItem('userName')
                   localStorage.removeItem('userEmail')
-                  window.location.href = '/login'
+                  window.location.href = '/loginMariel'
                 }}
                 className="w-full flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider text-rose-600 hover:bg-rose-50 transition-colors text-left"
               >

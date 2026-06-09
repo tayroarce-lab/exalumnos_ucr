@@ -127,7 +127,7 @@ export default function LoginPage() {
           {/* Registro */}
           <div className="text-center pt-4 border-t border-slate-100 text-xs text-slate-500 font-semibold">
             ¿Aún no tienes cuenta?{' '}
-            <Link href="/register">
+            <Link href="/registerMariel">
               <span className="font-bold text-brand-blue hover:text-brand-celeste transition-colors">
                 Regístrate
               </span>

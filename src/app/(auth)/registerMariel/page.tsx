@@ -48,7 +48,7 @@ export default function RegisterPage() {
         </span>
         <div className="text-xs text-slate-500 font-semibold uppercase tracking-wider">
           ¿Ya tienes cuenta?{' '}
-          <Link href="/login">
+          <Link href="/loginMariel">
             <span className="font-bold text-brand-blue hover:text-brand-celeste transition-colors ml-1 cursor-pointer">
               Login
             </span>

@@ -115,7 +115,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           <button
             onClick={() => {
               localStorage.removeItem('authToken')
-              window.location.href = '/login'
+              window.location.href = '/loginMariel'
             }}
             className="w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold text-white/80 hover:bg-white/10 hover:text-white rounded-xl transition-colors text-left"
           >
