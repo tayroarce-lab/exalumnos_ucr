@@ -17,6 +17,7 @@ import {
   TIPOS_APOYO,
   CARRERA_TO_ESCUELA,
 } from '@/constants/catalogs'
+import { useProfile } from '@/contexts/ProfileContext'
 
 // Barra de progreso dinámica sin estilos inline en JSX
 function ProgressFill({ value, colorClass = 'bg-institutional' }: { value: number; colorClass?: string }) {
@@ -170,6 +171,82 @@ function SelectInput({ label, required, value, onChange, options, placeholder }:
         {options.map(o => <option key={o} value={o}>{o}</option>)}
       </select>
       <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+    </div>
+  )
+}
+
+function MultiSelectDropdown({ label, required, selected, options, onChange, max, placeholder }: {
+  label: string; required?: boolean; selected: string[]; options: string[]
+  onChange: (v: string[]) => void; max?: number; placeholder?: string
+}) {
+  const [isOpen, setIsOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
+  const toggle = (opt: string) => {
+    if (selected.includes(opt)) {
+      onChange(selected.filter(s => s !== opt))
+    } else if (!max || selected.length < max) {
+      onChange([...selected, opt])
+    }
+  }
+
+  const id = label.toLowerCase().replace(/\s+/g, '-')
+  
+  let displayText = placeholder || 'Seleccionar...'
+  if (selected.length > 0) {
+    if (selected.length === 1) displayText = selected[0]
+    else displayText = `${selected.length} seleccionados`
+  }
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <label htmlFor={id} className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+        {label}{required && <span className="text-rose-500 ml-1">*</span>}
+      </label>
+      
+      <button
+        id={id}
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10 transition-all text-left flex items-center justify-between"
+      >
+        <span className={selected.length === 0 ? "text-slate-400" : "truncate pr-4"}>
+          {displayText}
+        </span>
+        <ChevronDown className={`absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+      </button>
+
+      {isOpen && (
+        <div className="absolute z-10 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg max-h-60 overflow-y-auto py-2 animate-fade-in">
+          {max && <div className="px-4 py-2 text-[10px] text-slate-400 border-b border-slate-100 mb-2 font-semibold tracking-wide uppercase">Selecciona hasta {max} opciones ({selected.length} seleccionadas)</div>}
+          {options.map(opt => {
+            const isSelected = selected.includes(opt)
+            const isDisabled = !isSelected && max !== undefined && selected.length >= max
+            return (
+              <label key={opt} className={`flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-slate-50 transition-colors ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                <input
+                  type="checkbox"
+                  checked={isSelected}
+                  disabled={isDisabled}
+                  onChange={() => toggle(opt)}
+                  className="w-4 h-4 rounded text-blue-700 focus:ring-blue-600 border-slate-300"
+                />
+                <span className="text-sm font-medium text-slate-800">{opt}</span>
+              </label>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }
@@ -403,12 +480,13 @@ function SeccionProfesional({ data, update }: { data: ProfileFormData; update: (
       <h3 className="font-bold text-slate-800 text-base uppercase tracking-wide border-b border-slate-100 pb-2">Información Profesional Actual</h3>
       <TextInput label="Empresa o Institución Actual" required value={data.empresa_actual} onChange={v => update('empresa_actual', v)} placeholder="Ej: Google, Ministerio de Salud, Freelancer" />
       <TextInput label="Cargo Actual" required value={data.cargo_actual} onChange={v => update('cargo_actual', v)} placeholder="Ej: Ingeniería de Software Senior" />
-      <MultiSelectChips
+      <MultiSelectDropdown
         label="Sector / Industria" required
         selected={data.sector_industria}
         options={SECTORES_INDUSTRIA}
         onChange={v => update('sector_industria', v)}
         max={5}
+        placeholder="Seleccionar sector..."
       />
       <div>
         <label htmlFor="anos-experiencia" className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Años de Experiencia Laboral<span className="text-rose-500 ml-1">*</span></label>
@@ -431,11 +509,12 @@ function SeccionIntereses({ data, update }: { data: ProfileFormData; update: (k:
       <p className="text-xs text-slate-500 font-medium leading-relaxed bg-blue-50 border border-blue-100 rounded-xl p-4">
         💡 <strong>Importante:</strong> Estas áreas van más allá de tu carrera formal. Un ingeniero puede marcar "Salud" o "Emprendimiento". Esto permite conexiones interdisciplinarias con estudiantes que tienen intereses similares.
       </p>
-      <MultiSelectChips
+      <MultiSelectDropdown
         label="Áreas donde puedes ayudar" required
         selected={data.areas_de_interes}
         options={AREAS_INTERES}
         onChange={v => update('areas_de_interes', v)}
+        placeholder="Seleccionar área..."
       />
       {data.areas_de_interes.length === 0 && (
         <p className="text-xs text-amber-600 font-semibold">⚠ Debes seleccionar al menos 1 área de interés.</p>
@@ -564,17 +643,48 @@ function validateStep(step: number, data: ProfileFormData): string[] {
 // COMPONENTE PRINCIPAL
 // ============================================================
 export default function ProfileEditPage() {
+  const { user, profile, isLoading, refreshProfile } = useProfile()
   const [step, setStep] = useState(1)
   const [data, setData] = useState<ProfileFormData>(INITIAL)
+  const [dataLoaded, setDataLoaded] = useState(false)
   const [errors, setErrors] = useState<string[]>([])
   const [isSaving, setIsSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+
+  useEffect(() => {
+    if (!isLoading && profile && !dataLoaded) {
+      setData({
+        foto_url: profile.foto_url || '',
+        pais_ciudad: profile.pais_ciudad || '',
+        linkedin_url: profile.linkedin_url || '',
+        bio: profile.bio || '',
+        academic: (profile.academic as unknown as AcademicEntry[]) || [{ carrera: '', escuela: '', anio: '' }],
+        empresa_actual: profile.empresa_actual || '',
+        cargo_actual: profile.cargo_actual || '',
+        sector_industria: profile.sector_industria || [],
+        anos_experiencia: profile.anos_experiencia ? String(profile.anos_experiencia) : '',
+        areas_de_interes: profile.areas_de_interes || [],
+        ofrece_mentoria: profile.ofrece_mentoria || false,
+        horas_mes_mentoria: profile.horas_mes_mentoria ? String(profile.horas_mes_mentoria) : '',
+        ofrece_empleo: profile.ofrece_empleo || false,
+        ofrece_pasantia: profile.ofrece_pasantia || false,
+        ofrece_proyecto: profile.ofrece_proyecto || false,
+        ofrece_donacion_dinero: profile.ofrece_donacion_dinero || false,
+        monto_maximo_donacion: profile.monto_maximo_donacion ? String(profile.monto_maximo_donacion) : '',
+        moneda_donacion: (profile.moneda_donacion as 'CRC' | 'USD') || 'CRC',
+      })
+      setDataLoaded(true)
+    } else if (!isLoading && !profile && !dataLoaded) {
+      setDataLoaded(true)
+    }
+  }, [profile, isLoading, dataLoaded])
 
   const update = useCallback((key: keyof ProfileFormData, value: unknown) => {
     setData(prev => ({ ...prev, [key]: value }))
   }, [])
 
-  const progress = Math.round(((step - 1) / STEPS.length) * 100)
+  const completedSections = STEPS.map(s => validateStep(s.id, data).length === 0).filter(Boolean).length
+  const progress = Math.round((completedSections / STEPS.length) * 100)
 
   const goNext = () => {
     const errs = validateStep(step, data)
@@ -594,13 +704,54 @@ export default function ProfileEditPage() {
     const errs = validateStep(step, data)
     if (errs.length > 0) { setErrors(errs); return }
     setIsSaving(true)
-    // En producción: llamada a Supabase para UPDATE en tabla exalumnos
-    // const supabase = createClient()
-    // await supabase.from('exalumnos').update({ ...data, perfil_completo: true, visible_en_directorio: true }).eq('user_id', userId)
-    await new Promise(r => setTimeout(r, 1500))
+
+    if (!user) {
+      setErrors(['Usuario no autenticado.'])
+      setIsSaving(false)
+      return
+    }
+
+    const es_exalumno = data.academic.some(a => a.carrera.trim() !== '' && a.escuela.trim() !== '' && a.anio.trim() !== '')
+
+    const supabase = createClient()
+    const { error } = await supabase.from('profiles').upsert({
+      id: user.id,
+      foto_url: data.foto_url,
+      pais_ciudad: data.pais_ciudad,
+      linkedin_url: data.linkedin_url,
+      bio: data.bio,
+      academic: data.academic as any,
+      empresa_actual: data.empresa_actual,
+      cargo_actual: data.cargo_actual,
+      sector_industria: data.sector_industria,
+      anos_experiencia: data.anos_experiencia ? Number(data.anos_experiencia) : null,
+      areas_de_interes: data.areas_de_interes,
+      ofrece_mentoria: data.ofrece_mentoria,
+      horas_mes_mentoria: data.horas_mes_mentoria ? Number(data.horas_mes_mentoria) : null,
+      ofrece_empleo: data.ofrece_empleo,
+      ofrece_pasantia: data.ofrece_pasantia,
+      ofrece_proyecto: data.ofrece_proyecto,
+      ofrece_donacion_dinero: data.ofrece_donacion_dinero,
+      monto_maximo_donacion: data.monto_maximo_donacion ? Number(data.monto_maximo_donacion) : null,
+      moneda_donacion: data.moneda_donacion,
+      es_exalumno
+    })
+
+    if (error) {
+      setErrors(['Error al guardar el perfil: ' + error.message])
+      setIsSaving(false)
+      return
+    }
+
+    await refreshProfile()
+
     setIsSaving(false)
     setSaved(true)
     setTimeout(() => { window.location.href = '/profile' }, 1500)
+  }
+
+  if (!dataLoaded) {
+    return <div className="p-8 text-center text-slate-500 font-medium">Cargando perfil...</div>
   }
 
   const renderStep = () => {
