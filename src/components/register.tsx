@@ -274,7 +274,7 @@ export default function Register() {
                   <div className="checkbox-group">
                     <input type="checkbox" id="terminos-estudiante" checked={terminosAceptados} onChange={e => setTerminosAceptados(e.target.checked)} />
                     <label htmlFor="terminos-estudiante">
-                      Declaro bajo fe de juramento que la información proporcionada es verdadera y acepto los <Link href="#">Términos de Servicio</Link> y la <Link href="#">Política de Privacidad</Link> de Alumni UCR Foundation.
+                      Declaro bajo fe de juramento que la información proporcionada es verdadera y acepto los <Link href="/aviso-legal">Términos y Condiciones</Link> de Alumni UCR Foundation.
                     </label>
                   </div>
 
@@ -377,7 +377,7 @@ export default function Register() {
                   <div className="checkbox-group">
                     <input type="checkbox" id="terminos" checked={terminosAceptados} onChange={e => setTerminosAceptados(e.target.checked)} />
                     <label htmlFor="terminos">
-                      Declaro bajo fe de juramento que la información proporcionada es verdadera y acepto los <Link href="#">Términos de Servicio</Link> y la <Link href="#">Política de Privacidad</Link> de Alumni UCR Foundation.
+                      Declaro bajo fe de juramento que la información proporcionada es verdadera y acepto los <Link href="/aviso-legal">Términos y Condiciones</Link> de Alumni UCR Foundation.
                     </label>
                   </div>
                   
