@@ -1,30 +1,69 @@
 "use server";
 import { listarEstudiantes, obtenerEstudiantePorId } from "@/actions/students";
 import { EstudianteDirectorio, FiltrosDirectorio } from "@/types/estudiantes";
-import { tipoProyectoToLabel, tipoProyectoToDb } from "@/constants/mapeos";
 
 /**
- * Aplana/mapea un registro de `users` (con rol='estudiante')
+ * Extrae la carrera, sede y facultad desde la estructura de users_carreras
+ */
+function extraerCarrera(registroBD: any) {
+  const primeraCarrera = registroBD.users_carreras?.[0];
+  const carreraCampus = primeraCarrera?.carrera_campus;
+  return {
+    carrera: carreraCampus?.carreras?.nombre || '',
+    sede: carreraCampus?.campus?.nombre || '',
+    escuela_facultad: carreraCampus?.carreras?.facultades?.nombre || '',
+    anio_ingreso: primeraCarrera?.anio_ingreso || null,
+  };
+}
+
+/**
+ * Extrae las habilidades técnicas como array de strings desde el jsonb del currículum
+ * Formato en BD: { "Python": "Avanzado", "Java": "Intermedio" }
+ */
+function extraerHabilidades(curriculums: any): string[] {
+  if (!curriculums?.habilidades_tecnicas) return [];
+  const habs = curriculums.habilidades_tecnicas;
+  if (Array.isArray(habs)) return habs;
+  if (typeof habs === 'object') return Object.keys(habs);
+  return [];
+}
+
+/**
+ * Aplana/mapea un registro de `users` (con joins de users_carreras y curriculums)
  * para que coincida con la interfaz `EstudianteDirectorio`.
  */
 function aplanarEstudiante(registroBD: any): EstudianteDirectorio {
+  const { carrera, sede, escuela_facultad, anio_ingreso } = extraerCarrera(registroBD);
+  const curr = registroBD.curriculums;
+
   return {
     user_id:                    registroBD.id,
-    nombre:                     registroBD.nombre        || "Usuario Desconocido",
-    foto_url:                   registroBD.foto_url      || null,
-    carrera:                    registroBD.carrera       || "",
-    sede:                       registroBD.sede          || "",
-    escuela_facultad:           registroBD.escuela_facultad || "",
-    proyecto_titulo:            registroBD.proyecto_titulo || null,
-    proyecto_descripcion:       registroBD.proyecto_descripcion || null,
-    proyecto_area_tematica:     registroBD.proyecto_area_tematica || null,
-    proyecto_tipo:              tipoProyectoToLabel(registroBD.proyecto_tipo),
-    proyecto_porcentaje_avance: registroBD.proyecto_porcentaje_avance ?? null,
-    areas_de_interes:           registroBD.areas_de_interes || [],
-    busca_financiamiento:       registroBD.busca_financiamiento ?? false,
+    nombre:                     `${registroBD.nombre || ''} ${registroBD.apellidos || ''}`.trim() || 'Usuario Desconocido',
+    foto_url:                   registroBD.foto_url || null,
+    carrera,
+    sede,
+    escuela_facultad,
+    anio_ingreso,
+    // Proyecto: mapeamos desde curriculums.proyecto_graduacion_resumen
+    proyecto_titulo:            null, // No existe en BD actual
+    proyecto_descripcion:       curr?.proyecto_graduacion_resumen || null,
+    proyecto_area_tematica:     null, // No existe en BD actual
+    proyecto_tipo:              null, // No existe en BD actual
+    proyecto_porcentaje_avance: null, // No existe en BD actual
+    // Currículum
+    sobre_mi:                   curr?.sobre_mi || null,
+    url_linkedin:               curr?.url_linkedin || null,
+    url_portfolio:              curr?.url_portfolio || null,
+    habilidades_tecnicas:       extraerHabilidades(curr),
+    habilidades_blandas:        Array.isArray(curr?.habilidades_blandas) ? curr.habilidades_blandas : [],
+    // Búsquedas de apoyo (vienen directo de users)
     busca_mentoria:             registroBD.busca_mentoria ?? false,
     busca_empleo:               registroBD.busca_empleo ?? false,
-    busca_pasantia:             registroBD.busca_pasantia ?? false,
+    busca_financiamiento:       false, // No existe en BD actual
+    busca_pasantia:             false, // No existe en BD actual
+    // Otros flags
+    areas_de_interes:           [], // No existe en BD actual
+    activo:                     registroBD.activo ?? true,
   } as EstudianteDirectorio;
 }
 
@@ -39,20 +78,6 @@ export async function getEstudiantes(
 
   if (filtrosUI) {
     filtrosDB = { ...filtrosUI };
-
-    // Normalizar tildes para la BD
-    if (filtrosDB.tipos_apoyo && filtrosDB.tipos_apoyo.length > 0) {
-      filtrosDB.tipos_apoyo = filtrosDB.tipos_apoyo.map((tipo: string) => {
-        if (tipo === "mentoria") return "mentoría";
-        if (tipo === "pasantia") return "pasantía";
-        return tipo;
-      });
-    }
-
-    // Convertir etiqueta UI → valor enum BD
-    if (filtrosDB.proyecto_tipo) {
-      filtrosDB.proyecto_tipo = tipoProyectoToDb(filtrosDB.proyecto_tipo);
-    }
   }
 
   const resultado = await listarEstudiantes(filtrosDB, opciones);
@@ -75,24 +100,22 @@ export async function getEstudianteById(id: string): Promise<EstudianteDirectori
 }
 
 /**
- * Obtiene estudiantes relacionados basados en el área temática.
+ * Obtiene estudiantes relacionados basados en la carrera del estudiante.
  * Excluye al estudiante actual.
  */
 export async function getEstudiantesRelacionados(
   estudianteId: string,
-  areaTematica: string | null,
+  carrera: string | null,
   limite: number = 3
 ): Promise<EstudianteDirectorio[]> {
-  if (!areaTematica) return [];
+  if (!carrera) return [];
 
   const resultado = await listarEstudiantes({
-    proyecto_area_tematica: [areaTematica]
+    carrera: [carrera]
   } as any);
 
-  const relacionadosAplanados = (resultado.data || [])
+  return (resultado.data || [])
     .filter((e: any) => e.id !== estudianteId)
     .slice(0, limite)
     .map(aplanarEstudiante);
-
-  return relacionadosAplanados;
 }
