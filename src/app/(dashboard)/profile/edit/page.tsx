@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import Card from '@/components/ui/card'
 import Button from '@/components/ui/button'
+import { createClient } from '@/lib/supabase/client'
 import {
   CARRERAS_UCR,
   ESCUELAS_UCR,
@@ -279,25 +280,30 @@ function SeccionPersonal({ data, update }: { data: ProfileFormData; update: (k: 
   )
 }
 
-function AcademicEntryRow({ entry, index, updateEntry, removeEntry }: {
+function AcademicEntryRow({ entry, index, updateEntryFields, removeEntry, facultadesOptions }: {
   entry: AcademicEntry
   index: number
-  updateEntry: (idx: number, field: keyof AcademicEntry, value: string) => void
+  updateEntryFields: (idx: number, fields: Partial<AcademicEntry>) => void
   removeEntry: (idx: number) => void
+  facultadesOptions: string[]
 }) {
   const currentYear = new Date().getFullYear()
-  const years = Array.from({ length: currentYear - 1949 }, (_, i) => String(currentYear - i))
+  const years = Array.from({ length: currentYear - 1970 + 1 }, (_, i) => String(currentYear - i))
   
   const handleCareerChange = (value: string) => {
-    updateEntry(index, 'carrera', value)
-    const escuelaSugerida = CARRERA_TO_ESCUELA[value]
-    if (escuelaSugerida) {
-      updateEntry(index, 'escuela', escuelaSugerida)
-    }
+    updateEntryFields(index, { carrera: value })
   }
-  
+
+  const handleEscuelaChange = (value: string) => {
+    updateEntryFields(index, { escuela: value })
+  }
+
+  const handleAnioChange = (value: string) => {
+    updateEntryFields(index, { anio: value })
+  }
+
   return (
-    <div className="space-y-3 animate-fade-in">
+    <div className="space-y-3 relative">
       <div className="flex items-start gap-2">
         <div className="flex-1 space-y-3">
           <SelectInput
@@ -307,37 +313,29 @@ function AcademicEntryRow({ entry, index, updateEntry, removeEntry }: {
             options={CARRERAS_UCR}
             placeholder="Seleccionar carrera..."
           />
-          {entry.carrera && (
-            <div className="animate-fade-in">
-              <SelectInput
-                label="Escuela / Facultad" required
-                value={entry.escuela}
-                onChange={v => updateEntry(index, 'escuela', v)}
-                options={ESCUELAS_UCR}
-                placeholder="Seleccionar escuela/facultad..."
-              />
-            </div>
-          )}
-          {entry.escuela && (
-            <div className="animate-fade-in">
-              <SelectInput
-                label="Año de Graduación" required
-                value={entry.anio}
-                onChange={v => updateEntry(index, 'anio', v)}
-                options={years}
-                placeholder="Seleccionar año..."
-              />
-            </div>
-          )}
+          <SelectInput
+            label="Escuela / Facultad" required
+            value={entry.escuela}
+            onChange={handleEscuelaChange}
+            options={facultadesOptions}
+            placeholder="Seleccionar escuela/facultad..."
+          />
+          <SelectInput
+            label="Año de Graduación" required
+            value={entry.anio}
+            onChange={handleAnioChange}
+            options={years}
+            placeholder="Seleccionar año..."
+          />
         </div>
         {index > 0 && (
           <button
             type="button"
             onClick={() => removeEntry(index)}
-            className="p-2 text-slate-400 hover:text-rose-600 rounded-lg transition-colors"
+            className="p-2 text-slate-400 hover:text-rose-600 rounded-lg transition-colors mt-6"
             aria-label="Eliminar carrera"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         )}
       </div>
@@ -346,9 +344,22 @@ function AcademicEntryRow({ entry, index, updateEntry, removeEntry }: {
 }
 
 function SeccionAcademica({ data, update }: { data: ProfileFormData; update: (k: keyof ProfileFormData, v: unknown) => void }) {
-  const updateEntry = (idx: number, field: keyof AcademicEntry, value: string) => {
+  const [facultades, setFacultades] = useState<string[]>([])
+
+  useEffect(() => {
+    const fetchFacultades = async () => {
+      const supabase = createClient()
+      const { data: facs, error } = await supabase.from('facultades').select('id_facultades, nombre').order('nombre')
+      if (facs && !error) {
+        setFacultades(facs.map((f: { nombre: string }) => f.nombre))
+      }
+    }
+    fetchFacultades()
+  }, [])
+
+  const updateEntryFields = (idx: number, fields: Partial<AcademicEntry>) => {
     const newAcademic = [...data.academic]
-    newAcademic[idx] = { ...newAcademic[idx], [field]: value }
+    newAcademic[idx] = { ...newAcademic[idx], ...fields }
     update('academic', newAcademic)
   }
   const addEntry = () => {
@@ -357,26 +368,31 @@ function SeccionAcademica({ data, update }: { data: ProfileFormData; update: (k:
   const removeEntry = (idx: number) => {
     update('academic', data.academic.filter((_, i) => i !== idx))
   }
-  
+
   return (
     <div className="space-y-5">
       <h3 className="font-bold text-slate-800 text-base uppercase tracking-wide border-b border-slate-100 pb-2">Historial Académico UCR</h3>
-      {data.academic.map((entry, idx) => (
-        <AcademicEntryRow
-          key={idx}
-          entry={entry}
-          index={idx}
-          updateEntry={updateEntry}
-          removeEntry={removeEntry}
-        />
-      ))}
-      <button
-        type="button"
-        onClick={addEntry}
-        className="text-xs font-bold text-blue-700 hover:underline uppercase tracking-wider"
-      >
-        + Agregar otra carrera
-      </button>
+      <div className="space-y-6">
+        {data.academic.map((entry, idx) => (
+          <AcademicEntryRow
+            key={idx}
+            entry={entry}
+            index={idx}
+            updateEntryFields={updateEntryFields}
+            removeEntry={removeEntry}
+            facultadesOptions={facultades.length > 0 ? facultades : ESCUELAS_UCR}
+          />
+        ))}
+      </div>
+      <div className="pt-2">
+        <button
+          type="button"
+          onClick={addEntry}
+          className="text-xs font-bold text-blue-700 hover:text-blue-800 hover:bg-blue-50 px-3 py-2 rounded-lg transition-colors uppercase tracking-wider inline-flex items-center gap-1.5"
+        >
+          + Agregar otra carrera
+        </button>
+      </div>
     </div>
   )
 }
