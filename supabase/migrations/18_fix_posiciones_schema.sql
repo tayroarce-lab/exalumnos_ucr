@@ -22,7 +22,13 @@ ALTER TABLE public.posiciones
 ALTER TABLE public.posiciones ALTER COLUMN titulo DROP DEFAULT;
 
 -- =============================================================================
--- 2. REHABILITAR FUNCIÓN DE PUNTAJE (MATCHING)
+-- 2. AÑADIR COLUMNAS FALTANTES A USERS
+-- =============================================================================
+ALTER TABLE public.users
+    ADD COLUMN IF NOT EXISTS busca_pasantia BOOLEAN DEFAULT false;
+
+-- =============================================================================
+-- 3. REHABILITAR FUNCIÓN DE PUNTAJE (MATCHING)
 -- =============================================================================
 
 CREATE OR REPLACE FUNCTION public.calcular_score_posicion_extendido(
@@ -152,7 +158,7 @@ END;
 $$;
 
 -- =============================================================================
--- 3. REHABILITAR VISTA DE MATCHING CON CAMPOS NUEVOS
+-- 4. REHABILITAR VISTA DE MATCHING CON CAMPOS NUEVOS
 -- =============================================================================
 
 DROP VIEW IF EXISTS public.view_student_position_matches;
