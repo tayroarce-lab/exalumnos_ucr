@@ -17,61 +17,44 @@ import {
   CheckCircle2
 } from 'lucide-react'
 
+import { useProfile } from '@/contexts/ProfileContext'
+import { useRouter } from 'next/navigation'
+
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState('personal')
-
-  const [profile, setProfile] = useState({
-    name: 'Ana Maria González',
-    initials: 'AG',
-    title: 'Ingeniera en Sistemas',
-    company: 'Tech Costa Rica',
-    location: 'San José, Costa Rica',
-    email: 'ana.maria@ucr.ac.cr',
-    phone: '+506 8888-8888',
-    linkedin: 'linkedin.com/in/anamaria-gonzalez',
-    twitter: 'twitter.com/anamaria',
-    instagram: 'instagram.com/anamaria',
-    bio: 'Ingeniera en Sistemas con pasión por la tecnología, la educación y el impacto social. Me encanta contribuir a mi comunidad UCR.',
-    skills: ['React', 'TypeScript', 'Node.js', 'PostgreSQL', 'Cloud Computing'],
-    academic: [
-      {
-        degree: 'Bachillerato en Ciencias de la Computación e Informática',
-        school: 'Escuela de Ciencias de la Computación e Informática (ECCI), UCR',
-        year: 'Graduada en 2021',
-        verified: true
-      }
-    ],
-    experience: [
-      {
-        role: 'Senior Software Engineer',
-        company: 'Tech Costa Rica',
-        period: '2023 - Presente',
-        desc: 'Diseño e implementación de microservicios y frontend interactivos de alta disponibilidad.'
-      },
-      {
-        role: 'Software Developer',
-        company: 'GBM',
-        period: '2021 - 2023',
-        desc: 'Desarrollo de integraciones empresariales y optimización de consultas de bases de datos relacionales.'
-      }
-    ]
-  })
+  const { user, profile, isLoading } = useProfile()
+  const router = useRouter()
 
   React.useEffect(() => {
-    const storedName = localStorage.getItem('userName')
-    const storedEmail = localStorage.getItem('userEmail')
-    if (storedName || storedEmail) {
-      const name = storedName || 'Ana Maria González'
-      const initials = name.split(' ').map((n) => n[0]).join('').substring(0, 2).toUpperCase()
-      
-      setProfile((prev) => ({
-        ...prev,
-        name,
-        email: storedEmail || prev.email,
-        initials
-      }))
+    if (!isLoading && !user) {
+      router.push('/login')
     }
-  }, [])
+  }, [isLoading, user, router])
+
+  if (isLoading || !user) {
+    return <div className="py-20 text-center text-slate-500 font-medium">Cargando perfil...</div>
+  }
+
+  const name = profile?.full_name || 'Nuevo Usuario'
+  const initials = name.split(' ').map((n) => n[0]).join('').substring(0, 2).toUpperCase()
+  const email = profile?.email || ''
+  const phone = profile?.phone || 'No especificado'
+  const location = profile?.pais_ciudad || 'No especificada'
+  const bio = profile?.bio || 'Sin biografía'
+  const skills = profile?.skills || []
+  
+  const academicRaw = profile?.academic as any[] || []
+  const academic = academicRaw.map(a => ({
+    degree: a.carrera || 'Carrera no especificada',
+    school: a.escuela || 'Escuela no especificada',
+    year: a.anio ? `Graduado/a en ${a.anio}` : 'Año no especificado',
+    verified: false
+  }))
+
+  const experience = profile?.experience as any[] || []
+  const linkedin = profile?.linkedin_url || ''
+  const twitter = profile?.twitter_url || ''
+  const instagram = profile?.instagram_url || ''
 
   return (
     <div className="py-8 px-6 lg:px-10">
@@ -114,9 +97,6 @@ export default function ProfilePage() {
         >
           Profesional
         </button>
-          <Link href="/profile/edit" className="px-4 py-2.5 text-xs font-bold uppercase tracking-wider border-b-2 border-transparent text-slate-400 hover:text-slate-600 whitespace-nowrap">
-            Configuración
-          </Link>
         </div>
 
         {/* Contenido Principal */}
@@ -131,7 +111,7 @@ export default function ProfilePage() {
                 {/* Foto circular con avatar dinámico */}
                 <div className="relative shrink-0">
                   <div className="w-20 h-20 rounded-xl bg-slate-200 border border-slate-300 overflow-hidden flex items-center justify-center font-bold text-institutional text-3xl">
-                    {profile.initials}
+                    {initials}
                   </div>
                   <div className="absolute -bottom-1 -right-1 bg-institutional text-white rounded-full p-1 border border-white">
                     <CheckCircle2 className="w-4 h-4" />
@@ -139,19 +119,19 @@ export default function ProfilePage() {
                 </div>
                 <div className="space-y-1">
                   <h3 className="font-display font-black text-xl text-slate-800 uppercase tracking-wider">
-                    {profile.name}
+                    {name}
                   </h3>
                   <p className="text-xs text-slate-500 font-semibold flex items-center justify-center sm:justify-start gap-1">
                     <Mail className="w-3.5 h-3.5" />
-                    <span>{profile.email}</span>
+                    <span>{email}</span>
                   </p>
                   <p className="text-xs text-slate-500 font-semibold flex items-center justify-center sm:justify-start gap-1">
                     <Phone className="w-3.5 h-3.5" />
-                    <span>{profile.phone}</span>
+                    <span>{phone}</span>
                   </p>
                   <p className="text-xs text-slate-400 font-medium flex items-center justify-center sm:justify-start gap-1">
                     <MapPin className="w-3.5 h-3.5" />
-                    <span>{profile.location}</span>
+                    <span>{location}</span>
                   </p>
                 </div>
               </div>
@@ -168,22 +148,31 @@ export default function ProfilePage() {
               <div className="md:col-span-2 space-y-2">
                 <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Acerca de mí</h4>
                 <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                  {profile.bio}
+                  {bio}
                 </p>
               </div>
 
               <div className="space-y-2">
                 <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Redes sociales</h4>
                 <div className="flex items-center gap-3">
-                  <a href={`https://${profile.linkedin}`} target="_blank" rel="noopener noreferrer" title="Ver perfil de LinkedIn" className="p-2.5 bg-slate-100 hover:bg-brand-blue hover:text-white text-slate-500 rounded-xl transition-all">
-                    <Linkedin className="w-4 h-4" />
-                  </a>
-                  <a href={`https://${profile.twitter}`} target="_blank" rel="noopener noreferrer" title="Ver perfil de Twitter" className="p-2.5 bg-slate-100 hover:bg-brand-blue hover:text-white text-slate-500 rounded-xl transition-all">
-                    <Twitter className="w-4 h-4" />
-                  </a>
-                  <a href={`https://${profile.instagram}`} target="_blank" rel="noopener noreferrer" title="Ver perfil de Instagram" className="p-2.5 bg-slate-100 hover:bg-brand-blue hover:text-white text-slate-500 rounded-xl transition-all">
-                    <Instagram className="w-4 h-4" />
-                  </a>
+                  {linkedin && (
+                    <a href={linkedin.startsWith('http') ? linkedin : `https://${linkedin}`} target="_blank" rel="noopener noreferrer" title="Ver perfil de LinkedIn" className="p-2.5 bg-slate-100 hover:bg-brand-blue hover:text-white text-slate-500 rounded-xl transition-all">
+                      <Linkedin className="w-4 h-4" />
+                    </a>
+                  )}
+                  {twitter && (
+                    <a href={twitter.startsWith('http') ? twitter : `https://${twitter}`} target="_blank" rel="noopener noreferrer" title="Ver perfil de Twitter" className="p-2.5 bg-slate-100 hover:bg-brand-blue hover:text-white text-slate-500 rounded-xl transition-all">
+                      <Twitter className="w-4 h-4" />
+                    </a>
+                  )}
+                  {instagram && (
+                    <a href={instagram.startsWith('http') ? instagram : `https://${instagram}`} target="_blank" rel="noopener noreferrer" title="Ver perfil de Instagram" className="p-2.5 bg-slate-100 hover:bg-brand-blue hover:text-white text-slate-500 rounded-xl transition-all">
+                      <Instagram className="w-4 h-4" />
+                    </a>
+                  )}
+                  {!linkedin && !twitter && !instagram && (
+                    <span className="text-xs text-slate-400 font-medium">No configurado</span>
+                  )}
                 </div>
               </div>
             </div>
@@ -191,13 +180,17 @@ export default function ProfilePage() {
             {/* Habilidades */}
             <div className="space-y-2 pt-4 border-t border-slate-100">
               <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Habilidades</h4>
-              <div className="flex flex-wrap gap-2">
-                {profile.skills.map((skill, idx) => (
-                  <span key={idx} className="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-semibold">
-                    {skill}
-                  </span>
-                ))}
-              </div>
+              {skills.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {skills.map((skill, idx) => (
+                    <span key={idx} className="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-semibold">
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-slate-500 font-medium">No se han especificado habilidades.</p>
+              )}
             </div>
           </div>
         )}
@@ -208,7 +201,7 @@ export default function ProfilePage() {
             <h3 className="font-display font-bold text-base text-slate-700 uppercase tracking-wider pb-2 border-b border-slate-100">
               Historial Académico
             </h3>
-            {profile.academic.map((edu, idx) => (
+            {academic.length > 0 ? academic.map((edu, idx) => (
               <div key={idx} className="flex gap-4">
                 <div className="p-3 bg-brand-blue/10 text-brand-blue rounded-xl shrink-0">
                   <GraduationCap className="w-6 h-6" />
@@ -227,7 +220,9 @@ export default function ProfilePage() {
                   <p className="text-[10px] text-slate-400 font-bold uppercase">{edu.year}</p>
                 </div>
               </div>
-            ))}
+            )) : (
+              <p className="text-xs text-slate-500 font-medium">No hay información académica registrada.</p>
+            )}
           </div>
         )}
 
@@ -238,7 +233,7 @@ export default function ProfilePage() {
               Experiencia Profesional
             </h3>
             <div className="space-y-6">
-              {profile.experience.map((exp, idx) => (
+              {experience.length > 0 ? experience.map((exp, idx) => (
                 <div key={idx} className="relative pl-6 border-l-2 border-slate-200 space-y-1.5">
                   <div className="absolute left-0 top-1.5 -translate-x-1/2 w-2.5 h-2.5 rounded-full bg-brand-blue"></div>
                   <div className="flex justify-between items-start gap-2">
@@ -250,7 +245,9 @@ export default function ProfilePage() {
                   <p className="text-xs font-bold text-brand-celeste">{exp.company}</p>
                   <p className="text-xs text-slate-500 leading-relaxed font-medium">{exp.desc}</p>
                 </div>
-              ))}
+              )) : (
+                <p className="text-xs text-slate-500 font-medium">No hay experiencia profesional registrada.</p>
+              )}
             </div>
           </div>
         )}
