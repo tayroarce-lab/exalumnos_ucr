@@ -10,6 +10,8 @@ export const metadata: Metadata = {
   },
 }
 
+import { ProfileProvider } from '@/contexts/ProfileContext'
+
 export default function RootLayout({
   children,
 }: {
@@ -17,7 +19,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
-      <body>{children}</body>
+      <body>
+        <ProfileProvider>
+          {children}
+        </ProfileProvider>
+      </body>
     </html>
   )
 }

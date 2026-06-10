@@ -26,7 +26,7 @@ export async function registrarEstudiante(data: { email: string; password: strin
   if (authError) throw new Error(authError.message)
   
   if (authData.user) {
-    // Insertar en public.users con client admin para sobrepasar RLS si el usuario aún no está confirmado
+    // Intentar insertar en users por compatibilidad, aunque hay un trigger, el trigger inserta lo básico
     const { error: dbError } = await adminClient.from('users').insert({
       id: authData.user.id,
       email: emailLimpio,
@@ -41,6 +41,22 @@ export async function registrarEstudiante(data: { email: string; password: strin
     if (dbError && dbError.code !== '23505') {
       console.error('Error insertando en public.users:', dbError)
     }
+
+    const parts = data.nombre.split(' ')
+    const nombre = parts[0] || ''
+    const apellidos = parts.slice(1).join(' ') || ''
+
+    // Insertar en la tabla profiles
+    await adminClient.from('profiles').insert({
+      id: authData.user.id,
+      email: emailLimpio,
+      full_name: data.nombre,
+      nombre: nombre,
+      apellidos: apellidos,
+      es_exalumno: false,
+      perfil_completo: 20,
+      created_at: new Date().toISOString()
+    })
   }
 
   return { success: true }
@@ -81,6 +97,30 @@ export async function registrarExalumno(data: {
     if (dbError && dbError.code !== '23505') {
       console.error('Error insertando en public.users:', dbError)
     }
+
+    // Preparar datos academicos para perfiles
+    const academic = data.carreras.map(cId => ({
+      carrera: cId.toString(), // Idealmente buscaríamos el nombre, pero guardamos el ID como string temporalmente
+      escuela: '',
+      anio: data.anio_graduacion.toString()
+    }))
+
+    const parts = data.nombre.split(' ')
+    const nombre = parts[0] || ''
+    const apellidos = parts.slice(1).join(' ') || ''
+
+    // Insertar en la tabla profiles
+    await adminClient.from('profiles').insert({
+      id: authData.user.id,
+      email: emailLimpio,
+      full_name: data.nombre,
+      nombre: nombre,
+      apellidos: apellidos,
+      academic: academic,
+      es_exalumno: true,
+      perfil_completo: 20,
+      created_at: new Date().toISOString()
+    })
   }
 
   return { success: true }

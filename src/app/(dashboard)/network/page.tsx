@@ -1,7 +1,8 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/client'
 import {
   Search, SlidersHorizontal, MapPin, Briefcase, GraduationCap,
   Heart, Users, X, Handshake, Building, ChevronDown
@@ -39,124 +40,8 @@ interface ExalumnoPublic {
 }
 
 // ============================================================
-// DATOS MOCK — se reemplazarán con query Supabase
+// DATOS MOCK — ELIMINADOS
 // ============================================================
-const MOCK_EXALUMNOS: ExalumnoPublic[] = [
-  {
-    id: '1',
-    nombre: 'Ing. Carlos Salazar',
-    initials: 'CS',
-    avatarBg: 'bg-blue-700',
-    pais_ciudad: 'Estados Unidos, Seattle',
-    carrera_ucr: ['Ciencias de la Computación e Informática'],
-    escuela_facultad: 'Escuela de Ciencias de la Computación e Informática (ECCI)',
-    anio_graduacion: 2015,
-    empresa_actual: 'Amazon Web Services',
-    cargo_actual: 'Staff Engineer',
-    sector_industria: ['Tecnología e Informática'],
-    areas_de_interes: ['Tecnología e Innovación', 'Emprendimiento'],
-    ofrece_mentoria: true,
-    ofrece_empleo: true,
-    ofrece_pasantia: false,
-    ofrece_proyecto: true,
-    ofrece_donacion_dinero: false,
-  },
-  {
-    id: '2',
-    nombre: 'Lic. Laura Rodríguez',
-    initials: 'LR',
-    avatarBg: 'bg-indigo-600',
-    pais_ciudad: 'Costa Rica, San José',
-    carrera_ucr: ['Administración de Negocios'],
-    escuela_facultad: 'Escuela de Administración de Negocios',
-    anio_graduacion: 2018,
-    empresa_actual: 'Fintech Solutions',
-    cargo_actual: 'Product Manager',
-    sector_industria: ['Finanzas y Banca', 'Tecnología e Informática'],
-    areas_de_interes: ['Finanzas y Economía', 'Emprendimiento', 'Tecnología e Innovación'],
-    ofrece_mentoria: true,
-    ofrece_empleo: false,
-    ofrece_pasantia: true,
-    ofrece_proyecto: false,
-    ofrece_donacion_dinero: true,
-  },
-  {
-    id: '3',
-    nombre: 'M.Sc. Esteban Vargas',
-    initials: 'EV',
-    avatarBg: 'bg-sky-600',
-    pais_ciudad: 'Costa Rica, Heredia',
-    carrera_ucr: ['Matemáticas', 'Ciencias de la Computación e Informática'],
-    escuela_facultad: 'Escuela de Matemáticas',
-    anio_graduacion: 2017,
-    empresa_actual: 'Intel Corporation',
-    cargo_actual: 'Data Scientist Lead',
-    sector_industria: ['Tecnología e Informática', 'Manufactura e Industria'],
-    areas_de_interes: ['Tecnología e Innovación', 'Investigación Científica'],
-    ofrece_mentoria: true,
-    ofrece_empleo: true,
-    ofrece_pasantia: true,
-    ofrece_proyecto: true,
-    ofrece_donacion_dinero: false,
-  },
-  {
-    id: '4',
-    nombre: 'Dra. Ana Jiménez',
-    initials: 'AJ',
-    avatarBg: 'bg-rose-600',
-    pais_ciudad: 'Costa Rica, San José',
-    carrera_ucr: ['Medicina'],
-    escuela_facultad: 'Escuela de Medicina',
-    anio_graduacion: 2012,
-    empresa_actual: 'Hospital San Juan de Dios',
-    cargo_actual: 'Médico Especialista',
-    sector_industria: ['Salud y Ciencias Médicas'],
-    areas_de_interes: ['Salud y Bienestar', 'Educación y Formación', 'Bienestar Social'],
-    ofrece_mentoria: true,
-    ofrece_empleo: false,
-    ofrece_pasantia: true,
-    ofrece_proyecto: false,
-    ofrece_donacion_dinero: true,
-  },
-  {
-    id: '5',
-    nombre: 'Lic. Marcos Ureña',
-    initials: 'MU',
-    avatarBg: 'bg-emerald-600',
-    pais_ciudad: 'Colombia, Bogotá',
-    carrera_ucr: ['Economía', 'Derecho'],
-    escuela_facultad: 'Escuela de Economía',
-    anio_graduacion: 2016,
-    empresa_actual: 'Banco Internacional',
-    cargo_actual: 'Gerente de Riesgo',
-    sector_industria: ['Finanzas y Banca', 'Derecho y Consultoría Legal'],
-    areas_de_interes: ['Finanzas y Economía', 'Políticas Públicas', 'Emprendimiento'],
-    ofrece_mentoria: true,
-    ofrece_empleo: true,
-    ofrece_pasantia: false,
-    ofrece_proyecto: true,
-    ofrece_donacion_dinero: false,
-  },
-  {
-    id: '6',
-    nombre: 'Ing. Sofía Castro',
-    initials: 'SC',
-    avatarBg: 'bg-violet-600',
-    pais_ciudad: 'España, Madrid',
-    carrera_ucr: ['Ingeniería Civil'],
-    escuela_facultad: 'Escuela de Ingeniería Civil',
-    anio_graduacion: 2019,
-    empresa_actual: 'Ferrovial',
-    cargo_actual: 'Ingeniera de Proyectos',
-    sector_industria: ['Ingeniería y Construcción'],
-    areas_de_interes: ['Ingeniería y Manufactura', 'Ambiente y Sostenibilidad'],
-    ofrece_mentoria: false,
-    ofrece_empleo: true,
-    ofrece_pasantia: true,
-    ofrece_proyecto: true,
-    ofrece_donacion_dinero: false,
-  },
-]
 
 const APOYO_FILTROS = [
   { key: 'ofrece_mentoria', label: 'Mentoría', icon: '🎓' },
@@ -385,11 +270,80 @@ export default function NetworkPage() {
     search: '', facultad: '', escuela: '', carrera: '', sector: '', apoyo: ''
   })
   const [showMobileFilters, setShowMobileFilters] = useState(false)
+  const [exalumnos, setExalumnos] = useState<ExalumnoPublic[]>([])
+  const [cargando, setCargando] = useState(true)
+
+  useEffect(() => {
+    async function cargarExalumnos() {
+      try {
+        const supabase = createClient()
+        
+        // Verificar autenticación y correo confirmado
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user || !user.email_confirmed_at) {
+          window.location.href = '/verificar-correo';
+          return;
+        }
+
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('es_exalumno', true)
+        
+        if (error) {
+          throw new Error(error.message)
+        }
+
+        mapearDatos(data || [])
+      } catch (err) {
+        console.error("Error al cargar exalumnos:", err)
+      } finally {
+        setCargando(false)
+      }
+    }
+
+    function mapearDatos(data: any[]) {
+      const mapped: ExalumnoPublic[] = data.map(p => {
+        const nombreStr = p.nombre || p.apellidos 
+          ? `${p.nombre || ''} ${p.apellidos || ''}`.trim()
+          : 'Exalumno UCR'
+        
+        const init = nombreStr.substring(0, 2).toUpperCase()
+        
+        return {
+          id: p.id,
+          nombre: nombreStr,
+          foto_url: p.foto_url || undefined,
+          initials: init,
+          avatarBg: 'bg-blue-600',
+          pais_ciudad: p.pais_ciudad || 'Ubicación no especificada',
+          carrera_ucr: p.carrera_principal ? [p.carrera_principal] : ['Carrera no especificada'],
+          escuela_facultad: p.escuela_principal || p.facultad_principal || 'Escuela no especificada',
+          anio_graduacion: p.anio_graduacion || new Date().getFullYear(),
+          empresa_actual: p.empresa_actual || 'Empresa no especificada',
+          cargo_actual: p.cargo_actual || 'Cargo no especificado',
+          sector_industria: p.sector_industria || [],
+          areas_de_interes: p.areas_de_interes || [],
+          ofrece_mentoria: p.ofrece_mentoria || false,
+          ofrece_empleo: p.ofrece_empleo || false,
+          ofrece_pasantia: p.ofrece_pasantia || false,
+          ofrece_proyecto: p.ofrece_proyecto || false,
+          ofrece_donacion_dinero: p.ofrece_donacion_dinero || false,
+        }
+      })
+      setExalumnos(mapped)
+    }
+
+    cargarExalumnos()
+  }, [])
 
   const filtered = useMemo(() => {
-    return MOCK_EXALUMNOS.filter(ex => {
-      // Búsqueda por nombre (case-insensitive)
-      if (filters.search && !ex.nombre.toLowerCase().includes(filters.search.toLowerCase())) return false
+    return exalumnos.filter(ex => {
+      // Búsqueda por nombre (case-insensitive) o por cargo
+      if (filters.search) {
+        const q = filters.search.toLowerCase()
+        if (!ex.nombre.toLowerCase().includes(q) && !ex.cargo_actual.toLowerCase().includes(q) && !ex.empresa_actual.toLowerCase().includes(q)) return false
+      }
       // Facultad (simulado en escuela_facultad)
       if (filters.facultad && !ex.escuela_facultad.includes(filters.facultad)) return false
       // Escuela
@@ -402,7 +356,7 @@ export default function NetworkPage() {
       if (filters.apoyo && !ex[filters.apoyo as keyof ExalumnoPublic]) return false
       return true
     })
-  }, [filters])
+  }, [filters, exalumnos])
 
   const activeFilterCount = (filters.facultad ? 1 : 0) + (filters.escuela ? 1 : 0) + (filters.carrera ? 1 : 0) + (filters.sector ? 1 : 0) + (filters.apoyo ? 1 : 0)
 
@@ -422,7 +376,7 @@ export default function NetworkPage() {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
               type="text"
-              placeholder="Buscar por nombre de exalumno…"
+              placeholder="Buscar por nombre, cargo o empresa..."
               value={filters.search}
               onChange={e => setFilters(p => ({ ...p, search: e.target.value }))}
               className="w-full h-12 pl-11 pr-4 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10 transition-all placeholder:text-slate-400 shadow-sm"
@@ -499,19 +453,24 @@ export default function NetworkPage() {
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between mb-4">
               <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                {filtered.length} exalumno{filtered.length !== 1 ? 's' : ''} encontrado{filtered.length !== 1 ? 's' : ''}
+                {cargando ? 'Cargando exalumnos...' : `${filtered.length} exalumno${filtered.length !== 1 ? 's' : ''} encontrado${filtered.length !== 1 ? 's' : ''}`}
               </p>
             </div>
 
-            {filtered.length > 0 ? (
+            {cargando ? (
+              <div className="flex flex-col items-center justify-center py-20 bg-white border border-slate-200 rounded-2xl shadow-sm">
+                <div className="w-10 h-10 border-4 border-slate-200 border-t-institutional rounded-full animate-spin mb-4"></div>
+                <h3 className="text-sm font-bold text-slate-600 uppercase tracking-wide">Cargando directorio...</h3>
+              </div>
+            ) : filtered.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 {filtered.map(ex => <ExalumnoCard key={ex.id} ex={ex} />)}
               </div>
             ) : (
               <div className="text-center py-20 bg-white border border-slate-200 rounded-2xl shadow-sm">
                 <Users className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-                <h3 className="text-sm font-bold text-slate-600 uppercase tracking-wide mb-2">Sin resultados</h3>
-                <p className="text-xs text-slate-400 font-medium mb-4">Ningún exalumno coincide con los filtros seleccionados.</p>
+                <h3 className="text-sm font-bold text-slate-600 uppercase tracking-wide mb-2">No se encontraron exalumnos</h3>
+                <p className="text-xs text-slate-400 font-medium mb-4">Ningún exalumno coincide con los filtros seleccionados o la base de datos está vacía.</p>
                 <button
                   onClick={() => setFilters({ search: '', facultad: '', escuela: '', carrera: '', sector: '', apoyo: '' })}
                   className="text-xs font-bold text-blue-700 hover:underline uppercase tracking-wider"
