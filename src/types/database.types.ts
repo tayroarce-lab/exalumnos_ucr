@@ -606,6 +606,7 @@ export type Database = {
           fecha_limite: string | null
           habilidades_requeridas: string[]
           id: string
+          jornada: string | null
           lugar: string | null
           modalidad: string | null
           responsabilidades: string[]
@@ -625,6 +626,7 @@ export type Database = {
           fecha_limite?: string | null
           habilidades_requeridas?: string[]
           id?: string
+          jornada?: string | null
           lugar?: string | null
           modalidad?: string | null
           responsabilidades?: string[]
@@ -644,6 +646,7 @@ export type Database = {
           fecha_limite?: string | null
           habilidades_requeridas?: string[]
           id?: string
+          jornada?: string | null
           lugar?: string | null
           modalidad?: string | null
           responsabilidades?: string[]
