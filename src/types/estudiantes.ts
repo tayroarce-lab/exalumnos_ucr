@@ -3,19 +3,31 @@ export interface EstudianteDirectorio {
   user_id: string;
   nombre: string;
   foto_url: string | null;
+  // Carrera y sede vienen de users_carreras → carrera_campus → carreras/campus
   carrera: string;
   sede: string;
   escuela_facultad?: string;
-  proyecto_titulo: string | null;
-  proyecto_area_tematica: string | null;
-  proyecto_tipo: string | null;
-  proyecto_porcentaje_avance: number | null;
-  proyecto_descripcion?: string;
-  areas_de_interes: string[];
-  busca_financiamiento: boolean;
+  anio_ingreso?: number | null;
+  // Proyecto: en la BD actual solo existe proyecto_graduacion_resumen en curriculums
+  proyecto_titulo?: string | null;
+  proyecto_descripcion?: string | null;
+  proyecto_area_tematica?: string | null;
+  proyecto_tipo?: string | null;
+  proyecto_porcentaje_avance?: number | null;
+  // Currículum
+  sobre_mi?: string | null;
+  url_linkedin?: string | null;
+  url_portfolio?: string | null;
+  habilidades_tecnicas?: string[];
+  habilidades_blandas?: string[];
+  // Apoyo: busca_mentoria y busca_empleo existen en users
   busca_mentoria: boolean;
   busca_empleo: boolean;
+  // No existen en la BD actual pero mantenemos para compatibilidad
+  busca_financiamiento: boolean;
   busca_pasantia: boolean;
+  areas_de_interes: string[];
+  activo?: boolean;
 }
 
 export interface FiltrosDirectorio {

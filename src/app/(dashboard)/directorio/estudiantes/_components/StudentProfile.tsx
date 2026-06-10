@@ -1,168 +1,300 @@
 import React from 'react';
-import Link from 'next/link';
-import GrillaEstudiantes from './GrillaEstudiantes';
 import { EstudianteDirectorio } from '@/types/estudiantes';
+import GrillaEstudiantes from './GrillaEstudiantes';
 
-interface StudentProfileProps {
+interface Props {
   estudiante: EstudianteDirectorio;
   tagsApoyo: string[];
   estudiantesRelacionados: EstudianteDirectorio[];
 }
 
-export default function StudentProfile({ estudiante, tagsApoyo, estudiantesRelacionados }: StudentProfileProps) {
-  return (
-    <>
-      {/* Tarjeta Principal (Encabezado y Botones) */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center gap-6">
-          <div className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0 overflow-hidden border border-slate-200">
-            {estudiante.foto_url ? (
-              <img src={estudiante.foto_url} alt={estudiante.nombre} className="w-full h-full object-cover" />
-            ) : (
-              <span className="text-slate-400 font-semibold text-4xl">
-                {estudiante.nombre.charAt(0)}
-              </span>
-            )}
-          </div>
+const IconMail = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+  </svg>
+);
+const IconShare = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+    <line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/>
+  </svg>
+);
+const IconHand = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1e3a5f" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M18 11V6a2 2 0 0 0-4 0v5"/><path d="M14 10V4a2 2 0 0 0-4 0v6"/><path d="M10 10.5V6a2 2 0 0 0-4 0v8"/>
+    <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/>
+  </svg>
+);
+const IconBrain = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1e3a5f" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.46 2.5 2.5 0 0 1-1.98-3 2.5 2.5 0 0 1-1.32-4.24A3 3 0 0 1 4.5 8.5a2.5 2.5 0 0 1 5-1"/>
+    <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.46 2.5 2.5 0 0 0 1.98-3 2.5 2.5 0 0 0 1.32-4.24A3 3 0 0 0 19.5 8.5a2.5 2.5 0 0 0-5-1"/>
+  </svg>
+);
+const IconMonitor = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1e3a5f" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/>
+  </svg>
+);
+const IconLock = ({ color = '#dc2626', size = 16 }: { color?: string; size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+  </svg>
+);
+const IconBulb = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/>
+    <path d="M9 18h6"/><path d="M10 22h4"/>
+  </svg>
+);
+const IconSupport = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M18 11V6a2 2 0 0 0-4 0v5"/><path d="M14 10V4a2 2 0 0 0-4 0v6"/>
+    <path d="M10 10.5V6a2 2 0 0 0-4 0v8"/>
+    <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/>
+  </svg>
+);
+const IconDot = () => (
+  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/>
+  </svg>
+);
+const IconMoney = () => (
+  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+  </svg>
+);
 
-          <div className="flex-1 w-full">
-            <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-              <div>
-                <h1 className="text-2xl md:text-3xl font-bold font-heading text-slate-900 mb-2">
-                  {estudiante.nombre}
-                </h1>
-                <div className="flex flex-wrap items-center gap-2 md:gap-3 text-sm text-slate-600 mb-3">
-                  <span className="flex items-center gap-1 font-medium text-esmeralda bg-esmeralda/10 px-2.5 py-1 rounded-md">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m4 6 8-4 8 4"/><path d="m18 10 4 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8l4-2"/><path d="M14 22v-4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v4"/><path d="M18 5v17"/><path d="M6 5v17"/><circle cx="12" cy="9" r="2"/></svg>
-                    {estudiante.carrera}
-                  </span>
-                  <span className="flex items-center gap-1 text-slate-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-                    {estudiante.sede}
-                  </span>
+export default function StudentProfile({ estudiante, tagsApoyo, estudiantesRelacionados }: Props) {
+  const iniciales = estudiante.nombre.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
+  const tecnicas = estudiante.habilidades_tecnicas ?? [];
+  const blandas = estudiante.habilidades_blandas ?? [];
+  const nd = (v: any) => v || 'No disponible';
+
+  return (
+    <div style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
+
+      {/* ── HERO ─────────────────────────────────────────────── */}
+      <div style={{ background: 'white', borderRadius: 16, padding: '28px 32px', marginBottom: 28, display: 'flex', alignItems: 'center', gap: 24, boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
+        {/* Avatar */}
+        <div style={{ position: 'relative', flexShrink: 0 }}>
+          <div style={{ width: 120, height: 120, borderRadius: 14, background: '#dce8f5', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #c8d8ea' }}>
+            {estudiante.foto_url
+              ? <img src={estudiante.foto_url} alt={estudiante.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              : <span style={{ fontSize: 36, fontWeight: 700, color: '#5a7fa0' }}>{iniciales}</span>
+            }
+          </div>
+          <div style={{ position: 'absolute', bottom: -6, right: -6, width: 28, height: 28, borderRadius: '50%', background: '#1e3a5f', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid white' }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+        </div>
+
+        {/* Info */}
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 11, fontWeight: 600, color: '#1e7a4a', background: '#e8f5ee', border: '1px solid #a8d5be', borderRadius: 20, padding: '2px 10px', display: 'inline-block', marginBottom: 6 }}>Estudiante Activo</div>
+          <h1 style={{ fontSize: 30, fontWeight: 800, color: '#0f1e2e', margin: 0, lineHeight: 1.2 }}>{estudiante.nombre}</h1>
+          {estudiante.carrera && <p style={{ color: '#4a6a8a', fontSize: 15, margin: '4px 0 0' }}>{estudiante.carrera}</p>}
+          {estudiante.sede && <p style={{ color: '#7a96ae', fontSize: 13, margin: '3px 0 0' }}>📍 {estudiante.sede}</p>}
+        </div>
+
+        {/* Botones */}
+        <div style={{ display: 'flex', gap: 10, flexShrink: 0 }}>
+          <button style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 22px', borderRadius: 10, background: '#1e3a5f', color: 'white', border: 'none', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
+            <IconMail /> Contactar
+          </button>
+          <button style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 22px', borderRadius: 10, background: 'white', color: '#1e3a5f', border: '1.5px solid #c5d5e5', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
+            <IconShare /> Compartir Perfil
+          </button>
+        </div>
+      </div>
+
+      {/* ── DOS COLUMNAS ─────────────────────────────────────── */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 20 }}>
+
+        {/* ── IZQUIERDA ── */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+          {/* Proyecto */}
+          <div style={{ background: 'white', borderRadius: 14, padding: 24, boxShadow: '0 1px 3px rgba(0,0,0,0.07)', borderLeft: '4px solid #1e3a5f' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
+              <span style={{ fontSize: 10, fontWeight: 700, color: '#4a7aaa', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Proyecto de Graduación</span>
+              {estudiante.proyecto_area_tematica && (
+                <span style={{ fontSize: 11, fontWeight: 600, color: 'white', background: '#2a7abf', borderRadius: 20, padding: '3px 12px' }}>{estudiante.proyecto_area_tematica}</span>
+              )}
+            </div>
+            <h2 style={{ fontSize: 18, fontWeight: 700, color: '#0f1e2e', margin: '0 0 12px' }}>
+              {estudiante.proyecto_titulo ?? 'Sin título registrado'}
+            </h2>
+            {estudiante.proyecto_descripcion
+              ? <p style={{ color: '#4a6070', fontSize: 13.5, lineHeight: 1.7, margin: 0 }}>{estudiante.proyecto_descripcion}</p>
+              : <p style={{ color: '#9ab0c0', fontSize: 13, fontStyle: 'italic', margin: 0 }}>El estudiante no ha registrado una descripción aún.</p>
+            }
+            {typeof estudiante.proyecto_porcentaje_avance === 'number' && (
+              <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid #e8eef4' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: '#4a6070' }}>Progreso del Proyecto</span>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: '#1e3a5f' }}>{estudiante.proyecto_porcentaje_avance}%</span>
+                </div>
+                <div style={{ width: '100%', height: 8, background: '#dce8f4', borderRadius: 8 }}>
+                  <div style={{ width: `${estudiante.proyecto_porcentaje_avance}%`, height: '100%', background: '#1e3a5f', borderRadius: 8 }} />
                 </div>
               </div>
-
-              {/* Botones de Acción */}
-              <div className="flex flex-col sm:flex-row md:flex-col gap-2 w-full md:w-auto shrink-0">
-                <button className="w-full md:w-48 inline-flex justify-center items-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-950 bg-esmeralda text-white hover:bg-esmeralda/90 h-10 px-4 py-2 shadow-sm">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><path d="M20.42 4.58a5.4 5.4 0 0 0-7.65 0l-.77.78-.77-.78a5.4 5.4 0 0 0-7.65 0C1.46 6.7 1.33 10.28 4 13l8 8 8-8c2.67-2.72 2.54-6.3.42-8.42z"/></svg>
-                  Ofrecer apoyo
-                </button>
-                <button className="w-full md:w-48 inline-flex justify-center items-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-950 border border-slate-200 bg-white hover:bg-slate-50 text-slate-900 h-10 px-4 py-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg>
-                  Compartir perfil
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Dos columnas de información */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Columna Izquierda (Proyecto) */}
-        <div className="md:col-span-2 space-y-6">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 md:p-8">
-            <h2 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-celeste"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-              Información del Proyecto
-            </h2>
-            <div className="mb-6">
-              <div className="flex flex-wrap gap-2 mb-3">
-                <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
-                  {estudiante.proyecto_area_tematica}
-                </span>
-                <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
-                  {estudiante.proyecto_tipo}
-                </span>
-              </div>
-              <h3 className="text-xl font-semibold text-slate-900 mb-3 leading-snug">
-                {estudiante.proyecto_titulo || 'Proyecto en definición'}
-              </h3>
-              <p className="text-slate-600 leading-relaxed text-sm">
-                {estudiante.proyecto_descripcion ||
-                  'El estudiante se encuentra desarrollando un proyecto innovador que busca generar impacto en su área de estudio. Para conocer más detalles técnicos o específicos, te invitamos a ponerte en contacto directamente.'}
-              </p>
-            </div>
-            {/* Barra de Progreso */}
-            <div className="mt-8 p-5 bg-slate-50 rounded-xl border border-slate-100">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-semibold text-slate-700">Avance General del Proyecto</span>
-                <span className="text-sm font-bold text-esmeralda">{estudiante.proyecto_porcentaje_avance || 0}%</span>
-              </div>
-              <div className="w-full bg-slate-200 rounded-full h-2.5">
-                <div className="bg-esmeralda h-2.5 rounded-full" style={{ width: `${estudiante.proyecto_porcentaje_avance || 0}%` }} />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Columna Derecha (Info Académica y Tags) */}
-        <div className="space-y-6">
-          {/* Buscando Apoyo En */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-            <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wide mb-4">Buscando Apoyo En</h2>
-            {tagsApoyo.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {tagsApoyo.map((apoyo, idx) => (
-                  <span key={idx} className="inline-flex items-center rounded bg-amber-50 px-2.5 py-1.5 text-xs font-semibold text-amber-700 border border-amber-200/50">
-                    {apoyo}
-                  </span>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-slate-500">No especificado en este momento.</p>
             )}
           </div>
 
-          {/* Áreas de Interés */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-            <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wide mb-4">Áreas de Interés</h2>
-            {estudiante.areas_de_interes && estudiante.areas_de_interes.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {estudiante.areas_de_interes.map((interes, idx) => (
-                  <span key={idx} className="inline-flex items-center rounded bg-blue-50 px-2.5 py-1.5 text-xs font-medium text-blue-700 border border-blue-200/50">
-                    {interes}
-                  </span>
-                ))}
+          {/* Sobre mí */}
+          {estudiante.sobre_mi && (
+            <div style={{ background: 'white', borderRadius: 14, padding: 24, boxShadow: '0 1px 3px rgba(0,0,0,0.07)' }}>
+              <p style={{ fontSize: 10, fontWeight: 700, color: '#4a7aaa', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 10 }}>Sobre mí</p>
+              <p style={{ color: '#4a6070', fontSize: 13.5, lineHeight: 1.7, margin: 0 }}>{estudiante.sobre_mi}</p>
+            </div>
+          )}
+
+          {/* Necesidades + Intereses */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            {/* Necesidades */}
+            <div style={{ background: 'white', borderRadius: 14, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.07)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+                <IconHand />
+                <span style={{ fontSize: 14, fontWeight: 700, color: '#0f1e2e' }}>Necesidades</span>
               </div>
-            ) : (
-              <p className="text-sm text-slate-500">Sin intereses registrados.</p>
-            )}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {estudiante.busca_mentoria && (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 12px', borderRadius: 20, border: '1.5px solid #c5d5e5', color: '#1e3a5f', fontSize: 12, fontWeight: 500, width: 'fit-content', background: 'white' }}>
+                    <IconDot /> Mentoría Técnica
+                  </span>
+                )}
+                {estudiante.busca_empleo && (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 12px', borderRadius: 20, border: '1.5px solid #c5d5e5', color: '#1e3a5f', fontSize: 12, fontWeight: 500, width: 'fit-content', background: 'white' }}>
+                    <IconMoney /> Empleo
+                  </span>
+                )}
+                {!estudiante.busca_mentoria && !estudiante.busca_empleo && (
+                  <span style={{ color: '#9ab0c0', fontSize: 12 }}>No especificado.</span>
+                )}
+              </div>
+            </div>
+
+            {/* Intereses */}
+            <div style={{ background: 'white', borderRadius: 14, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.07)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+                <IconBrain />
+                <span style={{ fontSize: 14, fontWeight: 700, color: '#0f1e2e' }}>Intereses</span>
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                {blandas.length > 0
+                  ? blandas.map((b, i) => (
+                      <span key={i} style={{ padding: '5px 12px', borderRadius: 20, border: '1.5px solid #93c5e8', color: '#1a6090', fontSize: 12, fontWeight: 500, background: '#e8f3fb' }}>{b}</span>
+                    ))
+                  : <span style={{ color: '#9ab0c0', fontSize: 12 }}>No registrados.</span>
+                }
+              </div>
+            </div>
           </div>
 
-          {/* Info Académica */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-            <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wide mb-4">Información Académica</h2>
-            <dl className="space-y-4 text-sm">
-              <div>
-                <dt className="text-slate-500 font-medium mb-1">Carrera</dt>
-                <dd className="text-slate-900 font-medium">{estudiante.carrera}</dd>
-              </div>
-              <div>
-                <dt className="text-slate-500 font-medium mb-1">Facultad / Escuela</dt>
-                <dd className="text-slate-900">{estudiante.escuela_facultad || 'Facultad de la Universidad de Costa Rica'}</dd>
-              </div>
-              <div>
-                <dt className="text-slate-500 font-medium mb-1">Sede UCR</dt>
-                <dd className="text-slate-900">{estudiante.sede}</dd>
-              </div>
-            </dl>
+          {/* Habilidades Técnicas — siempre visible */}
+          <div style={{ background: 'white', borderRadius: 14, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.07)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+              <IconMonitor />
+              <span style={{ fontSize: 14, fontWeight: 700, color: '#0f1e2e' }}>Habilidades Técnicas</span>
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              {tecnicas.length > 0
+                ? tecnicas.map((h, i) => (
+                    <span key={i} style={{ padding: '5px 14px', borderRadius: 20, border: '1.5px solid #c5d5e5', color: '#1e3a5f', fontSize: 12, fontWeight: 500, background: 'white' }}>{h}</span>
+                  ))
+                : <span style={{ color: '#9ab0c0', fontSize: 12 }}>No registradas aún.</span>
+              }
+            </div>
           </div>
+        </div>
+
+        {/* ── DERECHA ── */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+          {/* Expediente Académico */}
+          <div style={{ borderRadius: 14, background: 'linear-gradient(145deg, #1e3a5f 0%, #0f2540 100%)', padding: 24, color: 'white', position: 'relative', overflow: 'hidden' }}>
+            {/* Watermark */}
+            <div style={{ position: 'absolute', bottom: -10, right: -10, opacity: 0.08, pointerEvents: 'none' }}>
+              <svg width="110" height="110" viewBox="0 0 24 24" fill="white"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </div>
+            <h2 style={{ fontSize: 16, fontWeight: 700, color: 'white', margin: '0 0 20px' }}>Expediente Académico</h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              {[
+                { label: 'Número de Carné', value: 'No disponible' },
+                { label: 'Sede Universitaria', value: nd(estudiante.sede) },
+                { label: 'Nivel Actual', value: 'No disponible' },
+                ...(estudiante.anio_ingreso ? [{ label: 'Año de Ingreso', value: String(estudiante.anio_ingreso) }] : []),
+              ].map(({ label, value }) => (
+                <div key={label}>
+                  <p style={{ fontSize: 10, fontWeight: 600, color: '#7ab0d8', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 3px' }}>{label}</p>
+                  <p style={{ fontSize: 15, fontWeight: 600, color: 'white', margin: 0 }}>{value}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Privacidad */}
+          <div style={{ background: 'white', borderRadius: 14, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.07)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+              <IconLock color="#dc2626" size={16} />
+              <span style={{ fontSize: 15, fontWeight: 700, color: '#0f1e2e' }}>Privacidad</span>
+            </div>
+            <p style={{ fontSize: 12.5, color: '#6a8090', lineHeight: 1.6, margin: '0 0 16px' }}>
+              Para proteger la integridad del estudiante, la información sensible como el nivel de beca y detalles socioeconómicos están restringidos y solo son visibles para la administración de la Fundación.
+            </p>
+            {[
+              { label: 'Nivel de Beca', value: 'Categoría 5' },
+              { label: 'Promedio Ponderado', value: '9.25' },
+            ].map(({ label, value }) => (
+              <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderTop: '1px solid #edf2f7' }}>
+                <div>
+                  <p style={{ fontSize: 10, fontWeight: 600, color: '#7a9ab0', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 2px' }}>{label}</p>
+                  <p style={{ fontSize: 15, fontWeight: 700, color: '#0f1e2e', margin: 0 }}>{value}</p>
+                </div>
+                <IconLock color="#b0c4d8" size={14} />
+              </div>
+            ))}
+          </div>
+
+          {/* Acciones para Mentores */}
+          <div style={{ borderRadius: 14, border: '1.5px dashed #c5d5e5', background: '#f7fafd', padding: 20 }}>
+            <p style={{ fontSize: 11, color: '#7a9ab0', textAlign: 'center', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 14 }}>Acciones para Mentores</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <button style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px 16px', borderRadius: 10, background: 'white', border: '1.5px solid #c5d5e5', color: '#0f1e2e', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
+                <IconBulb /> Ofrecer Mentoría
+              </button>
+              <button style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px 16px', borderRadius: 10, background: 'white', border: '1.5px solid #c5d5e5', color: '#0f1e2e', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
+                <IconSupport /> Apoyar Proyecto
+              </button>
+            </div>
+          </div>
+
+          {/* Redes */}
+          {(estudiante.url_linkedin || estudiante.url_portfolio) && (
+            <div style={{ background: 'white', borderRadius: 14, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.07)' }}>
+              <p style={{ fontSize: 10, fontWeight: 700, color: '#7a9ab0', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 12 }}>Redes y Portafolio</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {estudiante.url_linkedin && (
+                  <a href={estudiante.url_linkedin} target="_blank" rel="noopener noreferrer" style={{ color: '#1a5db0', fontSize: 13, fontWeight: 500, textDecoration: 'none' }}>🔗 LinkedIn</a>
+                )}
+                {estudiante.url_portfolio && (
+                  <a href={estudiante.url_portfolio} target="_blank" rel="noopener noreferrer" style={{ color: '#1a5db0', fontSize: 13, fontWeight: 500, textDecoration: 'none' }}>🌐 Portafolio</a>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Sección de Estudiantes Relacionados */}
+      {/* ── ESTUDIANTES RELACIONADOS ── */}
       {estudiantesRelacionados.length > 0 && (
-        <div className="pt-10 mt-10 border-t border-slate-200">
-          <h2 className="text-2xl font-bold font-heading text-slate-900 mb-2">Otros proyectos que podrían interesarte</h2>
-          <p className="text-slate-500 mb-6">
-            Descubre estudiantes trabajando en el área de <span className="font-medium text-slate-700">{estudiante.proyecto_area_tematica}</span>.
-          </p>
+        <div style={{ marginTop: 48, paddingTop: 32, borderTop: '1px solid #dce8f0' }}>
+          <h2 style={{ fontSize: 22, fontWeight: 700, color: '#0f1e2e', marginBottom: 6 }}>Otros estudiantes que podrían interesarte</h2>
+          {estudiante.carrera && <p style={{ color: '#6a8090', marginBottom: 24 }}>Estudiantes de <strong style={{ color: '#1e3a5f' }}>{estudiante.carrera}</strong>.</p>}
           <GrillaEstudiantes estudiantes={estudiantesRelacionados} />
         </div>
       )}
-    </>
+    </div>
   );
 }
