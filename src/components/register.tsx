@@ -11,8 +11,8 @@ import { createClient } from '@/lib/supabase/client';
 
 export default function Register() {
   const [tipoRegistro, setTipoRegistro] = useState<'estudiante' | 'exalumno'>('estudiante');
-  const [carrerasOpts, setCarrerasOpts] = useState<{id_carreras: number, nombre: string, id_facultades: number | null}[]>([]);
-  const [facultadesOpts, setFacultadesOpts] = useState<{id_facultades: number, nombre: string}[]>([]);
+  const [carrerasOpts, setCarrerasOpts] = useState<{id: number, nombre: string, facultad_id: number | null}[]>([]);
+  const [facultadesOpts, setFacultadesOpts] = useState<{id: number, nombre: string}[]>([]);
   
   // Estudiante State
   const [estudianteData, setEstudianteData] = useState({ nombre: '', correo: '', password: '' });
@@ -39,13 +39,13 @@ export default function Register() {
         const supabase = createClient();
         
         // Cargar Facultades
-        const { data: fData } = await supabase.from('facultades').select('id_facultades, nombre').order('nombre');
+        const { data: fData } = await supabase.from('facultades').select('id, nombre').order('nombre');
         if (fData && fData.length > 0) {
           setFacultadesOpts(fData);
         }
 
         // Cargar Carreras
-        const { data: cData } = await supabase.from('carreras').select('id_carreras, nombre, id_facultades').order('nombre');
+        const { data: cData } = await supabase.from('carreras').select('id, nombre, facultad_id').order('nombre');
         if (cData && cData.length > 0) {
           setCarrerasOpts(cData);
         }
@@ -152,7 +152,7 @@ export default function Register() {
   };
 
   const getCarreraName = (id: number) => {
-    const option = carrerasOpts.find(c => c.id_carreras === id);
+    const option = carrerasOpts.find(c => c.id === id);
     return option ? option.nombre : `Carrera ${id}`;
   };
 
@@ -161,7 +161,7 @@ export default function Register() {
   // Si hay facultad, se muestran las que pertenecen a esa facultad O las que aún no tienen facultad asignada.
   const filteredCarreras = exalumnoData.facultadId
     ? carrerasOpts.filter(c =>
-        c.id_facultades === parseInt(exalumnoData.facultadId) || c.id_facultades === null
+        c.facultad_id === parseInt(exalumnoData.facultadId) || c.facultad_id === null
       )
     : carrerasOpts;
 
@@ -187,13 +187,12 @@ export default function Register() {
                  alt="Logo Alumni UCR"
                  width={320}
                  height={105}
-                 className="register-brand-logo"
-                 style={{ objectFit: 'contain', cursor: 'pointer' }}
+                 className="register-brand-logo object-contain cursor-pointer"
                  priority
                />
              </Link>
            </div>
-           <div className="register-hero-text" style={{ marginTop: '1.5rem' }}>
+           <div className="register-hero-text mt-6">
              {tipoRegistro === 'estudiante' ? (
                <>
                  <h2>Comienza tu camino de regreso.</h2>
@@ -325,12 +324,12 @@ export default function Register() {
                   <div className="section-title mt-6">INFORMACIÓN ACADÉMICA</div>
 
                   <div className="form-group">
-                    <label>Facultad / Escuela</label>
-                    <select className="select-input" value={exalumnoData.facultadId} onChange={e => setExalumnoData({...exalumnoData, facultadId: e.target.value})}>
+                    <label htmlFor="facultad-select">Facultad / Escuela</label>
+                    <select id="facultad-select" className="select-input" value={exalumnoData.facultadId} onChange={e => setExalumnoData({...exalumnoData, facultadId: e.target.value})}>
                       <option value="">Todas las facultades (Mostrar todo)</option>
                       {facultadesOpts.length > 0 ? (
                         facultadesOpts.map(f => (
-                          <option key={f.id_facultades} value={f.id_facultades}>{f.nombre}</option>
+                          <option key={f.id} value={f.id}>{f.nombre}</option>
                         ))
                       ) : (
                         <>
@@ -342,11 +341,11 @@ export default function Register() {
                   </div>
 
                   <div className="form-group">
-                    <label>Carrera(s)</label>
-                    <select className="select-input" onChange={handleAddCarrera} defaultValue="">
+                    <label htmlFor="carrera-select">Carrera(s)</label>
+                    <select id="carrera-select" className="select-input" onChange={handleAddCarrera} defaultValue="">
                       <option value="" disabled>Seleccione una carrera para agregar...</option>
                       {filteredCarreras.map(c => (
-                        <option key={c.id_carreras} value={c.id_carreras}>{c.nombre}</option>
+                        <option key={c.id} value={c.id}>{c.nombre}</option>
                       ))}
                     </select>
                     
