@@ -4,6 +4,9 @@ import "../styles/layout.css";
 export const metadata = {
   title: 'Fundación Exalumnos UCR',
   description: 'Directorio Estudiantil',
+  icons: {
+    icon: '/images/Logo_UCR.png',
+  },
 }
 
 export default function RootLayout({
@@ -13,7 +16,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
-      <link rel="icon" href="/images/Logo_UCR.png" />
       <body>{children}</body>
     </html>
   );
