@@ -1,10 +1,11 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { CheckCircle2, Clock, XCircle, ArrowLeft, Heart, FileText, ChevronDown, ChevronUp } from 'lucide-react'
 import Card from '@/components/ui/card'
 import Button from '@/components/ui/button'
+import { createClient } from '@/lib/supabase/client'
 
 // ============================================================
 // TIPOS
@@ -25,46 +26,12 @@ interface Donacion {
   created_at: string
 }
 
-// ============================================================
-// MOCK DATA — reemplazar con query Supabase:
-// supabase.from('donaciones').select('*').eq('exalumno_id', userId).order('created_at', { ascending: false })
-// ============================================================
-const MOCK_HISTORIAL: Donacion[] = [
-  {
-    id: '1',
-    fondo: 'Becas de Excelencia Alumni UCR',
-    monto: 50000,
-    moneda: 'CRC',
-    metodo: 'sinpe',
-    fecha_transferencia: '2026-06-04T10:30:00',
-    numero_referencia: 'UCR-928471',
-    mensaje: '¡Mucho éxito en tus estudios!',
-    estado: 'confirmada',
-    created_at: '2026-06-04T10:45:00',
-  },
-  {
-    id: '2',
-    fondo: 'Fondo de Emergencia Estudiantil',
-    monto: 25000,
-    moneda: 'CRC',
-    metodo: 'transferencia_bancaria',
-    fecha_transferencia: '2026-05-20T15:00:00',
-    numero_referencia: 'UCR-741233',
-    estado: 'pendiente',
-    created_at: '2026-05-20T15:30:00',
-  },
-  {
-    id: '3',
-    fondo: 'Fondo General',
-    monto: 100,
-    moneda: 'USD',
-    metodo: 'sinpe',
-    fecha_transferencia: '2026-04-10T09:00:00',
-    estado: 'rechazada',
-    motivo_rechazo: 'El comprobante adjunto no corresponde al monto indicado. Por favor intenta de nuevo.',
-    created_at: '2026-04-10T09:15:00',
-  },
-]
+function mapFondoIdToName(id: string) {
+  if (id === '1') return 'Becas de Excelencia Alumni UCR'
+  if (id === '2') return 'Fondo de Emergencia Estudiantil'
+  if (id === 'general') return 'Fondo General'
+  return id || 'Fondo Desconocido'
+}
 
 // ============================================================
 // HELPERS
@@ -189,14 +156,49 @@ function DonacionCard({ d }: { d: Donacion }) {
 // ============================================================
 export default function DonationsHistoryPage() {
   const [filtro, setFiltro] = useState<EstadoDonacion | 'todas'>('todas')
+  const [donaciones, setDonaciones] = useState<Donacion[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
-  const filtered = MOCK_HISTORIAL.filter(d => filtro === 'todas' || d.estado === filtro)
+  useEffect(() => {
+    const fetchDonaciones = async () => {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { data, error } = await supabase
+        .from('donations')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+
+      if (data && !error) {
+        const mapped: Donacion[] = data.map((d: any) => ({
+          id: d.id,
+          fondo: mapFondoIdToName(d.fondo_destino),
+          monto: Number(d.monto),
+          moneda: d.moneda as 'CRC' | 'USD',
+          metodo: d.metodo_pago.toLowerCase().includes('sinpe') ? 'sinpe' : 'transferencia_bancaria',
+          fecha_transferencia: d.fecha_transferencia,
+          numero_referencia: d.numero_referencia,
+          mensaje: d.mensaje_estudiante,
+          estado: d.estado,
+          motivo_rechazo: undefined, // no column for this yet
+          created_at: d.created_at
+        }))
+        setDonaciones(mapped)
+      }
+      setIsLoading(false)
+    }
+    fetchDonaciones()
+  }, [])
+
+  const filtered = donaciones.filter(d => filtro === 'todas' || d.estado === filtro)
 
   const totales = {
-    confirmadas: MOCK_HISTORIAL.filter(d => d.estado === 'confirmada').length,
-    pendientes: MOCK_HISTORIAL.filter(d => d.estado === 'pendiente').length,
-    rechazadas: MOCK_HISTORIAL.filter(d => d.estado === 'rechazada').length,
-    totalCRC: MOCK_HISTORIAL.filter(d => d.estado === 'confirmada' && d.moneda === 'CRC').reduce((s, d) => s + d.monto, 0),
+    confirmadas: donaciones.filter(d => d.estado === 'confirmada').length,
+    pendientes: donaciones.filter(d => d.estado === 'pendiente').length,
+    rechazadas: donaciones.filter(d => d.estado === 'rechazada').length,
+    totalCRC: donaciones.filter(d => d.estado === 'confirmada' && d.moneda === 'CRC').reduce((s, d) => s + d.monto, 0),
   }
 
   return (
@@ -249,7 +251,11 @@ export default function DonationsHistoryPage() {
 
         {/* Lista */}
         <div className="space-y-3">
-          {filtered.length > 0 ? (
+          {isLoading ? (
+            <div className="text-center py-16 bg-white border border-slate-200 rounded-2xl">
+              <p className="text-sm font-bold text-slate-500 uppercase tracking-wide">Cargando historial...</p>
+            </div>
+          ) : filtered.length > 0 ? (
             filtered.map(d => <DonacionCard key={d.id} d={d} />)
           ) : (
             <div className="text-center py-16 bg-white border border-slate-200 rounded-2xl">

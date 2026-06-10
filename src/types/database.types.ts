@@ -138,6 +138,27 @@ export type Database = {
           },
         ]
       }
+      catalogo_areas_interes: {
+        Row: {
+          categoria: string | null
+          created_at: string | null
+          id: string
+          nombre: string
+        }
+        Insert: {
+          categoria?: string | null
+          created_at?: string | null
+          id?: string
+          nombre: string
+        }
+        Update: {
+          categoria?: string | null
+          created_at?: string | null
+          id?: string
+          nombre?: string
+        }
+        Relationships: []
+      }
       curriculum_certificaciones: {
         Row: {
           curriculum_id: string
@@ -513,6 +534,102 @@ export type Database = {
           },
         ]
       }
+      profiles: {
+        Row: {
+          id: string
+          full_name: string | null
+          email: string | null
+          phone: string | null
+          skills: string[] | null
+          twitter_url: string | null
+          instagram_url: string | null
+          experience: Json
+          foto_url: string | null
+          pais_ciudad: string | null
+          linkedin_url: string | null
+          bio: string | null
+          academic: Json
+          empresa_actual: string | null
+          cargo_actual: string | null
+          sector_industria: string[] | null
+          anos_experiencia: number | null
+          areas_de_interes: string[] | null
+          ofrece_mentoria: boolean
+          horas_mes_mentoria: number | null
+          ofrece_empleo: boolean
+          ofrece_pasantia: boolean
+          ofrece_proyecto: boolean
+          ofrece_donacion_dinero: boolean
+          monto_maximo_donacion: number | null
+          moneda_donacion: string | null
+          es_exalumno: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id: string
+          full_name?: string | null
+          email?: string | null
+          phone?: string | null
+          skills?: string[] | null
+          twitter_url?: string | null
+          instagram_url?: string | null
+          experience?: Json
+          foto_url?: string | null
+          pais_ciudad?: string | null
+          linkedin_url?: string | null
+          bio?: string | null
+          academic?: Json
+          empresa_actual?: string | null
+          cargo_actual?: string | null
+          sector_industria?: string[] | null
+          anos_experiencia?: number | null
+          areas_de_interes?: string[] | null
+          ofrece_mentoria?: boolean
+          horas_mes_mentoria?: number | null
+          ofrece_empleo?: boolean
+          ofrece_pasantia?: boolean
+          ofrece_proyecto?: boolean
+          ofrece_donacion_dinero?: boolean
+          monto_maximo_donacion?: number | null
+          moneda_donacion?: string | null
+          es_exalumno?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          full_name?: string | null
+          email?: string | null
+          phone?: string | null
+          skills?: string[] | null
+          twitter_url?: string | null
+          instagram_url?: string | null
+          experience?: Json
+          foto_url?: string | null
+          pais_ciudad?: string | null
+          linkedin_url?: string | null
+          bio?: string | null
+          academic?: Json
+          empresa_actual?: string | null
+          cargo_actual?: string | null
+          sector_industria?: string[] | null
+          anos_experiencia?: number | null
+          areas_de_interes?: string[] | null
+          ofrece_mentoria?: boolean
+          horas_mes_mentoria?: number | null
+          ofrece_empleo?: boolean
+          ofrece_pasantia?: boolean
+          ofrece_proyecto?: boolean
+          ofrece_donacion_dinero?: boolean
+          monto_maximo_donacion?: number | null
+          moneda_donacion?: string | null
+          es_exalumno?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       matches: {
         Row: {
           created_at: string
@@ -585,6 +702,7 @@ export type Database = {
           fecha_limite: string | null
           habilidades_requeridas: string[]
           id: string
+          jornada: string | null
           lugar: string | null
           modalidad: string | null
           responsabilidades: string[]
@@ -604,6 +722,7 @@ export type Database = {
           fecha_limite?: string | null
           habilidades_requeridas?: string[]
           id?: string
+          jornada?: string | null
           lugar?: string | null
           modalidad?: string | null
           responsabilidades?: string[]
@@ -623,6 +742,7 @@ export type Database = {
           fecha_limite?: string | null
           habilidades_requeridas?: string[]
           id?: string
+          jornada?: string | null
           lugar?: string | null
           modalidad?: string | null
           responsabilidades?: string[]
@@ -689,7 +809,6 @@ export type Database = {
       users: {
         Row: {
           activo: boolean
-          areas_de_interes: string[] | null
           bio: string | null
           busca_empleo: boolean
           busca_financiamiento: boolean
@@ -716,7 +835,6 @@ export type Database = {
         }
         Insert: {
           activo?: boolean
-          areas_de_interes?: string[] | null
           bio?: string | null
           busca_empleo?: boolean
           busca_financiamiento?: boolean
@@ -744,7 +862,6 @@ export type Database = {
         }
         Update: {
           activo?: boolean
-          areas_de_interes?: string[] | null
           bio?: string | null
           busca_empleo?: boolean
           busca_financiamiento?: boolean
@@ -770,6 +887,36 @@ export type Database = {
           visible_en_directorio?: boolean
         }
         Relationships: []
+      }
+      users_areas_interes: {
+        Row: {
+          area_id: string
+          user_id: string
+        }
+        Insert: {
+          area_id: string
+          user_id: string
+        }
+        Update: {
+          area_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "users_areas_interes_area_id_fkey"
+            columns: ["area_id"]
+            isOneToOne: false
+            referencedRelation: "catalogo_areas_interes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "users_areas_interes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       curriculums: {
         Row: {

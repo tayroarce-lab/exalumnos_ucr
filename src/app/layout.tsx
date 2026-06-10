@@ -4,8 +4,13 @@ import '../styles/layout.css'
 
 export const metadata: Metadata = {
   title: 'Fundación Exalumnos UCR',
-  description: 'Plataforma digital para conectar graduados con estudiantes de la Universidad de Costa Rica.',
+  description: 'Directorio Estudiantil',
+  icons: {
+    icon: '/images/Logo_UCR.png',
+  },
 }
+
+import { ProfileProvider } from '@/contexts/ProfileContext'
 
 export default function RootLayout({
   children,
@@ -14,9 +19,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
-      <link rel="icon" href="/images/Logo_UCR.png" />
-      <body className="bg-slate-50 text-brand-dark min-h-screen">
-        {children}
+      <body>
+        <ProfileProvider>
+          {children}
+        </ProfileProvider>
       </body>
     </html>
   )

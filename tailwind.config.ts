@@ -31,7 +31,7 @@ const config: Config = {
         'soft-green': '#E8F3ED',
       },
       fontFamily: {
-        sans: ['var(--font-sans)', 'Barlow', 'Work Sans', 'sans-serif'],
+        sans: ['var(--font-sans)', 'DM Sans', 'Work Sans', 'sans-serif'],
         display: ['var(--font-display)', 'Barlow Semi Condensed', 'sans-serif'],
         mono: ['var(--font-mono)', 'monospace'],
       },
