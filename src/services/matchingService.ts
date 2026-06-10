@@ -1,14 +1,17 @@
 // =============================================================================
 // SERVICIO: matchingService
 // Descripción : Lógica de negocio para el sistema de matching alumni-estudiante.
+//               Reescrito para operar sobre el schema v20260608:
+//               - Tabla `public.users` con campo `rol` (no `tipo`)
+//               - Los campos de perfil viven directamente en `users`
+//               - Tabla `curriculums` (no `curriculum`)
 // =============================================================================
 
 import { createClient } from '@/lib/supabase/server';
 
-export type EstadoMatch = 'sugerido' | 'contactado' | 'activo' | 'cerrado';
+export type EstadoMatch  = 'sugerido' | 'contactado' | 'activo' | 'cerrado';
 export type ResultadoMatch = 'exitoso' | 'cancelado' | 'en_progreso' | null;
 
-// GUARDRAIL: Sin promedio_ponderado ni beca_socioeconomica en este tipo
 export interface MatchSugerido {
   id: string;
   score_match: number;
@@ -19,22 +22,26 @@ export interface MatchSugerido {
     id: string;
     nombre: string;
     foto_url: string | null;
-    carrera: string;
-    sede: string;
-    proyecto_titulo: string | null;
-    proyecto_area_tematica: string | null;
     areas_de_interes: string[];
-    proyecto_necesidades: string[];
+    busca_mentoria: boolean;
+    busca_empleo: boolean;
+    busca_pasantia: boolean;
+    carrera?: string | null;
+    proyecto_titulo?: string | null;
+    proyecto_area_tematica?: string | null;
   };
   exalumno: {
     id: string;
     nombre: string;
     foto_url: string | null;
-    carrera_ucr: string;
-    cargo_actual: string | null;
-    empresa_actual: string | null;
     sector_industria: string[];
     areas_de_interes: string[];
+    ofrece_mentoria: boolean;
+    ofrece_empleo: boolean;
+    ofrece_pasantia: boolean;
+    cargo_actual?: string | null;
+    carrera_ucr?: string | null;
+    empresa_actual?: string | null;
   };
   desglosePuntaje: {
     mismaCarrera: boolean;
@@ -50,30 +57,30 @@ export interface RespuestaServicio {
   datos?: unknown;
 }
 
-// [VERDE - FUNCION: obtenerMatchesSugeridos]
+// =============================================================================
+// FUNCIÓN: obtenerMatchesSugeridos
 // Retorna los matches del usuario con score > 0, ordenados de mayor a menor.
+// Lee directamente de public.users para cada parte del match.
+// =============================================================================
 export async function obtenerMatchesSugeridos(userId: string): Promise<MatchSugerido[]> {
   const supabase = await createClient();
 
+  // Query limpia: join directo a users para cada lado del match
   const { data, error } = await supabase
     .from('matches')
     .select(`
       id, score_match, estado, tipo_apoyo, created_at,
-      est:estudiante_id ( id, nombre:users(nombre), foto_url:users(foto_url),
-        carrera:estudiantes(carrera), sede:estudiantes(sede),
-        proyecto_titulo:estudiantes(proyecto_titulo),
-        proyecto_area_tematica:estudiantes(proyecto_area_tematica),
-        areas_de_interes:estudiantes(areas_de_interes),
-        proyecto_necesidades:estudiantes(proyecto_necesidades)
+      estudiante:users!matches_estudiante_id_fkey (
+        id, nombre, foto_url,
+        areas_de_interes, busca_mentoria, busca_empleo, busca_pasantia
       ),
-      exal:exalumno_id ( id, nombre:users(nombre), foto_url:users(foto_url),
-        carrera_ucr:exalumnos(carrera_ucr),
-        cargo_actual:exalumnos(cargo_actual),
-        empresa_actual:exalumnos(empresa_actual),
-        sector_industria:exalumnos(sector_industria),
-        areas_de_interes:exalumnos(areas_de_interes)
+      exalumno:users!matches_exalumno_id_fkey (
+        id, nombre, foto_url,
+        sector_industria, areas_de_interes,
+        ofrece_mentoria, ofrece_empleo, ofrece_pasantia
       )
     `)
+    .is('deleted_at', null)
     .or(`estudiante_id.eq.${userId},exalumno_id.eq.${userId}`)
     .gt('score_match', 0)
     .order('score_match', { ascending: false });
@@ -84,8 +91,11 @@ export async function obtenerMatchesSugeridos(userId: string): Promise<MatchSuge
   return (data as any[]).map(construirMatchSugerido);
 }
 
-// [VERDE - FUNCION: iniciarConexionMatch]
-// Calcula el score vía RPC y persiste el match si score > 0.
+// =============================================================================
+// FUNCIÓN: iniciarConexionMatch
+// Calcula el score vía RPC (calcular_score_matching) y persiste si score > 0.
+// La función SQL ya opera sobre el nuevo schema (migración 16).
+// =============================================================================
 export async function iniciarConexionMatch(
   estudianteId: string,
   exalumnoId: string,
@@ -99,14 +109,21 @@ export async function iniciarConexionMatch(
   );
 
   if (errScore) return { exito: false, mensaje: errScore.message };
-  if ((score as number) === 0) return { exito: false, mensaje: 'Sin compatibilidad suficiente.' };
+  if ((score as number) === 0) {
+    return { exito: false, mensaje: 'Sin compatibilidad suficiente para crear el match.' };
+  }
 
   const { data, error } = await supabase
     .from('matches')
     .upsert(
-      { estudiante_id: estudianteId, exalumno_id: exalumnoId,
-        score_match: score as number, estado: 'sugerido',
-        tipo_apoyo: tipoApoyo, iniciado_por: 'sistema' },
+      {
+        estudiante_id: estudianteId,
+        exalumno_id:   exalumnoId,
+        score_match:   score as number,
+        estado:        'sugerido',
+        tipo_apoyo:    tipoApoyo,
+        iniciado_por:  'plataforma',
+      },
       { onConflict: 'estudiante_id,exalumno_id' }
     )
     .select('id, score_match')
@@ -116,8 +133,10 @@ export async function iniciarConexionMatch(
   return { exito: true, mensaje: `Match creado con score ${score}.`, datos: data };
 }
 
-// [VERDE - FUNCION: cambiarEstadoMatch]
+// =============================================================================
+// FUNCIÓN: cambiarEstadoMatch
 // Actualiza el estado del ciclo de vida del match. Al cerrar, registra resultado.
+// =============================================================================
 export async function cambiarEstadoMatch(
   matchId: string,
   nuevoEstado: EstadoMatch,
@@ -126,7 +145,7 @@ export async function cambiarEstadoMatch(
   const supabase = await createClient();
 
   const payload: Record<string, unknown> = {
-    estado: nuevoEstado,
+    estado:     nuevoEstado,
     updated_at: new Date().toISOString(),
   };
   if (nuevoEstado === 'cerrado' && resultado) payload.resultado = resultado;
@@ -136,57 +155,67 @@ export async function cambiarEstadoMatch(
   return { exito: true, mensaje: `Estado actualizado a "${nuevoEstado}".` };
 }
 
-// [VERDE - FUNCION: aceptarMatch]
+// =============================================================================
+// FUNCIÓN: aceptarMatch
 // Mueve el match a estado 'contactado' (exalumno aceptó la sugerencia).
+// =============================================================================
 export async function aceptarMatch(matchId: string): Promise<RespuestaServicio> {
   return cambiarEstadoMatch(matchId, 'contactado');
 }
 
-// [VERDE - FUNCION: rechazarMatch]
+// =============================================================================
+// FUNCIÓN: rechazarMatch
 // Cierra el match con resultado 'cancelado'.
+// =============================================================================
 export async function rechazarMatch(matchId: string): Promise<RespuestaServicio> {
   return cambiarEstadoMatch(matchId, 'cerrado', 'cancelado');
 }
 
 // ─── HELPER INTERNO ──────────────────────────────────────────────────────────
 
-// [VERDE - FUNCION: construirMatchSugerido]
-// Transforma el objeto crudo de Supabase al tipo MatchSugerido con desglose.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function construirMatchSugerido(raw: any): MatchSugerido {
-  const areasEst: string[]  = raw.est?.areas_de_interes ?? [];
-  const areasExal: string[] = raw.exal?.areas_de_interes ?? [];
-  const sectores: string[]  = raw.exal?.sector_industria ?? [];
-  const areaTematica        = raw.est?.proyecto_area_tematica ?? '';
-  const areasEnComun        = areasEst.filter((a: string) => areasExal.includes(a));
-  const sectorCoincide      = sectores.some(
-    (s: string) => s.toLowerCase() === areaTematica.toLowerCase()
+  const areasEst:  string[] = raw.estudiante?.areas_de_interes ?? [];
+  const areasExal: string[] = raw.exalumno?.areas_de_interes ?? [];
+  const sectores:  string[] = raw.exalumno?.sector_industria ?? [];
+
+  const areasEnComun  = areasEst.filter((a: string) =>
+    areasExal.map((x: string) => x.toLowerCase()).includes(a.toLowerCase())
+  );
+  const sectorCoincide = sectores.some((s: string) =>
+    areasEst.map((a: string) => a.toLowerCase()).includes(s.toLowerCase())
   );
 
   return {
-    id: raw.id, score_match: raw.score_match,
-    estado: raw.estado as EstadoMatch,
-    tipo_apoyo: raw.tipo_apoyo, created_at: raw.created_at,
+    id:           raw.id,
+    score_match:  raw.score_match,
+    estado:       raw.estado as EstadoMatch,
+    tipo_apoyo:   raw.tipo_apoyo,
+    created_at:   raw.created_at,
     estudiante: {
-      id: raw.est?.id ?? '', nombre: raw.est?.nombre ?? '',
-      foto_url: raw.est?.foto_url ?? null,
-      carrera: raw.est?.carrera ?? '', sede: raw.est?.sede ?? '',
-      proyecto_titulo: raw.est?.proyecto_titulo ?? null,
-      proyecto_area_tematica: areaTematica,
+      id:              raw.estudiante?.id ?? '',
+      nombre:          raw.estudiante?.nombre ?? '',
+      foto_url:        raw.estudiante?.foto_url ?? null,
       areas_de_interes: areasEst,
-      proyecto_necesidades: raw.est?.proyecto_necesidades ?? [],
+      busca_mentoria:  raw.estudiante?.busca_mentoria ?? false,
+      busca_empleo:    raw.estudiante?.busca_empleo ?? false,
+      busca_pasantia:  raw.estudiante?.busca_pasantia ?? false,
     },
     exalumno: {
-      id: raw.exal?.id ?? '', nombre: raw.exal?.nombre ?? '',
-      foto_url: raw.exal?.foto_url ?? null,
-      carrera_ucr: raw.exal?.carrera_ucr ?? '',
-      cargo_actual: raw.exal?.cargo_actual ?? null,
-      empresa_actual: raw.exal?.empresa_actual ?? null,
-      sector_industria: sectores, areas_de_interes: areasExal,
+      id:               raw.exalumno?.id ?? '',
+      nombre:           raw.exalumno?.nombre ?? '',
+      foto_url:         raw.exalumno?.foto_url ?? null,
+      sector_industria: sectores,
+      areas_de_interes: areasExal,
+      ofrece_mentoria:  raw.exalumno?.ofrece_mentoria ?? false,
+      ofrece_empleo:    raw.exalumno?.ofrece_empleo ?? false,
+      ofrece_pasantia:  raw.exalumno?.ofrece_pasantia ?? false,
     },
     desglosePuntaje: {
-      mismaCarrera: raw.est?.carrera?.toLowerCase() === raw.exal?.carrera_ucr?.toLowerCase(),
-      areasEnComun, sectorCoincide, apoyoCoincide: raw.score_match > 0,
+      mismaCarrera: false, // La comparación exacta se hace por carrera_principal_id (entero), no texto
+      areasEnComun,
+      sectorCoincide,
+      apoyoCoincide: raw.score_match > 0,
     },
   };
 }

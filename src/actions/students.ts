@@ -4,27 +4,19 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
 export type PerfilEstudianteInput = {
-  carnet_ucr?: string
   carrera?: string
   escuela_facultad?: string
   sede?: string
-  anio_ingreso?: number
-  nivel_academico?: 'bachillerato' | 'licenciatura' | 'maestria' | 'doctorado'
-  promedio_ponderado?: number
-  beca_socioeconomica?: 'ninguna' | 'nivel1' | 'nivel2' | 'nivel3' | 'nivel4' | 'nivel5'
   proyecto_titulo?: string
   proyecto_descripcion?: string
   proyecto_area_tematica?: string
-  proyecto_tipo?: 'tfg' | 'tesis' | 'practica_dirigida' | 'seminario'
+  proyecto_tipo?: string
   proyecto_porcentaje_avance?: number
-  proyecto_necesidades?: string[]
   areas_de_interes?: string[]
-  habilidades?: string[]
   busca_financiamiento?: boolean
   busca_mentoria?: boolean
   busca_empleo?: boolean
   busca_pasantia?: boolean
-  proyecto_activo?: boolean
   visible_en_directorio?: boolean
 }
 
@@ -33,19 +25,30 @@ export async function actualizarPerfilEstudiante(datos: PerfilEstudianteInput) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('No autenticado')
 
-  // Validaciones
-  if (datos.carnet_ucr && !/^[A-Z0-9]+$/.test(datos.carnet_ucr)) {
-    throw new Error('Formato de carné inválido')
-  }
+  const { areas_de_interes, ...restDatos } = datos
 
   const { error } = await supabase
-    .from('estudiantes')
-    .upsert({ user_id: user.id, ...datos })
+    .from('users')
+    .update({ ...restDatos })
+    .eq('id', user.id)
+    .eq('rol', 'estudiante')
 
   if (error) throw new Error(error.message)
 
-  // Verificar si el perfil está completo
-  await verificarPerfilCompleto(user.id)
+  if (areas_de_interes) {
+    const { data: areasData } = await supabase
+      .from('catalogo_areas_interes')
+      .select('id')
+      .in('nombre', areas_de_interes)
+    
+    if (areasData) {
+      await supabase.from('users_areas_interes').delete().eq('user_id', user.id)
+      const inserts = areasData.map(a => ({ user_id: user.id, area_id: a.id }))
+      if (inserts.length > 0) {
+        await supabase.from('users_areas_interes').insert(inserts)
+      }
+    }
+  }
 
   revalidatePath('/mi-perfil')
   return { success: true }
@@ -57,42 +60,46 @@ export async function obtenerMiPerfilEstudiante() {
   if (!user) throw new Error('No autenticado')
 
   const { data, error } = await supabase
-    .from('estudiantes')
-    .select('*, users(nombre, email, foto_url)')
-    .eq('user_id', user.id)
+    .from('users')
+    .select(`
+      *,
+      users_areas_interes(catalogo_areas_interes(nombre))
+    `)
+    .eq('id', user.id)
+    .eq('rol', 'estudiante')
     .single()
 
   if (error && error.code !== 'PGRST116') throw new Error(error.message)
+  
+  if (data) {
+    const areas = (data as any).users_areas_interes?.map((ua: any) => ua.catalogo_areas_interes?.nombre).filter(Boolean) || []
+    return { ...data, areas_de_interes: areas }
+  }
   return data
 }
 
 export async function verificarPerfilCompleto(userId: string) {
   const supabase = await createClient()
   const { data: estudiante, error } = await supabase
-    .from('estudiantes')
+    .from('users')
     .select('*')
-    .eq('user_id', userId)
+    .eq('id', userId)
+    .eq('rol', 'estudiante')
     .single()
 
   if (error || !estudiante) return false
 
   const camposRequeridos = [
-    'carnet_ucr', 'carrera', 'escuela_facultad', 'sede', 
-    'anio_ingreso', 'nivel_academico', 'beca_socioeconomica',
+    'carrera', 'escuela_facultad', 'sede',
     'proyecto_titulo', 'proyecto_descripcion', 'proyecto_area_tematica',
-    'proyecto_tipo', 'proyecto_porcentaje_avance', 'proyecto_necesidades',
-    'areas_de_interes'
+    'proyecto_tipo', 'proyecto_porcentaje_avance', 'areas_de_interes'
   ]
 
   const estaCompleto = camposRequeridos.every(campo => {
-    const val = estudiante[campo as keyof typeof estudiante]
+    const val = (estudiante as any)[campo]
     if (Array.isArray(val)) return val.length > 0
     return val !== null && val !== undefined && val !== ''
   })
-
-  if (estaCompleto !== estudiante.perfil_completo) {
-    await supabase.from('estudiantes').update({ perfil_completo: estaCompleto }).eq('user_id', userId)
-  }
 
   return estaCompleto
 }
@@ -113,42 +120,66 @@ export async function listarEstudiantes(
   }
 ) {
   const supabase = await createClient()
-  let query = supabase.from('estudiantes')
-    .select('*, users!inner(nombre, foto_url, activo)', { count: 'exact' })
-    .eq('visible_en_directorio', true)
-    .eq('perfil_completo', true)
-    .eq('proyecto_activo', true)
-    .eq('users.activo', true)
-    .order('proyecto_porcentaje_avance', { ascending: false })
+  
+  const hasCarreraFilter = filtros?.carrera && filtros.carrera.length > 0
+  const hasSedeFilter = filtros?.sede
+  const careerJoin = (hasCarreraFilter || hasSedeFilter) ? 'users_carreras!inner' : 'users_carreras'
+
+  let query = supabase
+    .from('users')
+    .select(`
+      *,
+      ${careerJoin} (
+        anio_ingreso,
+        anio_graduacion,
+        carrera_campus (
+          carreras (
+            nombre,
+            facultades (nombre)
+          ),
+          campus (nombre)
+        )
+      ),
+      curriculums (
+        sobre_mi,
+        url_linkedin,
+        url_portfolio,
+        habilidades_tecnicas,
+        habilidades_blandas,
+        proyecto_graduacion_resumen
+      ),
+      users_areas_interes(catalogo_areas_interes(nombre))
+    `, { count: 'exact' })
+    .eq('rol', 'estudiante')
+    .eq('activo', true)
+    .order('nombre', { ascending: true })
 
   if (filtros) {
-    if (filtros.carrera && filtros.carrera.length > 0) {
-      query = query.in('carrera', filtros.carrera)
-    }
-    if (filtros.proyecto_area_tematica && filtros.proyecto_area_tematica.length > 0) {
-      query = query.in('proyecto_area_tematica', filtros.proyecto_area_tematica)
-    }
     if (filtros.areas_de_interes && filtros.areas_de_interes.length > 0) {
-      query = query.contains('areas_de_interes', filtros.areas_de_interes)
+      query = query.in('users_areas_interes.catalogo_areas_interes.nombre', filtros.areas_de_interes)
     }
-    if (filtros.proyecto_tipo) {
-      query = query.eq('proyecto_tipo', filtros.proyecto_tipo)
+    if (filtros.carrera && filtros.carrera.length > 0) {
+      query = query.in('users_carreras.carrera_campus.carreras.nombre', filtros.carrera)
     }
     if (filtros.sede) {
-      query = query.eq('sede', filtros.sede)
+      query = query.eq('users_carreras.carrera_campus.campus.nombre', filtros.sede)
     }
     if (filtros.tipos_apoyo && filtros.tipos_apoyo.length > 0) {
       filtros.tipos_apoyo.forEach(tipo => {
-        if (tipo === 'financiamiento') query = query.eq('busca_financiamiento', true)
+        if (tipo === 'financiamiento') {
+          // No hay busca_financiamiento en users, omitimos o no filtramos
+        }
         if (tipo === 'mentoría') query = query.eq('busca_mentoria', true)
         if (tipo === 'empleo') query = query.eq('busca_empleo', true)
-        if (tipo === 'pasantía') query = query.eq('busca_pasantia', true)
+        if (tipo === 'pasantía') {
+          // No hay busca_pasantia en users, omitimos o no filtramos
+        }
       })
     }
   }
 
   if (opciones?.busqueda) {
-    query = query.ilike('users.nombre', `%${opciones.busqueda}%`)
+    query = query.ilike('nombre', `%${opciones.busqueda}%`)
   }
 
   if (opciones?.page && opciones?.limit) {
@@ -161,46 +192,54 @@ export async function listarEstudiantes(
 
   const { data, count, error } = await query
   if (error) throw new Error(error.message)
-  return { data, count: count || 0 }
+  
+  const mappedData = data?.map(d => ({
+    ...d,
+    areas_de_interes: (d as any).users_areas_interes?.map((ua: any) => ua.catalogo_areas_interes?.nombre).filter(Boolean) || []
+  }))
+
+  return { data: mappedData, count: count || 0 }
 }
 
 export async function obtenerEstudiantePorId(id: string) {
   const supabase = await createClient()
   const { data, error } = await supabase
-    .from('estudiantes')
-    .select('*, users(nombre, foto_url, activo)')
-    .eq('user_id', id)
+    .from('users')
+    .select(`
+      *,
+      users_carreras (
+        anio_ingreso,
+        anio_graduacion,
+        carrera_campus (
+          carreras (
+            nombre,
+            facultades (nombre)
+          ),
+          campus (nombre)
+        )
+      ),
+      curriculums (
+        sobre_mi,
+        url_linkedin,
+        url_portfolio,
+        habilidades_tecnicas,
+        habilidades_blandas,
+        proyecto_graduacion_resumen
+      ),
+      users_areas_interes(catalogo_areas_interes(nombre))
+    `)
+    .eq('id', id)
+    .eq('rol', 'estudiante')
     .single()
 
   if (error) throw new Error(error.message)
 
-  // RLS ya protege la beca para usuarios no autorizados, pero nos aseguramos
-  const perfilSeguro = { ...data }
-  
-  const { data: { user } } = await supabase.auth.getUser()
-  if (user?.id !== id) {
-    // Si no es el propio usuario, verificamos si hay match activo o si es admin
-    let puedeVerSensible = false
-    const { data: adminCheck } = await supabase.from('users').select('tipo').is('deleted_at', null).eq('id', user?.id || '').single()
-    if (adminCheck?.tipo === 'admin') puedeVerSensible = true
-
-    if (!puedeVerSensible && user) {
-      const { data: match } = await supabase.from('matches')
-        .select('id').is('deleted_at', null)
-        .eq('estudiante_id', id)
-        .eq('exalumno_id', user.id)
-        .eq('estado', 'activo')
-        .single()
-      if (match) puedeVerSensible = true
-    }
-
-    if (!puedeVerSensible) {
-      delete perfilSeguro.beca_socioeconomica
-      delete perfilSeguro.promedio_ponderado
-    }
+  if (data) {
+    const areas = (data as any).users_areas_interes?.map((ua: any) => ua.catalogo_areas_interes?.nombre).filter(Boolean) || []
+    return { ...data, areas_de_interes: areas }
   }
 
-  return perfilSeguro
+  return data
 }
 
 export async function pausarPerfilEstudiante(pausar: boolean = true) {
@@ -209,9 +248,10 @@ export async function pausarPerfilEstudiante(pausar: boolean = true) {
   if (!user) throw new Error('No autenticado')
 
   const { error } = await supabase
-    .from('estudiantes')
+    .from('users')
     .update({ visible_en_directorio: !pausar })
-    .eq('user_id', user.id)
+    .eq('id', user.id)
+    .eq('rol', 'estudiante')
 
   if (error) throw new Error(error.message)
   revalidatePath('/mi-perfil')

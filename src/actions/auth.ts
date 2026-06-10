@@ -5,31 +5,34 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 
 export async function registrarEstudiante(data: { email: string; password: string; nombre: string }) {
-  if (data.email.toLowerCase().endsWith('@gmail.com')) {
+  const emailLimpio = data.email.trim().toLowerCase()
+  if (emailLimpio.endsWith('@gmail.com')) {
     throw new Error('Los correos de Gmail no están permitidos para estudiantes.')
   }
-  if (!data.email.endsWith('@ucr.ac.cr')) {
+  if (!emailLimpio.endsWith('@ucr.ac.cr')) {
     throw new Error('El correo debe terminar en @ucr.ac.cr')
   }
 
   const supabase = await createClient()
   const adminClient = createAdminClient()
 
-  const { data: authData, error: authError } = await supabase.auth.signUp({
-    email: data.email,
+  const { data: authData, error: authError } = await adminClient.auth.admin.createUser({
+    email: emailLimpio,
     password: data.password,
-    options: { data: { nombre: data.nombre, tipo: 'estudiante' } }
+    email_confirm: true,
+    user_metadata: { nombre: data.nombre, tipo: 'estudiante' }
   })
 
   if (authError) throw new Error(authError.message)
   
   if (authData.user) {
-    // Insertar en public.users con client admin para sobrepasar RLS si el usuario aún no está confirmado
+    // Intentar insertar en users por compatibilidad, aunque hay un trigger, el trigger inserta lo básico
     const { error: dbError } = await adminClient.from('users').insert({
       id: authData.user.id,
-      email: data.email,
+      email: emailLimpio,
       nombre: data.nombre,
       tipo: 'estudiante',
+      rol: 'estudiante',
       email_verified: false,
       activo: true
     })
@@ -38,6 +41,22 @@ export async function registrarEstudiante(data: { email: string; password: strin
     if (dbError && dbError.code !== '23505') {
       console.error('Error insertando en public.users:', dbError)
     }
+
+    const parts = data.nombre.split(' ')
+    const nombre = parts[0] || ''
+    const apellidos = parts.slice(1).join(' ') || ''
+
+    // Insertar en la tabla profiles
+    await adminClient.from('profiles').insert({
+      id: authData.user.id,
+      email: emailLimpio,
+      full_name: data.nombre,
+      nombre: nombre,
+      apellidos: apellidos,
+      es_exalumno: false,
+      perfil_completo: 20,
+      created_at: new Date().toISOString()
+    })
   }
 
   return { success: true }
@@ -50,13 +69,15 @@ export async function registrarExalumno(data: {
   carreras: number[];
   anio_graduacion: number;
 }) {
+  const emailLimpio = data.email.trim().toLowerCase()
   const supabase = await createClient()
   const adminClient = createAdminClient()
 
-  const { data: authData, error: authError } = await supabase.auth.signUp({
-    email: data.email,
+  const { data: authData, error: authError } = await adminClient.auth.admin.createUser({
+    email: emailLimpio,
     password: data.password,
-    options: { data: { nombre: data.nombre, tipo: 'exalumno' } }
+    email_confirm: true,
+    user_metadata: { nombre: data.nombre, tipo: 'exalumno' }
   })
 
   if (authError) throw new Error(authError.message)
@@ -64,9 +85,11 @@ export async function registrarExalumno(data: {
   if (authData.user) {
     const { error: dbError } = await adminClient.from('users').insert({
       id: authData.user.id,
-      email: data.email,
+      email: emailLimpio,
       nombre: data.nombre,
       tipo: 'exalumno',
+      rol: 'exalumno',
+      carrera_principal_id: data.carreras && data.carreras.length > 0 ? data.carreras[0] : null,
       email_verified: false,
       activo: true
     })
@@ -75,30 +98,29 @@ export async function registrarExalumno(data: {
       console.error('Error insertando en public.users:', dbError)
     }
 
-    // Insertar el perfil extendido de exalumno
-    const { error: exError } = await adminClient.from('exalumnos').insert({
-      user_id: authData.user.id,
-      anio_graduacion: data.anio_graduacion,
-      perfil_completo: false
+    // Preparar datos academicos para perfiles
+    const academic = data.carreras.map(cId => ({
+      carrera: cId.toString(), // Idealmente buscaríamos el nombre, pero guardamos el ID como string temporalmente
+      escuela: '',
+      anio: data.anio_graduacion.toString()
+    }))
+
+    const parts = data.nombre.split(' ')
+    const nombre = parts[0] || ''
+    const apellidos = parts.slice(1).join(' ') || ''
+
+    // Insertar en la tabla profiles
+    await adminClient.from('profiles').insert({
+      id: authData.user.id,
+      email: emailLimpio,
+      full_name: data.nombre,
+      nombre: nombre,
+      apellidos: apellidos,
+      academic: academic,
+      es_exalumno: true,
+      perfil_completo: 20,
+      created_at: new Date().toISOString()
     })
-
-    if (exError && exError.code !== '23505') {
-      console.error('Error insertando en public.exalumnos:', exError)
-    }
-
-    // Insertar las carreras en la tabla intermedia
-    if (data.carreras && data.carreras.length > 0) {
-      const relaciones = data.carreras.map((cId) => ({
-        exalumno_id: authData.user.id,
-        carrera_id: cId
-      }))
-      
-      const { error: relError } = await adminClient.from('exalumnos_carreras').insert(relaciones)
-      
-      if (relError) {
-        console.error('Error insertando en exalumnos_carreras:', relError)
-      }
-    }
   }
 
   return { success: true }

@@ -1,5 +1,9 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
+
+// Modo demo: todas las rutas son accesibles sin autenticación real.
+// Cuando integres Supabase de verdad, restaura la lógica de autenticación.
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({
@@ -16,7 +20,7 @@ export async function proxy(request: NextRequest) {
         get(name: string) {
           return request.cookies.get(name)?.value
         },
-        set(name: string, value: string, options: CookieOptions) {
+        set(name: string, value: string, options: any) {
           request.cookies.set({ name, value, ...options })
           response = NextResponse.next({
             request: {
@@ -25,7 +29,7 @@ export async function proxy(request: NextRequest) {
           })
           response.cookies.set({ name, value, ...options })
         },
-        remove(name: string, options: CookieOptions) {
+        remove(name: string, options: any) {
           request.cookies.set({ name, value: '', ...options })
           response = NextResponse.next({
             request: {
