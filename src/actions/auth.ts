@@ -5,20 +5,22 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 
 export async function registrarEstudiante(data: { email: string; password: string; nombre: string }) {
-  if (data.email.toLowerCase().endsWith('@gmail.com')) {
+  const emailLimpio = data.email.trim().toLowerCase()
+  if (emailLimpio.endsWith('@gmail.com')) {
     throw new Error('Los correos de Gmail no están permitidos para estudiantes.')
   }
-  if (!data.email.endsWith('@ucr.ac.cr')) {
+  if (!emailLimpio.endsWith('@ucr.ac.cr')) {
     throw new Error('El correo debe terminar en @ucr.ac.cr')
   }
 
   const supabase = await createClient()
   const adminClient = createAdminClient()
 
-  const { data: authData, error: authError } = await supabase.auth.signUp({
-    email: data.email,
+  const { data: authData, error: authError } = await adminClient.auth.admin.createUser({
+    email: emailLimpio,
     password: data.password,
-    options: { data: { nombre: data.nombre, tipo: 'estudiante' } }
+    email_confirm: true,
+    user_metadata: { nombre: data.nombre, tipo: 'estudiante' }
   })
 
   if (authError) throw new Error(authError.message)
@@ -27,7 +29,7 @@ export async function registrarEstudiante(data: { email: string; password: strin
     // Insertar en public.users con client admin para sobrepasar RLS si el usuario aún no está confirmado
     const { error: dbError } = await adminClient.from('users').insert({
       id: authData.user.id,
-      email: data.email,
+      email: emailLimpio,
       nombre: data.nombre,
       tipo: 'estudiante',
       rol: 'estudiante',
@@ -51,13 +53,15 @@ export async function registrarExalumno(data: {
   carreras: number[];
   anio_graduacion: number;
 }) {
+  const emailLimpio = data.email.trim().toLowerCase()
   const supabase = await createClient()
   const adminClient = createAdminClient()
 
-  const { data: authData, error: authError } = await supabase.auth.signUp({
-    email: data.email,
+  const { data: authData, error: authError } = await adminClient.auth.admin.createUser({
+    email: emailLimpio,
     password: data.password,
-    options: { data: { nombre: data.nombre, tipo: 'exalumno' } }
+    email_confirm: true,
+    user_metadata: { nombre: data.nombre, tipo: 'exalumno' }
   })
 
   if (authError) throw new Error(authError.message)
@@ -65,7 +69,7 @@ export async function registrarExalumno(data: {
   if (authData.user) {
     const { error: dbError } = await adminClient.from('users').insert({
       id: authData.user.id,
-      email: data.email,
+      email: emailLimpio,
       nombre: data.nombre,
       tipo: 'exalumno',
       rol: 'exalumno',
