@@ -61,8 +61,10 @@ interface ProfileFormData {
   ofrece_pasantia: boolean
   ofrece_proyecto: boolean
   ofrece_donacion_dinero: boolean
-  monto_maximo_donacion: string
-  moneda_donacion: 'CRC' | 'USD'
+  monto_maximo_donacion?: string
+  moneda_donacion?: 'CRC' | 'USD'
+  donacion_monto_max: string
+  donacion_moneda: 'CRC' | 'USD'
 }
 
 const INITIAL: ProfileFormData = {
@@ -82,8 +84,8 @@ const INITIAL: ProfileFormData = {
   ofrece_pasantia: false,
   ofrece_proyecto: false,
   ofrece_donacion_dinero: false,
-  monto_maximo_donacion: '',
-  moneda_donacion: 'CRC',
+  donacion_monto_max: '',
+  donacion_moneda: 'CRC',
 }
 
 const STEPS = [
@@ -581,8 +583,8 @@ function SeccionApoyo({ data, update }: { data: ProfileFormData; update: (k: key
                   <FieldLabel required>Monto máximo de donación</FieldLabel>
                   <input
                     type="number" min="0"
-                    value={data.monto_maximo_donacion}
-                    onChange={e => update('monto_maximo_donacion', e.target.value)}
+                    value={data.donacion_monto_max}
+                    onChange={e => update('donacion_monto_max', e.target.value)}
                     className="w-full h-10 px-3 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10"
                     placeholder="0"
                   />
@@ -591,8 +593,8 @@ function SeccionApoyo({ data, update }: { data: ProfileFormData; update: (k: key
                   <label htmlFor="moneda-donacion" className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Moneda<span className="text-rose-500 ml-1">*</span></label>
                   <select
                     id="moneda-donacion"
-                    value={data.moneda_donacion}
-                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => update('moneda_donacion', e.target.value as 'CRC' | 'USD')}
+                    value={data.donacion_moneda}
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => update('donacion_moneda', e.target.value as 'CRC' | 'USD')}
                     className="h-10 px-3 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 focus:outline-none focus:border-blue-600"
                   >
                     <option value="CRC">₡ CRC</option>
@@ -634,7 +636,7 @@ function validateStep(step: number, data: ProfileFormData): string[] {
   }
   if (step === 5) {
     if (data.ofrece_mentoria && (!data.horas_mes_mentoria || Number(data.horas_mes_mentoria) < 1 || Number(data.horas_mes_mentoria) > 40)) errs.push('Horas de mentoría debe ser entre 1 y 40.')
-    if (data.ofrece_donacion_dinero && !data.monto_maximo_donacion) errs.push('Ingresa el monto máximo de donación.')
+    if (data.ofrece_donacion_dinero && !data.donacion_monto_max) errs.push('Ingresa el monto máximo de donación.')
   }
   return errs
 }
@@ -670,8 +672,8 @@ export default function ProfileEditPage() {
         ofrece_pasantia: profile.ofrece_pasantia || false,
         ofrece_proyecto: profile.ofrece_proyecto || false,
         ofrece_donacion_dinero: profile.ofrece_donacion_dinero || false,
-        monto_maximo_donacion: profile.monto_maximo_donacion ? String(profile.monto_maximo_donacion) : '',
-        moneda_donacion: (profile.moneda_donacion as 'CRC' | 'USD') || 'CRC',
+        donacion_monto_max: profile.donacion_monto_max ? String(profile.donacion_monto_max) : '',
+        donacion_moneda: (profile.donacion_moneda as 'CRC' | 'USD') || 'CRC',
       })
       setDataLoaded(true)
     } else if (!isLoading && !profile && !dataLoaded) {
@@ -745,8 +747,8 @@ export default function ProfileEditPage() {
       ofrece_pasantia: data.ofrece_pasantia,
       ofrece_proyecto: data.ofrece_proyecto,
       ofrece_donacion_dinero: data.ofrece_donacion_dinero,
-      monto_maximo_donacion: data.monto_maximo_donacion ? Number(data.monto_maximo_donacion) : null,
-      moneda_donacion: data.moneda_donacion,
+      donacion_monto_max: data.donacion_monto_max ? Number(data.donacion_monto_max) : null,
+      donacion_moneda: data.donacion_moneda,
       es_exalumno
     })
 
