@@ -1,13 +1,13 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { 
-  GraduationCap, 
-  Coins, 
-  Network, 
-  Share2, 
-  Globe, 
-  Play, 
-  User 
+import {
+  GraduationCap,
+  Coins,
+  Network,
+  Share2,
+  Globe,
+  Play,
+  User
 } from 'lucide-react';
 import logoUCR from '@/images/Logo_UCR.png';
 import fondoUCR from '@/images/UCRbackground.png';
@@ -34,17 +34,17 @@ function BarraNavegacion() {
   return (
     <header className="cabecera" id="cabecera-principal">
       <div className="contenedor-logo">
-        <Image 
-          src={logoUCR} 
-          alt="Logo UCR" 
-          width={280} 
-          height={100} 
+        <Image
+          src={logoUCR}
+          alt="Logo UCR"
+          width={280}
+          height={100}
           className="logo-imagen"
-          style={{ objectFit: 'contain' }}
+          style={{ objectFit: 'contain', width: 'auto' }}
           priority
         />
       </div>
-      
+
       <div className="contenedor-acciones">
         <Link href="/login" className="boton-signin">
           <User size={18} className="icono-signin" />
@@ -62,9 +62,9 @@ function SeccionHero() {
   return (
     <section className="seccion-hero" id="seccion-hero-principal">
       <div className="hero-fondo">
-        <Image 
-          src={fondoUCR} 
-          alt="Campus Universidad de Costa Rica" 
+        <Image
+          src={fondoUCR}
+          alt="Campus Universidad de Costa Rica"
           fill
           priority
           sizes="100vw"
@@ -72,7 +72,7 @@ function SeccionHero() {
         />
         <div className="hero-overlay"></div>
       </div>
-      
+
       <div className="hero-contenido">
         <h1 className="hero-titulo">
           Transformando el futuro de la<br />educación costarricense
@@ -88,7 +88,7 @@ function SeccionHero() {
           </button>
         </div>
       </div>
-      
+
       <div className="hero-estadisticas">
         <div className="tarjeta-estadistica" id="estadistica-alumni">
           <span className="estadistica-numero">2.5k+</span>
@@ -116,7 +116,7 @@ function SeccionApoyo() {
           Nuestra plataforma facilita la mentoría y el financiamiento directo a través de una red institucional sólida.
         </p>
       </div>
-      
+
       <div className="apoyo-grid">
         <div className="tarjeta-mentoria" id="tarjeta-apoyo-mentoria">
           <div className="icono-contenedor">
@@ -133,7 +133,7 @@ function SeccionApoyo() {
             </Link>
           </div>
         </div>
-        
+
         <div className="columna-secundaria">
           <div className="tarjeta-secundaria" id="tarjeta-apoyo-becas">
             <div className="cabecera-tarjeta-secundaria">
@@ -146,7 +146,7 @@ function SeccionApoyo() {
               Fondos rápidos para materiales de laboratorio, encuestas o prototipos físicos.
             </p>
           </div>
-          
+
           <div className="tarjeta-secundaria" id="tarjeta-apoyo-networking">
             <div className="cabecera-tarjeta-secundaria">
               <div className="icono-contenedor">
@@ -182,7 +182,7 @@ function PiePagina() {
             </button>
           </div>
         </div>
-        
+
         <div className="pie-columna-enlaces">
           <span className="pie-columna-titulo">Recursos</span>
           <ul className="pie-lista-enlaces">
@@ -192,7 +192,7 @@ function PiePagina() {
             <li><Link href="/transparencia" className="pie-enlace">Transparencia</Link></li>
           </ul>
         </div>
-        
+
         <div className="pie-columna-enlaces">
           <span className="pie-columna-titulo">Contacto</span>
           <div className="pie-lista-enlaces">
@@ -202,7 +202,7 @@ function PiePagina() {
           </div>
         </div>
       </div>
-      
+
       <div className="pie-barra-inferior">
         <span>&copy; 2024 Fundación Exalumnos UCR. Todos los derechos reservados. Institución de Utilidad Pública.</span>
         <div className="pie-legales">
