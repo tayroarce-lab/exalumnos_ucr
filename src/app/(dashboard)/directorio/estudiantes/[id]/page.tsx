@@ -17,12 +17,7 @@ export default async function PerfilEstudiantePage({ params }: { params: { id: s
     estudiante.carrera || null
   );
 
-  const tagsApoyo = (() => {
-    const tags: string[] = [];
-    if (estudiante.busca_mentoria) tags.push('Mentoría');
-    if (estudiante.busca_empleo) tags.push('Empleo');
-    return tags;
-  })();
+
 
   return (
     <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8 font-sans text-slate-900">
@@ -42,7 +37,6 @@ export default async function PerfilEstudiantePage({ params }: { params: { id: s
 
         <StudentProfile
           estudiante={estudiante}
-          tagsApoyo={tagsApoyo}
           estudiantesRelacionados={estudiantesRelacionados}
         />
       </div>
