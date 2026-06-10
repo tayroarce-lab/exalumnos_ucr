@@ -709,3 +709,230 @@ body {
   }
 }
 
+/* ── SECCIÓN APOYO A LA COMUNIDAD ── */
+.seccion-apoyo {
+  background-color: #F4F7FB;
+  padding: 6rem 4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.apoyo-cabecera {
+  text-align: center;
+  margin-bottom: 3.5rem;
+}
+
+.apoyo-titulo {
+  font-family: var(--fuente-titulo);
+  font-size: 2.1rem;
+  font-weight: 700;
+  color: #003B4F; /* matches UCR dark blue/emerald */
+  margin-bottom: 1rem;
+}
+
+.apoyo-subtitulo {
+  font-size: 1rem;
+  color: #4A5568;
+  max-width: 600px;
+  line-height: 1.6;
+  margin: 0 auto;
+}
+
+.apoyo-cuadricula {
+  display: grid;
+  grid-template-columns: 1.55fr 1fr;
+  gap: 2.5rem;
+  width: 100%;
+  max-width: 1200px;
+}
+
+/* Tarjeta Grande (Izquierda) */
+.apoyo-tarjeta-grande {
+  background: #FFFFFF;
+  border-radius: 16px;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  position: relative;
+  overflow: hidden;
+  padding: 3.5rem;
+  min-height: 380px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.apoyo-tarjeta-grande:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 35px rgba(0, 59, 79, 0.06);
+}
+
+.apoyo-tarjeta-bg-shape {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 42%;
+  background-color: #E7EDF3;
+  clip-path: polygon(25% 0, 100% 0, 100% 100%, 0 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.apoyo-tarjeta-contenido {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 5rem;
+}
+
+.apoyo-icono-contenedor-grande {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background-color: #E0F2FE;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.apoyo-icono-grande {
+  color: #0284C7;
+  transition: color 0.3s ease;
+}
+
+.apoyo-tarjeta-grande:hover .apoyo-icono-contenedor-grande {
+  background-color: #54BCEB;
+  transform: scale(1.05);
+}
+
+.apoyo-tarjeta-grande:hover .apoyo-icono-grande {
+  color: #FFFFFF;
+}
+
+.apoyo-tarjeta-titulo-grande {
+  font-family: var(--fuente-titulo);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #003B4F;
+  margin-bottom: 0.75rem;
+}
+
+.apoyo-tarjeta-descripcion-grande {
+  color: #4A5568;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  max-width: 430px;
+  margin-bottom: 1.5rem;
+}
+
+.apoyo-enlace-grande {
+  color: #0284C7;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: color 0.2s ease;
+}
+
+.apoyo-enlace-grande:hover {
+  color: #0369A1;
+}
+
+.apoyo-enlace-grande:hover .apoyo-flecha {
+  transform: translateX(4px);
+}
+
+.apoyo-flecha {
+  transition: transform 0.2s ease;
+  display: inline-block;
+}
+
+/* Columna Derecha */
+.apoyo-columna-derecha {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.apoyo-tarjeta-pequena {
+  background: #FFFFFF;
+  border-radius: 16px;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  padding: 2.2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.apoyo-tarjeta-pequena:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 35px rgba(0, 59, 79, 0.06);
+}
+
+.apoyo-icono-contenedor-pequeno {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  margin-bottom: 0.25rem;
+}
+
+.apoyo-icono-pequeno {
+  color: #0284C7;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.apoyo-tarjeta-pequena:hover .apoyo-icono-pequeno {
+  color: #54BCEB;
+  transform: scale(1.1);
+}
+
+.apoyo-tarjeta-titulo-pequeno {
+  font-family: var(--fuente-titulo);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #003B4F;
+}
+
+.apoyo-tarjeta-descripcion-pequeno {
+  color: #4A5568;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+/* RESPONSIVIDAD SECCIÓN APOYO */
+@media (max-width: 1024px) {
+  .apoyo-cuadricula {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  .seccion-apoyo {
+    padding: 4rem 2rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .apoyo-tarjeta-grande {
+    padding: 2rem;
+    min-height: auto;
+  }
+  .apoyo-tarjeta-bg-shape {
+    display: none;
+  }
+  .apoyo-tarjeta-contenido {
+    gap: 2.5rem;
+  }
+  .apoyo-titulo {
+    font-size: 1.8rem;
+  }
+}
+
