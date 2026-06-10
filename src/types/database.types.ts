@@ -138,6 +138,27 @@ export type Database = {
           },
         ]
       }
+      catalogo_areas_interes: {
+        Row: {
+          categoria: string | null
+          created_at: string | null
+          id: string
+          nombre: string
+        }
+        Insert: {
+          categoria?: string | null
+          created_at?: string | null
+          id?: string
+          nombre: string
+        }
+        Update: {
+          categoria?: string | null
+          created_at?: string | null
+          id?: string
+          nombre?: string
+        }
+        Relationships: []
+      }
       curriculum_certificaciones: {
         Row: {
           curriculum_id: string
@@ -689,7 +710,6 @@ export type Database = {
       users: {
         Row: {
           activo: boolean
-          areas_de_interes: string[] | null
           bio: string | null
           busca_empleo: boolean
           busca_financiamiento: boolean
@@ -716,7 +736,6 @@ export type Database = {
         }
         Insert: {
           activo?: boolean
-          areas_de_interes?: string[] | null
           bio?: string | null
           busca_empleo?: boolean
           busca_financiamiento?: boolean
@@ -744,7 +763,6 @@ export type Database = {
         }
         Update: {
           activo?: boolean
-          areas_de_interes?: string[] | null
           bio?: string | null
           busca_empleo?: boolean
           busca_financiamiento?: boolean
@@ -770,6 +788,36 @@ export type Database = {
           visible_en_directorio?: boolean
         }
         Relationships: []
+      }
+      users_areas_interes: {
+        Row: {
+          area_id: string
+          user_id: string
+        }
+        Insert: {
+          area_id: string
+          user_id: string
+        }
+        Update: {
+          area_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "users_areas_interes_area_id_fkey"
+            columns: ["area_id"]
+            isOneToOne: false
+            referencedRelation: "catalogo_areas_interes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "users_areas_interes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       curriculums: {
         Row: {

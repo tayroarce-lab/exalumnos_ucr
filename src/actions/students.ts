@@ -25,13 +25,30 @@ export async function actualizarPerfilEstudiante(datos: PerfilEstudianteInput) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('No autenticado')
 
+  const { areas_de_interes, ...restDatos } = datos
+
   const { error } = await supabase
     .from('users')
-    .update({ ...datos })
+    .update({ ...restDatos })
     .eq('id', user.id)
     .eq('rol', 'estudiante')
 
   if (error) throw new Error(error.message)
+
+  if (areas_de_interes) {
+    const { data: areasData } = await supabase
+      .from('catalogo_areas_interes')
+      .select('id')
+      .in('nombre', areas_de_interes)
+    
+    if (areasData) {
+      await supabase.from('users_areas_interes').delete().eq('user_id', user.id)
+      const inserts = areasData.map(a => ({ user_id: user.id, area_id: a.id }))
+      if (inserts.length > 0) {
+        await supabase.from('users_areas_interes').insert(inserts)
+      }
+    }
+  }
 
   revalidatePath('/mi-perfil')
   return { success: true }
@@ -44,12 +61,20 @@ export async function obtenerMiPerfilEstudiante() {
 
   const { data, error } = await supabase
     .from('users')
-    .select('*')
+    .select(`
+      *,
+      users_areas_interes(catalogo_areas_interes(nombre))
+    `)
     .eq('id', user.id)
     .eq('rol', 'estudiante')
     .single()
 
   if (error && error.code !== 'PGRST116') throw new Error(error.message)
+  
+  if (data) {
+    const areas = (data as any).users_areas_interes?.map((ua: any) => ua.catalogo_areas_interes?.nombre).filter(Boolean) || []
+    return { ...data, areas_de_interes: areas }
+  }
   return data
 }
 
@@ -122,13 +147,17 @@ export async function listarEstudiantes(
         habilidades_tecnicas,
         habilidades_blandas,
         proyecto_graduacion_resumen
-      )
+      ),
+      users_areas_interes(catalogo_areas_interes(nombre))
     `, { count: 'exact' })
     .eq('rol', 'estudiante')
     .eq('activo', true)
     .order('nombre', { ascending: true })
 
   if (filtros) {
+    if (filtros.areas_de_interes && filtros.areas_de_interes.length > 0) {
+      query = query.in('users_areas_interes.catalogo_areas_interes.nombre', filtros.areas_de_interes)
+    }
     if (filtros.carrera && filtros.carrera.length > 0) {
       query = query.in('users_carreras.carrera_campus.carreras.nombre', filtros.carrera)
     }
@@ -163,7 +192,13 @@ export async function listarEstudiantes(
 
   const { data, count, error } = await query
   if (error) throw new Error(error.message)
-  return { data, count: count || 0 }
+  
+  const mappedData = data?.map(d => ({
+    ...d,
+    areas_de_interes: (d as any).users_areas_interes?.map((ua: any) => ua.catalogo_areas_interes?.nombre).filter(Boolean) || []
+  }))
+
+  return { data: mappedData, count: count || 0 }
 }
 
 export async function obtenerEstudiantePorId(id: string) {
@@ -190,13 +225,19 @@ export async function obtenerEstudiantePorId(id: string) {
         habilidades_tecnicas,
         habilidades_blandas,
         proyecto_graduacion_resumen
-      )
+      ),
+      users_areas_interes(catalogo_areas_interes(nombre))
     `)
     .eq('id', id)
     .eq('rol', 'estudiante')
     .single()
 
   if (error) throw new Error(error.message)
+
+  if (data) {
+    const areas = (data as any).users_areas_interes?.map((ua: any) => ua.catalogo_areas_interes?.nombre).filter(Boolean) || []
+    return { ...data, areas_de_interes: areas }
+  }
 
   return data
 }
