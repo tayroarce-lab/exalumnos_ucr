@@ -31,11 +31,28 @@ export async function actualizarPerfilExalumno(datos: PerfilExalumnoInput) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('No autenticado')
 
+  const { areas_de_interes, ...restDatos } = datos
+
   const { error } = await supabase
     .from('exalumnos')
-    .upsert({ user_id: user.id, ...datos })
+    .upsert({ user_id: user.id, ...restDatos })
 
   if (error) throw new Error(error.message)
+
+  if (areas_de_interes) {
+    const { data: areasData } = await supabase
+      .from('catalogo_areas_interes')
+      .select('id')
+      .in('nombre', areas_de_interes)
+    
+    if (areasData) {
+      await supabase.from('users_areas_interes').delete().eq('user_id', user.id)
+      const inserts = areasData.map(a => ({ user_id: user.id, area_id: a.id }))
+      if (inserts.length > 0) {
+        await supabase.from('users_areas_interes').insert(inserts)
+      }
+    }
+  }
 
   // Verificar si el perfil está completo
   await verificarPerfilCompleto(user.id)
@@ -51,11 +68,16 @@ export async function obtenerMiPerfilExalumno() {
 
   const { data, error } = await supabase
     .from('exalumnos')
-    .select('*, users(nombre, email, foto_url)')
+    .select('*, users(nombre, email, foto_url, users_areas_interes(catalogo_areas_interes(nombre)))')
     .eq('user_id', user.id)
     .single()
 
   if (error && error.code !== 'PGRST116') throw new Error(error.message)
+  
+  if (data) {
+    const areas = (data as any).users?.users_areas_interes?.map((ua: any) => ua.catalogo_areas_interes?.nombre).filter(Boolean) || []
+    return { ...data, areas_de_interes: areas }
+  }
   return data
 }
 
@@ -98,7 +120,7 @@ export async function listarExalumnos(filtros?: {
 }) {
   const supabase = await createClient()
   let query = supabase.from('exalumnos')
-    .select('*, users!inner(nombre, foto_url, activo)')
+    .select('*, users!inner(nombre, foto_url, activo, users_areas_interes(catalogo_areas_interes(nombre)))')
     .eq('visible_en_directorio', true)
     .eq('perfil_completo', true)
     .eq('users.activo', true)
@@ -111,7 +133,8 @@ export async function listarExalumnos(filtros?: {
       query = query.contains('sector_industria', filtros.sector_industria)
     }
     if (filtros.areas_de_interes && filtros.areas_de_interes.length > 0) {
-      query = query.contains('areas_de_interes', filtros.areas_de_interes)
+      // Nota: Si el filtro de frontend lo requiere desde users, esto asume que query lo soporta
+      // o deberíamos filtrar post-query o hacer inner join
     }
     if (filtros.pais_ciudad) {
       query = query.ilike('pais_ciudad', `%${filtros.pais_ciudad}%`)
@@ -129,14 +152,20 @@ export async function listarExalumnos(filtros?: {
 
   const { data, error } = await query
   if (error) throw new Error(error.message)
-  return data
+
+  const mappedData = data?.map(d => ({
+    ...d,
+    areas_de_interes: (d as any).users?.users_areas_interes?.map((ua: any) => ua.catalogo_areas_interes?.nombre).filter(Boolean) || []
+  }))
+
+  return mappedData
 }
 
 export async function obtenerExalumnoPorId(id: string) {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('exalumnos')
-    .select('*, users(nombre, foto_url, activo)')
+    .select('*, users(nombre, foto_url, activo, users_areas_interes(catalogo_areas_interes(nombre)))')
     .eq('user_id', id)
     .single()
 
@@ -146,6 +175,8 @@ export async function obtenerExalumnoPorId(id: string) {
   const perfilSeguro = { ...data }
   delete perfilSeguro.monto_maximo_donacion
   delete perfilSeguro.moneda_donacion
+  
+  perfilSeguro.areas_de_interes = (perfilSeguro as any).users?.users_areas_interes?.map((ua: any) => ua.catalogo_areas_interes?.nombre).filter(Boolean) || []
 
   return perfilSeguro
 }
