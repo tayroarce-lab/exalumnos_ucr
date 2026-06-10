@@ -428,3 +428,72 @@
     text-align: center;
   }
 }
+
+/* ================================================
+   EXALUMNO THEME OVERRIDES (ORANGE #F34B26)
+   ================================================ */
+.register-container.exalumno .register-left {
+  background: linear-gradient(135deg, #F34B26, #b83318);
+}
+
+.register-container.exalumno .register-header h1,
+.register-container.exalumno .section-title {
+  color: #F34B26;
+}
+
+.register-container.exalumno .section-title {
+  border-bottom: 1px solid rgba(243, 75, 38, 0.2);
+}
+
+.register-container.exalumno .submit-btn {
+  background-color: #F34B26;
+}
+
+.register-container.exalumno .submit-btn:hover:not(:disabled) {
+  background-color: #b83318;
+}
+
+.register-container.exalumno .login-link {
+  color: #F34B26;
+}
+
+.register-container.exalumno .login-link:hover {
+  color: #b83318;
+}
+
+.register-container.exalumno input:focus,
+.register-container.exalumno .select-input:focus {
+  border-color: #F34B26;
+  box-shadow: 0 0 0 2px rgba(243, 75, 38, 0.1);
+}
+
+.register-container.exalumno .select-input.multiple option:checked {
+  background-color: #F34B26;
+}
+
+.register-container.exalumno .checkbox-group label a {
+  color: #F34B26;
+}
+
+.register-container.exalumno .toggle-btn {
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.register-container.exalumno .toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: white;
+}
+
+.register-container.exalumno .carrera-pill {
+  background-color: #ffebe7;
+  color: #b83318;
+  border: 1px solid #ffd4cb;
+}
+
+.register-container.exalumno .pill-remove-btn {
+  color: #b83318;
+}
+
+.register-container.exalumno .pill-remove-btn:hover {
+  color: #8c200c;
+}

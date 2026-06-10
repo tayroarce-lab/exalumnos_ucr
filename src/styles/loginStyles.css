@@ -27,7 +27,7 @@
 /* --- PANEL IZQUIERDO (decorativo) --- */
 .login-left {
   flex: 1;
-  background: linear-gradient(160deg, #003B4F 0%, #001C29 100%);
+  background: linear-gradient(160deg, #54BCEB 0%, #0284C7 100%);
   color: #ffffff;
   padding: 3.5rem;
   display: flex;
@@ -44,8 +44,8 @@
   content: '';
   position: absolute;
   border-radius: 50%;
-  background: rgba(84, 188, 235, 0.06);
-  border: 1px solid rgba(84, 188, 235, 0.1);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .login-left::before {
@@ -78,7 +78,7 @@
   font-size: 1.2rem;
   font-weight: 700;
   letter-spacing: -0.3px;
-  color: #88caf1;
+  color: #ffffff;
 }
 
 .login-hero-text {
@@ -96,7 +96,7 @@
 }
 
 .login-hero-text p {
-  color: rgba(168, 198, 232, 0.85);
+  color: rgba(255, 255, 255, 0.9);
   font-size: 1rem;
   line-height: 1.7;
 }
@@ -114,18 +114,18 @@
   align-items: center;
   gap: 0.85rem;
   font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.88);
 }
 
 .login-feature-icon {
   width: 36px;
   height: 36px;
   border-radius: 8px;
-  background: rgba(84, 188, 235, 0.12);
+  background: rgba(255, 255, 255, 0.16);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #54BCEB;
+  color: #ffffff;
   flex-shrink: 0;
 }
 
@@ -154,7 +154,7 @@
   font-family: 'Outfit', 'Inter', sans-serif;
   font-size: 1.85rem;
   font-weight: 700;
-  color: #003B4F;
+  color: #0284C7;
   margin-bottom: 0.5rem;
 }
 
@@ -232,8 +232,8 @@
 }
 
 .login-password-toggle:hover {
-  color: #003B4F;
-  background-color: rgba(0, 59, 79, 0.06);
+  color: #0284C7;
+  background-color: rgba(2, 132, 199, 0.06);
 }
 
 /* Mensaje de error/éxito */
@@ -275,7 +275,7 @@
 .login-submit-btn {
   width: 100%;
   padding: 0.9rem;
-  background: linear-gradient(135deg, #003B4F 0%, #002635 100%);
+  background: linear-gradient(135deg, #54BCEB 0%, #0284C7 100%);
   color: #ffffff;
   border: none;
   border-radius: 10px;
@@ -295,7 +295,7 @@
 
 .login-submit-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 59, 79, 0.2);
+  box-shadow: 0 8px 20px rgba(84, 188, 235, 0.3);
 }
 
 .login-submit-btn:active:not(:disabled) {
@@ -349,7 +349,7 @@
 }
 
 .login-footer-links a {
-  color: #003B4F;
+  color: #0284C7;
   font-weight: 600;
   text-decoration: none;
   transition: color 0.2s ease;
@@ -391,4 +391,60 @@
   .login-form-header h1 {
     font-size: 1.5rem;
   }
+}
+
+/* ================================================
+   EXALUMNO THEME OVERRIDES (ORANGE #F34B26)
+   ================================================ */
+.login-container.exalumno .login-left {
+  background: linear-gradient(160deg, #F34B26 0%, #a82a0f 100%);
+}
+
+.login-container.exalumno .login-left::before,
+.login-container.exalumno .login-left::after {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.login-container.exalumno .login-feature-icon {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+.login-container.exalumno .login-feature-item {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.login-container.exalumno .login-brand-name {
+  color: #ffaa99;
+}
+
+.login-container.exalumno .login-hero-text p {
+  color: rgba(255, 220, 210, 0.85);
+}
+
+.login-container.exalumno .login-input-wrapper input:focus {
+  border-color: #F34B26;
+  box-shadow: 0 0 0 3px rgba(243, 75, 38, 0.15);
+}
+
+.login-container.exalumno .login-submit-btn {
+  background: linear-gradient(135deg, #F34B26 0%, #b83318 100%);
+}
+
+.login-container.exalumno .login-submit-btn:hover:not(:disabled) {
+  box-shadow: 0 8px 20px rgba(243, 75, 38, 0.25);
+}
+
+.login-container.exalumno .login-password-toggle:hover {
+  color: #F34B26;
+  background-color: rgba(243, 75, 38, 0.06);
+}
+
+.login-container.exalumno .login-footer-links a {
+  color: #F34B26;
+}
+
+.login-container.exalumno .login-footer-links a:hover {
+  color: #b83318;
 }
