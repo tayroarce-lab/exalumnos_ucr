@@ -95,35 +95,56 @@ export async function listarEstudiantes(
   }
 ) {
   const supabase = await createClient()
+  
+  const hasCarreraFilter = filtros?.carrera && filtros.carrera.length > 0
+  const hasSedeFilter = filtros?.sede
+  const careerJoin = (hasCarreraFilter || hasSedeFilter) ? 'users_carreras!inner' : 'users_carreras'
+
   let query = supabase
     .from('users')
-    .select('*', { count: 'exact' })
+    .select(`
+      *,
+      ${careerJoin} (
+        anio_ingreso,
+        anio_graduacion,
+        carrera_campus (
+          carreras (
+            nombre,
+            facultades (nombre)
+          ),
+          campus (nombre)
+        )
+      ),
+      curriculums (
+        sobre_mi,
+        url_linkedin,
+        url_portfolio,
+        habilidades_tecnicas,
+        habilidades_blandas,
+        proyecto_graduacion_resumen
+      )
+    `, { count: 'exact' })
     .eq('rol', 'estudiante')
     .eq('activo', true)
     .order('nombre', { ascending: true })
 
   if (filtros) {
     if (filtros.carrera && filtros.carrera.length > 0) {
-      query = query.in('carrera', filtros.carrera)
-    }
-    if (filtros.proyecto_area_tematica && filtros.proyecto_area_tematica.length > 0) {
-      query = query.in('proyecto_area_tematica', filtros.proyecto_area_tematica)
-    }
-    if (filtros.areas_de_interes && filtros.areas_de_interes.length > 0) {
-      query = query.contains('areas_de_interes', filtros.areas_de_interes)
-    }
-    if (filtros.proyecto_tipo) {
-      query = query.eq('proyecto_tipo', filtros.proyecto_tipo)
+      query = query.in('users_carreras.carrera_campus.carreras.nombre', filtros.carrera)
     }
     if (filtros.sede) {
-      query = query.eq('sede', filtros.sede)
+      query = query.eq('users_carreras.carrera_campus.campus.nombre', filtros.sede)
     }
     if (filtros.tipos_apoyo && filtros.tipos_apoyo.length > 0) {
       filtros.tipos_apoyo.forEach(tipo => {
-        if (tipo === 'financiamiento') query = query.eq('busca_financiamiento', true)
+        if (tipo === 'financiamiento') {
+          // No hay busca_financiamiento en users, omitimos o no filtramos
+        }
         if (tipo === 'mentoría') query = query.eq('busca_mentoria', true)
         if (tipo === 'empleo') query = query.eq('busca_empleo', true)
-        if (tipo === 'pasantía') query = query.eq('busca_pasantia', true)
+        if (tipo === 'pasantía') {
+          // No hay busca_pasantia en users, omitimos o no filtramos
+        }
       })
     }
   }
@@ -149,7 +170,28 @@ export async function obtenerEstudiantePorId(id: string) {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('users')
-    .select('*')
+    .select(`
+      *,
+      users_carreras (
+        anio_ingreso,
+        anio_graduacion,
+        carrera_campus (
+          carreras (
+            nombre,
+            facultades (nombre)
+          ),
+          campus (nombre)
+        )
+      ),
+      curriculums (
+        sobre_mi,
+        url_linkedin,
+        url_portfolio,
+        habilidades_tecnicas,
+        habilidades_blandas,
+        proyecto_graduacion_resumen
+      )
+    `)
     .eq('id', id)
     .eq('rol', 'estudiante')
     .single()
