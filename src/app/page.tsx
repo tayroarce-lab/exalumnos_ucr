@@ -206,8 +206,7 @@ function PiePagina() {
       <div className="pie-barra-inferior">
         <span>&copy; 2024 Fundación Exalumnos UCR. Todos los derechos reservados. Institución de Utilidad Pública.</span>
         <div className="pie-legales">
-          <Link href="/aviso-legal" className="pie-enlace-legal">Aviso Legal</Link>
-          <Link href="/privacidad" className="pie-enlace-legal">Privacidad</Link>
+          <Link href="/aviso-legal" className="pie-enlace-legal">Términos y Condiciones</Link>
         </div>
       </div>
     </footer>
