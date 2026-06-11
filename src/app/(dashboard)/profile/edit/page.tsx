@@ -423,18 +423,6 @@ function AcademicEntryRow({ entry, index, updateEntryFields, removeEntry, facult
 }
 
 function SeccionAcademica({ data, update }: { data: ProfileFormData; update: (k: keyof ProfileFormData, v: unknown) => void }) {
-  const [facultades, setFacultades] = useState<string[]>([])
-
-  useEffect(() => {
-    const fetchFacultades = async () => {
-      const supabase = createClient()
-      const { data: facs, error } = await supabase.from('facultades').select('id_facultades, nombre').order('nombre')
-      if (facs && !error) {
-        setFacultades(facs.map((f: { nombre: string }) => f.nombre))
-      }
-    }
-    fetchFacultades()
-  }, [])
 
   const updateEntryFields = (idx: number, fields: Partial<AcademicEntry>) => {
     const newAcademic = [...data.academic]
@@ -459,7 +447,7 @@ function SeccionAcademica({ data, update }: { data: ProfileFormData; update: (k:
             index={idx}
             updateEntryFields={updateEntryFields}
             removeEntry={removeEntry}
-            facultadesOptions={facultades.length > 0 ? facultades : ESCUELAS_UCR}
+            facultadesOptions={ESCUELAS_UCR}
           />
         ))}
       </div>
@@ -621,9 +609,9 @@ function validateStep(step: number, data: ProfileFormData): string[] {
     if (!data.bio.trim()) errs.push('La biografía es obligatoria.')
   }
   if (step === 2) {
-    if (data.academic.length === 0 || !data.academic[0].carrera) errs.push('Selecciona al menos una carrera UCR.')
-    if (!data.academic[0].escuela) errs.push('La escuela / facultad es obligatoria.')
-    if (!data.academic[0].anio) errs.push('El año de graduación es obligatorio.')
+    if (data.academic.length === 0 || !data.academic[0]?.carrera) errs.push('Selecciona al menos una carrera UCR.')
+    if (!data.academic[0]?.escuela) errs.push('La escuela / facultad es obligatoria.')
+    if (!data.academic[0]?.anio) errs.push('El año de graduación es obligatorio.')
   }
   if (step === 3) {
     if (!data.empresa_actual.trim()) errs.push('Empresa actual es obligatoria.')
@@ -672,8 +660,8 @@ export default function ProfileEditPage() {
         ofrece_pasantia: profile.ofrece_pasantia || false,
         ofrece_proyecto: profile.ofrece_proyecto || false,
         ofrece_donacion_dinero: profile.ofrece_donacion_dinero || false,
-        donacion_monto_max: profile.donacion_monto_max ? String(profile.donacion_monto_max) : '',
-        donacion_moneda: (profile.donacion_moneda as 'CRC' | 'USD') || 'CRC',
+        donacion_monto_max: (profile as any).monto_maximo_donacion ? String((profile as any).monto_maximo_donacion) : '',
+        donacion_moneda: ((profile as any).moneda_donacion as 'CRC' | 'USD') || 'CRC',
       })
       setDataLoaded(true)
     } else if (!isLoading && !profile && !dataLoaded) {
@@ -747,8 +735,8 @@ export default function ProfileEditPage() {
       ofrece_pasantia: data.ofrece_pasantia,
       ofrece_proyecto: data.ofrece_proyecto,
       ofrece_donacion_dinero: data.ofrece_donacion_dinero,
-      donacion_monto_max: data.donacion_monto_max ? Number(data.donacion_monto_max) : null,
-      donacion_moneda: data.donacion_moneda,
+      monto_maximo_donacion: data.donacion_monto_max ? Number(data.donacion_monto_max) : null,
+      moneda_donacion: data.donacion_moneda,
       es_exalumno
     })
 
