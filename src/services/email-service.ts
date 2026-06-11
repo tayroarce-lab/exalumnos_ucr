@@ -376,3 +376,52 @@ export async function sendAdminDonationAlert(
     return { success: false, error };
   }
 }
+
+// ---------------------------------------------------------------------------
+// REPORTES DE PERFIL
+// ---------------------------------------------------------------------------
+
+/**
+ * Notifica a un admin o usuario sobre un reporte.
+ */
+export async function sendReportNotificationEmail(
+  email: string,
+  tipo: 'nuevo' | 'resuelto',
+  motivo: string
+) {
+  const subject = tipo === 'nuevo' 
+    ? '⚠️ Nuevo reporte de perfil requiere revisión' 
+    : '📢 Actualización sobre el estado de tu cuenta';
+
+  const body = tipo === 'nuevo'
+    ? `
+      <h2 style="margin:0 0 8px; color:#0A2540; font-size:22px;">Nuevo Reporte Recibido</h2>
+      <p style="color:#64748b; font-size:15px; margin:0 0 24px;">Un usuario ha reportado un perfil en la plataforma.</p>
+      <div style="background:#fef2f2; border:1px solid #fca5a5; border-radius:12px; padding:16px; margin:0 0 24px;">
+        <p style="margin:0; font-size:14px; color:#991b1b; font-weight:600;">Motivo: ${motivo}</p>
+      </div>
+      <p style="color:#475569; font-size:14px;">Por favor, ingresa al panel de administración para revisarlo.</p>
+    `
+    : `
+      <h2 style="margin:0 0 8px; color:#0A2540; font-size:22px;">Notificación de Administración</h2>
+      <p style="color:#64748b; font-size:15px; margin:0 0 24px;">Se ha revisado un reporte relacionado con tu cuenta.</p>
+      <div style="background:#fffbeb; border:1px solid #fde68a; border-radius:12px; padding:16px; margin:0 0 24px;">
+        <p style="margin:0; font-size:14px; color:#d97706; font-weight:600;">Motivo del reporte original: ${motivo}</p>
+      </div>
+      <p style="color:#475569; font-size:14px;">Hemos tomado las medidas necesarias. Asegúrate de cumplir con los lineamientos de la comunidad.</p>
+    `;
+
+  try {
+    await resend.emails.send({
+      from: FROM_ADDRESS,
+      to: email,
+      subject,
+      html: buildEmailTemplate('Notificación de Reporte', body)
+    });
+    return { success: true };
+  } catch (error) {
+    console.error('Error enviando notificación de reporte:', error);
+    return { success: false, error };
+  }
+}
+
