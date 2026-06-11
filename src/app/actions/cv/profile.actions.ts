@@ -1,20 +1,20 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
-import { auth } from '@/auth';
+
 
 // ============================================================================
 // PROFILE ACTIONS
 // ============================================================================
 
 export async function getOrCreateCvProfile() {
-  const session = await auth();
-  if (!session?.user?.id) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user?.id) {
     return { success: false, message: 'No autenticado' };
   }
 
-  const supabase = await createClient();
-  const userId = session.user.id;
+  const userId = user.id;
 
   // Intentar obtener el perfil existente
   const { data: profile, error: getError } = await supabase
@@ -46,13 +46,13 @@ export async function getOrCreateCvProfile() {
 }
 
 export async function getFullCvData() {
-  const session = await auth();
-  if (!session?.user?.id) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user?.id) {
     return { success: false, message: 'No autenticado' };
   }
 
-  const supabase = await createClient();
-  const userId = session.user.id;
+  const userId = user.id;
 
   const { data: profile, error: profileError } = await supabase
     .from('cv_profiles')
@@ -71,20 +71,25 @@ export async function getFullCvData() {
     return { success: false, message: profileError?.message || 'Perfil no encontrado' };
   }
 
+  const academicInfos = profile.cv_academic_info || [];
+  const experiencesRaw = profile.cv_experiences || [];
+  const skills = profile.cv_skills || [];
+  const certifications = profile.cv_certifications || [];
+
   // Ordenar experiencias por fecha descendente o sort_order si lo implementan en UI
-  const experiences = profile.cv_experiences.sort((a: any, b: any) => {
-    if (a.start_year !== b.start_year) return b.start_year - a.start_year;
-    return b.start_month - a.start_month;
+  const experiences = experiencesRaw.sort((a: any, b: any) => {
+    if (a.start_year !== b.start_year) return (b.start_year || 0) - (a.start_year || 0);
+    return (b.start_month || 0) - (a.start_month || 0);
   });
 
   return { 
     success: true, 
     data: {
       profile_id: profile.id,
-      academic: profile.cv_academic_info.length > 0 ? profile.cv_academic_info[0] : null,
+      academic: academicInfos.length > 0 ? academicInfos[0] : null,
       experiences,
-      skills: profile.cv_skills,
-      certifications: profile.cv_certifications
+      skills,
+      certifications
     }
   };
 }

@@ -61,7 +61,7 @@ export function SkillsForm({ initialData = [], onSaveStateChange }: Props) {
       
       <section className="space-y-4">
         <div>
-          <h3 className="text-lg font-medium">Habilidades Técnicas</h3>
+          <h3 className="text-xl font-extrabold tracking-tight dark:text-white mb-6">Habilidades Técnicas</h3>
           <p className="text-sm text-slate-500">Lenguajes de programación, frameworks, herramientas de software, etc.</p>
         </div>
         <TagInput 
@@ -72,9 +72,9 @@ export function SkillsForm({ initialData = [], onSaveStateChange }: Props) {
         />
       </section>
 
-      <section className="space-y-4 border-t pt-6">
+      <section className="space-y-4 border-t border-slate-200/60 dark:border-white/10 pt-6">
         <div>
-          <h3 className="text-lg font-medium">Habilidades Blandas</h3>
+          <h3 className="text-xl font-extrabold tracking-tight dark:text-white mb-6">Habilidades Blandas</h3>
           <p className="text-sm text-slate-500">Liderazgo, trabajo en equipo, resolución de problemas...</p>
         </div>
         <TagInput 
@@ -85,9 +85,9 @@ export function SkillsForm({ initialData = [], onSaveStateChange }: Props) {
         />
       </section>
 
-      <section className="space-y-4 border-t pt-6">
+      <section className="space-y-4 border-t border-slate-200/60 dark:border-white/10 pt-6">
         <div>
-          <h3 className="text-lg font-medium">Idiomas</h3>
+          <h3 className="text-xl font-extrabold tracking-tight dark:text-white mb-6">Idiomas</h3>
           <p className="text-sm text-slate-500">Selecciona el nivel según el Marco Común Europeo de Referencia.</p>
         </div>
         <TagInput 

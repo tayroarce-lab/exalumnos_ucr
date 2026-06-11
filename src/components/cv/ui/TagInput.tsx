@@ -51,7 +51,7 @@ export function TagInput({ items, onAdd, onRemove, type, disabled }: TagInputPro
           onKeyDown={handleKeyDown}
           disabled={disabled}
           placeholder={type === 'soft' ? "Añadir habilidad (ej: Liderazgo)" : "Añadir..."}
-          className="flex-1 rounded-md border border-slate-200 bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-900 disabled:opacity-50"
+          className="flex-1 rounded-md border border-slate-200 dark:border-slate-800 bg-transparent dark:text-slate-50 px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-900 disabled:opacity-50"
         />
         
         {type === 'technical' && (
@@ -59,7 +59,7 @@ export function TagInput({ items, onAdd, onRemove, type, disabled }: TagInputPro
             value={selectedLevel || ''} 
             onChange={(e) => setSelectedLevel(e.target.value as SkillLevel)}
             disabled={disabled}
-            className="rounded-md border border-slate-200 bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-900 disabled:opacity-50"
+            className="rounded-md border border-slate-200 dark:border-slate-800 bg-transparent dark:text-slate-50 px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-900 disabled:opacity-50"
           >
             {levelsTechnical.map(l => <option key={l} value={l}>{l}</option>)}
           </select>
@@ -70,7 +70,7 @@ export function TagInput({ items, onAdd, onRemove, type, disabled }: TagInputPro
             value={selectedLevel || ''} 
             onChange={(e) => setSelectedLevel(e.target.value as SkillLevel)}
             disabled={disabled}
-            className="rounded-md border border-slate-200 bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-900 disabled:opacity-50"
+            className="rounded-md border border-slate-200 dark:border-slate-800 bg-transparent dark:text-slate-50 px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-900 disabled:opacity-50"
           >
             {levelsLanguage.map(l => <option key={l} value={l}>{l}</option>)}
           </select>
@@ -80,7 +80,7 @@ export function TagInput({ items, onAdd, onRemove, type, disabled }: TagInputPro
           type="button"
           onClick={handleAdd}
           disabled={disabled || !inputValue.trim()}
-          className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-900 disabled:pointer-events-none disabled:opacity-50 bg-slate-900 text-slate-50 shadow hover:bg-slate-900/90 h-9 px-4 py-2"
+          className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-900 disabled:pointer-events-none disabled:opacity-50 bg-slate-900 text-slate-50 shadow hover:bg-slate-900/90 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-200 h-9 px-4 py-2"
         >
           <Plus className="w-4 h-4 mr-1" /> Añadir
         </button>

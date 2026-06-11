@@ -71,10 +71,10 @@ export function BulletInput({ value, onChange, onRemove, placeholder, disabled }
             onChange={(e) => onChange(e.target.value)}
             disabled={disabled || isGenerating}
             placeholder={placeholder || "Ej: Lideré un equipo de 5 personas incrementando las ventas un 20%..."}
-            className={`w-full text-sm rounded-md border bg-transparent px-3 py-2 shadow-sm focus-visible:outline-none focus-visible:ring-1 ${
+            className={`w-full text-sm rounded-xl border bg-white/50 dark:bg-black/20 backdrop-blur-md text-slate-900 dark:text-white px-4 py-3 shadow-sm transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 ${
               isOverLimit 
                 ? 'border-red-500 focus-visible:ring-red-500' 
-                : 'border-slate-200 focus-visible:ring-slate-900 dark:border-slate-800 dark:focus-visible:ring-slate-300'
+                : 'border-slate-200/60 dark:border-white/10 focus-visible:ring-indigo-500/50 focus-visible:border-indigo-500'
             } min-h-[60px] resize-none`}
             rows={2}
           />

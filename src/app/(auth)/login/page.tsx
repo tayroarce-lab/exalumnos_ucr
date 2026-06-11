@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { Mail, Lock, Eye, EyeOff, LogIn, GraduationCap, Users, ShieldCheck } from "lucide-react";
@@ -12,6 +12,9 @@ import "@/styles/loginStyles.css";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get('redirectTo') || '/dashboard';
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -47,12 +50,12 @@ export default function LoginPage() {
         if (perfil?.tipo === "admin") {
           router.push("/admin");
         } else {
-          router.push("/dashboard");
+          router.push(redirectTo);
         }
         router.refresh();
       } catch (err) {
         setLoading(false);
-        router.push("/dashboard");
+        router.push(redirectTo);
         router.refresh();
       }
     }

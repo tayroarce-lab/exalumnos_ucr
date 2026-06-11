@@ -1,14 +1,14 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
-import { auth } from '@/auth';
 import { academicInfoSchema, AcademicInfoData } from './schemas';
 import { getOrCreateCvProfile } from './profile.actions';
 import { revalidatePath } from 'next/cache';
 
 export async function upsertAcademicInfo(data: AcademicInfoData) {
-  const session = await auth();
-  if (!session?.user?.id) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user?.id) {
     return { success: false, message: 'No autenticado' };
   }
 
@@ -23,7 +23,6 @@ export async function upsertAcademicInfo(data: AcademicInfoData) {
     return { success: false, message: profileResponse.message || 'Error obteniendo perfil' };
   }
 
-  const supabase = await createClient();
   const profileId = profileResponse.profile.id;
 
   const { error } = await supabase

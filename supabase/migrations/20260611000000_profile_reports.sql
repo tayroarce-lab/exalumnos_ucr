@@ -41,7 +41,7 @@ TO authenticated
 USING (
     EXISTS (
         SELECT 1 FROM public.users
-        WHERE users.id = auth.uid() AND users.tipo = 'admin'
+        WHERE users.id = auth.uid() AND users.rol = 'admin'
     )
 );
 
@@ -53,7 +53,7 @@ WITH CHECK (
     banned_by = auth.uid()
     AND EXISTS (
         SELECT 1 FROM public.users
-        WHERE users.id = auth.uid() AND users.tipo = 'admin'
+        WHERE users.id = auth.uid() AND users.rol = 'admin'
     )
 );
 
@@ -64,7 +64,7 @@ TO authenticated
 USING (
     EXISTS (
         SELECT 1 FROM public.users
-        WHERE users.id = auth.uid() AND users.tipo = 'admin'
+        WHERE users.id = auth.uid() AND users.rol = 'admin'
     )
 );
 

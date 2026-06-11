@@ -1,14 +1,14 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
-import { auth } from '@/auth';
 import { experienceSchema, ExperienceData } from './schemas';
 import { getOrCreateCvProfile } from './profile.actions';
 import { revalidatePath } from 'next/cache';
 
 export async function upsertExperience(data: ExperienceData) {
-  const session = await auth();
-  if (!session?.user?.id) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user?.id) {
     return { success: false, message: 'No autenticado' };
   }
 
@@ -28,7 +28,6 @@ export async function upsertExperience(data: ExperienceData) {
     return { success: false, message: profileResponse.message || 'Error obteniendo perfil' };
   }
 
-  const supabase = await createClient();
   const profileId = profileResponse.profile.id;
 
   const payload: any = {
@@ -60,12 +59,12 @@ export async function upsertExperience(data: ExperienceData) {
 }
 
 export async function deleteExperience(id: string) {
-  const session = await auth();
-  if (!session?.user?.id) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user?.id) {
     return { success: false, message: 'No autenticado' };
   }
 
-  const supabase = await createClient();
   // RLS will ensure the user can only delete their own
   const { error } = await supabase
     .from('cv_experiences')
