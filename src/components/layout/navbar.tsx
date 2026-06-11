@@ -3,6 +3,8 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { Bell, ChevronDown, User, LogOut, Settings } from 'lucide-react'
+import { useProfile } from '@/contexts/ProfileContext'
+import { createClient } from '@/lib/supabase/client'
 
 interface NavbarProps {
   onMenuToggle?: () => void
@@ -37,25 +39,21 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
     }
   ])
 
-  const [user, setUser] = useState({
-    name: 'Exalumno',
-    email: 'usuario@ucr.ac.cr',
-    initials: 'EX'
-  })
+  const { user, profile } = useProfile()
+  
+  const name = profile?.full_name || user?.user_metadata?.full_name || 'Exalumno'
+  const initials = name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase()
+  const email = user?.email || 'usuario@ucr.ac.cr'
 
-  React.useEffect(() => {
-    const storedName = localStorage.getItem('userName')
-    const storedEmail = localStorage.getItem('userEmail')
-    if (storedName || storedEmail) {
-      const name = storedName || 'Exalumno'
-      const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
-      setUser({
-        name,
-        email: storedEmail || 'usuario@ucr.ac.cr',
-        initials
-      })
-    }
-  }, [])
+  const handleLogout = async () => {
+    setIsDropdownOpen(false)
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    localStorage.removeItem('authToken')
+    localStorage.removeItem('userName')
+    localStorage.removeItem('userEmail')
+    window.location.href = '/login'
+  }
 
   return (
     <header className="h-16 w-full bg-institutional text-white flex items-center justify-between px-6 lg:px-8 shrink-0 shadow-md">
@@ -145,10 +143,10 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
             className="flex items-center gap-2 hover:opacity-90 transition-opacity focus:outline-none"
           >
             <div className="w-9 h-9 rounded-full bg-white text-institutional flex items-center justify-center text-xs font-bold uppercase shrink-0 shadow-sm">
-              {user.initials}
+              {initials}
             </div>
             <span className="text-xs font-bold text-white hidden sm:inline uppercase tracking-wider">
-              {user.name}
+              {name}
             </span>
             <ChevronDown className="w-4 h-4 text-white/80 hidden sm:block" />
           </button>
@@ -157,7 +155,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
             <div className="absolute right-0 mt-2 w-52 bg-white border border-slate-200 rounded-2xl shadow-lg py-2 z-50 text-slate-800">
               <div className="px-4 py-2 border-b border-slate-100">
                 <p className="text-[10px] text-slate-400 uppercase font-semibold">Sesión iniciada como</p>
-                <p className="text-xs font-bold text-slate-800 truncate">{user.email}</p>
+                <p className="text-xs font-bold text-slate-800 truncate">{email}</p>
               </div>
               <Link
                 href="/profile"
@@ -167,23 +165,9 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
                 <User className="w-4 h-4 text-slate-400" />
                 <span>Mi Perfil</span>
               </Link>
-              <Link
-                href="/profile/edit"
-                onClick={() => setIsDropdownOpen(false)}
-                className="flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-600 hover:bg-slate-50 hover:text-brand-blue transition-colors"
-              >
-                <Settings className="w-4 h-4 text-slate-400" />
-                <span>Configuración</span>
-              </Link>
               <div className="border-t border-slate-100 my-1"></div>
               <button
-                onClick={() => {
-                  setIsDropdownOpen(false)
-                  localStorage.removeItem('authToken')
-                  localStorage.removeItem('userName')
-                  localStorage.removeItem('userEmail')
-                  window.location.href = '/loginMariel'
-                }}
+                onClick={handleLogout}
                 className="w-full flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider text-rose-600 hover:bg-rose-50 transition-colors text-left"
               >
                 <LogOut className="w-4 h-4 text-rose-400" />

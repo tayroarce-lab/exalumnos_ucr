@@ -12,6 +12,7 @@ import {
   Calendar,
   MapPin
 } from 'lucide-react'
+import { useProfile } from '@/contexts/ProfileContext'
 
 // Aplica un gradiente dinámico via ref para evitar estilos inline en JSX
 function GradientBox({
@@ -36,14 +37,8 @@ export default function DashboardPage() {
     day: 'numeric'
   })
 
-  const [userName, setUserName] = React.useState('Exalumno')
-
-  React.useEffect(() => {
-    const storedName = localStorage.getItem('userName')
-    if (storedName) {
-      setUserName(storedName)
-    }
-  }, [])
+  const { user, profile } = useProfile()
+  const userName = profile?.full_name || user?.user_metadata?.full_name || 'Exalumno'
 
   const quickSummary = [
     {

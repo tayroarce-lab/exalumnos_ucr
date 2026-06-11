@@ -124,10 +124,11 @@ export async function calcularScoreMentoria(
   const supabase = await createClient()
 
   const camposRequeridos = `
-    id, rol, carrera_principal_id, areas_de_interes, sector_industria,
+    id, rol, carrera_principal_id, sector_industria,
     busca_mentoria, busca_empleo, busca_pasantia, busca_financiamiento,
     ofrece_mentoria, ofrece_empleo, ofrece_pasantia, ofrece_donacion_dinero,
-    visible_en_directorio
+    visible_en_directorio,
+    users_areas_interes(catalogo_areas_interes(nombre))
   `
 
   const [{ data: estudiante, error: errEst }, { data: exalumno, error: errEx }] =
@@ -153,8 +154,13 @@ export async function calcularScoreMentoria(
   if (!estudiante) throw new Error(`Estudiante "${estudianteId}" no encontrado.`)
   if (!exalumno)   throw new Error(`Exalumno "${exalumnoId}" no encontrado.`)
 
-  const est = estudiante as PerfilUsuario
-  const exal = exalumno as PerfilUsuario
+  const mapAreas = (u: any) => {
+    const arr = u.users_areas_interes?.map((ua: any) => ua.catalogo_areas_interes?.nombre).filter(Boolean) || []
+    return { ...u, areas_de_interes: arr }
+  }
+
+  const est = mapAreas(estudiante) as PerfilUsuario
+  const exal = mapAreas(exalumno) as PerfilUsuario
 
   // ── Criterio 1: Misma carrera principal — 30 puntos ─────────────────────
   const puntosCarrera =
@@ -300,7 +306,11 @@ export async function calcularScorePuesto(
   ] = await Promise.all([
     supabase
       .from('users')
-      .select('areas_de_interes, busca_empleo, busca_pasantia')
+      .select(`
+          busca_empleo, 
+          busca_pasantia,
+          users_areas_interes(catalogo_areas_interes(nombre))
+        `)
       .eq('id', estudianteId)
       .eq('rol', 'estudiante')
       .is('deleted_at', null)
@@ -325,12 +335,16 @@ export async function calcularScorePuesto(
   if (!estudiante) throw new Error(`Estudiante "${estudianteId}" no encontrado.`)
   if (!posicion)   throw new Error(`Posición "${posicionId}" no encontrada.`)
 
+  const mapAreas = (u: any) => {
+    return u.users_areas_interes?.map((ua: any) => ua.catalogo_areas_interes?.nombre).filter(Boolean) || []
+  }
+
   // Si la posición no está activa (usa 'activa', no 'abierta'), score = 0
   if (posicion.estado !== 'activa') {
     return { score: 0, desglose: { areaSector: 0, habilidades: 0, areasInteres: 0, tipoApoyo: 0 } }
   }
 
-  const areasEst: string[]        = estudiante.areas_de_interes ?? []
+  const areasEst: string[]        = mapAreas(estudiante)
   const sectorPos: string[]        = posicion.sector ?? []
   const habilidadesReq: string[]   = posicion.habilidades_requeridas ?? []
 
