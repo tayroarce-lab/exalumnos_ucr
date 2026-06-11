@@ -144,7 +144,7 @@ function SeccionHeroSplit() {
         {/* Libro abierto — derecha media */}
         <div className="deco-icono deco-libro">
           <svg width="52" height="52" viewBox="0 0 24 24" fill="none"
-            stroke="rgba(255,155,24,0.90)" strokeWidth="1.3"
+            stroke="rgba(255,165,0,1.0)" strokeWidth="1.8"
             strokeLinecap="round" strokeLinejoin="round">
             <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
             <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
@@ -154,7 +154,7 @@ function SeccionHeroSplit() {
         {/* Lápiz — arriba derecha */}
         <div className="deco-icono deco-lapiz">
           <svg width="42" height="42" viewBox="0 0 24 24" fill="none"
-            stroke="rgba(255,255,255,0.68)" strokeWidth="1.3"
+            stroke="rgba(255,255,255,1.0)" strokeWidth="1.8"
             strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 20h9" />
             <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
@@ -164,14 +164,14 @@ function SeccionHeroSplit() {
         {/* Átomo — esquina superior derecha, girando */}
         <div className="deco-icono deco-atomo">
           <svg width="88" height="88" viewBox="0 0 24 24" fill="none" strokeLinecap="round">
-            <circle cx="12" cy="12" r="1.5" fill="rgba(255,255,255,0.35)" />
+            <circle cx="12" cy="12" r="1.5" fill="rgba(255,255,255,0.8)" />
             <ellipse cx="12" cy="12" rx="10" ry="4"
-              stroke="rgba(255,255,255,0.22)" strokeWidth="1" />
+              stroke="rgba(255,255,255,0.8)" strokeWidth="1.5" />
             <ellipse cx="12" cy="12" rx="10" ry="4"
-              stroke="rgba(255,255,255,0.18)" strokeWidth="1"
+              stroke="rgba(255,255,255,0.8)" strokeWidth="1.5"
               transform="rotate(60 12 12)" />
             <ellipse cx="12" cy="12" rx="10" ry="4"
-              stroke="rgba(255,255,255,0.18)" strokeWidth="1"
+              stroke="rgba(255,255,255,0.8)" strokeWidth="1.5"
               transform="rotate(120 12 12)" />
           </svg>
         </div>
@@ -179,7 +179,7 @@ function SeccionHeroSplit() {
         {/* Diploma / Medalla — abajo derecha */}
         <div className="deco-icono deco-diploma">
           <svg width="48" height="48" viewBox="0 0 24 24" fill="none"
-            stroke="rgba(243,75,38,0.82)" strokeWidth="1.3"
+            stroke="rgba(255,80,40,1.0)" strokeWidth="1.8"
             strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="8" r="6" />
             <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" />
