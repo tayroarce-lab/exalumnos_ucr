@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Mail, Lock, ShieldCheck, KeyRound, Loader2, ArrowLeft } from 'lucide-react';
+import AuthBackground from '@/components/ui/AuthBackground';
 import logoUCR from '@/images/Logo_UCR.png';
 import '@/styles/loginStyles.css';
 
@@ -91,6 +92,7 @@ export default function RecuperarPasswordPage() {
 
   return (
     <div className="login-page-wrapper">
+      <AuthBackground />
       <div className="login-container">
         {/* Panel Izquierdo — Decorativo */}
         <div className="login-left" style={{ 

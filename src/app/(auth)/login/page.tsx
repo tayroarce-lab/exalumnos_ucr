@@ -8,6 +8,7 @@ import { Mail, Lock, Eye, EyeOff, LogIn, GraduationCap, Users, ShieldCheck } fro
 import { iniciarSesion } from "@/actions/authActions";
 import { obtenerMiPerfil } from "@/actions/users";
 import logoUCR from "@/images/Logo_UCR.png";
+import AuthBackground from '@/components/ui/AuthBackground';
 import "@/styles/loginStyles.css";
 
 export default function LoginPage() {
@@ -64,6 +65,7 @@ export default function LoginPage() {
 
   return (
     <div className="login-page-wrapper">
+      <AuthBackground />
       <div className="login-container">
         {/* Panel Izquierdo — Decorativo */}
         <div className="login-left">
