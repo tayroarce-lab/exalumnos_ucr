@@ -121,7 +121,6 @@ export async function iniciarSesion(data: { email: string; password: string }) {
 
   if (error) throw new Error(error.message)
   
-  revalidatePath('/', 'layout')
   return { success: true }
 }
 
