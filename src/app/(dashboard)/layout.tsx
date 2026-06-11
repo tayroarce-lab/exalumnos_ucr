@@ -1,13 +1,25 @@
-'use client'
-
+// Server Component — NO añadir 'use client'
+// El middleware ya garantiza que el usuario está autenticado al llegar aquí,
+// pero hacemos una segunda verificación para obtener el user y pasarlo al contexto.
 import React from 'react'
+import { redirect } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
 import Navbar from '@/components/layout/navbar'
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  // Segunda capa de protección: verifica sesión en el servidor
+  // Esto cubre el caso en que el middleware sea bypasseado (RSC directs, etc.)
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    redirect('/login')
+  }
+
   return (
     <div className="min-h-screen bg-cream flex flex-col">
       {/* Navbar Superior */}
