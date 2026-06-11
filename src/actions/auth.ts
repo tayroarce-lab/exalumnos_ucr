@@ -42,19 +42,12 @@ export async function registrarEstudiante(data: { email: string; password: strin
       console.error('Error insertando en public.users:', dbError)
     }
 
-    const parts = data.nombre.split(' ')
-    const nombre = parts[0] || ''
-    const apellidos = parts.slice(1).join(' ') || ''
-
     // Insertar en la tabla profiles
     await adminClient.from('profiles').insert({
       id: authData.user.id,
       email: emailLimpio,
       full_name: data.nombre,
-      nombre: nombre,
-      apellidos: apellidos,
       es_exalumno: false,
-      perfil_completo: 20,
       created_at: new Date().toISOString()
     })
   }
@@ -105,20 +98,13 @@ export async function registrarExalumno(data: {
       anio: data.anio_graduacion.toString()
     }))
 
-    const parts = data.nombre.split(' ')
-    const nombre = parts[0] || ''
-    const apellidos = parts.slice(1).join(' ') || ''
-
     // Insertar en la tabla profiles
     await adminClient.from('profiles').insert({
       id: authData.user.id,
       email: emailLimpio,
       full_name: data.nombre,
-      nombre: nombre,
-      apellidos: apellidos,
       academic: academic,
       es_exalumno: true,
-      perfil_completo: 20,
       created_at: new Date().toISOString()
     })
   }
