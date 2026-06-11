@@ -1,4 +1,5 @@
-'use client'
+'use client';
+import { useSearchParams } from 'next/navigation';
 
 import React, { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
@@ -158,7 +159,15 @@ export default function DonationsPage() {
   const [comprobanteError, setComprobanteError] = useState('')
   const [errors, setErrors] = useState<string[]>([])
   
-  const [step, setStep] = useState<number>(1)
+  const [step, setStep] = useState<number>(1);
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    const metodo = searchParams.get('metodo');
+    if (metodo === 'sinpe') {
+      setForm(p => ({ ...p, metodo: 'sinpe' }));
+      setStep(2);
+    }
+  }, [searchParams]);
   const [isSaving, setIsSaving] = useState(false)
   const [saved, setSaved] = useState(false)
 

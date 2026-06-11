@@ -415,66 +415,66 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
         </div>
       )}
       {/* ── MODAL APÓYAR PROYECTO ── */}
-+      {showApoyarModal && (
-+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 30, 46, 0.5)', zIndex: 9998, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-+          <div style={{ background: 'white', borderRadius: 16, padding: 32, width: '100%', maxWidth: 460, boxShadow: '0 10px 25px rgba(0,0,0,0.1)', position: 'relative' }}>
-+            <button
-+              onClick={() => setShowApoyarModal(false)}
-+              style={{ position: 'absolute', top: 20, right: 20, background: 'transparent', border: 'none', cursor: 'pointer', color: '#7a9ab0', fontSize: 24, lineHeight: 1 }}
-+            >
-+              &times;
-+            </button>
-+            <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0f1e2e', margin: '0 0 8px' }}>Apoyar Proyecto</h2>
-+            <p style={{ fontSize: 14, color: '#6a8090', margin: '0 0 16px' }}>
-+              Estás a punto de apoyar a <strong style={{ color: '#1e3a5f' }}>{estudiante.nombre}</strong> en su proyecto.
-+            </p>
-+            <div style={{ background: '#f7fafd', border: '1.5px solid #e2e8f0', borderRadius: 12, padding: 16, marginBottom: 24 }}>
-+              <p style={{ fontSize: 12, fontWeight: 600, color: '#4a6a8a', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 4px' }}>Carrera</p>
-+              <p style={{ fontSize: 14, fontWeight: 500, color: '#1e3a5f', margin: '0 0 12px' }}>{nd(estudiante.carrera)}</p>
-+              <p style={{ fontSize: 12, fontWeight: 600, color: '#4a6a8a', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 4px' }}>Especialización Principal</p>
-+              <p style={{ fontSize: 14, fontWeight: 500, color: '#1e3a5f', margin: '0 0 12px' }}>{especializacion}</p>
-+              <p style={{ fontSize: 12, fontWeight: 600, color: '#4a6a8a', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 4px' }}>Áreas de Interés</p>
-+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-+                {estudiante.areas_de_interes && estudiante.areas_de_interes.length > 0 ? (
-+                  estudiante.areas_de_interes.map((a, i) => (
-+                    <span key={i} style={{ padding: '3px 8px', borderRadius: 20, border: '1px solid #c5d5e5', color: '#1e3a5f', fontSize: 11, fontWeight: 500, background: 'white' }}>{a}</span>
-+                  ))
-+                ) : (
-+                  <span style={{ color: '#9ab0c0', fontSize: 12 }}>No especificado</span>
-+                )}
-+              </div>
-+            </div>
-+            <div style={{ marginBottom: 24 }}>
-+              <p style={{ fontSize: 13, color: '#4a6070', lineHeight: 1.5, margin: 0 }}>
-+                Si dispones de datos de contacto (LinkedIn o Portafolio) aparecerán abajo. De lo contrario muestra un mensaje informativo.
-+              </p>
-+            </div>
-+            <div style={{ marginBottom: 24 }}>
-+              {estudiante.url_linkedin || estudiante.url_portfolio ? (
-+                <div style={{ display: 'flex', gap: 10 }}>
-+                  {estudiante.url_linkedin && (
-+                    <a href={estudiante.url_linkedin} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '10px 16px', borderRadius: 8, background: '#0a66c2', color: 'white', fontSize: 13, fontWeight: 600, textDecoration: 'none', flex: 1 }}>
-+                      LinkedIn
-+                    </a>
-+                  )}
-+                  {estudiante.url_portfolio && (
-+                    <a href={estudiante.url_portfolio} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '10px 16px', borderRadius: 8, background: '#1e3a5f', color: 'white', fontSize: 13, fontWeight: 600, textDecoration: 'none', flex: 1 }}>
-+                      Portafolio
-+                    </a>
-+                  )}
-+                </div>
-+              ) : (
-+                <div style={{ background: '#f0f4f8', borderRadius: 8, padding: 12, textAlign: 'center' }}>
-+                  <span style={{ fontSize: 12.5, color: '#6a8090', fontWeight: 500 }}>La información de contacto será habilitada por la administración.</span>
-+                </div>
-+              )}
-+            </div>
-+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-+              <button onClick={() => setShowApoyarModal(false)} style={{ padding: '10px 20px', borderRadius: 8, background: 'transparent', border: '1.5px solid #c5d5e5', color: '#4a6a8a', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Cerrar</button>
-+            </div>
-+          </div>
-+        </div>
-+      )}
-+    </div>
+      {showApoyarModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 30, 46, 0.5)', zIndex: 9998, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <div style={{ background: 'white', borderRadius: 16, padding: 32, width: '100%', maxWidth: 460, boxShadow: '0 10px 25px rgba(0,0,0,0.1)', position: 'relative' }}>
+            <button
+              onClick={() => setShowApoyarModal(false)}
+              style={{ position: 'absolute', top: 20, right: 20, background: 'transparent', border: 'none', cursor: 'pointer', color: '#7a9ab0', fontSize: 24, lineHeight: 1 }}
+            >
+              &times;
+            </button>
+            <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0f1e2e', margin: '0 0 8px' }}>Apoyar Proyecto</h2>
+            <p style={{ fontSize: 14, color: '#6a8090', margin: '0 0 16px' }}>
+              Estás a punto de apoyar a <strong style={{ color: '#1e3a5f' }}>{estudiante.nombre}</strong> en su proyecto.
+            </p>
+            <div style={{ background: '#f7fafd', border: '1.5px solid #e2e8f0', borderRadius: 12, padding: 16, marginBottom: 24 }}>
+              <p style={{ fontSize: 12, fontWeight: 600, color: '#4a6a8a', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 4px' }}>Carrera</p>
+              <p style={{ fontSize: 14, fontWeight: 500, color: '#1e3a5f', margin: '0 0 12px' }}>{nd(estudiante.carrera)}</p>
+              <p style={{ fontSize: 12, fontWeight: 600, color: '#4a6a8a', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 4px' }}>Especialización Principal</p>
+              <p style={{ fontSize: 14, fontWeight: 500, color: '#1e3a5f', margin: '0 0 12px' }}>{especializacion}</p>
+              <p style={{ fontSize: 12, fontWeight: 600, color: '#4a6a8a', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 4px' }}>Áreas de Interés</p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                {estudiante.areas_de_interes && estudiante.areas_de_interes.length > 0 ? (
+                  estudiante.areas_de_interes.map((a, i) => (
+                    <span key={i} style={{ padding: '3px 8px', borderRadius: 20, border: '1px solid #c5d5e5', color: '#1e3a5f', fontSize: 11, fontWeight: 500, background: 'white' }}>{a}</span>
+                  ))
+                ) : (
+                  <span style={{ color: '#9ab0c0', fontSize: 12 }}>No especificado</span>
+                )}
+              </div>
+            </div>
+            <div style={{ marginBottom: 24 }}>
+              <p style={{ fontSize: 13, color: '#4a6070', lineHeight: 1.5, margin: 0 }}>
+                Si dispones de datos de contacto (LinkedIn o Portafolio) aparecerán abajo. De lo contrario muestra un mensaje informativo.
+              </p>
+            </div>
+            <div style={{ marginBottom: 24 }}>
+              {estudiante.url_linkedin || estudiante.url_portfolio ? (
+                <div style={{ display: 'flex', gap: 10 }}>
+                  {estudiante.url_linkedin && (
+                    <a href={estudiante.url_linkedin} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '10px 16px', borderRadius: 8, background: '#0a66c2', color: 'white', fontSize: 13, fontWeight: 600, textDecoration: 'none', flex: 1 }}>
+                      LinkedIn
+                    </a>
+                  )}
+                  {estudiante.url_portfolio && (
+                    <a href={estudiante.url_portfolio} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '10px 16px', borderRadius: 8, background: '#1e3a5f', color: 'white', fontSize: 13, fontWeight: 600, textDecoration: 'none', flex: 1 }}>
+                      Portafolio
+                    </a>
+                  )}
+                </div>
+              ) : (
+                <div style={{ background: '#f0f4f8', borderRadius: 8, padding: 12, textAlign: 'center' }}>
+                  <span style={{ fontSize: 12.5, color: '#6a8090', fontWeight: 500 }}>La información de contacto será habilitada por la administración.</span>
+                </div>
+              )}
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <button onClick={() => setShowApoyarModal(false)} style={{ padding: '10px 20px', borderRadius: 8, background: 'transparent', border: '1.5px solid #c5d5e5', color: '#4a6a8a', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Cerrar</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
