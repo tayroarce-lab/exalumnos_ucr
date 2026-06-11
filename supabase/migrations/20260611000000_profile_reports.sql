@@ -1,62 +1,84 @@
--- Migration 20260611000000_profile_reports.sql
+-- =============================================================================
+-- MIGRACIÓN 20260611000000: Limpieza de duplicado + Tabla de Baneos
+-- Descripción : Elimina la tabla profile_reports (duplicado de reportes_perfil
+--               que ya existe con trigger de auto-suspensión en 01_init_db.sql)
+--               y crea la tabla user_bans para historial de baneos manuales.
+-- =============================================================================
 
-CREATE TYPE report_reason_enum AS ENUM ('Spam', 'Perfil Falso', 'Comportamiento Inapropiado', 'Otro');
-CREATE TYPE report_status_enum AS ENUM ('pendiente', 'en_revision', 'resuelto', 'desestimado');
+-- Eliminar tabla duplicada si fue aplicada por error
+DROP TABLE IF EXISTS public.profile_reports CASCADE;
+DROP TYPE IF EXISTS report_reason_enum CASCADE;
+DROP TYPE IF EXISTS report_status_enum CASCADE;
 
-CREATE TABLE public.profile_reports (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    reporter_id UUID NOT NULL REFERENCES public.users(id),
-    reported_user_id UUID NOT NULL REFERENCES public.users(id),
-    reason report_reason_enum NOT NULL,
-    description TEXT,
-    status report_status_enum NOT NULL DEFAULT 'pendiente',
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+-- =============================================================================
+-- TABLA: user_bans
+-- Historial de baneos manuales aplicados por administradores.
+-- Complementa el campo activo=FALSE de users con contexto, duración y auditoría.
+-- =============================================================================
+CREATE TABLE IF NOT EXISTS public.user_bans (
+    id          UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id     UUID        NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+    banned_by   UUID        NOT NULL REFERENCES public.users(id),
+    reason      TEXT        NOT NULL,
+    expires_at  TIMESTAMPTZ,                  -- NULL = baneo permanente
+    lifted_at   TIMESTAMPTZ,                  -- NULL = sigue activo
+    lifted_by   UUID        REFERENCES public.users(id),
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Índices de rendimiento
+CREATE INDEX IF NOT EXISTS idx_user_bans_user_id   ON public.user_bans(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_bans_banned_by ON public.user_bans(banned_by);
+CREATE INDEX IF NOT EXISTS idx_user_bans_active     ON public.user_bans(user_id) WHERE lifted_at IS NULL;
 
 -- RLS
-ALTER TABLE public.profile_reports ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.user_bans ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Users can create reports"
-ON public.profile_reports
-FOR INSERT
-TO authenticated
-WITH CHECK (auth.uid() = reporter_id AND auth.uid() != reported_user_id);
-
-CREATE POLICY "Admins can view all reports"
-ON public.profile_reports
-FOR SELECT
+-- Solo admins pueden leer el historial completo
+CREATE POLICY "user_bans_select_admin"
+ON public.user_bans FOR SELECT
 TO authenticated
 USING (
     EXISTS (
         SELECT 1 FROM public.users
-        WHERE users.id = auth.uid() AND users.rol IN ('admin', 'superadmin')
+        WHERE users.id = auth.uid() AND users.tipo = 'admin'
     )
 );
 
-CREATE POLICY "Admins can update reports"
-ON public.profile_reports
-FOR UPDATE
+-- Solo admins pueden insertar baneos
+CREATE POLICY "user_bans_insert_admin"
+ON public.user_bans FOR INSERT
+TO authenticated
+WITH CHECK (
+    banned_by = auth.uid()
+    AND EXISTS (
+        SELECT 1 FROM public.users
+        WHERE users.id = auth.uid() AND users.tipo = 'admin'
+    )
+);
+
+-- Solo admins pueden actualizar (levantar un baneo)
+CREATE POLICY "user_bans_update_admin"
+ON public.user_bans FOR UPDATE
 TO authenticated
 USING (
     EXISTS (
         SELECT 1 FROM public.users
-        WHERE users.id = auth.uid() AND users.rol IN ('admin', 'superadmin')
+        WHERE users.id = auth.uid() AND users.tipo = 'admin'
     )
 );
 
--- Updated at trigger
-CREATE TRIGGER set_profile_reports_updated_at
-BEFORE UPDATE ON public.profile_reports
-FOR EACH ROW
-EXECUTE FUNCTION public.set_current_timestamp_updated_at();
-
--- Audit trigger
-CREATE TRIGGER disparador_auditoria_profile_reports
+-- Conectar con audit trail existente
+CREATE TRIGGER disparador_auditoria_user_bans
     AFTER INSERT OR UPDATE OR DELETE
-    ON public.profile_reports
+    ON public.user_bans
     FOR EACH ROW
     EXECUTE FUNCTION public.registrar_auditoria();
 
-COMMENT ON TRIGGER disparador_auditoria_profile_reports ON public.profile_reports IS
-    'Registra en audit_logs la creacion y actualizacion de los reportes de perfil';
+COMMENT ON TABLE public.user_bans IS
+    'Historial de baneos manuales por administradores. Cada fila representa
+     un evento de suspensión con su motivo, duración y quién lo aplicó.
+     Complementa el campo activo en users que el trigger de reportes maneja.';
+
+COMMENT ON COLUMN public.user_bans.expires_at IS 'NULL indica baneo permanente';
+COMMENT ON COLUMN public.user_bans.lifted_at  IS 'NULL indica que el baneo sigue activo';
