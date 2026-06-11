@@ -974,6 +974,43 @@ export type Database = {
       }
     }
     Functions: {
+      buscar_directorio_exalumnos: {
+        Args: {
+          p_search?: string | null
+          p_facultad?: string | null
+          p_escuela?: string | null
+          p_carreras?: string[] | null
+          p_sectores?: string[] | null
+          p_areas?: string[] | null
+          p_apoyos?: string[] | null
+          p_pais_ciudad?: string | null
+          p_limit?: number
+          p_offset?: number
+        }
+        Returns: {
+          id: string
+          nombre: string
+          apellidos: string | null
+          foto_url: string | null
+          pais_ciudad: string | null
+          carrera_principal: string | null
+          escuela_principal: string | null
+          facultad_principal: string | null
+          anio_graduacion: number | null
+          empresa_actual: string | null
+          cargo_actual: string | null
+          sector_industria: string[] | null
+          areas_de_interes: string[] | null
+          ofrece_mentoria: boolean
+          ofrece_empleo: boolean
+          ofrece_pasantia: boolean
+          ofrece_proyecto: boolean
+          ofrece_donacion_dinero: boolean
+          score_match: number
+          created_at: string
+          total_count: number
+        }[]
+      }
       calcular_score_matching: {
         Args: {
           p_estudiante_id: string
