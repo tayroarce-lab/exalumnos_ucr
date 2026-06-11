@@ -13,7 +13,8 @@ import {
   HelpCircle,
   GraduationCap,
   ClipboardList,
-  ShieldAlert
+  ShieldAlert,
+  Shield
 } from 'lucide-react';
 import Image from 'next/image';
 import logoUCR from '@/images/Logo_UCR.png';
@@ -36,6 +37,7 @@ const GENERAL_ITEMS: NavItem[] = [
 
 const SUPPORT_ITEMS: NavItem[] = [
   { href: '/admin/configuracion', label: 'Configuración', icon: <Settings size={20} /> },
+  { href: '/admin/administradores', label: 'Administradores', icon: <Shield size={20} /> },
   { href: '/admin/ayuda', label: 'Ayuda', icon: <HelpCircle size={20} /> },
 ];
 
