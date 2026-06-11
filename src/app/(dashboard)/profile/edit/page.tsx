@@ -713,6 +713,15 @@ export default function ProfileEditPage() {
 
     const es_exalumno = data.academic.some(a => a.carrera.trim() !== '' && a.escuela.trim() !== '' && a.anio.trim() !== '')
 
+    // Extract principal academic data for filtering
+    const primeraCarrera = data.academic[0]
+    const carrera_principal = primeraCarrera?.carrera || null
+    const escuela_principal = primeraCarrera?.escuela || null
+    const facultad_principal = primeraCarrera?.escuela && primeraCarrera.escuela.toLowerCase().includes('facultad') 
+      ? primeraCarrera.escuela 
+      : null
+    const anio_graduacion = primeraCarrera?.anio ? parseInt(primeraCarrera.anio) : null
+
     const supabase = createClient()
     const { error } = await supabase.from('profiles').upsert({
       id: user.id,
@@ -721,6 +730,10 @@ export default function ProfileEditPage() {
       linkedin_url: data.linkedin_url,
       bio: data.bio,
       academic: data.academic as any,
+      carrera_principal,
+      escuela_principal,
+      facultad_principal,
+      anio_graduacion,
       empresa_actual: data.empresa_actual,
       cargo_actual: data.cargo_actual,
       sector_industria: data.sector_industria,

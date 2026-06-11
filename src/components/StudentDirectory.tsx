@@ -23,76 +23,13 @@ const CARRERAS_UCR = [
 ];
 
 const TIPOS_PROYECTO = [
-  'Tesis de grado', 'Proyecto de investigación',
-  'Proyecto de graduación', 'Trabajo Comunal Universitario',
-  'Proyecto interdisciplinario',
+  'Perfil' // Since we map it as 'Perfil' currently
 ];
 
 const TIPOS_APOYO = [
-  'Mentoría profesional', 'Revisión de proyecto',
-  'Networking', 'Apoyo financiero',
-  'Recursos técnicos', 'Colaboración académica',
-];
-
-// ─── DATOS MOCK ─────────────────────────────────────────────────────────────
-
-const DATOS_MOCK: EstudiantePublico[] = [
-  {
-    id: 'e1', nombreCompleto: 'Andrea Mora Vindas', carrera: 'Ingeniería Informática',
-    sede: 'Rodrigo Facio',
-    proyecto: { titulo: 'Sistema de alerta temprana para deslizamientos mediante IoT y ML', areaTematica: 'Tecnología e Innovación', tipoProyecto: 'Tesis de grado', porcentajeAvance: 75 },
-    areasInteres: ['Tecnología e Innovación', 'Medio Ambiente y Sostenibilidad', 'Investigación Científica'],
-    tiposApoyoBuscado: ['Mentoría profesional', 'Recursos técnicos'],
-  },
-  {
-    id: 'e2', nombreCompleto: 'Carlos Jiménez Solano', carrera: 'Medicina',
-    sede: 'Rodrigo Facio',
-    proyecto: { titulo: 'Impacto del estrés académico en la salud mental de estudiantes universitarios', areaTematica: 'Salud y Bienestar', tipoProyecto: 'Proyecto de investigación', porcentajeAvance: 55 },
-    areasInteres: ['Salud y Bienestar', 'Ciencias Sociales', 'Educación y Pedagogía'],
-    tiposApoyoBuscado: ['Revisión de proyecto', 'Networking'],
-  },
-  {
-    id: 'e3', nombreCompleto: 'Valeria Rodríguez Cruz', carrera: 'Arquitectura',
-    sede: 'Occidente',
-    proyecto: { titulo: 'Diseño de vivienda modular sostenible para zonas rurales de Guanacaste', areaTematica: 'Ingeniería y Construcción', tipoProyecto: 'Proyecto de graduación', porcentajeAvance: 90 },
-    areasInteres: ['Ingeniería y Construcción', 'Medio Ambiente y Sostenibilidad', 'Arte y Cultura'],
-    tiposApoyoBuscado: ['Networking', 'Mentoría profesional'],
-  },
-  {
-    id: 'e4', nombreCompleto: 'Miguel Ángel Porras León', carrera: 'Administración de Negocios',
-    sede: 'Atlántico',
-    proyecto: { titulo: 'Modelo de negocio circular para cooperativas agrícolas del Caribe costarricense', areaTematica: 'Emprendimiento y Negocios', tipoProyecto: 'Tesis de grado', porcentajeAvance: 40 },
-    areasInteres: ['Emprendimiento y Negocios', 'Agro y Alimentación', 'Economía y Finanzas'],
-    tiposApoyoBuscado: ['Apoyo financiero', 'Mentoría profesional', 'Networking'],
-  },
-  {
-    id: 'e5', nombreCompleto: 'Sofía Vargas Ulate', carrera: 'Psicología',
-    sede: 'Rodrigo Facio',
-    proyecto: { titulo: 'Intervención cognitivo-conductual en adolescentes con ansiedad social', areaTematica: 'Salud y Bienestar', tipoProyecto: 'Proyecto de investigación', porcentajeAvance: 65 },
-    areasInteres: ['Salud y Bienestar', 'Educación y Pedagogía', 'Ciencias Sociales'],
-    tiposApoyoBuscado: ['Revisión de proyecto', 'Colaboración académica'],
-  },
-  {
-    id: 'e6', nombreCompleto: 'Diego Hernández Bravo', carrera: 'Biología',
-    sede: 'Guanacaste',
-    proyecto: { titulo: 'Monitoreo de biodiversidad en humedales costeros mediante drones y IA', areaTematica: 'Medio Ambiente y Sostenibilidad', tipoProyecto: 'Trabajo Comunal Universitario', porcentajeAvance: 80 },
-    areasInteres: ['Medio Ambiente y Sostenibilidad', 'Tecnología e Innovación', 'Investigación Científica'],
-    tiposApoyoBuscado: ['Recursos técnicos', 'Colaboración académica'],
-  },
-  {
-    id: 'e7', nombreCompleto: 'Lucía Fonseca Araya', carrera: 'Comunicación Colectiva',
-    sede: 'Rodrigo Facio',
-    proyecto: { titulo: 'Narrativas digitales y activismo ambiental en redes sociales costarricenses', areaTematica: 'Comunicación y Medios', tipoProyecto: 'Proyecto de graduación', porcentajeAvance: 50 },
-    areasInteres: ['Comunicación y Medios', 'Arte y Cultura', 'Ciencias Sociales'],
-    tiposApoyoBuscado: ['Mentoría profesional', 'Networking'],
-  },
-  {
-    id: 'e8', nombreCompleto: 'Roberto Cascante Núñez', carrera: 'Derecho',
-    sede: 'Pacífico',
-    proyecto: { titulo: 'Marco jurídico para la protección de datos biométricos en Costa Rica', areaTematica: 'Derecho y Política Pública', tipoProyecto: 'Tesis de grado', porcentajeAvance: 35 },
-    areasInteres: ['Derecho y Política Pública', 'Tecnología e Innovación', 'Economía y Finanzas'],
-    tiposApoyoBuscado: ['Revisión de proyecto', 'Networking', 'Mentoría profesional'],
-  },
+  'Mentoría profesional',
+  'Empleo',
+  'Pasantía'
 ];
 
 // ─── ESTADO DE FILTROS ───────────────────────────────────────────────────────
@@ -147,7 +84,6 @@ function SelectorMultiple({ id, etiqueta, opciones, seleccionados, alCambiar }: 
     <div ref={refContenedor} className="relative">
       <button
         type="button"
-        id={`btn-selector-${id}`}
         onClick={() => setAbierto(prev => !prev)}
         className={`flex items-center justify-between gap-2 w-full px-3 py-2 rounded-lg text-sm border transition-all duration-200 ${
           seleccionados.length > 0
@@ -193,8 +129,52 @@ function SelectorMultiple({ id, etiqueta, opciones, seleccionados, alCambiar }: 
 // [VERDE - FUNCION: DirectorioEstudiantes]
 // Vista principal del directorio público de proyectos estudiantiles UCR.
 // Incluye filtros dinámicos y cuadrícula de tarjetas con guardrail de privacidad.
+import { listarEstudiantes } from '@/actions/students';
+
 export default function DirectorioEstudiantes() {
   const [filtros, setFiltros] = useState<EstadoFiltros>(FILTROS_VACIOS);
+  const [estudiantes, setEstudiantes] = useState<EstudiantePublico[]>([]);
+  const [cargando, setCargando] = useState(true);
+
+  useEffect(() => {
+    async function cargarEstudiantes() {
+      try {
+        const { data } = await listarEstudiantes();
+        if (data) {
+          const mapped: EstudiantePublico[] = data.map((u: any) => {
+            const carreraInfo = u.users_carreras?.[0]?.carrera_campus;
+            const curriculum = u.curriculums?.[0];
+            
+            const apoyos = [];
+            if (u.busca_mentoria) apoyos.push('Mentoría profesional');
+            if (u.busca_empleo) apoyos.push('Empleo');
+
+            return {
+              id: u.id,
+              nombreCompleto: `${u.nombre} ${u.apellidos || ''}`.trim() || 'Sin Nombre',
+              carrera: carreraInfo?.carreras?.nombre || 'Carrera no especificada',
+              sede: carreraInfo?.campus?.nombre || 'Sede no especificada',
+              fotoPerfil: undefined, // Add if available
+              proyecto: {
+                titulo: curriculum?.sobre_mi || 'Perfil Estudiantil',
+                areaTematica: 'General',
+                tipoProyecto: 'Perfil',
+                porcentajeAvance: 100
+              },
+              areasInteres: u.areas_de_interes || [],
+              tiposApoyoBuscado: apoyos
+            };
+          });
+          setEstudiantes(mapped);
+        }
+      } catch (err) {
+        console.error("Error al cargar estudiantes:", err);
+      } finally {
+        setCargando(false);
+      }
+    }
+    cargarEstudiantes();
+  }, []);
 
   // [VERDE - FUNCION: manejarCambioFiltroMultiple]
   // Agrega o elimina un valor de un filtro de selección múltiple (toggle).
@@ -238,7 +218,7 @@ export default function DirectorioEstudiantes() {
   // [VERDE - FUNCION: estudiantesFiltrados]
   // Aplica todos los filtros activos sobre el catálogo de datos mock.
   const estudiantesFiltrados = useMemo(() => {
-    return DATOS_MOCK.filter(est => {
+    return estudiantes.filter(est => {
       // Filtro por búsqueda de texto libre (nombre o título de proyecto)
       if (filtros.busqueda) {
         const q = filtros.busqueda.toLowerCase();
@@ -261,12 +241,12 @@ export default function DirectorioEstudiantes() {
       if (filtros.sede && est.sede !== filtros.sede) return false;
       return true;
     });
-  }, [filtros]);
+  }, [filtros, estudiantes]);
 
   // [VERDE - FUNCION: ejecutarOfrecerApoyo]
   // Manejador del botón "Ofrecer apoyo" de cada tarjeta de estudiante.
   function ejecutarOfrecerApoyo(idEstudiante: string) {
-    const estudiante = DATOS_MOCK.find(e => e.id === idEstudiante);
+    const estudiante = estudiantes.find(e => e.id === idEstudiante);
     if (!estudiante) return;
     // TODO: Conectar con el flujo de match / notificación al estudiante
     alert(`¡Oferta de apoyo enviada a ${estudiante.nombreCompleto}!`);
@@ -373,6 +353,8 @@ export default function DirectorioEstudiantes() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
             <select
               id="select-tipo-proyecto"
+              title="Tipo de proyecto"
+              aria-label="Tipo de proyecto"
               value={filtros.tipoProyecto}
               onChange={e => manejarCambioFiltroSimple('tipoProyecto', e.target.value)}
               className="px-3 py-2 rounded-lg text-sm bg-slate-800 border border-slate-700 text-slate-400 focus:outline-none focus:border-blue-500/70 transition-all duration-200 cursor-pointer"
@@ -385,6 +367,8 @@ export default function DirectorioEstudiantes() {
 
             <select
               id="select-sede-ucr"
+              title="Sede UCR"
+              aria-label="Sede UCR"
               value={filtros.sede}
               onChange={e => manejarCambioFiltroSimple('sede', e.target.value)}
               className="px-3 py-2 rounded-lg text-sm bg-slate-800 border border-slate-700 text-slate-400 focus:outline-none focus:border-blue-500/70 transition-all duration-200 cursor-pointer"
@@ -425,7 +409,12 @@ export default function DirectorioEstudiantes() {
         </div>
 
         {/* ── CUADRÍCULA DE TARJETAS ── */}
-        {estudiantesFiltrados.length > 0 ? (
+        {cargando ? (
+          <div className="flex flex-col items-center justify-center py-24 gap-4">
+            <div className="w-10 h-10 border-4 border-slate-700 border-t-blue-500 rounded-full animate-spin"></div>
+            <p className="text-slate-400 text-sm font-medium animate-pulse">Cargando directorio...</p>
+          </div>
+        ) : estudiantesFiltrados.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
             {estudiantesFiltrados.map(est => (
               <TarjetaEstudiante

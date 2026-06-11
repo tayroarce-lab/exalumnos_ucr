@@ -51,7 +51,18 @@ export default function ProfilePage() {
     verified: false
   }))
 
-  const experience = profile?.experience as any[] || []
+  const experience = [];
+  if (profile?.empresa_actual && profile?.cargo_actual) {
+    experience.push({
+      role: profile.cargo_actual,
+      company: profile.empresa_actual,
+      period: profile.anos_experiencia ? `${profile.anos_experiencia} años de exp.` : 'Actualidad',
+      desc: profile.sector_industria && profile.sector_industria.length > 0 
+            ? `Sector: ${(profile.sector_industria as string[]).join(', ')}` 
+            : ''
+    });
+  }
+
   const linkedin = profile?.linkedin_url || ''
   const twitter = profile?.twitter_url || ''
   const instagram = profile?.instagram_url || ''
