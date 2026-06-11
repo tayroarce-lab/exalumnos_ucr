@@ -89,3 +89,38 @@ export function getAlertaMatchAntiguoTemplate(nombreAdmin: string, emailExalumno
     </div>
   `;
 }
+export function getNuevaDonacionAdminTemplate(monto: number, moneda: string, proyecto: string, metodo: string) {
+  return `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
+      <h2 style="color: #003366;">Nueva Donación Registrada</h2>
+      <p>Hola <strong>Administrador</strong>,</p>
+      <p>Se ha registrado una nueva donación en la plataforma que requiere revisión.</p>
+      <p style="font-size: 16px; padding: 15px; background-color: #f0f7fa; border-left: 4px solid #003366;">
+        <strong>Monto:</strong> ${monto} ${moneda}<br/>
+        <strong>Destino:</strong> ${proyecto}<br/>
+        <strong>Método de pago:</strong> ${metodo}
+      </p>
+      <p>Por favor, ingresa al panel de administración para validar el comprobante de pago.</p>
+      <br />
+      <p>Saludos cordiales,<br><strong>Sistema de Fundación Exalumnos UCR</strong></p>
+    </div>
+  `;
+}
+
+export function getEstadoDonacionTemplate(nombreExalumno: string, estado: string, monto: number, moneda: string, motivoRechazo?: string) {
+  const isConfirmada = estado === 'confirmada';
+  const color = isConfirmada ? '#10b981' : '#ef4444';
+  const titulo = isConfirmada ? '¡Tu donación ha sido confirmada!' : 'Actualización sobre tu donación';
+  
+  return `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
+      <h2 style="color: ${color};">${titulo}</h2>
+      <p>Hola <strong>${nombreExalumno}</strong>,</p>
+      <p>El estado de tu donación por <strong>${monto} ${moneda}</strong> ha sido actualizado a: <strong>${estado.toUpperCase()}</strong>.</p>
+      ${!isConfirmada && motivoRechazo ? `<p style="padding: 10px; background-color: #fee2e2; border-left: 4px solid #ef4444;"><strong>Motivo:</strong> ${motivoRechazo}</p>` : ''}
+      ${isConfirmada ? '<p>¡Muchas gracias por tu valioso aporte a la comunidad estudiantil de la UCR!</p>' : '<p>Si tienes alguna duda, por favor contáctanos.</p>'}
+      <br />
+      <p>Saludos cordiales,<br><strong>El equipo de la Fundación Exalumnos UCR</strong></p>
+    </div>
+  `;
+}
