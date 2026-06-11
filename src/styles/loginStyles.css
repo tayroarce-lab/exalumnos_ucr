@@ -27,7 +27,7 @@
 /* --- PANEL IZQUIERDO (decorativo) --- */
 .login-left {
   flex: 1;
-  background: linear-gradient(160deg, #54BCEB 0%, #0284C7 100%);
+  background: linear-gradient(135deg, #0284C7 50%, #F34B26 50%);
   color: #ffffff;
   padding: 3.5rem;
   display: flex;
@@ -393,58 +393,18 @@
   }
 }
 
+.forgot-password-link {
+  font-size: 0.85rem;
+  color: #0284C7;
+  text-decoration: none;
+  transition: color 0.2s ease, text-decoration 0.2s ease;
+}
+
+.forgot-password-link:hover {
+  color: #F34B26;
+  text-decoration: none;
+}
+
 /* ================================================
-   EXALUMNO THEME OVERRIDES (ORANGE #F34B26)
+   END OF FILE
    ================================================ */
-.login-container.exalumno .login-left {
-  background: linear-gradient(160deg, #F34B26 0%, #a82a0f 100%);
-}
-
-.login-container.exalumno .login-left::before,
-.login-container.exalumno .login-left::after {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.login-container.exalumno .login-feature-icon {
-  background: rgba(255, 255, 255, 0.15);
-  color: #ffffff;
-}
-
-.login-container.exalumno .login-feature-item {
-  color: rgba(255, 255, 255, 0.85);
-}
-
-.login-container.exalumno .login-brand-name {
-  color: #ffaa99;
-}
-
-.login-container.exalumno .login-hero-text p {
-  color: rgba(255, 220, 210, 0.85);
-}
-
-.login-container.exalumno .login-input-wrapper input:focus {
-  border-color: #F34B26;
-  box-shadow: 0 0 0 3px rgba(243, 75, 38, 0.15);
-}
-
-.login-container.exalumno .login-submit-btn {
-  background: linear-gradient(135deg, #F34B26 0%, #b83318 100%);
-}
-
-.login-container.exalumno .login-submit-btn:hover:not(:disabled) {
-  box-shadow: 0 8px 20px rgba(243, 75, 38, 0.25);
-}
-
-.login-container.exalumno .login-password-toggle:hover {
-  color: #F34B26;
-  background-color: rgba(243, 75, 38, 0.06);
-}
-
-.login-container.exalumno .login-footer-links a {
-  color: #F34B26;
-}
-
-.login-container.exalumno .login-footer-links a:hover {
-  color: #b83318;
-}
