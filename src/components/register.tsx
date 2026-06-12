@@ -1,7 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import '../styles/registerStyles.css';
+import '@/styles/registerStyles.css';
+import '@/styles/loadingSpinner.css';
+import '@/styles/cycleWisdom.css';
+import LoadingSpinner from '@/components/LoadingSpinner';
+import CycleWisdomOption3 from '@/components/CycleWisdomOption3';
 import { User, Mail, AlertCircle, ArrowRight, CheckCircle2, Clock } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -145,6 +149,7 @@ export default function Register() {
                />
              </Link>
            </div>
+
            <div className="register-hero-text mt-6">
              {tipoRegistro === 'estudiante' ? (
                <>

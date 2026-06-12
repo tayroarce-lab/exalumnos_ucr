@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import CycleWisdomOption3 from '@/components/CycleWisdomOption3';
+import LoadingSpinner from '@/components/LoadingSpinner';
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -8,7 +10,8 @@ import { Mail, Lock, Eye, EyeOff, LogIn, GraduationCap, Users, ShieldCheck } fro
 import { iniciarSesion } from "@/actions/authActions";
 import { obtenerMiPerfil } from "@/actions/users";
 import logoUCR from "@/images/Logo_UCR.png";
-import "@/styles/loginStyles.css";
+import '@/styles/loginStyles.css';
+import '@/styles/loadingSpinner.css';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -82,6 +85,7 @@ export default function LoginPage() {
               />
             </Link>
           </div>
+          
           <div className="login-hero-text" style={{ marginTop: '1.5rem' }}>
             <h2>Bienvenido de vuelta</h2>
             <p>
@@ -198,7 +202,6 @@ export default function LoginPage() {
               </div>
             )}
 
-            {/* Botón de Iniciar Sesión */}
             <button
               onClick={manejarInicioSesion}
               disabled={loading}
@@ -207,7 +210,7 @@ export default function LoginPage() {
             >
               {loading ? (
                 <>
-                  <span className="login-spinner"></span>
+                  <LoadingSpinner />
                   Ingresando...
                 </>
               ) : (
