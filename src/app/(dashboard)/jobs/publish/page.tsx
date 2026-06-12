@@ -2,28 +2,40 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import Card from '@/components/ui/card'
 import Button from '@/components/ui/button'
 import { Input, Textarea, Select } from '@/components/ui/input'
-import { ArrowLeft, ChevronLeft, ChevronRight, CheckCircle2, Save } from 'lucide-react'
+import { ArrowLeft, ChevronLeft, ChevronRight, CheckCircle2, Save, AlertCircle } from 'lucide-react'
+import { crearPosicion } from '@/actions/posiciones'
+import type { PosicionFormValues } from '@/lib/validations/posiciones'
 
 export default function PublishJobPage() {
+  const router = useRouter()
   const [step, setStep] = useState(1)
   const [isPublishing, setIsPublishing] = useState(false)
   const [isPublished, setIsPublished] = useState(false)
+  const [serverError, setServerError] = useState<string | null>(null)
 
-  // Datos de formulario
-  const [formData, setFormData] = useState({
-    title: '',
-    company: 'Tech Costa Rica', // Pre-llenado con empresa del exalumno
-    location: 'San José',
-    type: 'Tiempo Completo',
-    modality: 'Híbrido',
-    salary: '',
-    desc: '',
-    requirements: '',
-    responsibilities: ''
+  // Datos de formulario alineados con PosicionFormValues (Zod Schema)
+  const [formData, setFormData] = useState<PosicionFormValues>({
+    titulo: '',
+    tipo: 'Empleo',
+    modalidad: 'Híbrido',
+    jornada: 'Tiempo completo',
+    lugar: 'San José, Costa Rica',
+    empresa: 'Tech Costa Rica', // En la vida real provendría del perfil
+    sector: ['Tecnología'],
+    fecha_limite: new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString().split('T')[0], // 1 mes a futuro
+    habilidades_requeridas: [],
+    descripcion_general: '',
+    responsabilidades: [],
+    contexto_equipo: ''
   })
+
+  // Para inputs de texto que se convierten a arreglos (separados por coma o saltos)
+  const [tempResp, setTempResp] = useState('')
+  const [tempHab, setTempHab] = useState('')
 
   // Errores de validación
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -45,11 +57,22 @@ export default function PublishJobPage() {
     const newErrors: Record<string, string> = {}
 
     if (currentStep === 1) {
-      if (!formData.title.trim()) newErrors.title = 'El título de la vacante es obligatorio'
-      if (!formData.location.trim()) newErrors.location = 'La ubicación es obligatoria'
+      if (!formData.titulo.trim() || formData.titulo.length < 5) newErrors.titulo = 'El título debe tener al menos 5 caracteres'
+      if (!formData.lugar.trim()) newErrors.lugar = 'La ubicación es obligatoria'
     } else if (currentStep === 2) {
-      if (!formData.desc.trim()) newErrors.desc = 'La descripción es obligatoria'
-      if (!formData.requirements.trim()) newErrors.requirements = 'Los requisitos son obligatorios'
+      if (!formData.descripcion_general.trim() || formData.descripcion_general.length < 50) {
+        newErrors.descripcion_general = 'La descripción debe tener al menos 50 caracteres'
+      }
+      
+      const resps = tempResp.split('\n').filter(r => r.trim().length > 0)
+      if (resps.length < 3) {
+        newErrors.responsabilidades = 'Debe agregar al menos 3 responsabilidades (una por línea)'
+      }
+
+      const habs = tempHab.split(',').filter(h => h.trim().length > 0)
+      if (habs.length < 1) {
+        newErrors.habilidades_requeridas = 'Debe agregar al menos una habilidad requerida (separadas por coma)'
+      }
     }
 
     setErrors(newErrors)
@@ -58,6 +81,14 @@ export default function PublishJobPage() {
 
   const handleNext = () => {
     if (validateStep(step)) {
+      if (step === 2) {
+        // Parsear textarea a arrays para el step final
+        setFormData(prev => ({
+          ...prev,
+          responsabilidades: tempResp.split('\n').map(r => r.trim()).filter(r => r.length > 0),
+          habilidades_requeridas: tempHab.split(',').map(h => h.trim()).filter(h => h.length > 0)
+        }))
+      }
       setStep((prev) => prev + 1)
     }
   }
@@ -66,16 +97,30 @@ export default function PublishJobPage() {
     setStep((prev) => prev - 1)
   }
 
-  const handlePublish = () => {
+  const handlePublish = async () => {
+    setServerError(null)
     setIsPublishing(true)
-    setTimeout(() => {
-      setIsPublishing(false)
+    
+    const result = await crearPosicion(formData)
+
+    setIsPublishing(false)
+    if (result.success) {
       setIsPublished(true)
       setTimeout(() => {
-        setIsPublished(false)
-        window.location.href = '/jobs'
+        router.push('/jobs')
       }, 1500)
-    }, 1500)
+    } else {
+      setServerError(result.error || 'Error desconocido')
+      if (result.details) {
+        // Mapear errores de Zod si los hay al estado local
+        const zodErrs: Record<string, string> = {}
+        for (const [key, val] of Object.entries(result.details)) {
+          if (Array.isArray(val) && val.length > 0) zodErrs[key] = val[0]
+        }
+        setErrors(zodErrs)
+        setStep(1) // Volver al inicio para revisar errores
+      }
+    }
   }
 
   return (
@@ -99,6 +144,17 @@ export default function PublishJobPage() {
             Crea una vacante de empleo o pasantía exclusiva para graduados y estudiantes de la UCR.
           </p>
         </div>
+
+        {/* Alerta de Error General */}
+        {serverError && (
+          <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+            <div className="text-sm text-red-800">
+              <strong className="block font-bold">No se pudo publicar la vacante</strong>
+              {serverError}
+            </div>
+          </div>
+        )}
 
         {/* Indicador de pasos */}
         <div className="flex items-center justify-between border-b border-slate-200 pb-4">
@@ -128,7 +184,7 @@ export default function PublishJobPage() {
         </div>
 
         {/* Tarjeta de Formulario */}
-        <Card hoverEffect={false} className="space-y-6 p-6 rounded-2xl border border-slate-200/60 bg-white">
+        <Card hoverEffect={false} className="space-y-6 p-6 rounded-2xl border border-slate-200/60 bg-white shadow-lg">
           
           {/* PASO 1: DATOS BÁSICOS */}
           {step === 1 && (
@@ -138,56 +194,66 @@ export default function PublishJobPage() {
               </h3>
               <Input
                 label="Título del Puesto"
-                name="title"
+                name="titulo"
                 placeholder="Ej: Desarrollador Backend React"
-                value={formData.title}
+                value={formData.titulo}
                 onChange={handleChange}
-                error={errors.title}
+                error={errors.titulo}
                 className="h-11 border-slate-200 focus:border-brand-blue bg-slate-50/50"
               />
               <Input
                 label="Empresa"
-                name="company"
-                value={formData.company}
+                name="empresa"
+                value={formData.empresa}
                 disabled
                 className="h-11 border-slate-200 bg-slate-100"
               />
               <Input
                 label="Ubicación"
-                name="location"
+                name="lugar"
                 placeholder="Ej: San José, Costa Rica"
-                value={formData.location}
+                value={formData.lugar}
                 onChange={handleChange}
-                error={errors.location}
+                error={errors.lugar}
                 className="h-11 border-slate-200 focus:border-brand-blue bg-slate-50/50"
               />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Select
                   label="Tipo de Contrato"
-                  name="type"
-                  value={formData.type}
+                  name="tipo"
+                  value={formData.tipo}
                   onChange={handleChange}
                   options={[
-                    { value: 'Tiempo Completo', label: 'Tiempo Completo' },
-                    { value: 'Medio Tiempo', label: 'Medio Tiempo' },
-                    { value: 'Freelance', label: 'Freelance' },
+                    { value: 'Empleo', label: 'Empleo' },
                     { value: 'Pasantía', label: 'Pasantía' }
                   ]}
                   className="h-11 border-slate-200 focus:border-brand-blue bg-slate-50/50"
                 />
                 <Select
-                  label="Modalidad"
-                  name="modality"
-                  value={formData.modality}
+                  label="Jornada"
+                  name="jornada"
+                  value={formData.jornada}
                   onChange={handleChange}
                   options={[
-                    { value: 'Híbrido', label: 'Híbrido' },
-                    { value: 'Remoto', label: '100% Remoto' },
-                    { value: 'Presencial', label: 'Presencial' }
+                    { value: 'Tiempo completo', label: 'Tiempo Completo' },
+                    { value: 'Medio tiempo', label: 'Medio Tiempo' },
+                    { value: 'Por proyecto', label: 'Por Proyecto' }
                   ]}
                   className="h-11 border-slate-200 focus:border-brand-blue bg-slate-50/50"
                 />
               </div>
+              <Select
+                label="Modalidad"
+                name="modalidad"
+                value={formData.modalidad}
+                onChange={handleChange}
+                options={[
+                  { value: 'Híbrido', label: 'Híbrido' },
+                  { value: 'Remoto', label: '100% Remoto' },
+                  { value: 'Presencial', label: 'Presencial' }
+                ]}
+                className="h-11 border-slate-200 focus:border-brand-blue bg-slate-50/50"
+              />
             </div>
           )}
 
@@ -198,29 +264,36 @@ export default function PublishJobPage() {
                 Detalles del Puesto
               </h3>
               <Textarea
-                label="Descripción de responsabilidades"
-                name="desc"
-                placeholder="Describe detalladamente las tareas diarias del puesto..."
-                value={formData.desc}
+                label="Descripción general"
+                name="descripcion_general"
+                placeholder="Describe detalladamente el puesto, la empresa y las expectativas..."
+                value={formData.descripcion_general}
                 onChange={handleChange}
-                error={errors.desc}
-                className="border-slate-200 focus:border-brand-blue bg-slate-50/50"
+                error={errors.descripcion_general}
+                className="border-slate-200 focus:border-brand-blue bg-slate-50/50 min-h-[120px]"
               />
               <Textarea
-                label="Requisitos clave"
-                name="requirements"
-                placeholder="Indica las habilidades, certificaciones o herramientas que se requieren..."
-                value={formData.requirements}
-                onChange={handleChange}
-                error={errors.requirements}
-                className="border-slate-200 focus:border-brand-blue bg-slate-50/50"
+                label="Responsabilidades Clave (Una por línea, min 3)"
+                name="responsabilidades"
+                placeholder="1. Desarrollar APIs RESTful&#10;2. Mantener la infraestructura cloud&#10;3. Realizar code reviews..."
+                value={tempResp}
+                onChange={(e) => {
+                  setTempResp(e.target.value)
+                  if(errors.responsabilidades) setErrors(p => ({...p, responsabilidades: ''}))
+                }}
+                error={errors.responsabilidades}
+                className="border-slate-200 focus:border-brand-blue bg-slate-50/50 min-h-[120px]"
               />
               <Input
-                label="Rango Salarial (Mensual)"
-                name="salary"
-                placeholder="Ej: ₡1,200,000 - ₡1,600,000 o No especificado"
-                value={formData.salary}
-                onChange={handleChange}
+                label="Habilidades Requeridas (separadas por coma)"
+                name="habilidades_requeridas"
+                placeholder="React, TypeScript, Node.js"
+                value={tempHab}
+                onChange={(e) => {
+                  setTempHab(e.target.value)
+                  if(errors.habilidades_requeridas) setErrors(p => ({...p, habilidades_requeridas: ''}))
+                }}
+                error={errors.habilidades_requeridas}
                 className="h-11 border-slate-200 focus:border-brand-blue bg-slate-50/50"
               />
             </div>
@@ -234,14 +307,14 @@ export default function PublishJobPage() {
               </h3>
               <div className="bg-slate-50 p-6 border border-slate-200/60 rounded-2xl space-y-4">
                 <h4 className="font-display font-extrabold text-lg text-slate-800 uppercase tracking-wide">
-                  {formData.title || 'Título de vacante'}
+                  {formData.titulo}
                 </h4>
                 <div className="space-y-1.5 text-xs text-slate-500 font-semibold uppercase tracking-wider">
-                  <p>Empresa: {formData.company}</p>
-                  <p>Ubicación: {formData.location}</p>
-                  <p>Modalidad: {formData.modality}</p>
-                  <p>Tipo: {formData.type}</p>
-                  <p>Compensación: {formData.salary || 'No especificado'}</p>
+                  <p>Empresa: {formData.empresa}</p>
+                  <p>Ubicación: {formData.lugar}</p>
+                  <p>Modalidad: {formData.modalidad}</p>
+                  <p>Tipo: {formData.tipo}</p>
+                  <p>Jornada: {formData.jornada}</p>
                 </div>
               </div>
               <p className="text-xs text-slate-400 font-semibold leading-relaxed">
@@ -253,7 +326,7 @@ export default function PublishJobPage() {
           {/* Navegación del formulario */}
           <div className="flex items-center justify-between pt-4 border-t border-slate-100 bg-white">
             {step > 1 ? (
-              <Button variant="secondary" onClick={handlePrev} className="flex items-center gap-2 font-bold uppercase text-xs">
+              <Button variant="secondary" onClick={handlePrev} disabled={isPublishing || isPublished} className="flex items-center gap-2 font-bold uppercase text-xs">
                 <ChevronLeft className="w-4 h-4" />
                 <span>Atrás</span>
               </Button>
@@ -271,17 +344,20 @@ export default function PublishJobPage() {
                 variant="primary"
                 onClick={handlePublish}
                 isLoading={isPublishing}
-                className="flex items-center gap-2 bg-brand-blue hover:bg-brand-blue/90 text-white font-bold uppercase text-xs px-5 shadow-md"
+                disabled={isPublishing || isPublished}
+                className={`flex items-center gap-2 font-bold uppercase text-xs px-5 shadow-md text-white ${
+                  isPublished ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-brand-blue hover:bg-brand-blue/90'
+                }`}
               >
                 {isPublished ? (
                   <>
-                    <CheckCircle2 className="w-4 h-4 text-white" />
+                    <CheckCircle2 className="w-4 h-4" />
                     <span>¡Publicado!</span>
                   </>
                 ) : (
                   <>
                     <Save className="w-4 h-4" />
-                    <span>Publicar Vacante</span>
+                    <span>{isPublishing ? 'Publicando...' : 'Publicar Vacante'}</span>
                   </>
                 )}
               </Button>

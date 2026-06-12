@@ -105,21 +105,24 @@ async function main() {
       nombre: 'Andrés', apellidos: 'Quesada Picado', rol: 'exalumno',
       email_verified: true, activo: true, busca_mentoria: false, busca_empleo: false,
       ofrece_mentoria: true, visible_en_directorio: true, reportes_recibidos: 0,
-      foto_url: 'https://storage.fundacionucr.ac.cr/avatars/andres_quesada.jpg'
+      foto_url: 'https://storage.fundacionucr.ac.cr/avatars/andres_quesada.jpg',
+      hobbies: ['Tecnología', 'Videojuegos']
     },
     {
       id: 'e1000002-0000-0000-0000-000000000002', email: 'valeria.mora@mckinsey.com',
       nombre: 'Valeria', apellidos: 'Mora Cascante', rol: 'exalumno',
       email_verified: true, activo: true, busca_mentoria: false, busca_empleo: false,
       ofrece_mentoria: true, visible_en_directorio: true, reportes_recibidos: 0,
-      foto_url: 'https://storage.fundacionucr.ac.cr/avatars/valeria_mora.jpg'
+      foto_url: 'https://storage.fundacionucr.ac.cr/avatars/valeria_mora.jpg',
+      hobbies: ['Lectura', 'Cine']
     },
     {
       id: 'e1000003-0000-0000-0000-000000000003', email: 'rodrigo.arias@bostonsci.com',
       nombre: 'Rodrigo', apellidos: 'Arias Fonseca', rol: 'exalumno',
       email_verified: true, activo: true, busca_mentoria: false, busca_empleo: false,
       ofrece_mentoria: true, visible_en_directorio: true, reportes_recibidos: 0,
-      foto_url: 'https://storage.fundacionucr.ac.cr/avatars/rodrigo_arias.jpg'
+      foto_url: 'https://storage.fundacionucr.ac.cr/avatars/rodrigo_arias.jpg',
+      hobbies: ['Deportes', 'Tecnología']
     },
     {
       id: 'e1000004-0000-0000-0000-000000000004', email: 'carolina.jimenez@grupoice.com',

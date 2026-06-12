@@ -167,6 +167,12 @@ function FilterPanel({
         <div className="space-y-2 max-h-40 overflow-y-auto pr-2 custom-scrollbar">
            {options.map(opt => (
               <label key={opt.value} className="flex items-start gap-2 cursor-pointer group">
+                 <input
+                    type="checkbox"
+                    className="sr-only"
+                    checked={selected.includes(opt.value)}
+                    onChange={() => onToggle(opt.value)}
+                 />
                  <div className={`w-4 h-4 mt-0.5 rounded border flex items-center justify-center shrink-0 transition-colors ${selected.includes(opt.value) ? 'bg-institutional border-institutional text-white' : 'border-slate-300 bg-white group-hover:border-institutional'}`}>
                     {selected.includes(opt.value) && <Check className="w-3 h-3" />}
                  </div>

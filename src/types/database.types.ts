@@ -816,6 +816,7 @@ export type Database = {
           email_verified: boolean
           escuela_facultad: string | null
           foto_url: string | null
+          hobbies: string[] | null
           id: string
           nombre: string
           ofrece_donacion_dinero: boolean
@@ -842,6 +843,7 @@ export type Database = {
           email_verified?: boolean
           escuela_facultad?: string | null
           foto_url?: string | null
+          hobbies?: string[] | null
           id?: string
           nombre: string
           proyecto_area_tematica?: string | null
@@ -869,6 +871,7 @@ export type Database = {
           email_verified?: boolean
           escuela_facultad?: string | null
           foto_url?: string | null
+          hobbies?: string[] | null
           id?: string
           nombre?: string
           ofrece_donacion_dinero?: boolean
