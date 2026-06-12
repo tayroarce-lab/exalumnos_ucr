@@ -1,11 +1,12 @@
 'use client'
 
-import React, { useState, useMemo, useEffect } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import { buscarExalumnosDirectorio } from '@/actions/directory'
 import {
   Search, SlidersHorizontal, MapPin, Briefcase, GraduationCap,
-  Heart, Users, X, Handshake, Building, ChevronDown
+  Heart, Users, X, Handshake, Building, ChevronDown, Check
 } from 'lucide-react'
 import Card from '@/components/ui/card'
 import Button from '@/components/ui/button'
@@ -18,29 +19,15 @@ import {
 // ============================================================
 // TIPOS
 // ============================================================
-interface ExalumnoPublic {
-  id: string
-  nombre: string
-  foto_url?: string
+type ExalumnoDirectorio = Awaited<ReturnType<typeof buscarExalumnosDirectorio>>['data'][number]
+
+interface ExalumnoPublic extends ExalumnoDirectorio {
   initials: string
   avatarBg: string
-  pais_ciudad: string
-  carrera_ucr: string[]
-  escuela_facultad: string
-  anio_graduacion: number
-  empresa_actual: string
-  cargo_actual: string
-  sector_industria: string[]
-  areas_de_interes: string[]
-  ofrece_mentoria: boolean
-  ofrece_empleo: boolean
-  ofrece_pasantia: boolean
-  ofrece_proyecto: boolean
-  ofrece_donacion_dinero: boolean
 }
 
 // ============================================================
-// DATOS MOCK — ELIMINADOS
+// CONSTANTES
 // ============================================================
 
 const APOYO_FILTROS = [
@@ -61,33 +48,46 @@ function ExalumnoCard({ ex }: { ex: ExalumnoPublic }) {
     <Card hoverEffect={true} className="bg-white border border-slate-200 border-t-4 border-t-institutional rounded-2xl p-5 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col gap-4">
       {/* Header */}
       <div className="flex items-start gap-4">
-        <div className={`w-14 h-14 rounded-xl ${ex.avatarBg} text-white flex items-center justify-center font-bold text-lg shrink-0 shadow-sm`}>
-          {ex.initials}
-        </div>
+        {ex.foto_url ? (
+          <img src={ex.foto_url} alt={`Foto de ${ex.nombre} ${ex.apellidos || ''}`} className="w-14 h-14 rounded-xl object-cover shadow-sm" />
+        ) : (
+          <div className={`w-14 h-14 rounded-xl ${ex.avatarBg} text-white flex items-center justify-center font-bold text-lg shrink-0 shadow-sm`} aria-label={`Iniciales de ${ex.nombre} ${ex.apellidos || ''}`}>
+            {ex.initials}
+          </div>
+        )}
         <div className="flex-1 min-w-0">
-          <h3 className="font-sans font-semibold text-institutional text-base leading-tight">{ex.nombre}</h3>
-          <p className="text-xs text-slate-500 mt-1">{ex.carrera_ucr[0]}{(ex.anio_graduacion) ? `, ${ex.anio_graduacion}` : ''}</p>
-          <p className="text-xs font-bold text-blue-600 mt-0.5">{ex.cargo_actual}</p>
-          <div className="mt-2">
-            <span className="inline-block bg-slate-100 text-slate-500 text-[9px] font-bold px-2 py-0.5 rounded flex items-center gap-1 w-max">
-              <Briefcase className="w-3 h-3" /> {new Date().getFullYear() - ex.anio_graduacion} AÑOS EXP.
-            </span>
+          <h3 className="font-sans font-semibold text-institutional text-base leading-tight">{ex.nombre} {ex.apellidos}</h3>
+          <p className="text-xs text-slate-500 mt-1">{ex.carrera_principal || 'Exalumno UCR'}{(ex.anio_graduacion) ? `, ${ex.anio_graduacion}` : ''}</p>
+          <p className="text-xs font-bold text-blue-600 mt-0.5">{ex.cargo_actual || 'Profesional'} en {ex.empresa_actual || 'Independiente'}</p>
+          <div className="mt-2 flex flex-wrap gap-2 items-center">
+             {ex.pais_ciudad && (
+                <span className="text-slate-500 text-[10px] flex items-center gap-1">
+                  <MapPin className="w-3 h-3" /> {ex.pais_ciudad}
+                </span>
+             )}
+             {ex.score_match > 0 && (
+                <span className="inline-flex bg-amber-100 text-amber-700 text-[9px] font-bold px-2 py-0.5 rounded items-center gap-1">
+                   ⭐ MATCH: {ex.score_match}%
+                </span>
+             )}
           </div>
         </div>
       </div>
 
       {/* Áreas de interés */}
-      <div className="pt-2 border-t border-slate-100">
-        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2">Intereses</p>
-        <div className="flex flex-wrap gap-1.5">
-          {ex.areas_de_interes.slice(0, 3).map(a => (
-            <span key={a} className="bg-soft-green text-institutional text-[10px] font-semibold px-2.5 py-1 rounded-full">{a}</span>
-          ))}
-          {ex.areas_de_interes.length > 3 && (
-            <span className="bg-soft-green text-institutional text-[10px] font-semibold px-2.5 py-1 rounded-full">+{ex.areas_de_interes.length - 3}</span>
-          )}
+      {ex.areas_de_interes && ex.areas_de_interes.length > 0 && (
+        <div className="pt-2 border-t border-slate-100">
+          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2">Intereses</p>
+          <div className="flex flex-wrap gap-1.5">
+            {ex.areas_de_interes.slice(0, 3).map(a => (
+              <span key={a} className="bg-soft-green text-institutional text-[10px] font-semibold px-2.5 py-1 rounded-full">{a}</span>
+            ))}
+            {ex.areas_de_interes.length > 3 && (
+              <span className="bg-soft-green text-institutional text-[10px] font-semibold px-2.5 py-1 rounded-full">+{ex.areas_de_interes.length - 3}</span>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Tipos de Apoyo */}
       {apoyos.length > 0 && (
@@ -96,7 +96,7 @@ function ExalumnoCard({ ex }: { ex: ExalumnoPublic }) {
           <div className="flex flex-wrap gap-1.5">
             {apoyos.map(a => (
               <span key={a.key} className="bg-emerald-50 text-emerald-700 border border-emerald-100 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide">
-                {a.icon} {a.label}
+                <span aria-hidden="true">{a.icon}</span> {a.label}
               </span>
             ))}
           </div>
@@ -105,15 +105,9 @@ function ExalumnoCard({ ex }: { ex: ExalumnoPublic }) {
 
       {/* Botón */}
       <div className="mt-auto pt-4 flex gap-2">
-        <Button variant="secondary" className="p-2 border-slate-200 hover:bg-slate-50 text-slate-400" aria-label="LinkedIn">
-          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
-        </Button>
-        <Button variant="secondary" className="p-2 border-slate-200 hover:bg-slate-50 text-slate-400" aria-label="Mail">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-        </Button>
         <Link href={`/network/${ex.id}`} className="flex-1">
           <Button variant="secondary" className="w-full bg-white border-slate-300 text-institutional hover:bg-slate-50 font-medium text-xs py-2">
-            Ver Perfil
+            Ver Perfil y Conectar
           </Button>
         </Link>
       </div>
@@ -128,9 +122,11 @@ interface Filters {
   search: string
   facultad: string
   escuela: string
-  carrera: string
-  sector: string
-  apoyo: string
+  carreras: string[]
+  sectores: string[]
+  areas: string[]
+  apoyos: string[]
+  pais_ciudad: string
 }
 
 function FilterPanel({
@@ -142,8 +138,19 @@ function FilterPanel({
   setFilters: React.Dispatch<React.SetStateAction<Filters>>
   onClose?: () => void
 }) {
-  const clearAll = () => setFilters({ search: '', facultad: '', escuela: '', carrera: '', sector: '', apoyo: '' })
-  const hasFilters = filters.facultad || filters.escuela || filters.carrera || filters.sector || filters.apoyo
+  const clearAll = () => setFilters({ search: '', facultad: '', escuela: '', carreras: [], sectores: [], areas: [], apoyos: [], pais_ciudad: '' })
+  const hasFilters = filters.facultad || filters.escuela || filters.carreras.length > 0 || filters.sectores.length > 0 || filters.areas.length > 0 || filters.apoyos.length > 0 || filters.pais_ciudad
+
+  const toggleArrayItem = (key: keyof Filters, value: string) => {
+    setFilters(prev => {
+      const arr = prev[key] as string[]
+      if (arr.includes(value)) {
+        return { ...prev, [key]: arr.filter(item => item !== value) }
+      } else {
+        return { ...prev, [key]: [...arr, value] }
+      }
+    })
+  }
 
   const SelectWrapper = ({ children }: { children: React.ReactNode }) => (
     <div className="relative">
@@ -152,11 +159,27 @@ function FilterPanel({
     </div>
   )
 
+  const inputClassName = "w-full text-sm py-2 px-3 border-[0.5px] border-slate-300 rounded-md appearance-none bg-white focus:outline-none focus:border-institutional text-slate-800 placeholder-slate-400"
   const selectClassName = "w-full text-sm py-2 pl-3 pr-8 border-[0.5px] border-slate-300 rounded-md appearance-none bg-white focus:outline-none focus:border-institutional text-slate-800"
 
+  const CheckboxGroup = ({ options, selected, onToggle }: { options: {label: string, value: string}[], selected: string[], onToggle: (val: string) => void }) => {
+     return (
+        <div className="space-y-2 max-h-40 overflow-y-auto pr-2 custom-scrollbar">
+           {options.map(opt => (
+              <label key={opt.value} className="flex items-start gap-2 cursor-pointer group">
+                 <div className={`w-4 h-4 mt-0.5 rounded border flex items-center justify-center shrink-0 transition-colors ${selected.includes(opt.value) ? 'bg-institutional border-institutional text-white' : 'border-slate-300 bg-white group-hover:border-institutional'}`}>
+                    {selected.includes(opt.value) && <Check className="w-3 h-3" />}
+                 </div>
+                 <span className="text-[13px] text-slate-700 leading-tight">{opt.label}</span>
+              </label>
+           ))}
+        </div>
+     )
+  }
+
   return (
-    <div className="space-y-5 max-w-[280px] w-full">
-      <div className="flex items-center justify-between mb-2">
+    <div className="space-y-6 max-w-[280px] w-full">
+      <div className="flex items-center justify-between">
         <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">FILTROS</h3>
         <div className="flex items-center gap-2">
           {hasFilters && (
@@ -173,6 +196,29 @@ function FilterPanel({
       </div>
 
       <div className="space-y-5">
+        {/* País / Ciudad */}
+        <div>
+          <label htmlFor="input-pais" className="block text-[13px] font-medium text-slate-700 mb-1.5">País / Ciudad</label>
+          <input
+            id="input-pais"
+            type="text"
+            placeholder="Ej. San José, Costa Rica"
+            value={filters.pais_ciudad}
+            onChange={e => setFilters(p => ({ ...p, pais_ciudad: e.target.value }))}
+            className={inputClassName}
+          />
+        </div>
+
+        {/* Tipo de Apoyo */}
+        <div>
+          <label className="block text-[13px] font-medium text-slate-700 mb-2">Tipo de Apoyo</label>
+          <CheckboxGroup 
+            options={APOYO_FILTROS.map(a => ({ label: a.label, value: a.key }))}
+            selected={filters.apoyos}
+            onToggle={(val) => toggleArrayItem('apoyos', val)}
+          />
+        </div>
+
         {/* Facultad */}
         <div>
           <label id="label-facultad" className="block text-[13px] font-medium text-slate-700 mb-1.5">Facultad</label>
@@ -186,78 +232,41 @@ function FilterPanel({
               <option value="">Todas las facultades</option>
               <option value="Ciencias">Facultad de Ciencias</option>
               <option value="Ingeniería">Facultad de Ingeniería</option>
-            </select>
-          </SelectWrapper>
-        </div>
-
-        {/* Escuela */}
-        <div>
-          <label id="label-escuela" className="block text-[13px] font-medium text-slate-700 mb-1.5">Escuela</label>
-          <SelectWrapper>
-            <select
-              aria-labelledby="label-escuela"
-              value={filters.escuela}
-              onChange={e => setFilters(p => ({ ...p, escuela: e.target.value }))}
-              className={selectClassName}
-            >
-              <option value="">Todas las escuelas</option>
-              <option value="Escuela de Ciencias de la Computación e Informática (ECCI)">Escuela de Ciencias de la Computación e Informática</option>
-              <option value="Escuela de Ingeniería Eléctrica">Escuela de Ingeniería Eléctrica</option>
+              <option value="Ciencias Económicas">Ciencias Económicas</option>
             </select>
           </SelectWrapper>
         </div>
 
         {/* Carrera UCR */}
         <div>
-          <label id="label-carrera" className="block text-[13px] font-medium text-slate-700 mb-1.5">Carrera UCR</label>
-          <SelectWrapper>
-            <select
-              aria-labelledby="label-carrera"
-              value={filters.carrera}
-              onChange={e => setFilters(p => ({ ...p, carrera: e.target.value }))}
-              className={selectClassName}
-            >
-              <option value="">Todas las carreras</option>
-              {CARRERAS_UCR.map(c => <option key={c} value={c}>{c}</option>)}
-            </select>
-          </SelectWrapper>
+          <label className="block text-[13px] font-medium text-slate-700 mb-2">Carrera UCR</label>
+          <CheckboxGroup 
+            options={CARRERAS_UCR.map(c => ({ label: c, value: c }))}
+            selected={filters.carreras}
+            onToggle={(val) => toggleArrayItem('carreras', val)}
+          />
         </div>
 
         {/* Sector */}
         <div>
-          <label id="label-sector" className="block text-[13px] font-medium text-slate-700 mb-1.5">Sector</label>
-          <SelectWrapper>
-            <select
-              aria-labelledby="label-sector"
-              value={filters.sector}
-              onChange={e => setFilters(p => ({ ...p, sector: e.target.value }))}
-              className={selectClassName}
-            >
-              <option value="">Todos los sectores</option>
-              {['Tecnología e Informática', 'Finanzas y Banca', 'Salud y Ciencias Médicas', 'Educación e Investigación'].map(s => (
-                <option key={s} value={s}>{s}</option>
-              ))}
-            </select>
-          </SelectWrapper>
+          <label className="block text-[13px] font-medium text-slate-700 mb-2">Sector / Industria</label>
+          <CheckboxGroup 
+            options={SECTORES_INDUSTRIA.map(s => ({ label: s, value: s }))}
+            selected={filters.sectores}
+            onToggle={(val) => toggleArrayItem('sectores', val)}
+          />
         </div>
 
-        {/* Tipo de Apoyo */}
+        {/* Áreas de Interés */}
         <div>
-          <label id="label-apoyo" className="block text-[13px] font-medium text-slate-700 mb-1.5">Tipo de Apoyo</label>
-          <SelectWrapper>
-            <select
-              aria-labelledby="label-apoyo"
-              value={filters.apoyo}
-              onChange={e => setFilters(p => ({ ...p, apoyo: e.target.value }))}
-              className={selectClassName}
-            >
-              <option value="">Todos los tipos</option>
-              {APOYO_FILTROS.map(a => (
-                <option key={a.key} value={a.key}>{a.label}</option>
-              ))}
-            </select>
-          </SelectWrapper>
+          <label className="block text-[13px] font-medium text-slate-700 mb-2">Áreas de Interés</label>
+          <CheckboxGroup 
+            options={AREAS_INTERES.map(a => ({ label: a, value: a }))}
+            selected={filters.areas}
+            onToggle={(val) => toggleArrayItem('areas', val)}
+          />
         </div>
+
       </div>
     </div>
   )
@@ -267,42 +276,55 @@ function FilterPanel({
 // ============================================================
 export default function NetworkPage() {
   const [filters, setFilters] = useState<Filters>({
-    search: '', facultad: '', escuela: '', carrera: '', sector: '', apoyo: ''
+    search: '', facultad: '', escuela: '', carreras: [], sectores: [], areas: [], apoyos: [], pais_ciudad: ''
   })
+  
+  // Debounce para la búsqueda de texto
+  const [debouncedFilters, setDebouncedFilters] = useState<Filters>(filters)
+  
   const [showMobileFilters, setShowMobileFilters] = useState(false)
   const [exalumnos, setExalumnos] = useState<ExalumnoPublic[]>([])
   const [cargando, setCargando] = useState(true)
+  const [page, setPage] = useState(0)
+  const [hasMore, setHasMore] = useState(true)
+  const limit = 20
 
   useEffect(() => {
-    async function cargarExalumnos() {
-      try {
-        const supabase = createClient()
-        
-        // Verificar autenticación y correo confirmado
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user || !user.email_confirmed_at) {
-          window.location.href = '/verificar-correo';
-          return;
-        }
-
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('es_exalumno', true)
-        
-        if (error) {
-          throw new Error(error.message)
-        }
-
-        mapearDatos(data || [])
-      } catch (err) {
-        console.error("Error al cargar exalumnos:", err)
-      } finally {
-        setCargando(false)
+    // Validar sesión del lado del cliente como fallback (middleware hace el groso del trabajo)
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) {
+        window.location.href = '/login'
+      } else if (!user.email_confirmed_at) {
+        window.location.href = '/verificar-correo'
       }
-    }
+    })
+  }, [])
 
-    function mapearDatos(data: any[]) {
+  // Efecto para Debounce de la búsqueda y filtros de texto libre
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      // Solo actualiza debounced filters si la búsqueda está vacía o tiene >= 2 caracteres
+      if (filters.search.length === 0 || filters.search.length >= 2) {
+         setDebouncedFilters(filters)
+         setPage(0) // reset page on filter change
+      }
+    }, 400)
+    return () => clearTimeout(timer)
+  }, [filters])
+
+  // Fetch de exalumnos usando la Server Action y RPC
+  const fetchExalumnos = useCallback(async (currentFilters: Filters, currentPage: number) => {
+    setCargando(true)
+    try {
+      const { data, total, error } = await buscarExalumnosDirectorio({
+        ...currentFilters,
+        limit,
+        offset: currentPage * limit
+      })
+
+      if (error) throw new Error(error)
+
       const mapped: ExalumnoPublic[] = data.map(p => {
         const nombreStr = p.nombre || p.apellidos 
           ? `${p.nombre || ''} ${p.apellidos || ''}`.trim()
@@ -311,54 +333,33 @@ export default function NetworkPage() {
         const init = nombreStr.substring(0, 2).toUpperCase()
         
         return {
-          id: p.id,
-          nombre: nombreStr,
-          foto_url: p.foto_url || undefined,
+          ...p,
+          nombre: p.nombre || 'Exalumno',
           initials: init,
           avatarBg: 'bg-blue-600',
-          pais_ciudad: p.pais_ciudad || 'Ubicación no especificada',
-          carrera_ucr: p.carrera_principal ? [p.carrera_principal] : ['Carrera no especificada'],
-          escuela_facultad: p.escuela_principal || p.facultad_principal || 'Escuela no especificada',
-          anio_graduacion: p.anio_graduacion || new Date().getFullYear(),
-          empresa_actual: p.empresa_actual || 'Empresa no especificada',
-          cargo_actual: p.cargo_actual || 'Cargo no especificado',
-          sector_industria: p.sector_industria || [],
-          areas_de_interes: p.areas_de_interes || [],
-          ofrece_mentoria: p.ofrece_mentoria || false,
-          ofrece_empleo: p.ofrece_empleo || false,
-          ofrece_pasantia: p.ofrece_pasantia || false,
-          ofrece_proyecto: p.ofrece_proyecto || false,
-          ofrece_donacion_dinero: p.ofrece_donacion_dinero || false,
         }
       })
-      setExalumnos(mapped)
-    }
 
-    cargarExalumnos()
+      if (currentPage === 0) {
+        setExalumnos(mapped)
+      } else {
+        setExalumnos(prev => [...prev, ...mapped])
+      }
+      
+      setHasMore((currentPage + 1) * limit < total)
+      
+    } catch (err) {
+      console.error("Error al cargar exalumnos:", err)
+    } finally {
+      setCargando(false)
+    }
   }, [])
 
-  const filtered = useMemo(() => {
-    return exalumnos.filter(ex => {
-      // Búsqueda por nombre (case-insensitive) o por cargo
-      if (filters.search) {
-        const q = filters.search.toLowerCase()
-        if (!ex.nombre.toLowerCase().includes(q) && !ex.cargo_actual.toLowerCase().includes(q) && !ex.empresa_actual.toLowerCase().includes(q)) return false
-      }
-      // Facultad (simulado en escuela_facultad)
-      if (filters.facultad && !ex.escuela_facultad.includes(filters.facultad)) return false
-      // Escuela
-      if (filters.escuela && !ex.escuela_facultad.includes(filters.escuela)) return false
-      // Carrera
-      if (filters.carrera && !ex.carrera_ucr.includes(filters.carrera)) return false
-      // Sectores
-      if (filters.sector && !ex.sector_industria.includes(filters.sector)) return false
-      // Tipo de apoyo
-      if (filters.apoyo && !ex[filters.apoyo as keyof ExalumnoPublic]) return false
-      return true
-    })
-  }, [filters, exalumnos])
+  useEffect(() => {
+    fetchExalumnos(debouncedFilters, page)
+  }, [debouncedFilters, page, fetchExalumnos])
 
-  const activeFilterCount = (filters.facultad ? 1 : 0) + (filters.escuela ? 1 : 0) + (filters.carrera ? 1 : 0) + (filters.sector ? 1 : 0) + (filters.apoyo ? 1 : 0)
+  const activeFilterCount = (filters.facultad ? 1 : 0) + (filters.escuela ? 1 : 0) + filters.carreras.length + filters.sectores.length + filters.apoyos.length + filters.areas.length + (filters.pais_ciudad ? 1 : 0)
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-100 to-white py-8 px-6 lg:px-10">
@@ -379,56 +380,20 @@ export default function NetworkPage() {
               placeholder="Buscar por nombre, cargo o empresa..."
               value={filters.search}
               onChange={e => setFilters(p => ({ ...p, search: e.target.value }))}
-              className="w-full h-12 pl-11 pr-4 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10 transition-all placeholder:text-slate-400 shadow-sm"
+              className="w-full h-12 pl-11 pr-4 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-institutional focus:ring-2 focus:ring-institutional/10 transition-all placeholder:text-slate-400 shadow-sm"
             />
           </div>
           <button
             onClick={() => setShowMobileFilters(!showMobileFilters)}
-            className="lg:hidden h-12 px-4 flex items-center gap-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 hover:border-blue-400 transition-all shadow-sm"
+            className="lg:hidden h-12 px-4 flex items-center gap-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 hover:border-institutional transition-all shadow-sm"
           >
             <SlidersHorizontal className="w-4 h-4" />
             Filtros
             {activeFilterCount > 0 && (
-              <span className="w-5 h-5 bg-blue-700 text-white text-[9px] font-bold rounded-full flex items-center justify-center">{activeFilterCount}</span>
+              <span className="w-5 h-5 bg-institutional text-white text-[9px] font-bold rounded-full flex items-center justify-center">{activeFilterCount}</span>
             )}
           </button>
         </div>
-
-        {/* Chips de filtros activos */}
-        {activeFilterCount > 0 && (
-          <div className="flex flex-wrap gap-2 mb-5">
-            {filters.sector && (
-              <span className="flex items-center gap-1.5 bg-institutional/10 text-institutional text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wide">
-                Sector: {filters.sector}
-                <button type="button" aria-label="Quitar filtro sector" onClick={() => setFilters(p => ({ ...p, sector: '' }))} className="hover:text-institutional/70"><X className="w-3 h-3" /></button>
-              </span>
-            )}
-            {filters.apoyo && (
-              <span className="flex items-center gap-1.5 bg-institutional/10 text-institutional text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wide">
-                Apoyo: {APOYO_FILTROS.find(a => a.key === filters.apoyo)?.label || filters.apoyo}
-                <button type="button" aria-label="Quitar filtro apoyo" onClick={() => setFilters(p => ({ ...p, apoyo: '' }))} className="hover:text-institutional/70"><X className="w-3 h-3" /></button>
-              </span>
-            )}
-            {filters.facultad && (
-              <span className="flex items-center gap-1.5 bg-institutional/10 text-institutional text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wide">
-                Facultad: {filters.facultad}
-                <button type="button" aria-label="Quitar filtro facultad" onClick={() => setFilters(p => ({ ...p, facultad: '' }))} className="hover:text-institutional/70"><X className="w-3 h-3" /></button>
-              </span>
-            )}
-            {filters.escuela && (
-              <span className="flex items-center gap-1.5 bg-institutional/10 text-institutional text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wide">
-                Escuela: {filters.escuela}
-                <button type="button" aria-label="Quitar filtro escuela" onClick={() => setFilters(p => ({ ...p, escuela: '' }))} className="hover:text-institutional/70"><X className="w-3 h-3" /></button>
-              </span>
-            )}
-            {filters.carrera && (
-              <span className="flex items-center gap-1.5 bg-institutional/10 text-institutional text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wide">
-                Carrera: {filters.carrera}
-                <button type="button" aria-label="Quitar filtro carrera" onClick={() => setFilters(p => ({ ...p, carrera: '' }))} className="hover:text-institutional/70"><X className="w-3 h-3" /></button>
-              </span>
-            )}
-          </div>
-        )}
 
         {/* Layout: Sidebar + Grid */}
         <div className="flex gap-8">
@@ -450,30 +415,44 @@ export default function NetworkPage() {
           )}
 
           {/* Grid de resultados */}
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 flex flex-col">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                {cargando ? 'Cargando exalumnos...' : `${filtered.length} exalumno${filtered.length !== 1 ? 's' : ''} encontrado${filtered.length !== 1 ? 's' : ''}`}
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider" aria-live="polite">
+                {cargando && page === 0 ? 'Buscando...' : `${exalumnos.length} resultados`}
               </p>
             </div>
 
-            {cargando ? (
+            {cargando && page === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 bg-white border border-slate-200 rounded-2xl shadow-sm">
                 <div className="w-10 h-10 border-4 border-slate-200 border-t-institutional rounded-full animate-spin mb-4"></div>
                 <h3 className="text-sm font-bold text-slate-600 uppercase tracking-wide">Cargando directorio...</h3>
               </div>
-            ) : filtered.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {filtered.map(ex => <ExalumnoCard key={ex.id} ex={ex} />)}
-              </div>
+            ) : exalumnos.length > 0 ? (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
+                  {exalumnos.map((ex, index) => <ExalumnoCard key={`${ex.id}-${index}`} ex={ex} />)}
+                </div>
+                {hasMore && (
+                  <div className="text-center pb-8 mt-auto">
+                    <Button 
+                      variant="secondary" 
+                      onClick={() => setPage(p => p + 1)}
+                      disabled={cargando}
+                      className="bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                    >
+                      {cargando ? 'Cargando más...' : 'Cargar más resultados'}
+                    </Button>
+                  </div>
+                )}
+              </>
             ) : (
-              <div className="text-center py-20 bg-white border border-slate-200 rounded-2xl shadow-sm">
+              <div className="text-center py-20 bg-white border border-slate-200 rounded-2xl shadow-sm mt-4">
                 <Users className="w-12 h-12 text-slate-300 mx-auto mb-4" />
                 <h3 className="text-sm font-bold text-slate-600 uppercase tracking-wide mb-2">No se encontraron exalumnos</h3>
-                <p className="text-xs text-slate-400 font-medium mb-4">Ningún exalumno coincide con los filtros seleccionados o la base de datos está vacía.</p>
+                <p className="text-xs text-slate-400 font-medium mb-4">Ajuste los filtros de búsqueda o intente con otros términos.</p>
                 <button
-                  onClick={() => setFilters({ search: '', facultad: '', escuela: '', carrera: '', sector: '', apoyo: '' })}
-                  className="text-xs font-bold text-blue-700 hover:underline uppercase tracking-wider"
+                  onClick={() => setFilters({ search: '', facultad: '', escuela: '', carreras: [], sectores: [], areas: [], apoyos: [], pais_ciudad: '' })}
+                  className="text-xs font-bold text-institutional hover:underline uppercase tracking-wider"
                 >
                   Limpiar filtros
                 </button>
@@ -483,6 +462,20 @@ export default function NetworkPage() {
         </div>
 
       </div>
+      
+      {/* CSS para Scrollbar interna de los filtros */}
+      <style dangerouslySetInnerHTML={{__html: `
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background-color: #cbd5e1;
+          border-radius: 10px;
+        }
+      `}} />
     </div>
   )
 }

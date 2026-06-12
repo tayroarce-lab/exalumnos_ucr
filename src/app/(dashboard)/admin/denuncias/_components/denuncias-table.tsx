@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Loader2, CheckCircle } from 'lucide-react';
-import { resolverReporte } from '@/actions/reportes';
+import { resolveReport } from '@/actions/reports';
 import '../../../../../styles/admin-table.css';
 import '../../../../../styles/admin-denuncias.css';
 
@@ -35,7 +35,7 @@ export function DenunciasTable({ initialReportes }: DenunciasTableProps) {
   const handleResolver = async (id: string) => {
     setLoadingId(id);
     try {
-      await resolverReporte(id);
+      await resolveReport(id);
       // Actualizar localmente removiendo el reporte de la lista de pendientes
       setReportes(prev => prev.filter(r => r.id !== id));
     } catch (err: any) {

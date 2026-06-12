@@ -136,13 +136,13 @@ function FondoCard({
       {pct !== null && (
         <div className="space-y-1.5">
           <div className="flex justify-between text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-            <span>₡{fondo.raised.toLocaleString()} recaudados</span>
+            <span>₡{fondo.raised.toLocaleString('es-CR')} recaudados</span>
             <span className="text-blue-700">{pct}%</span>
           </div>
           <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
             <ProgressFill value={pct} />
           </div>
-          <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">{fondo.donors} donantes · Meta: ₡{fondo.meta.toLocaleString()}</p>
+          <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">{fondo.donors} donantes · Meta: ₡{fondo.meta.toLocaleString('es-CR')}</p>
         </div>
       )}
     </button>

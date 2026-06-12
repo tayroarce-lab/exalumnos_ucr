@@ -140,6 +140,13 @@ body {
 }
 
 /* ── DECORACIONES LADO IZQUIERDO ── */
+.auth-bg-fixed {
+  position: absolute;
+  inset: 0;
+  background-color: #FDECC8;
+  overflow: hidden;
+  z-index: 0;
+}
 
 /* Círculo grande de fondo — esquina superior derecha */
 .deco-circulo-grande-bg {

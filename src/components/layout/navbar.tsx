@@ -41,7 +41,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
 
   const { user, profile } = useProfile()
   
-  const name = profile?.full_name || user?.user_metadata?.full_name || 'Exalumno'
+  const name = profile?.full_name || user?.user_metadata?.nombre || user?.user_metadata?.full_name || 'Usuario'
   const initials = name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase()
   const email = user?.email || 'usuario@ucr.ac.cr'
 

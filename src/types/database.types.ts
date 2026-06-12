@@ -288,78 +288,61 @@ export type Database = {
       }
       donaciones: {
         Row: {
-          comprobante_url: string
-          confirmado_por: string | null
-          created_at: string
-          estado: string
-          exalumno_id: string
-          fecha_transferencia: string
           id: string
-          mensaje_estudiante: string | null
-          metodo_pago: string
-          moneda: string
+          alumni_id: string | null
+          proyecto_destino: string
           monto: number
-          motivo_rechazo: string | null
-          numero_referencia: string
-          proyecto_estudiante_id: string
+          moneda: string
+          metodo_pago: string
+          fecha_transferencia: string
+          numero_referencia: string | null
+          comprobante_url: string
+          mensaje_estudiante: string | null
+          estado: string
+          admin_notes: string | null
+          created_at: string
           updated_at: string
         }
         Insert: {
-          comprobante_url: string
-          confirmado_por?: string | null
-          created_at?: string
-          estado?: string
-          exalumno_id: string
-          fecha_transferencia: string
           id?: string
-          mensaje_estudiante?: string | null
-          metodo_pago: string
-          moneda: string
+          alumni_id?: string | null
+          proyecto_destino?: string
           monto: number
-          motivo_rechazo?: string | null
-          numero_referencia: string
-          proyecto_estudiante_id: string
+          moneda: string
+          metodo_pago: string
+          fecha_transferencia: string
+          numero_referencia?: string | null
+          comprobante_url: string
+          mensaje_estudiante?: string | null
+          estado?: string
+          admin_notes?: string | null
+          created_at?: string
           updated_at?: string
         }
         Update: {
-          comprobante_url?: string
-          confirmado_por?: string | null
-          created_at?: string
-          estado?: string
-          exalumno_id?: string
-          fecha_transferencia?: string
           id?: string
-          mensaje_estudiante?: string | null
-          metodo_pago?: string
-          moneda?: string
+          alumni_id?: string | null
+          proyecto_destino?: string
           monto?: number
-          motivo_rechazo?: string | null
-          numero_referencia?: string
-          proyecto_estudiante_id?: string
+          moneda?: string
+          metodo_pago?: string
+          fecha_transferencia?: string
+          numero_referencia?: string | null
+          comprobante_url?: string
+          mensaje_estudiante?: string | null
+          estado?: string
+          admin_notes?: string | null
+          created_at?: string
           updated_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: "donaciones_confirmado_por_fkey"
-            columns: ["confirmado_por"]
+            foreignKeyName: "donaciones_alumni_id_fkey"
+            columns: ["alumni_id"]
             isOneToOne: false
-            referencedRelation: "users"
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "donaciones_exalumno_id_fkey"
-            columns: ["exalumno_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "donaciones_proyecto_estudiante_id_fkey"
-            columns: ["proyecto_estudiante_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
+          }
         ]
       }
       estudiantes: {
@@ -568,6 +551,8 @@ export type Database = {
           ofrece_donacion_dinero: boolean
           monto_maximo_donacion: number | null
           moneda_donacion: string | null
+          donacion_monto_max: number | null
+          donacion_moneda: string | null
           es_exalumno: boolean
           created_at: string
           updated_at: string
@@ -599,6 +584,8 @@ export type Database = {
           ofrece_donacion_dinero?: boolean
           monto_maximo_donacion?: number | null
           moneda_donacion?: string | null
+          donacion_monto_max?: number | null
+          donacion_moneda?: string | null
           es_exalumno?: boolean
           created_at?: string
           updated_at?: string
@@ -630,6 +617,8 @@ export type Database = {
           ofrece_donacion_dinero?: boolean
           monto_maximo_donacion?: number | null
           moneda_donacion?: string | null
+          donacion_monto_max?: number | null
+          donacion_moneda?: string | null
           es_exalumno?: boolean
           created_at?: string
           updated_at?: string
@@ -991,6 +980,43 @@ export type Database = {
       }
     }
     Functions: {
+      buscar_directorio_exalumnos: {
+        Args: {
+          p_search?: string | null
+          p_facultad?: string | null
+          p_escuela?: string | null
+          p_carreras?: string[] | null
+          p_sectores?: string[] | null
+          p_areas?: string[] | null
+          p_apoyos?: string[] | null
+          p_pais_ciudad?: string | null
+          p_limit?: number
+          p_offset?: number
+        }
+        Returns: {
+          id: string
+          nombre: string
+          apellidos: string | null
+          foto_url: string | null
+          pais_ciudad: string | null
+          carrera_principal: string | null
+          escuela_principal: string | null
+          facultad_principal: string | null
+          anio_graduacion: number | null
+          empresa_actual: string | null
+          cargo_actual: string | null
+          sector_industria: string[] | null
+          areas_de_interes: string[] | null
+          ofrece_mentoria: boolean
+          ofrece_empleo: boolean
+          ofrece_pasantia: boolean
+          ofrece_proyecto: boolean
+          ofrece_donacion_dinero: boolean
+          score_match: number
+          created_at: string
+          total_count: number
+        }[]
+      }
       calcular_score_matching: {
         Args: {
           p_estudiante_id: string
