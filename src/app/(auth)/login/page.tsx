@@ -6,7 +6,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { Mail, Lock, Eye, EyeOff, LogIn, GraduationCap, Users, ShieldCheck } from "lucide-react";
 import { iniciarSesion } from "@/actions/auth";
-import { obtenerMiPerfil } from "@/actions/users";
 import logoUCR from "@/images/Logo_UCR.png";
 import AuthBackground from '@/components/ui/AuthBackground';
 import "@/styles/loginStyles.css";
@@ -14,7 +13,8 @@ import "@/styles/loginStyles.css";
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get('redirectTo') || '/dashboard';
+  // redirectTo del query param (guardado por el middleware para rutas protegidas)
+  const redirectToParam = searchParams.get('redirectTo');
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -23,6 +23,7 @@ export default function LoginPage() {
   const [message, setMessage] = useState<{ text: string; type: "error" | "success" } | null>(null);
 
   const manejarInicioSesion = async () => {
+    if (loading) return;
     setMessage(null);
 
     if (!email.trim()) {
@@ -35,29 +36,31 @@ export default function LoginPage() {
       return;
     }
 
+    setLoading(true);
+
     try {
-      const result = await iniciarSesion({ email, password });
-      
-      if (result && result.success) {
+      // iniciarSesion devuelve { success, rol, rutaDestino } desde el servidor
+      const result = await iniciarSesion({ email: email.trim(), password });
+
+      if (result?.success) {
         setMessage({ text: "Inicio de sesión exitoso. Redirigiendo...", type: "success" });
-        try {
-          const perfil = await obtenerMiPerfil();
-          setLoading(false);
-          if (perfil?.tipo === "admin") {
-            router.push("/admin");
-          } else {
-            router.push(redirectTo);
-          }
-          router.refresh();
-        } catch (err) {
-          setLoading(false);
-          router.push(redirectTo);
-          router.refresh();
-        }
+
+        // Si el usuario venía de una ruta específica válida, la usamos
+        // EXCEPTO si es admin (siempre va a /admin)
+        const destino = result.rutaDestino === '/admin'
+          ? '/admin'
+          : (redirectToParam ? redirectToParam : result.rutaDestino);
+
+        // router.push + refresh para que Next.js sincronice la sesión del servidor
+        router.push(destino);
+        router.refresh();
+        
+        // Timeout para resetear el loading en caso de que el push sea silenciosamente ignorado (ej. redirigido al mismo lugar)
+        setTimeout(() => setLoading(false), 2000);
       }
     } catch (error: any) {
       setLoading(false);
-      setMessage({ text: error.message || "Credenciales incorrectas", type: "error" });
+      setMessage({ text: error.message || "Credenciales incorrectas. Verifica tu correo y contraseña.", type: "error" });
     }
   };
 

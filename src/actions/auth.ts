@@ -20,7 +20,7 @@ export async function registrarEstudiante(data: { email: string; password: strin
     email: emailLimpio,
     password: data.password,
     email_confirm: true,
-    user_metadata: { nombre: data.nombre, tipo: 'estudiante' }
+    user_metadata: { nombre: data.nombre, rol: 'estudiante', tipo: 'estudiante' }
   })
 
   if (authError) throw new Error(authError.message)
@@ -31,7 +31,6 @@ export async function registrarEstudiante(data: { email: string; password: strin
       id: authData.user.id,
       email: emailLimpio,
       nombre: data.nombre,
-      tipo: 'estudiante',
       rol: 'estudiante',
       email_verified: false,
       activo: true
@@ -42,8 +41,8 @@ export async function registrarEstudiante(data: { email: string; password: strin
       console.error('Error insertando en public.users:', dbError)
     }
 
-    // Insertar en la tabla profiles
-    await adminClient.from('profiles').insert({
+    // Upsert en la tabla profiles por si el trigger ya lo creó
+    await adminClient.from('profiles').upsert({
       id: authData.user.id,
       email: emailLimpio,
       full_name: data.nombre,
@@ -70,7 +69,7 @@ export async function registrarExalumno(data: {
     email: emailLimpio,
     password: data.password,
     email_confirm: true,
-    user_metadata: { nombre: data.nombre, tipo: 'exalumno' }
+    user_metadata: { nombre: data.nombre, rol: 'exalumno', tipo: 'exalumno' }
   })
 
   if (authError) throw new Error(authError.message)
@@ -80,7 +79,6 @@ export async function registrarExalumno(data: {
       id: authData.user.id,
       email: emailLimpio,
       nombre: data.nombre,
-      tipo: 'exalumno',
       rol: 'exalumno',
       carrera_principal_id: data.carreras && data.carreras.length > 0 ? data.carreras[0] : null,
       email_verified: false,
@@ -98,8 +96,8 @@ export async function registrarExalumno(data: {
       anio: data.anio_graduacion.toString()
     }))
 
-    // Insertar en la tabla profiles
-    await adminClient.from('profiles').insert({
+    // Upsert en la tabla profiles por si el trigger ya lo creó con valores por defecto
+    await adminClient.from('profiles').upsert({
       id: authData.user.id,
       email: emailLimpio,
       full_name: data.nombre,
@@ -114,14 +112,55 @@ export async function registrarExalumno(data: {
 
 export async function iniciarSesion(data: { email: string; password: string }) {
   const supabase = await createClient()
-  const { error } = await supabase.auth.signInWithPassword({
+  // IMPORTANTE: usamos adminClient para consultar el rol ya que bypasea RLS.
+  // El cliente anon/autenticado regular es bloqueado por las políticas RLS de
+  // la tabla users cuando se ejecuta en contexto de Server Action recién creado.
+  const adminClient = createAdminClient()
+
+  const { data: authData, error } = await supabase.auth.signInWithPassword({
     email: data.email,
-    password: data.password
+    password: data.password,
   })
 
   if (error) throw new Error(error.message)
-  
-  return { success: true }
+  if (!authData.user) throw new Error('No se pudo obtener el usuario')
+
+  // Consultar el rol usando adminClient (service_role) para bypasear RLS.
+  // Esto garantiza que siempre se obtendrá el rol correcto sin importar las
+  // políticas de seguridad activas en ese momento.
+  const { data: userData, error: userError } = await adminClient
+    .from('users')
+    .select('rol, activo')
+    .eq('id', authData.user.id)
+    .single()
+
+  if (userError || !userData) {
+    // Si el usuario no existe en public.users todavía (race condition con trigger),
+    // cerramos sesión para forzar un estado limpio y evitar un estado indefinido.
+    await supabase.auth.signOut()
+    throw new Error('No se encontró el perfil del usuario. Intenta de nuevo en un momento.')
+  }
+
+  // Si la cuenta está suspendida, cerrar sesión y lanzar error
+  if (userData.activo === false) {
+    await supabase.auth.signOut()
+    throw new Error('Tu cuenta ha sido suspendida. Contacta al administrador.')
+  }
+
+  // Determinar la ruta de destino según el rol
+  const rol = userData.rol ?? 'estudiante'
+
+  let rutaDestino: string
+  if (rol === 'admin') {
+    rutaDestino = '/admin'
+  } else if (rol === 'exalumno') {
+    rutaDestino = '/dashboard'
+  } else {
+    // estudiante -> va directo al directorio
+    rutaDestino = '/directorio/estudiantes'
+  }
+
+  return { success: true, rol, rutaDestino }
 }
 
 export async function cerrarSesion() {

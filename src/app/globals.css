@@ -51,6 +51,22 @@ h1, h2, h3, h4, h5, h6 {
   animation: spin 3s linear infinite;
 }
 
+/* Animación para el toast de notificaciones Realtime (slide desde abajo) */
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 /* Estilo premium de scroll */
 ::-webkit-scrollbar {
   width: 6px;
