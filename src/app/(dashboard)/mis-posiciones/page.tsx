@@ -192,7 +192,7 @@ export default function MisPosicionesPage() {
                       {/* Habilidades */}
                       {pos.habilidades_requeridas && pos.habilidades_requeridas.length > 0 && (
                         <div className="flex flex-wrap gap-1.5 mb-3">
-                          {pos.habilidades_requeridas.slice(0, 4).map(h => (
+                          {pos.habilidades_requeridas.slice(0, 4).map((h: string) => (
                             <span key={h} className="bg-slate-100 text-slate-600 text-[10px] font-semibold px-2 py-0.5 rounded-full">{h}</span>
                           ))}
                           {pos.habilidades_requeridas.length > 4 && (
