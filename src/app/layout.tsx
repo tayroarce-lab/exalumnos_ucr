@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { ProfileProvider } from '@/contexts/ProfileContext'
+import GlobalLoadingOverlay from '@/components/GlobalLoadingOverlay'
 import { Barlow_Semi_Condensed, Work_Sans } from 'next/font/google'
 import './globals.css'
 import '../styles/layout.css'
@@ -26,7 +27,10 @@ export const metadata: Metadata = {
   },
 }
 
+<<<<<<< HEAD
 import GlobalLoadingOverlay from '@/components/GlobalLoadingOverlay'
+=======
+>>>>>>> f07c5f75fa81f7dade9d6fd27df218e3d56e9ca8
 
 export default function RootLayout({
   children,
