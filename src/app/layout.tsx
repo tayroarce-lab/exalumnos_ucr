@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { ProfileProvider } from '@/contexts/ProfileContext'
+import GlobalLoadingOverlay from '@/components/GlobalLoadingOverlay'
 import { Barlow_Semi_Condensed, Work_Sans } from 'next/font/google'
 import './globals.css'
 import '../styles/layout.css'
@@ -25,10 +26,6 @@ export const metadata: Metadata = {
     apple: '/logo.png',
   },
 }
-
-import { ProfileProvider } from '@/contexts/ProfileContext'
-
-import GlobalLoadingOverlay from '@/components/GlobalLoadingOverlay'
 
 export default function RootLayout({
   children,

@@ -17,7 +17,7 @@ export async function GET(request: Request) {
     // Asumiendo tabla 'users' o 'usuarios' o 'perfiles' (vamos a usar 'users' como mock si no existe la tabla real expuesta)
     // Para usuarios, usaremos 'auth.users' u otra tabla pública si existe. 
     // Usaremos 'perfiles' (común en Supabase) o 'usuarios'
-    let usersQuery = supabase.from('usuarios').select('role, sede, created_at, id');
+    let usersQuery = supabase.from('users').select('rol, sede, created_at, id');
 
     if (startDate) {
       donationsQuery = donationsQuery.gte('created_at', startDate);
@@ -65,7 +65,7 @@ export async function GET(request: Request) {
 
     // Mock para distribución por sede (ya que requiere un JOIN complejo usualmente)
     const distribucionSede: Record<string, number> = {};
-    (users || []).filter(u => u.role === 'student').forEach(u => {
+    (users || []).filter(u => u.rol === 'student').forEach(u => {
       const sede = u.sede || 'Sede Rodrigo Facio';
       distribucionSede[sede] = (distribucionSede[sede] || 0) + 1;
     });
@@ -81,8 +81,8 @@ export async function GET(request: Request) {
         ];
 
     // Estudiantes / Exalumnos
-    const estudiantesActivos = (users || []).filter(u => u.role === 'student').length || 150;
-    const exalumnosActivos = (users || []).filter(u => u.role === 'alumni').length || 80;
+    const estudiantesActivos = (users || []).filter(u => u.rol === 'student').length || 150;
+    const exalumnosActivos = (users || []).filter(u => u.rol === 'alumni').length || 80;
 
     // Donantes nuevos vs recurrentes (mock basado en número de donaciones por id si estuviera disponible)
     const donantesNuevos = 45;
