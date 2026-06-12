@@ -1,24 +1,26 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { Mail, Lock, Eye, EyeOff, LogIn, GraduationCap, Users, ShieldCheck } from "lucide-react";
-import { iniciarSesion } from "@/actions/authActions";
+import { iniciarSesion } from "@/actions/auth";
 import { obtenerMiPerfil } from "@/actions/users";
 import logoUCR from "@/images/Logo_UCR.png";
+import AuthBackground from '@/components/ui/AuthBackground';
 import "@/styles/loginStyles.css";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get('redirectTo') || '/dashboard';
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ text: string; type: "error" | "success" } | null>(null);
-
-  const [tipoLogin, setTipoLogin] = useState<'estudiante' | 'exalumno'>('estudiante');
 
   const manejarInicioSesion = async () => {
     setMessage(null);
@@ -33,28 +35,29 @@ export default function LoginPage() {
       return;
     }
 
-    setLoading(true);
-    const result = await iniciarSesion(email, password);
-
-    if (result && "error" in result && result.error) {
-      setLoading(false);
-      setMessage({ text: result.error, type: "error" });
-    } else if (result && "success" in result && result.success) {
-      setMessage({ text: "Inicio de sesión exitoso. Redirigiendo...", type: "success" });
-      try {
-        const perfil = await obtenerMiPerfil();
-        setLoading(false);
-        if (perfil?.tipo === "admin") {
-          router.push("/admin");
-        } else {
-          router.push("/dashboard");
+    try {
+      const result = await iniciarSesion({ email, password });
+      
+      if (result && result.success) {
+        setMessage({ text: "Inicio de sesión exitoso. Redirigiendo...", type: "success" });
+        try {
+          const perfil = await obtenerMiPerfil();
+          setLoading(false);
+          if (perfil?.tipo === "admin") {
+            router.push("/admin");
+          } else {
+            router.push(redirectTo);
+          }
+          router.refresh();
+        } catch (err) {
+          setLoading(false);
+          router.push(redirectTo);
+          router.refresh();
         }
-        router.refresh();
-      } catch (err) {
-        setLoading(false);
-        router.push("/dashboard");
-        router.refresh();
       }
+    } catch (error: any) {
+      setLoading(false);
+      setMessage({ text: error.message || "Credenciales incorrectas", type: "error" });
     }
   };
 
@@ -66,7 +69,8 @@ export default function LoginPage() {
 
   return (
     <div className="login-page-wrapper">
-      <div className={`login-container ${tipoLogin}`}>
+      <AuthBackground />
+      <div className="login-container">
         {/* Panel Izquierdo — Decorativo */}
         <div className="login-left">
           <div className="login-logo-container">
@@ -110,29 +114,6 @@ export default function LoginPage() {
               </div>
               <span>Acceso seguro y verificado</span>
             </div>
-          </div>
-
-          <div className="toggle-register-type" style={{ marginTop: '2rem', zIndex: 1 }}>
-            <p style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.875rem', marginBottom: '0.5rem' }}>
-              {tipoLogin === 'estudiante' ? '¿Eres exalumno?' : '¿Aún estás estudiando?'}
-            </p>
-            <button 
-              type="button" 
-              className="toggle-btn"
-              onClick={() => setTipoLogin(tipoLogin === 'estudiante' ? 'exalumno' : 'estudiante')}
-              style={{
-                background: 'transparent',
-                color: 'white',
-                border: '1px solid rgba(255, 255, 255, 0.4)',
-                padding: '0.5rem 1rem',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-                fontWeight: 600,
-              }}
-            >
-              {tipoLogin === 'estudiante' ? 'Iniciar Sesión como Exalumno' : 'Iniciar Sesión como Estudiante'}
-            </button>
           </div>
         </div>
 
@@ -188,6 +169,11 @@ export default function LoginPage() {
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
+              </div>
+              <div style={{ textAlign: 'right', marginTop: '8px' }}>
+                <Link href="/recuperar-password" className="forgot-password-link">
+                  ¿Olvidaste tu contraseña?
+                </Link>
               </div>
             </div>
 
