@@ -820,7 +820,7 @@ export type Database = {
           reportes_recibidos: number
           rol: string
           sector_industria: string[] | null
-          tipo: string
+          suspension_reason: string | null
           visible_en_directorio: boolean
         }
         Insert: {
@@ -840,15 +840,9 @@ export type Database = {
           hobbies?: string[] | null
           id?: string
           nombre: string
-          proyecto_area_tematica?: string | null
-          proyecto_descripcion?: string | null
-          proyecto_porcentaje_avance?: number | null
-          proyecto_tipo?: string | null
-          proyecto_titulo?: string | null
           reportes_recibidos?: number
           rol: string
-          sede?: string | null
-          tipo: string
+          suspension_reason?: string | null
           visible_en_directorio?: boolean | null
         }
         Update: {
@@ -875,7 +869,7 @@ export type Database = {
           reportes_recibidos?: number
           rol?: string
           sector_industria?: string[] | null
-          tipo?: string
+          suspension_reason?: string | null
           visible_en_directorio?: boolean
         }
         Relationships: []

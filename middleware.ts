@@ -20,6 +20,7 @@ import { registrarEventoSeguridad } from './src/services/securityLogger'
 /** Rutas que requieren usuario autenticado */
 const RUTAS_PROTEGIDAS = [
   '/dashboard',
+  '/student-dashboard',
   '/admin',
   '/profile',
   '/jobs',
@@ -30,6 +31,7 @@ const RUTAS_PROTEGIDAS = [
   '/give-back',
   '/mentorships',
   '/completar-perfil',
+  '/mis-aplicaciones',
 ]
 
 /** Rutas exclusivas para usuarios NO autenticados */
@@ -95,23 +97,23 @@ function aplicarSecurityHeaders(response: NextResponse): NextResponse {
  * Previene ataques de open-redirect donde un atacante puede redirigir
  * a un dominio externo malicioso: /login?redirectTo=https://evil.com
  */
-function validarRedirectTo(redirectTo: string | null): string {
-  if (!redirectTo) return '/dashboard'
+function validarRedirectTo(redirectTo: string | null): string | null {
+  if (!redirectTo) return null
 
   // Solo permitir rutas relativas que empiecen con /
   // Rechazar URLs con protocolo (http://, https://, //)
   if (!redirectTo.startsWith('/') || redirectTo.startsWith('//')) {
-    return '/dashboard'
+    return null
   }
 
   // Rechazar rutas que contengan caracteres de control o codificación sospechosa
   if (/[<>"'`]/.test(redirectTo) || redirectTo.includes('\\')) {
-    return '/dashboard'
+    return null
   }
 
   // No redirigir de vuelta a páginas de auth (loop)
   if (RUTAS_PUBLICAS_AUTH.some(r => redirectTo.startsWith(r))) {
-    return '/dashboard'
+    return null
   }
 
   return redirectTo
@@ -243,26 +245,48 @@ export async function middleware(req: NextRequest) {
   const { data: { user }, error: authError } = await supabase.auth.getUser()
   const hayUsuario = !!user && !authError
 
-  // Usuario sin sesión intenta acceder a ruta protegida → login
   if (esRutaProtegida && !hayUsuario) {
     // Validar y sanear el redirectTo antes de guardarlo
     const redirectTo = validarRedirectTo(ruta)
     const url = req.nextUrl.clone()
     url.pathname = '/login'
-    if (redirectTo !== '/dashboard') {
+    if (redirectTo) {
       url.searchParams.set('redirectTo', redirectTo)
     }
     return aplicarSecurityHeaders(NextResponse.redirect(url))
   }
 
-  // Usuario con sesión activa intenta ir a login/register → dashboard (o redirectTo)
+  // Usuario con sesión activa intenta ir a login/register → redirigir según rol
   if (esRutaPublicaAuth && hayUsuario) {
-    const url = req.nextUrl.clone()
+    // CRÍTICO: usamos service_role para bypasear RLS al leer el rol.
+    // El cliente anon es bloqueado por las políticas de la tabla users.
+    const supabaseAdmin = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      { cookies: { getAll: () => [], setAll: () => {} } }
+    )
+    const { data: userDataAuth } = await supabaseAdmin
+      .from('users')
+      .select('rol')
+      .eq('id', user!.id)
+      .single()
+
+    const rolActual = userDataAuth?.rol ?? 'estudiante'
     const redirectToParam = req.nextUrl.searchParams.get('redirectTo')
     const redirectToPath = validarRedirectTo(redirectToParam)
-    
-    url.pathname = redirectToPath
-    url.search = '' // Limpiamos parametros
+
+    const url = req.nextUrl.clone()
+    // Redirigir según rol: admin→/admin, exalumno→/dashboard, estudiante→/student-dashboard
+    let destino: string
+    if (rolActual === 'admin') {
+      destino = '/admin'
+    } else if (rolActual === 'exalumno') {
+      destino = redirectToPath ? redirectToPath : '/dashboard'
+    } else {
+      destino = redirectToPath ? redirectToPath : '/directorio/estudiantes'
+    }
+    url.pathname = destino
+    url.search = ''
     return aplicarSecurityHeaders(NextResponse.redirect(url))
   }
 
@@ -273,10 +297,17 @@ export async function middleware(req: NextRequest) {
 
   // ── CAPA 4: Suspension Guard ───────────────────────────────────────────────
 
-  const { data: userData } = await supabase
+  // CRÍTICO: usamos service_role para bypasear RLS. El cliente anon es bloqueado
+  // por las políticas de seguridad de la tabla users.
+  const supabaseAdmin = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { cookies: { getAll: () => [], setAll: () => {} } }
+  )
+  const { data: userData } = await supabaseAdmin
     .from('users')
     .select('activo, rol, suspension_reason')
-    .eq('id', user.id)
+    .eq('id', user!.id)
     .single()
 
   // Cuenta suspendida → redirigir a página informativa
@@ -333,18 +364,22 @@ export async function middleware(req: NextRequest) {
   if (redirectToParam) {
     const redirectToSanitizado = validarRedirectTo(redirectToParam)
 
-    // Si fue modificado, reescribir la URL para limpiar el parámetro malicioso
+    // Si fue modificado (o invalidado), reescribir la URL para limpiar el parámetro malicioso
     if (redirectToSanitizado !== redirectToParam) {
       void registrarEventoSeguridad({
         tipo: 'open_redirect_attempt',
         usuarioId: user.id,
         ip,
         ruta,
-        metadata: { redirectToOriginal: redirectToParam, userAgent },
+        metadata: { pathOriginal: redirectToParam, userAgent },
       })
 
       const url = req.nextUrl.clone()
-      url.searchParams.set('redirectTo', redirectToSanitizado)
+      if (redirectToSanitizado) {
+        url.searchParams.set('redirectTo', redirectToSanitizado)
+      } else {
+        url.searchParams.delete('redirectTo')
+      }
       return aplicarSecurityHeaders(NextResponse.redirect(url))
     }
   }

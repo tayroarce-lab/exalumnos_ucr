@@ -129,7 +129,15 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
           />
         </Link>
 
-
+        {/* Navegación central (desktop) */}
+        <nav className="hidden lg:flex items-center gap-6">
+          <Link href="/network" className="text-sm font-semibold hover:text-blue-200 transition-colors py-5 border-b-2 border-transparent hover:border-blue-300">Directorios</Link>
+          <Link href="/jobs" className="text-sm font-semibold hover:text-blue-200 transition-colors py-5 border-b-2 border-transparent hover:border-blue-300">Empleos</Link>
+          <Link href="/donations" className="text-sm font-semibold hover:text-blue-200 transition-colors py-5 border-b-2 border-transparent hover:border-blue-300">Donaciones</Link>
+          <Link href="/mentorships" className="text-sm font-semibold hover:text-blue-200 transition-colors py-5 border-b-2 border-transparent hover:border-blue-300">Mentorías</Link>
+          <Link href="/events" className="text-sm font-semibold hover:text-blue-200 transition-colors py-5 border-b-2 border-transparent hover:border-blue-300">Eventos</Link>
+          <Link href="/mis-aplicaciones" className="text-sm font-semibold hover:text-blue-200 transition-colors py-5 border-b-2 border-transparent hover:border-blue-300">Mis Aplicaciones</Link>
+        </nav>
       </div>
 
       {/* Centro: Botones de navegación contextuales */}
