@@ -142,3 +142,21 @@ export async function solicitarRecuperacionContrasena(email: string) {
   
   return { success: true }
 }
+
+export async function enviarEnlaceMagico(email: string, role: "estudiante" | "exalumno") {
+  if (role === "estudiante" && !email.endsWith("@ucr.ac.cr")) {
+    throw new Error("Los estudiantes deben usar su correo institucional (@ucr.ac.cr).");
+  }
+
+  const supabase = await createClient()
+  const { error } = await supabase.auth.signInWithOtp({
+    email,
+    options: {
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/auth/callback`,
+    },
+  })
+
+  if (error) throw new Error("Hubo un error al intentar enviar el enlace mágico. Inténtalo de nuevo.")
+
+  return { success: true }
+}
