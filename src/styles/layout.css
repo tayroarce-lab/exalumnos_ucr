@@ -387,11 +387,13 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(to right,
-      #4BBDE8 0%,
-      rgba(75, 189, 232, 0.60) 8%,
-      rgba(0, 25, 50, 0.45) 28%,
-      rgba(0, 10, 25, 0.68) 100%);
+  background: linear-gradient(
+    to right,
+    #4BBDE8 0%,
+    rgba(75, 189, 232, 0.60) 8%,
+    rgba(0, 25, 50, 0.55) 28%,
+    rgba(0, 10, 25, 0.78) 100%
+  );
   z-index: 1;
 }
 
