@@ -6,11 +6,6 @@ import '../styles/layout.css'
 export const metadata: Metadata = {
   title: 'Fundación Exalumnos UCR',
   description: 'Directorio Estudiantil',
-  icons: {
-    icon: '/logo.png',
-    shortcut: '/logo.png',
-    apple: '/logo.png',
-  },
 }
 
 export default function RootLayout({
