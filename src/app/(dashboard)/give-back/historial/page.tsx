@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import { obtenerMisDonaciones } from '@/actions/donaciones'
+import { obtenerMisDonaciones } from '@/actions/donations'
 import Card from '@/components/ui/card'
 import Button from '@/components/ui/button'
 import {

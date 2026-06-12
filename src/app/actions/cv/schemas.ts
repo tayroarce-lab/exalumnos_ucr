@@ -10,7 +10,7 @@ export const academicInfoSchema = z.object({
   academic_level: z.enum(['Bachillerato', 'Licenciatura', 'Maestría', 'Doctorado'], {
     errorMap: () => ({ message: 'Nivel académico inválido' })
   }),
-  gpa: z.number().min(0).max(10).optional().or(z.string().transform(v => parseFloat(v)).optional()),
+  gpa: z.coerce.number().min(0).max(10).optional(),
   entry_year: z.number().min(1950, 'Año inválido').max(new Date().getFullYear() + 1, 'Año inválido'),
   relevant_courses: z.array(z.string()).optional(),
   graduation_project_title: z.string().optional(),

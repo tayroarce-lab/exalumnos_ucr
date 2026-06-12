@@ -1,15 +1,17 @@
 "use client";
 
 import { useState } from "react";
+import CycleWisdomOption3 from '@/components/CycleWisdomOption3';
+import LoadingSpinner from '@/components/LoadingSpinner';
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { Mail, Lock, Eye, EyeOff, LogIn, GraduationCap, Users, ShieldCheck } from "lucide-react";
-import { iniciarSesion } from "@/actions/authActions";
+import { iniciarSesion } from "@/actions/auth";
 import { obtenerMiPerfil } from "@/actions/users";
 import logoUCR from "@/images/Logo_UCR.png";
-import AuthBackground from '@/components/ui/AuthBackground';
-import "@/styles/loginStyles.css";
+import '@/styles/loginStyles.css';
+import '@/styles/loadingSpinner.css';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -35,28 +37,29 @@ export default function LoginPage() {
       return;
     }
 
-    setLoading(true);
-    const result = await iniciarSesion(email, password);
-
-    if (result && "error" in result && result.error) {
-      setLoading(false);
-      setMessage({ text: result.error, type: "error" });
-    } else if (result && "success" in result && result.success) {
-      setMessage({ text: "Inicio de sesión exitoso. Redirigiendo...", type: "success" });
-      try {
-        const perfil = await obtenerMiPerfil();
-        setLoading(false);
-        if (perfil?.tipo === "admin") {
-          router.push("/admin");
-        } else {
+    try {
+      const result = await iniciarSesion({ email, password });
+      
+      if (result && result.success) {
+        setMessage({ text: "Inicio de sesión exitoso. Redirigiendo...", type: "success" });
+        try {
+          const perfil = await obtenerMiPerfil();
+          setLoading(false);
+          if (perfil?.tipo === "admin") {
+            router.push("/admin");
+          } else {
+            router.push(redirectTo);
+          }
+          router.refresh();
+        } catch (err) {
+          setLoading(false);
           router.push(redirectTo);
+          router.refresh();
         }
-        router.refresh();
-      } catch (err) {
-        setLoading(false);
-        router.push(redirectTo);
-        router.refresh();
       }
+    } catch (error: any) {
+      setLoading(false);
+      setMessage({ text: error.message || "Credenciales incorrectas", type: "error" });
     }
   };
 
@@ -68,7 +71,6 @@ export default function LoginPage() {
 
   return (
     <div className="login-page-wrapper">
-      <AuthBackground />
       <div className="login-container">
         {/* Panel Izquierdo — Decorativo */}
         <div className="login-left">
@@ -85,6 +87,7 @@ export default function LoginPage() {
               />
             </Link>
           </div>
+          
           <div className="login-hero-text" style={{ marginTop: '1.5rem' }}>
             <h2>Bienvenido de vuelta</h2>
             <p>
@@ -183,7 +186,6 @@ export default function LoginPage() {
               </div>
             )}
 
-            {/* Botón de Iniciar Sesión */}
             <button
               onClick={manejarInicioSesion}
               disabled={loading}
@@ -192,7 +194,7 @@ export default function LoginPage() {
             >
               {loading ? (
                 <>
-                  <span className="login-spinner"></span>
+                  <LoadingSpinner />
                   Ingresando...
                 </>
               ) : (

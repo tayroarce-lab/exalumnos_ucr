@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { AlertTriangle, ShieldAlert, CheckCircle } from 'lucide-react';
-import { obtenerReportesPendientes } from '@/actions/reportes';
+import { getPendingReports } from '@/actions/reports';
 import { DenunciasTable } from './_components/denuncias-table';
 import '../../../../styles/admin-dashboard.css';
 import '../../../../styles/admin-denuncias.css';
@@ -15,7 +15,7 @@ export default async function AdminDenunciasPage() {
   let errorMsg: string | null = null;
 
   try {
-    const res = await obtenerReportesPendientes();
+    const res = await getPendingReports();
     if (res.success) {
       reportes = res.data ?? [];
     }
