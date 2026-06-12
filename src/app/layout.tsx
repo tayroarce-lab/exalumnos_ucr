@@ -12,6 +12,8 @@ export const metadata: Metadata = {
 
 import { ProfileProvider } from '@/contexts/ProfileContext'
 
+import GlobalLoadingOverlay from '@/components/GlobalLoadingOverlay'
+
 export default function RootLayout({
   children,
 }: {
@@ -20,6 +22,7 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body>
+        <GlobalLoadingOverlay />
         <ProfileProvider>
           {children}
         </ProfileProvider>
