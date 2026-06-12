@@ -2,6 +2,7 @@
 import React from 'react'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { Sidebar } from '@/components/admin/layout/Sidebar'
 import { AdminFooter } from '@/components/admin/layout/AdminFooter'
 import '../../../styles/admin-dashboard.css'
@@ -19,14 +20,15 @@ export default async function AdminLayout({
     redirect('/login')
   }
 
-  // Verificar rol de administrador
-  const { data: userData } = await supabase
+  // Verificar rol de administrador usando service_role para bypasear RLS
+  const adminClient = createAdminClient()
+  const { data: userData } = await adminClient
     .from('users')
-    .select('tipo, rol')
+    .select('rol')
     .eq('id', user.id)
     .single()
 
-  const esAdmin = userData?.tipo === 'admin' || userData?.rol === 'admin'
+  const esAdmin = userData?.rol === 'admin'
 
   if (!esAdmin) {
     // Silencioso: no revelar que la ruta existe

@@ -164,3 +164,71 @@ export async function restaurarPosicionAdmin(posicionId: string) {
   revalidatePath('/mis-posiciones')
   return { success: true, mensaje: 'Posición restaurada y visible nuevamente.' }
 }
+
+// =============================================================================
+// FUNCIÓN: obtenerAplicantesPorPosicion
+// Descripción : Retorna todos los aplicantes de una posición del exalumno
+//               autenticado. Verifica primero que la posición le pertenece.
+// =============================================================================
+export async function obtenerAplicantesPorPosicion(posicionId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('No autenticado')
+
+  // Verificar que la posición le pertenece al exalumno
+  const { data: posicion, error: posError } = await supabase
+    .from('posiciones')
+    .select('id, titulo, empresa, tipo')
+    .eq('id', posicionId)
+    .eq('exalumno_id', user.id)
+    .single()
+
+  if (posError || !posicion) throw new Error('Posición no encontrada o sin acceso')
+
+  // Obtener aplicantes con datos del estudiante
+  const { data, error } = await supabase
+    .from('aplicaciones')
+    .select(`
+      id,
+      estado,
+      mensaje_presentacion,
+      created_at,
+      updated_at,
+      estudiante:users!aplicaciones_estudiante_id_fkey (
+        id,
+        nombre,
+        apellidos,
+        email,
+        foto_url,
+        carrera_principal
+      )
+    `)
+    .eq('posicion_id', posicionId)
+    .order('created_at', { ascending: false })
+
+  if (error) throw new Error(error.message)
+
+  return { posicion, aplicantes: data ?? [] }
+}
+
+// =============================================================================
+// FUNCIÓN: actualizarEstadoAplicacion
+// Descripción : Permite al exalumno cambiar el estado de una aplicación
+//               (en_revision, entrevistado, aceptado, rechazado).
+// =============================================================================
+export async function actualizarEstadoAplicacion(
+  aplicacionId: string,
+  estado: 'pendiente' | 'en_revision' | 'entrevistado' | 'aceptado' | 'rechazado'
+) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('No autenticado')
+
+  const { error } = await supabase
+    .from('aplicaciones')
+    .update({ estado, updated_at: new Date().toISOString() })
+    .eq('id', aplicacionId)
+
+  if (error) throw new Error(error.message)
+  return { success: true }
+}

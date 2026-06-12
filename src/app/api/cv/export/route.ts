@@ -12,8 +12,8 @@ export async function GET() {
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user) {
+    
+    if (!user?.id) {
       return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
     }
 
@@ -30,7 +30,7 @@ export async function GET() {
       ...(cvData as any),
       email: user.email,
       user_metadata: {
-        nombre: user.user_metadata?.nombre || user.user_metadata?.full_name || 'Estudiante UCR'
+        nombre: user.user_metadata?.full_name || user.user_metadata?.nombre || 'Estudiante UCR'
       }
     };
     (cvData as any).profile = profileConDatos;
