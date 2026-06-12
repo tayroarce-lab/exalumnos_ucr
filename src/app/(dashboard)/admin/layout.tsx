@@ -3,9 +3,6 @@ import React from 'react'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { Sidebar } from '@/components/admin/layout/Sidebar'
-import { AdminFooter } from '@/components/admin/layout/AdminFooter'
-import '../../../styles/admin-dashboard.css'
 
 export default async function AdminLayout({
   children,
@@ -36,12 +33,8 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="admin-layout">
-      <Sidebar />
-      <div className="admin-main-content">
-        {children}
-        <AdminFooter />
-      </div>
-    </div>
+    <>
+      {children}
+    </>
   )
 }

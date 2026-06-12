@@ -25,9 +25,6 @@ export const metadata: Metadata = {
     apple: '/logo.png',
   },
 }
-
-import { ProfileProvider } from '@/contexts/ProfileContext'
-
 import GlobalLoadingOverlay from '@/components/GlobalLoadingOverlay'
 
 export default function RootLayout({
