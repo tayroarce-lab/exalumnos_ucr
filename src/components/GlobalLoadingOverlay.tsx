@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import '@/styles/globalOverlay.css';
 
+import { Star, BookOpen, Triangle, Award, Microscope, Atom, Pencil, GraduationCap } from 'lucide-react';
+
 export default function GlobalLoadingOverlay() {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -84,6 +86,16 @@ export default function GlobalLoadingOverlay() {
 
   return (
     <div className="global-overlay-container">
+      <div className="floating-symbols-wrapper">
+        <GraduationCap className="floating-symbol symbol-1" />
+        <Microscope className="floating-symbol symbol-2" />
+        <Star className="floating-symbol symbol-3" />
+        <BookOpen className="floating-symbol symbol-4" />
+        <Triangle className="floating-symbol symbol-5" />
+        <Award className="floating-symbol symbol-6" />
+        <Atom className="floating-symbol symbol-7" />
+        <Pencil className="floating-symbol symbol-8" />
+      </div>
       <div className="global-overlay-box">
         <svg className="global-overlay-spinner" viewBox="0 0 100 100" style={{ '--theme-color': themeColor } as React.CSSProperties}>
           <g className="cap-icon" fill="var(--theme-color)">

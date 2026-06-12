@@ -22,7 +22,7 @@ export async function GET(request: Request) {
         monto, 
         moneda, 
         fecha_transferencia, 
-        donante:users!donaciones_exalumno_id_fkey(email)
+        donante:profiles!donaciones_alumni_id_fkey(email)
       `)
       .eq('estado', 'pendiente')
       .lt('created_at', limite48h);
