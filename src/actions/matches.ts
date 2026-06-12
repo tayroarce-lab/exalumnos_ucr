@@ -101,8 +101,8 @@ export async function updateMatch(
     return { success: false, error: error.message };
   }
 
-  // Si el estado pasa a "activo", "cerrado" o "contactado", enviamos notificaciones
-  if (estado === 'activo' || estado === 'cerrado' || estado === 'contactado') {
+  // Si el estado pasa a "activo" o "cerrado", enviamos notificaciones
+  if (estado === 'activo' || estado === 'cerrado') {
     // Obtenemos los correos del exalumno y estudiante
     const { data } = await supabase
       .from('matches')

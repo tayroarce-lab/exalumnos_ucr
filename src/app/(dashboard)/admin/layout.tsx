@@ -33,8 +33,12 @@ export default async function AdminLayout({
   }
 
   return (
-    <>
-      {children}
-    </>
+    <div className="admin-layout">
+      <Sidebar />
+      <div className="admin-main-content">
+        {children}
+        <AdminFooter />
+      </div>
+    </div>
   )
 }

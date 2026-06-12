@@ -18,6 +18,8 @@
     "supabase:generate-types": "supabase gen types typescript --local > types/supabase.ts"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^3.0.71",
+    "@ai-sdk/react": "^3.0.205",
     "@anthropic-ai/sdk": "^0.24.3",
     "@auth/supabase-adapter": "^1.11.2",
     "@hookform/resolvers": "^5.4.0",
@@ -31,6 +33,7 @@
     "@react-pdf/renderer": "^4.5.1",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.108.1",
+    "ai": "^6.0.203",
     "autoprefixer": "^10.4.19",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
