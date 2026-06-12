@@ -1,6 +1,6 @@
 import React from 'react';
 import { NextResponse } from 'next/server';
-import { auth } from '@/auth';
+import { createClient } from '@/lib/supabase/server';
 import { renderToStream } from '@react-pdf/renderer';
 import { CVDocument } from '@/lib/pdf/CVDocument';
 import { getFullCvData } from '@/app/actions/cv/profile.actions';
@@ -10,8 +10,10 @@ export const runtime = 'nodejs';
 
 export async function GET() {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user?.id) {
       return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
     }
 
@@ -26,9 +28,9 @@ export async function GET() {
     // Construir los datos del perfil
     const profileConDatos = {
       ...(cvData as any),
-      email: session.user.email,
+      email: user.email,
       user_metadata: {
-        nombre: session.user.name || 'Estudiante UCR'
+        nombre: user.user_metadata?.full_name || user.user_metadata?.nombre || 'Estudiante UCR'
       }
     };
     (cvData as any).profile = profileConDatos;

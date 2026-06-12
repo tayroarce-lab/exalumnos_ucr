@@ -20,6 +20,11 @@ export function CVStepper({ initialData }: { initialData: any }) {
   const [saveState, setSaveState] = useState<SaveState>('idle');
   const [saveMessage, setSaveMessage] = useState('');
   
+  const handleSaveStateChange = React.useCallback((s: SaveState, msg?: string) => {
+    setSaveState(s);
+    if (msg) setSaveMessage(msg);
+  }, []);
+
   // Event bus para disparar guardado manual en onStepChange
   const [flushSaveSignal, setFlushSaveSignal] = useState(0);
 
@@ -112,27 +117,27 @@ export function CVStepper({ initialData }: { initialData: any }) {
           {currentStep === 1 && (
             <AcademicInfoForm 
               initialData={initialData.academic} 
-              onSaveStateChange={(s: SaveState, msg?: string) => { setSaveState(s); if(msg) setSaveMessage(msg); }}
+              onSaveStateChange={handleSaveStateChange}
               flushSignal={flushSaveSignal}
             />
           )}
           {currentStep === 2 && (
             <ExperienceForm 
               initialData={initialData.experiences} 
-              onSaveStateChange={(s: SaveState, msg?: string) => { setSaveState(s); if(msg) setSaveMessage(msg); }}
+              onSaveStateChange={handleSaveStateChange}
               flushSignal={flushSaveSignal}
             />
           )}
           {currentStep === 3 && (
             <SkillsForm 
               initialData={initialData.skills} 
-              onSaveStateChange={(s: SaveState, msg?: string) => { setSaveState(s); if(msg) setSaveMessage(msg); }}
+              onSaveStateChange={handleSaveStateChange}
             />
           )}
           {currentStep === 4 && (
             <CertificationsForm 
               initialData={initialData.certifications} 
-              onSaveStateChange={(s: SaveState, msg?: string) => { setSaveState(s); if(msg) setSaveMessage(msg); }}
+              onSaveStateChange={handleSaveStateChange}
             />
           )}
 

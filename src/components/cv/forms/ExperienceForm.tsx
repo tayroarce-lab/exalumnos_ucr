@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useId } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { experienceSchema, ExperienceData } from '@/app/actions/cv/schemas';
@@ -28,8 +28,9 @@ function ExperienceItem({
   flushSignal: number;
   onDelete: (id?: string) => void;
 }) {
+  const baseId = useId();
   const [isExpanded, setIsExpanded] = useState(!data.id);
-  const { register, control, handleSubmit, watch, formState: { errors } } = useForm<ExperienceData>({
+  const { register, control, handleSubmit, watch, setValue, formState: { errors } } = useForm<ExperienceData>({
     resolver: zodResolver(experienceSchema),
     defaultValues: data
   });
@@ -47,13 +48,16 @@ function ExperienceItem({
       const res = await upsertExperience(formDataToSave);
       if (res.success) {
         onSaveStateChange('saved');
+        if (res.data?.id && !formDataToSave.id) {
+          setValue('id', res.data.id);
+        }
       } else {
         onSaveStateChange('error', res.message);
       }
     } catch (e) {
       onSaveStateChange('error', 'Error de red');
     }
-  }, [onSaveStateChange]);
+  }, [onSaveStateChange, setValue]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -86,7 +90,7 @@ function ExperienceItem({
         <div className="flex items-center gap-2">
           <button 
             type="button" 
-            onClick={(e) => { e.stopPropagation(); onDelete(data.id); }}
+            onClick={(e) => { e.stopPropagation(); onDelete(formData.id || data.id); }}
             className="p-2 text-slate-400 hover:text-red-500 dark:hover:text-red-400 bg-transparent hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all"
           >
             <Trash2 className="w-5 h-5" />
@@ -101,8 +105,8 @@ function ExperienceItem({
         <div className="space-y-6 border-t border-slate-200/60 dark:border-white/10 pt-6 mt-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-xs font-bold tracking-wide uppercase text-slate-500 dark:text-slate-400 mb-1.5 block">Tipo <span className="text-red-500">*</span></label>
-              <select {...register('experience_type')} className="flex min-h-[44px] w-full rounded-xl border border-slate-200/60 dark:border-white/10 bg-white/50 dark:bg-slate-900 backdrop-blur-md px-4 py-2 text-sm text-slate-900 dark:text-white shadow-sm transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 focus-visible:border-indigo-500">
+              <label htmlFor={`${baseId}-type`} className="text-xs font-bold tracking-wide uppercase text-slate-500 dark:text-slate-400 mb-1.5 block">Tipo <span className="text-red-500">*</span></label>
+              <select id={`${baseId}-type`} {...register('experience_type')} className="flex min-h-[44px] w-full rounded-xl border border-slate-200/60 dark:border-white/10 bg-white/50 dark:bg-slate-900 backdrop-blur-md px-4 py-2 text-sm text-slate-900 dark:text-white shadow-sm transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 focus-visible:border-indigo-500">
                 <option value="Empleo">Empleo</option>
                 <option value="Voluntariado">Voluntariado</option>
                 <option value="Proyecto universitario">Proyecto Universitario</option>
@@ -113,36 +117,36 @@ function ExperienceItem({
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold tracking-wide uppercase text-slate-500 dark:text-slate-400 mb-1.5 block">Título/Rol <span className="text-red-500">*</span></label>
-              <input {...register('title')} className="flex min-h-[44px] w-full rounded-xl border border-slate-200/60 dark:border-white/10 bg-white/50 dark:bg-black/20 backdrop-blur-md px-4 py-2 text-sm text-slate-900 dark:text-white shadow-sm transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 focus-visible:border-indigo-500 placeholder:text-slate-400" />
+              <label htmlFor={`${baseId}-title`} className="text-xs font-bold tracking-wide uppercase text-slate-500 dark:text-slate-400 mb-1.5 block">Título/Rol <span className="text-red-500">*</span></label>
+              <input id={`${baseId}-title`} {...register('title')} className="flex min-h-[44px] w-full rounded-xl border border-slate-200/60 dark:border-white/10 bg-white/50 dark:bg-black/20 backdrop-blur-md px-4 py-2 text-sm text-slate-900 dark:text-white shadow-sm transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 focus-visible:border-indigo-500 placeholder:text-slate-400" />
               {errors.title && <p className="text-xs text-red-500">{errors.title.message}</p>}
             </div>
 
             <div className="space-y-2 md:col-span-2">
-              <label className="text-xs font-bold tracking-wide uppercase text-slate-500 dark:text-slate-400 mb-1.5 block">Organización <span className="text-red-500">*</span></label>
-              <input {...register('organization')} className="flex min-h-[44px] w-full rounded-xl border border-slate-200/60 dark:border-white/10 bg-white/50 dark:bg-black/20 backdrop-blur-md px-4 py-2 text-sm text-slate-900 dark:text-white shadow-sm transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 focus-visible:border-indigo-500 placeholder:text-slate-400" />
+              <label htmlFor={`${baseId}-org`} className="text-xs font-bold tracking-wide uppercase text-slate-500 dark:text-slate-400 mb-1.5 block">Organización <span className="text-red-500">*</span></label>
+              <input id={`${baseId}-org`} {...register('organization')} className="flex min-h-[44px] w-full rounded-xl border border-slate-200/60 dark:border-white/10 bg-white/50 dark:bg-black/20 backdrop-blur-md px-4 py-2 text-sm text-slate-900 dark:text-white shadow-sm transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 focus-visible:border-indigo-500 placeholder:text-slate-400" />
               {errors.organization && <p className="text-xs text-red-500">{errors.organization.message}</p>}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-xs font-bold tracking-wide uppercase text-slate-500 dark:text-slate-400 mb-1.5 block">Mes Inicio <span className="text-red-500">*</span></label>
-                <input type="number" {...register('start_month', { valueAsNumber: true })} className="flex min-h-[44px] w-full rounded-xl border border-slate-200/60 dark:border-white/10 bg-white/50 dark:bg-black/20 backdrop-blur-md px-4 py-2 text-sm text-slate-900 dark:text-white shadow-sm transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 focus-visible:border-indigo-500 placeholder:text-slate-400" placeholder="MM" />
+                <label htmlFor={`${baseId}-start_month`} className="text-xs font-bold tracking-wide uppercase text-slate-500 dark:text-slate-400 mb-1.5 block">Mes Inicio <span className="text-red-500">*</span></label>
+                <input id={`${baseId}-start_month`} type="number" {...register('start_month', { valueAsNumber: true })} className="flex min-h-[44px] w-full rounded-xl border border-slate-200/60 dark:border-white/10 bg-white/50 dark:bg-black/20 backdrop-blur-md px-4 py-2 text-sm text-slate-900 dark:text-white shadow-sm transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 focus-visible:border-indigo-500 placeholder:text-slate-400" placeholder="MM" />
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-bold tracking-wide uppercase text-slate-500 dark:text-slate-400 mb-1.5 block">Año Inicio <span className="text-red-500">*</span></label>
-                <input type="number" {...register('start_year', { valueAsNumber: true })} className="flex min-h-[44px] w-full rounded-xl border border-slate-200/60 dark:border-white/10 bg-white/50 dark:bg-black/20 backdrop-blur-md px-4 py-2 text-sm text-slate-900 dark:text-white shadow-sm transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 focus-visible:border-indigo-500 placeholder:text-slate-400" placeholder="YYYY" />
+                <label htmlFor={`${baseId}-start_year`} className="text-xs font-bold tracking-wide uppercase text-slate-500 dark:text-slate-400 mb-1.5 block">Año Inicio <span className="text-red-500">*</span></label>
+                <input id={`${baseId}-start_year`} type="number" {...register('start_year', { valueAsNumber: true })} className="flex min-h-[44px] w-full rounded-xl border border-slate-200/60 dark:border-white/10 bg-white/50 dark:bg-black/20 backdrop-blur-md px-4 py-2 text-sm text-slate-900 dark:text-white shadow-sm transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 focus-visible:border-indigo-500 placeholder:text-slate-400" placeholder="YYYY" />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-xs font-bold tracking-wide uppercase text-slate-500 dark:text-slate-400 mb-1.5 block">Mes Fin</label>
-                <input type="number" {...register('end_month', { valueAsNumber: true, setValueAs: v => v === '' ? null : parseInt(v) })} className="flex min-h-[44px] w-full rounded-xl border border-slate-200/60 dark:border-white/10 bg-white/50 dark:bg-black/20 backdrop-blur-md px-4 py-2 text-sm text-slate-900 dark:text-white shadow-sm transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 focus-visible:border-indigo-500 placeholder:text-slate-400" placeholder="MM (Vacío = Actual)" />
+                <label htmlFor={`${baseId}-end_month`} className="text-xs font-bold tracking-wide uppercase text-slate-500 dark:text-slate-400 mb-1.5 block">Mes Fin</label>
+                <input id={`${baseId}-end_month`} type="number" {...register('end_month', { valueAsNumber: true, setValueAs: v => v === '' ? null : parseInt(v) })} className="flex min-h-[44px] w-full rounded-xl border border-slate-200/60 dark:border-white/10 bg-white/50 dark:bg-black/20 backdrop-blur-md px-4 py-2 text-sm text-slate-900 dark:text-white shadow-sm transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 focus-visible:border-indigo-500 placeholder:text-slate-400" placeholder="MM (Vacío = Actual)" />
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-bold tracking-wide uppercase text-slate-500 dark:text-slate-400 mb-1.5 block">Año Fin</label>
-                <input type="number" {...register('end_year', { valueAsNumber: true, setValueAs: v => v === '' ? null : parseInt(v) })} className="flex min-h-[44px] w-full rounded-xl border border-slate-200/60 dark:border-white/10 bg-white/50 dark:bg-black/20 backdrop-blur-md px-4 py-2 text-sm text-slate-900 dark:text-white shadow-sm transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 focus-visible:border-indigo-500 placeholder:text-slate-400" placeholder="YYYY (Vacío = Actual)" />
+                <label htmlFor={`${baseId}-end_year`} className="text-xs font-bold tracking-wide uppercase text-slate-500 dark:text-slate-400 mb-1.5 block">Año Fin</label>
+                <input id={`${baseId}-end_year`} type="number" {...register('end_year', { valueAsNumber: true, setValueAs: v => v === '' ? null : parseInt(v) })} className="flex min-h-[44px] w-full rounded-xl border border-slate-200/60 dark:border-white/10 bg-white/50 dark:bg-black/20 backdrop-blur-md px-4 py-2 text-sm text-slate-900 dark:text-white shadow-sm transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 focus-visible:border-indigo-500 placeholder:text-slate-400" placeholder="YYYY (Vacío = Actual)" />
               </div>
             </div>
           </div>
@@ -205,13 +209,19 @@ export function ExperienceForm({ initialData = [], onSaveStateChange, flushSigna
   const handleDelete = async (index: number, id?: string) => {
     if (id) {
       onSaveStateChange('saving');
-      const res = await deleteExperience(id);
-      if (res.success) {
-        onSaveStateChange('saved');
-        toast({ title: "Experiencia eliminada" });
-      } else {
-        onSaveStateChange('error', res.message);
-        toast({ title: "Error", description: res.message, variant: "destructive" });
+      try {
+        const res = await deleteExperience(id);
+        if (res.success) {
+          onSaveStateChange('saved');
+          toast({ title: "Experiencia eliminada" });
+        } else {
+          onSaveStateChange('error', res.message);
+          toast({ title: "Error", description: res.message, variant: "destructive" });
+          return;
+        }
+      } catch (error: any) {
+        onSaveStateChange('error', error.message);
+        toast({ title: "Error", description: "Ocurrió un error al intentar eliminar.", variant: "destructive" });
         return;
       }
     }

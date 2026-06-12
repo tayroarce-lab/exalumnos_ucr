@@ -23,7 +23,7 @@ function CertificationItem({
   onSaveStateChange: (s: SaveState, m?: string) => void;
   onDelete: (id?: string) => void;
 }) {
-  const { register, watch, formState: { errors } } = useForm<CertificationData>({
+  const { register, watch, setValue, formState: { errors } } = useForm<CertificationData>({
     resolver: zodResolver(certificationSchema),
     defaultValues: data
   });
@@ -36,13 +36,16 @@ function CertificationItem({
       const res = await upsertCertification(formDataToSave);
       if (res.success) {
         onSaveStateChange('saved');
+        if (res.data?.id && !formDataToSave.id) {
+          setValue('id', res.data.id);
+        }
       } else {
         onSaveStateChange('error', res.message);
       }
     } catch (e) {
       onSaveStateChange('error', 'Error de red');
     }
-  }, [onSaveStateChange]);
+  }, [onSaveStateChange, setValue]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -58,7 +61,7 @@ function CertificationItem({
     <div className="border border-slate-200/60 dark:border-white/10 rounded-2xl p-5 bg-white/40 dark:bg-slate-900/40 backdrop-blur-md shadow-sm relative transition-all duration-300 hover:shadow-md">
       <button 
         type="button" 
-        onClick={() => onDelete(data.id)}
+        onClick={() => onDelete(formData.id || data.id)}
         className="absolute top-4 right-4 p-2 text-slate-400 hover:text-red-500 dark:hover:text-red-400 bg-transparent hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all z-10"
       >
         <Trash2 className="w-5 h-5" />
