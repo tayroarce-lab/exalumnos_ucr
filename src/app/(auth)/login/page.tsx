@@ -40,19 +40,20 @@ export default function LoginPage() {
       
       if (result && result.success) {
         setMessage({ text: "Inicio de sesión exitoso. Redirigiendo...", type: "success" });
-      try {
-        const perfil = await obtenerMiPerfil();
-        setLoading(false);
-        if (perfil?.tipo === "admin") {
-          router.push("/admin");
-        } else {
+        try {
+          const perfil = await obtenerMiPerfil();
+          setLoading(false);
+          if (perfil?.tipo === "admin") {
+            router.push("/admin");
+          } else {
+            router.push(redirectTo);
+          }
+          router.refresh();
+        } catch (err) {
+          setLoading(false);
           router.push(redirectTo);
+          router.refresh();
         }
-        router.refresh();
-      } catch (err) {
-        setLoading(false);
-        router.push(redirectTo);
-        router.refresh();
       }
     } catch (error: any) {
       setLoading(false);
