@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { Mail, Lock, Eye, EyeOff, LogIn, GraduationCap, Users, ShieldCheck } from "lucide-react";
+import AuthBackground from '@/components/ui/AuthBackground';
 import { iniciarSesion } from "@/actions/auth";
 import { obtenerMiPerfil } from "@/actions/users";
 import logoUCR from "@/images/Logo_UCR.png";
@@ -71,6 +72,7 @@ export default function LoginPage() {
 
   return (
     <div className="login-page-wrapper">
+      <AuthBackground />
       <div className="login-container">
         {/* Panel Izquierdo — Decorativo */}
         <div className="login-left">
