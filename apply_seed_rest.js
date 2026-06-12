@@ -5,9 +5,9 @@ const SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 
 const HEADERS = {
   'Authorization': `Bearer ${SERVICE_KEY}`,
-  'apikey':        SERVICE_KEY,
-  'Content-Type':  'application/json',
-  'Prefer':        'resolution=merge-duplicates,return=minimal',
+  'apikey': SERVICE_KEY,
+  'Content-Type': 'application/json',
+  'Prefer': 'resolution=merge-duplicates,return=minimal',
 };
 
 function request(method, path, body) {
@@ -67,100 +67,133 @@ async function main() {
 
   console.log('📂  Bloque 1 — Catálogos');
   await upsert('industry_sectors', [
-    { id: 'tecnologia_ti',           name: 'Tecnología, Software y TI' },
-    { id: 'finanzas_banca',          name: 'Finanzas, Banca y Seguros' },
-    { id: 'salud_medicina',          name: 'Salud, Médica y Farmacéutica' },
+    { id: 'tecnologia_ti', name: 'Tecnología, Software y TI' },
+    { id: 'finanzas_banca', name: 'Finanzas, Banca y Seguros' },
+    { id: 'salud_medicina', name: 'Salud, Médica y Farmacéutica' },
     { id: 'ingenieria_construccion', name: 'Ingeniería, Construcción y Arquitectura' },
-    { id: 'educacion_academia',      name: 'Educación y Academia' },
-    { id: 'manufactura_industria',   name: 'Manufactura y Producción' },
-    { id: 'logistica_transporte',    name: 'Logística, Transporte y Distribución' },
-    { id: 'turismo_hospitalidad',    name: 'Turismo, Hotelería y Gastronomía' },
-    { id: 'agro_alimentos',          name: 'Agropecuario y Alimentos' },
-    { id: 'comercio_retail',         name: 'Comercio, Ventas y Retail' },
-    { id: 'gobierno_publico',        name: 'Gobierno y Sector Público' },
+    { id: 'educacion_academia', name: 'Educación y Academia' },
+    { id: 'manufactura_industria', name: 'Manufactura y Producción' },
+    { id: 'logistica_transporte', name: 'Logística, Transporte y Distribución' },
+    { id: 'turismo_hospitalidad', name: 'Turismo, Hotelería y Gastronomía' },
+    { id: 'agro_alimentos', name: 'Agropecuario y Alimentos' },
+    { id: 'comercio_retail', name: 'Comercio, Ventas y Retail' },
+    { id: 'gobierno_publico', name: 'Gobierno y Sector Público' },
     { id: 'servicios_profesionales', name: 'Consultoría y Servicios Profesionales' },
-    { id: 'dispositivos_medicos',    name: 'Dispositivos Médicos y MedTech' },
-    { id: 'energia_utilities',       name: 'Energía y Servicios Públicos' },
-    { id: 'investigacion_ciencia',   name: 'Investigación y Ciencia Aplicada' },
+    { id: 'dispositivos_medicos', name: 'Dispositivos Médicos y MedTech' },
+    { id: 'energia_utilities', name: 'Energía y Servicios Públicos' },
+    { id: 'investigacion_ciencia', name: 'Investigación y Ciencia Aplicada' },
   ]);
 
   console.log('\n📂  Bloque 2 — Usuarios (public.users)');
   const users = [
     // Admins
-    { id: 'aa000001-0000-0000-0000-000000000001', email: 'admin.principal@fundacionucr.ac.cr',
+    {
+      id: 'aa000001-0000-0000-0000-000000000001', email: 'admin.principal@fundacionucr.ac.cr',
       nombre: 'Mariela', apellidos: 'Vargas Mora', rol: 'admin',
       email_verified: true, activo: true, busca_mentoria: false, busca_empleo: false,
-      ofrece_mentoria: false, visible_en_directorio: false, reportes_recibidos: 0 },
-    { id: 'aa000002-0000-0000-0000-000000000002', email: 'admin.sistemas@fundacionucr.ac.cr',
+      ofrece_mentoria: false, visible_en_directorio: false, reportes_recibidos: 0
+    },
+    {
+      id: 'aa000002-0000-0000-0000-000000000002', email: 'admin.sistemas@fundacionucr.ac.cr',
       nombre: 'Diego', apellidos: 'Solano Ureña', rol: 'admin',
       email_verified: true, activo: true, busca_mentoria: false, busca_empleo: false,
-      ofrece_mentoria: false, visible_en_directorio: false, reportes_recibidos: 0 },
+      ofrece_mentoria: false, visible_en_directorio: false, reportes_recibidos: 0
+    },
     // Exalumnos
-    { id: 'e1000001-0000-0000-0000-000000000001', email: 'andres.quesada@intel.com',
+    {
+      id: 'e1000001-0000-0000-0000-000000000001', email: 'andres.quesada@intel.com',
       nombre: 'Andrés', apellidos: 'Quesada Picado', rol: 'exalumno',
       email_verified: true, activo: true, busca_mentoria: false, busca_empleo: false,
       ofrece_mentoria: true, visible_en_directorio: true, reportes_recibidos: 0,
-      foto_url: 'https://storage.fundacionucr.ac.cr/avatars/andres_quesada.jpg' },
-    { id: 'e1000002-0000-0000-0000-000000000002', email: 'valeria.mora@mckinsey.com',
+      foto_url: 'https://storage.fundacionucr.ac.cr/avatars/andres_quesada.jpg',
+      hobbies: ['Tecnología', 'Videojuegos']
+    },
+    {
+      id: 'e1000002-0000-0000-0000-000000000002', email: 'valeria.mora@mckinsey.com',
       nombre: 'Valeria', apellidos: 'Mora Cascante', rol: 'exalumno',
       email_verified: true, activo: true, busca_mentoria: false, busca_empleo: false,
       ofrece_mentoria: true, visible_en_directorio: true, reportes_recibidos: 0,
-      foto_url: 'https://storage.fundacionucr.ac.cr/avatars/valeria_mora.jpg' },
-    { id: 'e1000003-0000-0000-0000-000000000003', email: 'rodrigo.arias@bostonsci.com',
+      foto_url: 'https://storage.fundacionucr.ac.cr/avatars/valeria_mora.jpg',
+      hobbies: ['Lectura', 'Cine']
+    },
+    {
+      id: 'e1000003-0000-0000-0000-000000000003', email: 'rodrigo.arias@bostonsci.com',
       nombre: 'Rodrigo', apellidos: 'Arias Fonseca', rol: 'exalumno',
       email_verified: true, activo: true, busca_mentoria: false, busca_empleo: false,
       ofrece_mentoria: true, visible_en_directorio: true, reportes_recibidos: 0,
-      foto_url: 'https://storage.fundacionucr.ac.cr/avatars/rodrigo_arias.jpg' },
-    { id: 'e1000004-0000-0000-0000-000000000004', email: 'carolina.jimenez@grupoice.com',
+      foto_url: 'https://storage.fundacionucr.ac.cr/avatars/rodrigo_arias.jpg',
+      hobbies: ['Deportes', 'Tecnología']
+    },
+    {
+      id: 'e1000004-0000-0000-0000-000000000004', email: 'carolina.jimenez@grupoice.com',
       nombre: 'Carolina', apellidos: 'Jiménez Brenes', rol: 'exalumno',
       email_verified: true, activo: true, busca_mentoria: false, busca_empleo: false,
       ofrece_mentoria: false, visible_en_directorio: true, reportes_recibidos: 0,
-      foto_url: 'https://storage.fundacionucr.ac.cr/avatars/carolina_jimenez.jpg' },
-    { id: 'e1000005-0000-0000-0000-000000000005', email: 'pablo.saenz@amazon.com',
+      foto_url: 'https://storage.fundacionucr.ac.cr/avatars/carolina_jimenez.jpg'
+    },
+    {
+      id: 'e1000005-0000-0000-0000-000000000005', email: 'pablo.saenz@amazon.com',
       nombre: 'Pablo', apellidos: 'Sáenz Víquez', rol: 'exalumno',
       email_verified: true, activo: true, busca_mentoria: false, busca_empleo: false,
       ofrece_mentoria: true, visible_en_directorio: true, reportes_recibidos: 0,
-      foto_url: 'https://storage.fundacionucr.ac.cr/avatars/pablo_saenz.jpg' },
-    { id: 'e1000006-0000-0000-0000-000000000006', email: 'natalia.brenes@bac.cr',
+      foto_url: 'https://storage.fundacionucr.ac.cr/avatars/pablo_saenz.jpg'
+    },
+    {
+      id: 'e1000006-0000-0000-0000-000000000006', email: 'natalia.brenes@bac.cr',
       nombre: 'Natalia', apellidos: 'Brenes Rodríguez', rol: 'exalumno',
       email_verified: true, activo: true, busca_mentoria: false, busca_empleo: false,
       ofrece_mentoria: true, visible_en_directorio: true, reportes_recibidos: 0,
-      foto_url: 'https://storage.fundacionucr.ac.cr/avatars/natalia_brenes.jpg' },
+      foto_url: 'https://storage.fundacionucr.ac.cr/avatars/natalia_brenes.jpg'
+    },
     // Estudiantes (5 perfil completo)
-    { id: '52000001-0000-0000-0000-000000000001', email: 'ana.guerrero@ucr.ac.cr',
+    {
+      id: '52000001-0000-0000-0000-000000000001', email: 'ana.guerrero@ucr.ac.cr',
       nombre: 'Ana', apellidos: 'Guerrero Solís', rol: 'estudiante',
       email_verified: true, activo: true, busca_mentoria: true, busca_empleo: false,
       ofrece_mentoria: false, visible_en_directorio: true, reportes_recibidos: 0,
-      foto_url: 'https://storage.fundacionucr.ac.cr/avatars/ana_guerrero.jpg' },
-    { id: '52000002-0000-0000-0000-000000000002', email: 'marco.artavia@ucr.ac.cr',
+      foto_url: 'https://storage.fundacionucr.ac.cr/avatars/ana_guerrero.jpg'
+    },
+    {
+      id: '52000002-0000-0000-0000-000000000002', email: 'marco.artavia@ucr.ac.cr',
       nombre: 'Marco', apellidos: 'Artavia Badilla', rol: 'estudiante',
       email_verified: true, activo: true, busca_mentoria: true, busca_empleo: true,
       ofrece_mentoria: false, visible_en_directorio: true, reportes_recibidos: 0,
-      foto_url: 'https://storage.fundacionucr.ac.cr/avatars/marco_artavia.jpg' },
-    { id: '52000003-0000-0000-0000-000000000003', email: 'sofia.campos@ucr.ac.cr',
+      foto_url: 'https://storage.fundacionucr.ac.cr/avatars/marco_artavia.jpg'
+    },
+    {
+      id: '52000003-0000-0000-0000-000000000003', email: 'sofia.campos@ucr.ac.cr',
       nombre: 'Sofía', apellidos: 'Campos Arroyo', rol: 'estudiante',
       email_verified: true, activo: true, busca_mentoria: false, busca_empleo: true,
       ofrece_mentoria: false, visible_en_directorio: true, reportes_recibidos: 0,
-      foto_url: 'https://storage.fundacionucr.ac.cr/avatars/sofia_campos.jpg' },
-    { id: '52000004-0000-0000-0000-000000000004', email: 'daniel.rojas@ucr.ac.cr',
+      foto_url: 'https://storage.fundacionucr.ac.cr/avatars/sofia_campos.jpg'
+    },
+    {
+      id: '52000004-0000-0000-0000-000000000004', email: 'daniel.rojas@ucr.ac.cr',
       nombre: 'Daniel', apellidos: 'Rojas Monge', rol: 'estudiante',
       email_verified: true, activo: true, busca_mentoria: true, busca_empleo: true,
       ofrece_mentoria: false, visible_en_directorio: true, reportes_recibidos: 0,
-      foto_url: 'https://storage.fundacionucr.ac.cr/avatars/daniel_rojas.jpg' },
-    { id: '52000005-0000-0000-0000-000000000005', email: 'valentina.pizarro@ucr.ac.cr',
+      foto_url: 'https://storage.fundacionucr.ac.cr/avatars/daniel_rojas.jpg'
+    },
+    {
+      id: '52000005-0000-0000-0000-000000000005', email: 'valentina.pizarro@ucr.ac.cr',
       nombre: 'Valentina', apellidos: 'Pizarro Matarrita', rol: 'estudiante',
       email_verified: true, activo: true, busca_mentoria: true, busca_empleo: false,
       ofrece_mentoria: false, visible_en_directorio: true, reportes_recibidos: 0,
-      foto_url: 'https://storage.fundacionucr.ac.cr/avatars/valentina_pizarro.jpg' },
+      foto_url: 'https://storage.fundacionucr.ac.cr/avatars/valentina_pizarro.jpg'
+    },
     // Estudiantes perfil incompleto
-    { id: '52000006-0000-0000-0000-000000000006', email: 'carlos.mejia@ucr.ac.cr',
+    {
+      id: '52000006-0000-0000-0000-000000000006', email: 'carlos.mejia@ucr.ac.cr',
       nombre: 'Carlos', apellidos: 'Mejía Herrera', rol: 'estudiante',
       email_verified: false, activo: true, busca_mentoria: false, busca_empleo: false,
-      ofrece_mentoria: false, visible_en_directorio: false, reportes_recibidos: 0 },
-    { id: '52000007-0000-0000-0000-000000000007', email: 'lucia.vindas@ucr.ac.cr',
+      ofrece_mentoria: false, visible_en_directorio: false, reportes_recibidos: 0
+    },
+    {
+      id: '52000007-0000-0000-0000-000000000007', email: 'lucia.vindas@ucr.ac.cr',
       nombre: 'Lucía', apellidos: 'Vindas Alpízar', rol: 'estudiante',
       email_verified: false, activo: true, busca_mentoria: false, busca_empleo: false,
-      ofrece_mentoria: false, visible_en_directorio: false, reportes_recibidos: 0 },
+      ofrece_mentoria: false, visible_en_directorio: false, reportes_recibidos: 0
+    },
   ];
   await upsert('users', users);
 
@@ -177,7 +210,7 @@ async function main() {
     'Rodrigo Facio', 'Occidente', 'Atlántico', 'Guanacaste', 'Pacífico',
   ]);
 
-  const ccRes  = await request('GET', '/rest/v1/carrera_campus?select=id,carrera_id,campus_id');
+  const ccRes = await request('GET', '/rest/v1/carrera_campus?select=id,carrera_id,campus_id');
   const ccRows = JSON.parse(ccRes.body);
 
   function findCC(carreraNombre, campusNombre) {
@@ -190,16 +223,16 @@ async function main() {
   console.log('\n📂  Bloque 4 — users_carreras');
   const userCarrerasData = [
     { user_id: 'e1000001-0000-0000-0000-000000000001', carrera: 'Ciencias de la Computación e Informática', campus: 'Rodrigo Facio', anio_ingreso: 2005, anio_graduacion: 2010 },
-    { user_id: 'e1000002-0000-0000-0000-000000000002', carrera: 'Economía',                                 campus: 'Rodrigo Facio', anio_ingreso: 2003, anio_graduacion: 2008 },
-    { user_id: 'e1000003-0000-0000-0000-000000000003', carrera: 'Ingeniería Eléctrica',                     campus: 'Rodrigo Facio', anio_ingreso: 2004, anio_graduacion: 2009 },
+    { user_id: 'e1000002-0000-0000-0000-000000000002', carrera: 'Economía', campus: 'Rodrigo Facio', anio_ingreso: 2003, anio_graduacion: 2008 },
+    { user_id: 'e1000003-0000-0000-0000-000000000003', carrera: 'Ingeniería Eléctrica', campus: 'Rodrigo Facio', anio_ingreso: 2004, anio_graduacion: 2009 },
     { user_id: 'e1000004-0000-0000-0000-000000000004', carrera: 'Ciencias de la Computación e Informática', campus: 'Rodrigo Facio', anio_ingreso: 2008, anio_graduacion: 2013 },
     { user_id: 'e1000005-0000-0000-0000-000000000005', carrera: 'Ciencias de la Computación e Informática', campus: 'Rodrigo Facio', anio_ingreso: 2010, anio_graduacion: 2015 },
-    { user_id: 'e1000006-0000-0000-0000-000000000006', carrera: 'Dirección de Empresas',                   campus: 'Rodrigo Facio', anio_ingreso: 2009, anio_graduacion: 2014 },
+    { user_id: 'e1000006-0000-0000-0000-000000000006', carrera: 'Dirección de Empresas', campus: 'Rodrigo Facio', anio_ingreso: 2009, anio_graduacion: 2014 },
     { user_id: '52000001-0000-0000-0000-000000000001', carrera: 'Ciencias de la Computación e Informática', campus: 'Rodrigo Facio', anio_ingreso: 2022, anio_graduacion: null },
     { user_id: '52000002-0000-0000-0000-000000000002', carrera: 'Ciencias de la Computación e Informática', campus: 'Rodrigo Facio', anio_ingreso: 2021, anio_graduacion: null },
-    { user_id: '52000003-0000-0000-0000-000000000003', carrera: 'Dirección de Empresas',                   campus: 'Rodrigo Facio', anio_ingreso: 2023, anio_graduacion: null },
-    { user_id: '52000004-0000-0000-0000-000000000004', carrera: 'Ingeniería Eléctrica',                    campus: 'Rodrigo Facio', anio_ingreso: 2020, anio_graduacion: null },
-    { user_id: '52000005-0000-0000-0000-000000000005', carrera: 'Psicología',                              campus: 'Rodrigo Facio', anio_ingreso: 2022, anio_graduacion: null },
+    { user_id: '52000003-0000-0000-0000-000000000003', carrera: 'Dirección de Empresas', campus: 'Rodrigo Facio', anio_ingreso: 2023, anio_graduacion: null },
+    { user_id: '52000004-0000-0000-0000-000000000004', carrera: 'Ingeniería Eléctrica', campus: 'Rodrigo Facio', anio_ingreso: 2020, anio_graduacion: null },
+    { user_id: '52000005-0000-0000-0000-000000000005', carrera: 'Psicología', campus: 'Rodrigo Facio', anio_ingreso: 2022, anio_graduacion: null },
   ];
 
   const userCarrerasRows = userCarrerasData

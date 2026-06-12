@@ -55,15 +55,21 @@ export default function ExtendedMatches() {
 
   if (posiciones.length === 0) {
     return (
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-10 flex flex-col items-center justify-center text-center shadow-lg">
-        <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mb-4">
-          <Zap className="w-8 h-8 text-slate-500" />
+      <div className="bg-slate-900/40 border border-slate-800/60 rounded-3xl p-8 md:p-14 flex flex-col items-center justify-center text-center shadow-lg my-8">
+        <div className="w-20 h-20 bg-slate-800/80 rounded-3xl flex items-center justify-center mb-6 shadow-lg shadow-black/20 border border-slate-700">
+          <Zap className="w-10 h-10 text-amber-500/80" />
         </div>
-        <h3 className="text-xl font-bold text-white mb-2">No hay posiciones recomendadas</h3>
-        <p className="text-slate-400 max-w-md">
-          Tu perfil actual no ha generado matches superiores al 30% con las posiciones abiertas. 
-          Te recomendamos actualizar tu CV y expandir tus áreas de interés.
+        <h3 className="text-2xl font-bold text-white mb-3">No hay recomendaciones en este momento</h3>
+        <p className="text-slate-400 max-w-lg leading-relaxed mb-8 text-sm md:text-base">
+          El algoritmo de Matching Extendido no ha encontrado posiciones abiertas que superen un 30% de compatibilidad con tu perfil actual. 
+          Te sugerimos expandir tus áreas de interés o revisar si hay nuevas posiciones publicadas.
         </p>
+        <button 
+          onClick={() => window.location.href = '/jobs'}
+          className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transition-colors shadow-lg shadow-blue-900/20"
+        >
+          Explorar Bolsa de Empleo Manualmente
+        </button>
       </div>
     );
   }
@@ -83,7 +89,7 @@ export default function ExtendedMatches() {
       </div>
 
       {/* Grid de Tarjetas de Posición */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
         {posiciones.map((pos) => {
           const styleScore = getColorScorePosition(pos.score_match);
           

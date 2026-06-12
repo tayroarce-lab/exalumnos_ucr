@@ -5,7 +5,9 @@ import {
   getNuevoMatchTemplate,
   getAlertaSuspensionTemplate,
   getRecordatorioDonacionTemplate,
-  getAlertaMatchAntiguoTemplate
+  getAlertaMatchAntiguoTemplate,
+  getNuevaDonacionAdminTemplate,
+  getEstadoDonacionTemplate
 } from './templates';
 
 export async function notificarDonacionAprobada(toEmail: string, nombreEstudiante: string, monto: number, moneda: string) {
@@ -58,6 +60,24 @@ export async function notificarMatchAntiguoAdmin(toEmails: string[], nombreAdmin
   return sendEmail({
     to: toEmails,
     subject: '🗓️ Seguimiento requerido: Match activo por más de 6 meses',
+    html
+  });
+}
+
+export async function notificarNuevaDonacionAdmin(toEmail: string, monto: number, moneda: string, proyecto: string, metodo: string) {
+  const html = getNuevaDonacionAdminTemplate(monto, moneda, proyecto, metodo);
+  return sendEmail({
+    to: toEmail,
+    subject: '🔔 Nueva Donación Pendiente de Revisión',
+    html
+  });
+}
+
+export async function notificarEstadoDonacion(toEmail: string, nombreExalumno: string, estado: string, monto: number, moneda: string, motivoRechazo?: string) {
+  const html = getEstadoDonacionTemplate(nombreExalumno, estado, monto, moneda, motivoRechazo);
+  return sendEmail({
+    to: toEmail,
+    subject: estado === 'confirmada' ? '¡Tu donación ha sido confirmada! 🎉' : 'Actualización sobre tu donación',
     html
   });
 }

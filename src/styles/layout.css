@@ -2,19 +2,20 @@
 
 :root {
   /* Paleta oficial */
-  --esmeralda: #003B4F; /* Azul oscuro de los botones y textos de la cabecera */
+  --esmeralda: #003B4F;
+  /* Azul oscuro de los botones y textos de la cabecera */
   --celeste: #54BCEB;
   --amarillo: #FF9B18;
   --naranja: #F34B26;
   --negro: #141414;
   --blanco: #FFFFFF;
-  
+
   /* Variantes y auxiliares */
   --gris-fondo: #F7F9FB;
   --gris-texto: #4A5568;
   --gris-borde: #E2E8F0;
   --azul-oscuro-footer: #001C29;
-  
+
   /* Fuentes */
   --fuente-principal: 'Inter', sans-serif;
   --fuente-titulo: 'Outfit', sans-serif;
@@ -140,6 +141,13 @@ body {
 }
 
 /* ── DECORACIONES LADO IZQUIERDO ── */
+.auth-bg-fixed {
+  position: absolute;
+  inset: 0;
+  background-color: #FDECC8;
+  overflow: hidden;
+  z-index: 0;
+}
 
 /* Círculo grande de fondo — esquina superior derecha */
 .deco-circulo-grande-bg {
@@ -271,7 +279,7 @@ body {
   right: 28%;
   width: 78px;
   height: 78px;
-  background-image: radial-gradient(circle, rgba(255,255,255,0.38) 2px, transparent 2px);
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.38) 2px, transparent 2px);
   background-size: 15px 15px;
   pointer-events: none;
   z-index: 0;
@@ -286,7 +294,7 @@ body {
   right: 30%;
   width: 65px;
   height: 65px;
-  background-image: radial-gradient(circle, rgba(255,255,255,0.26) 2px, transparent 2px);
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.26) 2px, transparent 2px);
   background-size: 13px 13px;
   pointer-events: none;
   z-index: 0;
@@ -404,18 +412,37 @@ body {
 
 /* ── ANIMACIONES ── */
 @keyframes anim-slide-down {
-  from { opacity: 0; transform: translateY(-20px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes anim-slide-right {
-  from { opacity: 0; transform: translateX(-30px); }
-  to   { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 @keyframes anim-fade-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .cabecera {
@@ -453,45 +480,105 @@ body {
 
 /* ── KEYFRAMES ANIMACIONES LOOP (decoraciones) ── */
 @keyframes flotar-deco {
-  0%, 100% { transform: translateY(0px); }
-  50%       { transform: translateY(-16px); }
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-16px);
+  }
 }
 
 @keyframes flotar-deco-2 {
-  0%, 100% { transform: translateY(0px); }
-  50%       { transform: translateY(14px); }
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(14px);
+  }
 }
 
 @keyframes flotar-deco-3 {
-  0%, 100% { transform: translate(0, 0); }
-  33%       { transform: translate(7px, -11px); }
-  66%       { transform: translate(-5px, 7px); }
+
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  33% {
+    transform: translate(7px, -11px);
+  }
+
+  66% {
+    transform: translate(-5px, 7px);
+  }
 }
 
 @keyframes mover-deco {
-  0%, 100% { transform: translate(0, 0) rotate(0deg); }
-  25%       { transform: translate(8px, -8px) rotate(6deg); }
-  75%       { transform: translate(-5px, 5px) rotate(-4deg); }
+
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+
+  25% {
+    transform: translate(8px, -8px) rotate(6deg);
+  }
+
+  75% {
+    transform: translate(-5px, 5px) rotate(-4deg);
+  }
 }
 
 @keyframes rotar-lento {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes rotar-inverso {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(-360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(-360deg);
+  }
 }
 
 @keyframes pulsar-deco {
-  0%, 100% { transform: scale(1);    opacity: 0.65; }
-  50%       { transform: scale(1.28); opacity: 1; }
+
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.65;
+  }
+
+  50% {
+    transform: scale(1.28);
+    opacity: 1;
+  }
 }
 
 @keyframes parpadear-deco {
-  0%, 100% { opacity: 0.20; }
-  50%       { opacity: 0.70; }
+
+  0%,
+  100% {
+    opacity: 0.20;
+  }
+
+  50% {
+    opacity: 0.70;
+  }
 }
 
 /* ── FOOTER ── */
@@ -682,7 +769,8 @@ body {
   font-family: var(--fuente-titulo);
   font-size: 2.1rem;
   font-weight: 700;
-  color: #003B4F; /* matches UCR dark blue/emerald */
+  color: #003B4F;
+  /* matches UCR dark blue/emerald */
   margin-bottom: 1rem;
 }
 
@@ -869,6 +957,7 @@ body {
     grid-template-columns: 1fr;
     gap: 2rem;
   }
+
   .seccion-apoyo {
     padding: 4rem 2rem;
   }
@@ -879,14 +968,16 @@ body {
     padding: 2rem;
     min-height: auto;
   }
+
   .apoyo-tarjeta-bg-shape {
     display: none;
   }
+
   .apoyo-tarjeta-contenido {
     gap: 2.5rem;
   }
+
   .apoyo-titulo {
     font-size: 1.8rem;
   }
 }
-

@@ -3,7 +3,9 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { Eye, EyeOff, HelpCircle, ShieldCheck } from 'lucide-react'
-import Button from '@/components/ui/button'
+import Button from '@/components/ui/button';
+import '@/styles/loadingSpinner.css';
+import '@/styles/cycleWisdom.css';
 import { Input } from '@/components/ui/input'
 
 export default function LoginPage() {
@@ -117,10 +119,10 @@ export default function LoginPage() {
             <Button
               type="submit"
               variant="primary"
-              isLoading={isLoading}
+              disabled={isLoading}
               className="w-full h-12 bg-brand-celeste hover:bg-brand-celeste/95 text-white font-bold uppercase tracking-wider text-sm rounded-xl mt-3 shadow-md shadow-brand-celeste/10"
             >
-              Iniciar sesión →
+              {isLoading ? <div className="loading-spinner"></div> : 'Iniciar sesión →'}
             </Button>
           </form>
 
