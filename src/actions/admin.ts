@@ -75,7 +75,7 @@ export async function getDashboardMetrics() {
     // 1. Donaciones confirmadas → totales CRC / USD y proyectos con donación
     const { data: donaciones } = await adminClient
       .from('donaciones')
-      .select('monto, moneda, proyecto_estudiante_id').is('deleted_at', null)
+      .select('monto, moneda, proyecto_destino').is('deleted_at', null)
       .eq('estado', 'confirmada');
 
     let totalDonadoCRC = 0;
@@ -85,7 +85,7 @@ export async function getDashboardMetrics() {
     (donaciones ?? []).forEach((d) => {
       if (d.moneda === 'CRC') totalDonadoCRC += Number(d.monto);
       if (d.moneda === 'USD') totalDonadoUSD += Number(d.monto);
-      if (d.proyecto_estudiante_id) proyectosConDonacion.add(d.proyecto_estudiante_id);
+      if (d.proyecto_destino) proyectosConDonacion.add(d.proyecto_destino);
     });
 
     // 2. Matches activos
@@ -140,13 +140,13 @@ export async function getDashboardMetrics() {
     // 6. Donantes nuevos vs recurrentes
     const { data: todasDonaciones } = await adminClient
       .from('donaciones')
-      .select('exalumno_id').is('deleted_at', null)
+      .select('alumni_id').is('deleted_at', null)
       .eq('estado', 'confirmada');
 
     const donantesCount: Record<string, number> = {};
     (todasDonaciones ?? []).forEach((d) => {
-      if (d.exalumno_id) {
-        donantesCount[d.exalumno_id] = (donantesCount[d.exalumno_id] || 0) + 1;
+      if (d.alumni_id) {
+        donantesCount[d.alumni_id] = (donantesCount[d.alumni_id] || 0) + 1;
       }
     });
 
@@ -254,8 +254,7 @@ export async function listarDonacionesPendientes() {
     .from('donaciones')
     .select(
       `*,
-      exalumno:users!donaciones_exalumno_id_fkey(nombre, email),
-      estudiante:users!donaciones_proyecto_estudiante_id_fkey(nombre, email)`,
+      exalumno:profiles!donaciones_alumni_id_fkey(full_name, email)`
     ).is('deleted_at', null)
     .eq('estado', 'pendiente')
     .order('created_at', { ascending: true }); // más antiguas primero

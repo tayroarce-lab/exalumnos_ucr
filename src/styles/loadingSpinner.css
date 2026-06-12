@@ -1,0 +1,19 @@
+/* src/styles/loadingSpinner.css */
+
+.loading-spinner {
+  width: 1.5rem;
+  height: 1.5rem;
+  animation: spin 1s linear infinite;
+}
+
+.loading-spinner .path {
+  stroke: var(--theme-color, #ffffff);
+  stroke-linecap: round;
+  fill: none;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

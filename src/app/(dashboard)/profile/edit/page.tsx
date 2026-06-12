@@ -9,6 +9,7 @@ import {
 import Card from '@/components/ui/card'
 import Button from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
+import { generarMatchesMentoria } from '@/actions/matching'
 import {
   CARRERAS_UCR,
   ESCUELAS_UCR,
@@ -61,8 +62,10 @@ interface ProfileFormData {
   ofrece_pasantia: boolean
   ofrece_proyecto: boolean
   ofrece_donacion_dinero: boolean
-  monto_maximo_donacion: string
-  moneda_donacion: 'CRC' | 'USD'
+  monto_maximo_donacion?: string
+  moneda_donacion?: 'CRC' | 'USD'
+  donacion_monto_max: string
+  donacion_moneda: 'CRC' | 'USD'
 }
 
 const INITIAL: ProfileFormData = {
@@ -82,8 +85,8 @@ const INITIAL: ProfileFormData = {
   ofrece_pasantia: false,
   ofrece_proyecto: false,
   ofrece_donacion_dinero: false,
-  monto_maximo_donacion: '',
-  moneda_donacion: 'CRC',
+  donacion_monto_max: '',
+  donacion_moneda: 'CRC',
 }
 
 const STEPS = [
@@ -421,18 +424,6 @@ function AcademicEntryRow({ entry, index, updateEntryFields, removeEntry, facult
 }
 
 function SeccionAcademica({ data, update }: { data: ProfileFormData; update: (k: keyof ProfileFormData, v: unknown) => void }) {
-  const [facultades, setFacultades] = useState<string[]>([])
-
-  useEffect(() => {
-    const fetchFacultades = async () => {
-      const supabase = createClient()
-      const { data: facs, error } = await supabase.from('facultades').select('id_facultades, nombre').order('nombre')
-      if (facs && !error) {
-        setFacultades(facs.map((f: { nombre: string }) => f.nombre))
-      }
-    }
-    fetchFacultades()
-  }, [])
 
   const updateEntryFields = (idx: number, fields: Partial<AcademicEntry>) => {
     const newAcademic = [...data.academic]
@@ -457,7 +448,7 @@ function SeccionAcademica({ data, update }: { data: ProfileFormData; update: (k:
             index={idx}
             updateEntryFields={updateEntryFields}
             removeEntry={removeEntry}
-            facultadesOptions={facultades.length > 0 ? facultades : ESCUELAS_UCR}
+            facultadesOptions={ESCUELAS_UCR}
           />
         ))}
       </div>
@@ -581,8 +572,8 @@ function SeccionApoyo({ data, update }: { data: ProfileFormData; update: (k: key
                   <FieldLabel required>Monto máximo de donación</FieldLabel>
                   <input
                     type="number" min="0"
-                    value={data.monto_maximo_donacion}
-                    onChange={e => update('monto_maximo_donacion', e.target.value)}
+                    value={data.donacion_monto_max}
+                    onChange={e => update('donacion_monto_max', e.target.value)}
                     className="w-full h-10 px-3 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10"
                     placeholder="0"
                   />
@@ -591,8 +582,8 @@ function SeccionApoyo({ data, update }: { data: ProfileFormData; update: (k: key
                   <label htmlFor="moneda-donacion" className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Moneda<span className="text-rose-500 ml-1">*</span></label>
                   <select
                     id="moneda-donacion"
-                    value={data.moneda_donacion}
-                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => update('moneda_donacion', e.target.value as 'CRC' | 'USD')}
+                    value={data.donacion_moneda}
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => update('donacion_moneda', e.target.value as 'CRC' | 'USD')}
                     className="h-10 px-3 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 focus:outline-none focus:border-blue-600"
                   >
                     <option value="CRC">₡ CRC</option>
@@ -619,9 +610,9 @@ function validateStep(step: number, data: ProfileFormData): string[] {
     if (!data.bio.trim()) errs.push('La biografía es obligatoria.')
   }
   if (step === 2) {
-    if (data.academic.length === 0 || !data.academic[0].carrera) errs.push('Selecciona al menos una carrera UCR.')
-    if (!data.academic[0].escuela) errs.push('La escuela / facultad es obligatoria.')
-    if (!data.academic[0].anio) errs.push('El año de graduación es obligatorio.')
+    if (data.academic.length === 0 || !data.academic[0]?.carrera) errs.push('Selecciona al menos una carrera UCR.')
+    if (!data.academic[0]?.escuela) errs.push('La escuela / facultad es obligatoria.')
+    if (!data.academic[0]?.anio) errs.push('El año de graduación es obligatorio.')
   }
   if (step === 3) {
     if (!data.empresa_actual.trim()) errs.push('Empresa actual es obligatoria.')
@@ -634,7 +625,7 @@ function validateStep(step: number, data: ProfileFormData): string[] {
   }
   if (step === 5) {
     if (data.ofrece_mentoria && (!data.horas_mes_mentoria || Number(data.horas_mes_mentoria) < 1 || Number(data.horas_mes_mentoria) > 40)) errs.push('Horas de mentoría debe ser entre 1 y 40.')
-    if (data.ofrece_donacion_dinero && !data.monto_maximo_donacion) errs.push('Ingresa el monto máximo de donación.')
+    if (data.ofrece_donacion_dinero && !data.donacion_monto_max) errs.push('Ingresa el monto máximo de donación.')
   }
   return errs
 }
@@ -670,8 +661,8 @@ export default function ProfileEditPage() {
         ofrece_pasantia: profile.ofrece_pasantia || false,
         ofrece_proyecto: profile.ofrece_proyecto || false,
         ofrece_donacion_dinero: profile.ofrece_donacion_dinero || false,
-        monto_maximo_donacion: profile.monto_maximo_donacion ? String(profile.monto_maximo_donacion) : '',
-        moneda_donacion: (profile.moneda_donacion as 'CRC' | 'USD') || 'CRC',
+        donacion_monto_max: (profile as any).monto_maximo_donacion ? String((profile as any).monto_maximo_donacion) : '',
+        donacion_moneda: ((profile as any).moneda_donacion as 'CRC' | 'USD') || 'CRC',
       })
       setDataLoaded(true)
     } else if (!isLoading && !profile && !dataLoaded) {
@@ -745,8 +736,8 @@ export default function ProfileEditPage() {
       ofrece_pasantia: data.ofrece_pasantia,
       ofrece_proyecto: data.ofrece_proyecto,
       ofrece_donacion_dinero: data.ofrece_donacion_dinero,
-      monto_maximo_donacion: data.monto_maximo_donacion ? Number(data.monto_maximo_donacion) : null,
-      moneda_donacion: data.moneda_donacion,
+      monto_maximo_donacion: data.donacion_monto_max ? Number(data.donacion_monto_max) : null,
+      moneda_donacion: data.donacion_moneda,
       es_exalumno
     })
 
@@ -754,6 +745,15 @@ export default function ProfileEditPage() {
       setErrors(['Error al guardar el perfil: ' + error.message])
       setIsSaving(false)
       return
+    }
+
+    // Generar matches automáticamente si el usuario ofrece mentoría
+    if (data.ofrece_mentoria) {
+      try {
+        await generarMatchesMentoria()
+      } catch (err) {
+        console.error('Error al generar matches de mentoría en segundo plano:', err)
+      }
     }
 
     await refreshProfile()

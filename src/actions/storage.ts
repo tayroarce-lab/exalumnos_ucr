@@ -60,11 +60,11 @@ export async function getSignedUrlAction(bucket: 'comprobantes' | 'avatars', pat
     // Validar si es el exalumno que donó, o el estudiante que recibe
     const { data: donacion } = await adminClient
       .from('donaciones')
-      .select('exalumno_id, proyecto_estudiante_id').is('deleted_at', null)
+      .select('alumni_id').is('deleted_at', null)
       .eq('comprobante_url', path)
       .single();
       
-    if (donacion && (donacion.exalumno_id === user.id || donacion.proyecto_estudiante_id === user.id)) {
+    if (donacion && donacion.alumni_id === user.id) {
       allowed = true;
     }
   } else if (bucket === 'avatars') {

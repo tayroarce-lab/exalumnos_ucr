@@ -25,14 +25,17 @@ export const metadata: Metadata = {
 
 import { ProfileProvider } from '@/contexts/ProfileContext'
 
+import GlobalLoadingOverlay from '@/components/GlobalLoadingOverlay'
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
   return (
-    <html lang="es" className={`${barlow.variable} ${workSans.variable}`}>
-      <body className="font-sans antialiased text-negro-base bg-blanco">
+    <html lang="es">
+      <body>
+        <GlobalLoadingOverlay />
         <ProfileProvider>
           {children}
         </ProfileProvider>
