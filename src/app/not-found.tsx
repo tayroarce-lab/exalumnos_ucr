@@ -35,12 +35,12 @@ export default function NotFound() {
             Ir al inicio
           </Link>
           
-          <button 
-            onClick={() => window.history.back()}
-            className="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 font-semibold py-3 px-6 rounded-xl transition-all"
+          <Link 
+            href="/"
+            className="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 text-center font-semibold py-3 px-6 rounded-xl transition-all"
           >
             Volver a la página anterior
-          </button>
+          </Link>
         </div>
 
       </div>
