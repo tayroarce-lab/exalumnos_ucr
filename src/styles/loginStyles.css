@@ -366,32 +366,29 @@
 @media (max-width: 768px) {
   .login-page-wrapper {
     padding: 1rem;
+    align-items: flex-start;
   }
 
   .login-container {
     flex-direction: column;
     max-width: 100%;
+    margin-top: 1rem;
   }
 
   .login-left {
-    min-height: auto;
-    padding: 2.5rem 2rem;
-  }
-
-  .login-hero-text h2 {
-    font-size: 1.5rem;
-  }
-
-  .login-features {
     display: none;
   }
 
   .login-right {
-    padding: 2.5rem 2rem;
+    padding: 2rem 1.5rem;
   }
 
   .login-form-header h1 {
-    font-size: 1.5rem;
+    font-size: 1.6rem;
+  }
+  
+  .login-form-header .login-subtitle {
+    font-size: 0.9rem;
   }
 }
 
