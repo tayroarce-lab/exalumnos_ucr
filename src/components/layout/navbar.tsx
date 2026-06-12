@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
+import { Bell, ChevronDown, User, LogOut, Briefcase } from 'lucide-react'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { Bell, ChevronDown, User, LogOut, Settings, BarChart3, Users, Briefcase, Heart, ShieldAlert, GraduationCap } from 'lucide-react'
@@ -130,6 +131,15 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
             priority
           />
         </Link>
+
+        {/* Navegación central (desktop) */}
+        <nav className="hidden lg:flex items-center gap-6">
+          <Link href="/network" className="text-sm font-semibold hover:text-blue-200 transition-colors py-5 border-b-2 border-transparent hover:border-blue-300">Directorios</Link>
+          <Link href="/jobs" className="text-sm font-semibold hover:text-blue-200 transition-colors py-5 border-b-2 border-transparent hover:border-blue-300">Empleos</Link>
+          <Link href="/donations" className="text-sm font-semibold hover:text-blue-200 transition-colors py-5 border-b-2 border-transparent hover:border-blue-300">Donaciones</Link>
+          <Link href="/mentorships" className="text-sm font-semibold hover:text-blue-200 transition-colors py-5 border-b-2 border-transparent hover:border-blue-300">Mentorías</Link>
+          <Link href="/events" className="text-sm font-semibold hover:text-blue-200 transition-colors py-5 border-b-2 border-transparent hover:border-blue-300">Eventos</Link>
+        </nav>
       </div>
 
       {/* Centro: Botones de navegación contextuales */}
@@ -236,6 +246,14 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
               >
                 <User className="w-4 h-4 text-slate-400" />
                 <span>Mi Perfil</span>
+              </Link>
+              <Link
+                href="/mis-posiciones"
+                onClick={() => setIsDropdownOpen(false)}
+                className="flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-600 hover:bg-slate-50 hover:text-brand-blue transition-colors"
+              >
+                <Briefcase className="w-4 h-4 text-slate-400" />
+                <span>Mis Posiciones</span>
               </Link>
               <div className="border-t border-slate-100 my-1"></div>
               <button

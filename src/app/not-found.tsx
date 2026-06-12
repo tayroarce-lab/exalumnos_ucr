@@ -1,9 +1,6 @@
-import Link from 'next/link'
-import { Metadata } from 'next'
+'use client'
 
-export const metadata: Metadata = {
-  title: '404 - Página No Encontrada | Exalumnos UCR',
-}
+import Link from 'next/link'
 
 export default function NotFound() {
   return (

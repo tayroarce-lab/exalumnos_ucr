@@ -7,7 +7,7 @@ import Card from '@/components/ui/card'
 import Button from '@/components/ui/button'
 import { Input, Textarea, Select } from '@/components/ui/input'
 import { ArrowLeft, ChevronLeft, ChevronRight, CheckCircle2, Save, AlertCircle } from 'lucide-react'
-import { crearPosicion } from '@/actions/posiciones'
+import { crearPosicion } from '@/actions/positions'
 import type { PosicionFormValues } from '@/lib/validations/posiciones'
 
 export default function PublishJobPage() {
@@ -101,25 +101,27 @@ export default function PublishJobPage() {
     setServerError(null)
     setIsPublishing(true)
     
-    const result = await crearPosicion(formData)
+    const mappedData = {
+      ...formData,
+      tipo: (formData.tipo === 'Empleo' ? 'empleo' : 'pasantia') as 'empleo' | 'pasantia',
+      modalidad: (formData.modalidad === 'Híbrido' ? 'hibrido' : formData.modalidad === 'Remoto' ? 'remoto' : 'presencial') as 'presencial' | 'remoto' | 'hibrido',
+      jornada: (formData.jornada === 'Tiempo completo' ? 'tiempo_completo' : formData.jornada === 'Medio tiempo' ? 'medio_tiempo' : 'por_proyecto') as 'tiempo_completo' | 'medio_tiempo' | 'por_proyecto',
+      contexto_equipo: formData.contexto_equipo || undefined
+    }
 
-    setIsPublishing(false)
-    if (result.success) {
-      setIsPublished(true)
-      setTimeout(() => {
-        router.push('/jobs')
-      }, 1500)
-    } else {
-      setServerError(result.error || 'Error desconocido')
-      if (result.details) {
-        // Mapear errores de Zod si los hay al estado local
-        const zodErrs: Record<string, string> = {}
-        for (const [key, val] of Object.entries(result.details)) {
-          if (Array.isArray(val) && val.length > 0) zodErrs[key] = val[0]
-        }
-        setErrors(zodErrs)
-        setStep(1) // Volver al inicio para revisar errores
+    try {
+      const result = await crearPosicion(mappedData)
+      setIsPublishing(false)
+      if (result.success) {
+        setIsPublished(true)
+        setTimeout(() => {
+          router.push('/jobs')
+        }, 1500)
       }
+    } catch (err: any) {
+      setIsPublishing(false)
+      setServerError(err.message || 'Error desconocido')
+      setStep(1) // Volver al inicio para revisar si es necesario
     }
   }
 
