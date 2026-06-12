@@ -2,10 +2,9 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { Bell, ChevronDown, User, LogOut, Briefcase } from 'lucide-react'
+import { Bell, ChevronDown, User, LogOut, Settings, BarChart3, Users, Briefcase, Heart, ShieldAlert, GraduationCap } from 'lucide-react'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { Bell, ChevronDown, User, LogOut, Settings, BarChart3, Users, Briefcase, Heart, ShieldAlert, GraduationCap } from 'lucide-react'
 import { useProfile } from '@/contexts/ProfileContext'
 import { createClient } from '@/lib/supabase/client'
 import logoUCR from '@/images/Logo_UCR.png'
@@ -44,8 +43,6 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
       link: '/donations'
     }
   ])
-
-  const { user, profile } = useProfile()
   
   const name = profile?.full_name || user?.user_metadata?.nombre || user?.user_metadata?.full_name || 'Usuario'
   const initials = name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase()
@@ -132,14 +129,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
           />
         </Link>
 
-        {/* Navegación central (desktop) */}
-        <nav className="hidden lg:flex items-center gap-6">
-          <Link href="/network" className="text-sm font-semibold hover:text-blue-200 transition-colors py-5 border-b-2 border-transparent hover:border-blue-300">Directorios</Link>
-          <Link href="/jobs" className="text-sm font-semibold hover:text-blue-200 transition-colors py-5 border-b-2 border-transparent hover:border-blue-300">Empleos</Link>
-          <Link href="/donations" className="text-sm font-semibold hover:text-blue-200 transition-colors py-5 border-b-2 border-transparent hover:border-blue-300">Donaciones</Link>
-          <Link href="/mentorships" className="text-sm font-semibold hover:text-blue-200 transition-colors py-5 border-b-2 border-transparent hover:border-blue-300">Mentorías</Link>
-          <Link href="/events" className="text-sm font-semibold hover:text-blue-200 transition-colors py-5 border-b-2 border-transparent hover:border-blue-300">Eventos</Link>
-        </nav>
+
       </div>
 
       {/* Centro: Botones de navegación contextuales */}
