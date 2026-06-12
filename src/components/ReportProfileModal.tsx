@@ -10,7 +10,7 @@ interface ReportProfileModalProps {
 }
 
 export default function ReportProfileModal({ reportedUserId, isOpen, onClose }: ReportProfileModalProps) {
-  const [reason, setReason] = useState<SubmitReportInput['reason']>('Otro');
+  const [motivo, setMotivo] = useState<SubmitReportInput['motivo']>('Otro');
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -23,9 +23,9 @@ export default function ReportProfileModal({ reportedUserId, isOpen, onClose }: 
     setMessage('');
 
     const result = await submitProfileReport({
-      reported_user_id: reportedUserId,
-      reason,
-      description
+      perfil_reportado: reportedUserId,
+      motivo,
+      descripcion: description
     });
 
     setLoading(false);
@@ -57,8 +57,8 @@ export default function ReportProfileModal({ reportedUserId, isOpen, onClose }: 
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-1">Motivo del reporte</label>
             <select 
-              value={reason} 
-              onChange={(e) => setReason(e.target.value as any)}
+              value={motivo} 
+              onChange={(e) => setMotivo(e.target.value as any)}
               className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               required
             >

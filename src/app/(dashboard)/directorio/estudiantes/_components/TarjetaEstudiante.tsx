@@ -1,8 +1,10 @@
 import React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { EstudianteDirectorio } from "@/types/estudiantes";
 
 export default function TarjetaEstudiante({ estudiante }: { estudiante: EstudianteDirectorio }) {
+  const router = useRouter();
   const getTagsApoyo = () => {
     const tags = [];
     if (estudiante.busca_financiamiento) tags.push("Financiamiento");
@@ -79,7 +81,7 @@ export default function TarjetaEstudiante({ estudiante }: { estudiante: Estudian
 
       {/* Footer con botón Ofrecer Apoyo */}
       <div className="px-5 pb-5 mt-auto flex flex-col gap-2">
-        <button className="w-full inline-flex justify-center items-center gap-2 rounded-xl text-sm font-semibold transition-all duration-200 border-2 border-esmeralda/20 bg-white hover:bg-esmeralda hover:text-white text-esmeralda h-10 px-4 group/btn">
+        <button className="w-full inline-flex justify-center items-center gap-2 rounded-xl text-sm font-semibold transition-all duration-200 border-2 border-esmeralda/20 bg-white hover:bg-esmeralda hover:text-white text-esmeralda h-10 px-4 group/btn" onClick={() => router.push('/donations?metodo=sinpe')}>
           {/* Handshake icon */}
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform duration-200 group-hover/btn:scale-110">
             <path d="m11 17 2 2a1 1 0 1 0 3-3"/>

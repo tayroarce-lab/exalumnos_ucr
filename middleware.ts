@@ -255,10 +255,14 @@ export async function middleware(req: NextRequest) {
     return aplicarSecurityHeaders(NextResponse.redirect(url))
   }
 
-  // Usuario con sesión activa intenta ir a login/register → dashboard
+  // Usuario con sesión activa intenta ir a login/register → dashboard (o redirectTo)
   if (esRutaPublicaAuth && hayUsuario) {
     const url = req.nextUrl.clone()
-    url.pathname = '/dashboard'
+    const redirectToParam = req.nextUrl.searchParams.get('redirectTo')
+    const redirectToPath = validarRedirectTo(redirectToParam)
+    
+    url.pathname = redirectToPath
+    url.search = '' // Limpiamos parametros
     return aplicarSecurityHeaders(NextResponse.redirect(url))
   }
 

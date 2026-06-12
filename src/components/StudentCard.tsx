@@ -9,6 +9,7 @@
 // =============================================================================
 
 import { BookOpen, MapPin, Tag, Handshake } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 // ⚠️ TIPO PÚBLICO — Ausencia de beca/promedio/socioeconómico es intencional y obligatoria
 export interface EstudiantePublico {
@@ -46,13 +47,13 @@ const PALETA_INTERES = [
 // Las clases están listadas como literales para que el JIT las incluya en el build.
 function obtenerClaseAnchoBarra(porcentaje: number): string {
   const mapa: Record<number, string> = {
-    0: 'w-0',        5: 'w-[5%]',   10: 'w-[10%]',
-    15: 'w-[15%]',  20: 'w-[20%]',  25: 'w-1/4',
-    30: 'w-[30%]',  35: 'w-[35%]',  40: 'w-2/5',
-    45: 'w-[45%]',  50: 'w-1/2',    55: 'w-[55%]',
-    60: 'w-[60%]',  65: 'w-[65%]',  70: 'w-[70%]',
-    75: 'w-3/4',    80: 'w-4/5',    85: 'w-[85%]',
-    90: 'w-[90%]',  95: 'w-[95%]', 100: 'w-full',
+    0: 'w-0', 5: 'w-[5%]', 10: 'w-[10%]',
+    15: 'w-[15%]', 20: 'w-[20%]', 25: 'w-1/4',
+    30: 'w-[30%]', 35: 'w-[35%]', 40: 'w-2/5',
+    45: 'w-[45%]', 50: 'w-1/2', 55: 'w-[55%]',
+    60: 'w-[60%]', 65: 'w-[65%]', 70: 'w-[70%]',
+    75: 'w-3/4', 80: 'w-4/5', 85: 'w-[85%]',
+    90: 'w-[90%]', 95: 'w-[95%]', 100: 'w-full',
   };
   const redondeado = Math.round(porcentaje / 5) * 5;
   return mapa[Math.min(100, Math.max(0, redondeado))] ?? 'w-0';
@@ -61,6 +62,7 @@ function obtenerClaseAnchoBarra(porcentaje: number): string {
 // [VERDE - FUNCION: TarjetaEstudiante]
 // Componente de presentación pública del perfil de proyecto de un estudiante UCR.
 export function TarjetaEstudiante({ estudiante, alOfrecerApoyo }: PropsTarjetaEstudiante) {
+  const router = useRouter();
   const { nombreCompleto, carrera, sede, fotoPerfil, proyecto, areasInteres, tiposApoyoBuscado } = estudiante;
   const { titulo, areaTematica, tipoProyecto, porcentajeAvance } = proyecto;
 
@@ -70,8 +72,8 @@ export function TarjetaEstudiante({ estudiante, alOfrecerApoyo }: PropsTarjetaEs
   // Color de la barra de progreso según nivel de avance del proyecto
   const colorBarra =
     porcentajeAvance >= 75 ? 'bg-emerald-400' :
-    porcentajeAvance >= 45 ? 'bg-blue-400' :
-    'bg-amber-400';
+      porcentajeAvance >= 45 ? 'bg-blue-400' :
+        'bg-amber-400';
 
   const anchoBarra = obtenerClaseAnchoBarra(porcentajeAvance);
 
@@ -182,7 +184,7 @@ export function TarjetaEstudiante({ estudiante, alOfrecerApoyo }: PropsTarjetaEs
       <button
         type="button"
         id={`btn-ofrecer-apoyo-${estudiante.id}`}
-        onClick={() => alOfrecerApoyo(estudiante.id)}
+        onClick={() => router.push('/donations?metodo=sinpe')}
         className="mt-auto w-full py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 text-white text-sm font-semibold tracking-wide hover:from-blue-500 hover:to-violet-500 active:scale-[0.98] transition-all duration-200 shadow-md shadow-blue-900/20 hover:shadow-blue-700/30 relative"
       >
         Ofrecer apoyo

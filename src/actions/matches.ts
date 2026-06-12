@@ -101,8 +101,8 @@ export async function updateMatch(
     return { success: false, error: error.message };
   }
 
-  // Si el estado pasa a "activo" o "cerrado", enviamos notificaciones
-  if (estado === 'activo' || estado === 'cerrado') {
+  // Si el estado pasa a "activo", "cerrado" o "contactado", enviamos notificaciones
+  if (estado === 'activo' || estado === 'cerrado' || estado === 'contactado') {
     // Obtenemos los correos del exalumno y estudiante
     const { data } = await supabase
       .from('matches')
@@ -126,4 +126,89 @@ export async function updateMatch(
   }
 
   return { success: true };
+}
+
+export async function getMyMatches() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { data: null, error: 'No autorizado' };
+  }
+
+  const { data, error } = await supabase
+    .from('matches')
+    .select(`
+      id,
+      exalumno_id,
+      estudiante_id,
+      tipo_apoyo,
+      score_match,
+      estado,
+      resultado,
+      iniciado_por,
+      created_at,
+      exalumno:users!matches_exalumno_id_fkey(nombre, foto_url, carrera_principal_id, sector_industria, hobbies),
+      estudiante:users!matches_estudiante_id_fkey(nombre, foto_url, carrera_principal_id, proyecto_area_tematica, hobbies)
+    `)
+    .is('deleted_at', null)
+    .or(`estudiante_id.eq.${user.id},exalumno_id.eq.${user.id}`)
+    .order('score_match', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching user matches:', error);
+    return { data: null, error: error.message };
+  }
+
+  return { data, error: null };
+}
+
+export async function requestConnection(matchId: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: 'No autorizado' };
+  }
+
+  // Marcar como contactado e iniciado por el usuario actual
+  const { error } = await supabase
+    .from('matches')
+    .update({
+      estado: 'contactado',
+      iniciado_por: user.id,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', matchId)
+    .or(`estudiante_id.eq.${user.id},exalumno_id.eq.${user.id}`);
+
+  if (error) {
+    console.error('Error requesting connection:', error);
+    return { success: false, error: error.message };
+  }
+
+  // Notificar al otro usuario (se encarga updateMatch logic, pero como hicimos update directo aquí,
+  // reutilizamos updateMatch para que envíe el correo, o mejor llamamos a updateMatch)
+  // Como ya lo actualizamos, enviamos el email manualmente o refactorizamos. 
+  // Mejor usamos updateMatch para la notificación.
+  await updateMatch(matchId, 'contactado', null, null);
+
+  return { success: true };
+}
+
+export async function respondToConnection(matchId: string, accept: boolean) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: 'No autorizado' };
+  }
+
+  const estado = accept ? 'activo' : 'cerrado';
+  const resultado = accept ? 'en_progreso' : 'cancelado';
+
+  // Usamos updateMatch para que también envíe las notificaciones y admin notes (nulo de momento)
+  const result = await updateMatch(matchId, estado, resultado, null);
+
+  return result;
 }
