@@ -27,13 +27,7 @@ export const metadata: Metadata = {
   },
 }
 
-<<<<<<< HEAD
-=======
 
-
-import GlobalLoadingOverlay from '@/components/GlobalLoadingOverlay'
-
->>>>>>> 71c1f59e4181cb3a923e8f0391c528b266c98b1d
 export default function RootLayout({
   children,
 }: {
