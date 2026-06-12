@@ -122,8 +122,8 @@ export async function iniciarSesion(data: { email: string; password: string }) {
     password: data.password,
   })
 
-  if (error) throw new Error(error.message)
-  if (!authData.user) throw new Error('No se pudo obtener el usuario')
+  if (error) return { success: false, error: error.message }
+  if (!authData.user) return { success: false, error: 'No se pudo obtener el usuario' }
 
   // Consultar el rol usando adminClient (service_role) para bypasear RLS.
   // Esto garantiza que siempre se obtendrá el rol correcto sin importar las
@@ -138,13 +138,13 @@ export async function iniciarSesion(data: { email: string; password: string }) {
     // Si el usuario no existe en public.users todavía (race condition con trigger),
     // cerramos sesión para forzar un estado limpio y evitar un estado indefinido.
     await supabase.auth.signOut()
-    throw new Error('No se encontró el perfil del usuario. Intenta de nuevo en un momento.')
+    return { success: false, error: 'No se encontró el perfil del usuario. Intenta de nuevo en un momento.' }
   }
 
   // Si la cuenta está suspendida, cerrar sesión y lanzar error
   if (userData.activo === false) {
     await supabase.auth.signOut()
-    throw new Error('Tu cuenta ha sido suspendida. Contacta al administrador.')
+    return { success: false, error: 'Tu cuenta ha sido suspendida. Contacta al administrador.' }
   }
 
   // Determinar la ruta de destino según el rol

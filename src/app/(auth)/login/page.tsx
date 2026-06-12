@@ -45,7 +45,7 @@ export default function LoginPage() {
       // iniciarSesion devuelve { success, rol, rutaDestino } desde el servidor
       const result = await iniciarSesion({ email: email.trim(), password });
 
-      if (result?.success) {
+      if (result && result.success) {
         setMessage({ text: "Inicio de sesión exitoso. Redirigiendo...", type: "success" });
 
         // Si el usuario venía de una ruta específica válida, la usamos
@@ -55,15 +55,20 @@ export default function LoginPage() {
           : (redirectToParam ? redirectToParam : result.rutaDestino);
 
         // router.push + refresh para que Next.js sincronice la sesión del servidor
-        router.push(destino);
-        router.refresh();
+        if (destino) {
+          router.push(destino);
+          router.refresh();
+        }
         
         // Timeout para resetear el loading en caso de que el push sea silenciosamente ignorado (ej. redirigido al mismo lugar)
         setTimeout(() => setLoading(false), 2000);
+      } else if (result && !result.success) {
+        setLoading(false);
+        setMessage({ text: result.error || "Credenciales incorrectas. Verifica tu correo y contraseña.", type: "error" });
       }
     } catch (error: any) {
       setLoading(false);
-      setMessage({ text: error.message || "Credenciales incorrectas. Verifica tu correo y contraseña.", type: "error" });
+      setMessage({ text: "Error de conexión. Intenta nuevamente.", type: "error" });
     }
   };
 
