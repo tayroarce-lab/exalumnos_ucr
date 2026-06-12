@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { crearDonacion } from '@/actions/donaciones'
+import { crearDonacion } from '@/actions/donations'
 import Card from '@/components/ui/card'
 import Button from '@/components/ui/button'
 import {
