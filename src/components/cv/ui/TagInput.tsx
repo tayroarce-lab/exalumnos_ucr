@@ -42,7 +42,7 @@ export function TagInput({ items, onAdd, onRemove, type, disabled }: TagInputPro
   const levelsLanguage = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 font-sans">
       <div className="flex gap-2">
         <input
           type="text"
@@ -51,7 +51,7 @@ export function TagInput({ items, onAdd, onRemove, type, disabled }: TagInputPro
           onKeyDown={handleKeyDown}
           disabled={disabled}
           placeholder={type === 'soft' ? "Añadir habilidad (ej: Liderazgo)" : "Añadir..."}
-          className="flex-1 rounded-md border border-slate-200 dark:border-slate-800 bg-transparent dark:text-slate-50 px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-900 disabled:opacity-50"
+          className="flex-1 rounded-xl border border-slate-300 bg-blanco px-4 py-2 text-sm text-negro-base shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-celeste/50 disabled:opacity-50"
         />
         
         {type === 'technical' && (
@@ -59,7 +59,7 @@ export function TagInput({ items, onAdd, onRemove, type, disabled }: TagInputPro
             value={selectedLevel || ''} 
             onChange={(e) => setSelectedLevel(e.target.value as SkillLevel)}
             disabled={disabled}
-            className="rounded-md border border-slate-200 dark:border-slate-800 bg-transparent dark:text-slate-50 px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-900 disabled:opacity-50"
+            className="rounded-xl border border-slate-300 bg-blanco px-4 py-2 text-sm text-negro-base shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-celeste/50 disabled:opacity-50"
           >
             {levelsTechnical.map(l => <option key={l} value={l}>{l}</option>)}
           </select>
@@ -70,7 +70,7 @@ export function TagInput({ items, onAdd, onRemove, type, disabled }: TagInputPro
             value={selectedLevel || ''} 
             onChange={(e) => setSelectedLevel(e.target.value as SkillLevel)}
             disabled={disabled}
-            className="rounded-md border border-slate-200 dark:border-slate-800 bg-transparent dark:text-slate-50 px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-900 disabled:opacity-50"
+            className="rounded-xl border border-slate-300 bg-blanco px-4 py-2 text-sm text-negro-base shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-celeste/50 disabled:opacity-50"
           >
             {levelsLanguage.map(l => <option key={l} value={l}>{l}</option>)}
           </select>
@@ -80,7 +80,7 @@ export function TagInput({ items, onAdd, onRemove, type, disabled }: TagInputPro
           type="button"
           onClick={handleAdd}
           disabled={disabled || !inputValue.trim()}
-          className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-900 disabled:pointer-events-none disabled:opacity-50 bg-slate-900 text-slate-50 shadow hover:bg-slate-900/90 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-200 h-9 px-4 py-2"
+          className="inline-flex items-center justify-center rounded-xl text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-celeste disabled:pointer-events-none disabled:opacity-50 bg-celeste text-blanco shadow hover:bg-celeste/90 h-[42px] px-4 py-2"
         >
           <Plus className="w-4 h-4 mr-1" /> Añadir
         </button>
@@ -90,16 +90,16 @@ export function TagInput({ items, onAdd, onRemove, type, disabled }: TagInputPro
         {items.map((item) => (
           <div 
             key={item.id} 
-            className="inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-slate-950 focus:ring-offset-2 bg-slate-100 text-slate-900 hover:bg-slate-100/80"
+            className="inline-flex items-center gap-1 rounded-full border border-celeste/20 px-3 py-1 text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-celeste focus:ring-offset-2 bg-celeste/10 text-celeste hover:bg-celeste/20"
           >
-            {item.name} {item.level && <span className="text-slate-500 font-normal ml-1">({item.level})</span>}
+            {item.name} {item.level && <span className="text-celeste/70 font-bold ml-1">({item.level})</span>}
             <button
               type="button"
               onClick={() => onRemove(item.id)}
               disabled={disabled}
-              className="ml-1 rounded-full outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:opacity-50"
+              className="ml-1 rounded-full outline-none focus:ring-2 focus:ring-celeste focus:ring-offset-2 disabled:opacity-50"
             >
-              <X className="h-3 w-3 text-slate-500 hover:text-slate-900" />
+              <X className="h-4 w-4 text-celeste/70 hover:text-naranja transition-colors" />
               <span className="sr-only">Remove</span>
             </button>
           </div>

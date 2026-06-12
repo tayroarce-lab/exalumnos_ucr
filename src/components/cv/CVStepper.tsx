@@ -2,11 +2,15 @@
 
 import React, { useState, useEffect } from 'react';
 import { SaveState, SaveIndicator } from './SaveIndicator';
-import { AcademicInfoForm } from './forms/AcademicInfoForm';
-import { ExperienceForm } from './forms/ExperienceForm';
-import { SkillsForm } from './forms/SkillsForm';
-import { CertificationsForm } from './forms/CertificationsForm';
-import { CheckCircle2, Circle } from 'lucide-react';
+import { AcademicInfoForm } from '@/components/cv/forms/AcademicInfoForm';
+import { ExperienceForm } from '@/components/cv/forms/ExperienceForm';
+import { SkillsForm } from '@/components/cv/forms/SkillsForm';
+import { CertificationsForm } from '@/components/cv/forms/CertificationsForm';
+import { CheckCircle2, Eye, EyeOff, FileText } from 'lucide-react';
+import { useCVLive } from './CVLiveContext';
+import { VistaPreviaCV } from './VistaPreviaCV';
+import { validarDatosCompletos } from './utils';
+import { ModalGenerarCV } from './ModalGenerarCV';
 
 const steps = [
   { id: 1, title: 'Información Académica' },
@@ -16,9 +20,14 @@ const steps = [
 ];
 
 export function CVStepper({ initialData }: { initialData: any }) {
+  const { liveData } = useCVLive();
   const [currentStep, setCurrentStep] = useState(1);
   const [saveState, setSaveState] = useState<SaveState>('idle');
   const [saveMessage, setSaveMessage] = useState('');
+  const [showPreview, setShowPreview] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  
+  const isComplete = validarDatosCompletos(liveData);
   
   const handleSaveStateChange = React.useCallback((s: SaveState, msg?: string) => {
     setSaveState(s);
@@ -38,20 +47,17 @@ export function CVStepper({ initialData }: { initialData: any }) {
     }, 50);
   };
 
-  const handleExportPDF = async () => {
-    window.open('/api/cv/export', '_blank');
-  };
-
   return (
-    <div className="flex flex-col gap-8 w-full max-w-6xl mx-auto p-4 md:p-6 lg:p-8 relative z-10">
-      
-      {/* Header con Stepper Visual y Save Indicator */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-200/50 dark:border-white/10 pb-8 mb-4">
+    <>
+      <div className="flex flex-col gap-8 w-full max-w-[1400px] mx-auto p-4 md:p-6 lg:p-8 relative z-10">
+        
+        {/* Header con Stepper Visual y Save Indicator */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-200 pb-8 mb-4">
         <div className="space-y-1">
-          <h1 className="text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300">
+          <h1 className="text-4xl font-black uppercase tracking-tight text-[#003B4F] font-display">
             Editor de CV ATS
           </h1>
-          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+          <p className="text-base font-medium text-slate-600">
             Optimizado para sistemas de reclutamiento (Applicant Tracking Systems).
           </p>
         </div>
@@ -60,19 +66,31 @@ export function CVStepper({ initialData }: { initialData: any }) {
           <SaveIndicator state={saveState} message={saveMessage} />
           
           <button
-            onClick={handleExportPDF}
-            className="inline-flex items-center justify-center rounded-xl text-sm font-semibold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 disabled:pointer-events-none disabled:opacity-50 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 text-white shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:-translate-y-0.5 h-10 px-6 py-2"
+            onClick={() => setShowPreview(!showPreview)}
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-blanco shadow-sm hover:bg-slate-50 text-slate-700 h-10 px-4 py-2 text-sm font-semibold transition-all"
           >
-            Exportar PDF
+            {showPreview ? <><EyeOff className="w-4 h-4" /> Ocultar vista previa</> : <><Eye className="w-4 h-4" /> Mostrar vista previa</>}
           </button>
+
+          {isComplete && (
+            <button
+              onClick={() => setShowModal(true)}
+              className="inline-flex items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-naranja bg-[#E84F26] hover:bg-[#c93f1a] text-white shadow-[0_4px_12px_rgba(232,79,38,0.35)] hover:shadow-[0_6px_18px_rgba(232,79,38,0.45)] hover:-translate-y-0.5 h-10 px-6 py-2"
+            >
+              <FileText className="w-4 h-4" />
+              Generar mi CV
+            </button>
+          )}
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
+      <div className={`flex flex-col ${showPreview ? 'xl:flex-row' : ''} gap-8 xl:gap-12`}>
         
-        {/* Sidebar Navigation */}
-        <div className="w-full lg:w-72 shrink-0">
-          <nav className="flex flex-row lg:flex-col gap-3 overflow-x-auto pb-4 lg:pb-0 scrollbar-hide">
+        {/* Lado izquierdo: Formularios */}
+        <div className={`flex flex-col md:flex-row gap-8 xl:gap-12 ${showPreview ? 'xl:w-[calc(100%-420px-3rem)]' : 'w-full'} min-w-[480px]`}>
+          {/* Sidebar Navigation */}
+          <div className="w-full md:w-64 shrink-0">
+          <nav className="flex flex-row md:flex-col gap-3 overflow-x-auto pb-4 md:pb-0 scrollbar-hide">
             {steps.map((step) => {
               const isActive = currentStep === step.id;
               const isPast = step.id < currentStep; 
@@ -83,16 +101,16 @@ export function CVStepper({ initialData }: { initialData: any }) {
                   onClick={() => handleStepChange(step.id)}
                   className={`group relative flex items-center gap-4 px-4 py-3.5 rounded-2xl text-sm font-semibold transition-all duration-300 whitespace-nowrap text-left overflow-hidden ${
                     isActive 
-                      ? 'bg-white shadow-md shadow-slate-200/50 text-indigo-700 dark:bg-white/10 dark:shadow-none dark:text-white ring-1 ring-slate-200 dark:ring-white/20' 
-                      : 'text-slate-500 hover:text-slate-900 hover:bg-white/60 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-white/5'
+                      ? 'bg-blanco shadow-md shadow-slate-200/50 text-[#003B4F] ring-1 ring-slate-200' 
+                      : 'text-slate-500 hover:text-negro-base hover:bg-slate-50'
                   }`}
                 >
                   <div className={`flex items-center justify-center shrink-0 w-8 h-8 rounded-full transition-colors ${
                     isActive 
-                      ? 'bg-indigo-100 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-300' 
+                      ? 'bg-celeste/20 text-[#003B4F]' 
                       : isPast 
-                        ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400'
-                        : 'bg-slate-100 text-slate-400 dark:bg-white/5 dark:text-slate-500'
+                        ? 'bg-[#003B4F]/10 text-[#003B4F]'
+                        : 'bg-slate-100 text-slate-400'
                   }`}>
                     {isPast ? (
                       <CheckCircle2 className="w-5 h-5" />
@@ -102,9 +120,9 @@ export function CVStepper({ initialData }: { initialData: any }) {
                       <span className="text-xs">{step.id}</span>
                     )}
                   </div>
-                  <span className="tracking-wide">{step.title}</span>
+                  <span className="tracking-wide font-bold">{step.title}</span>
                   {isActive && (
-                    <div className="absolute inset-0 border-2 border-indigo-500/10 dark:border-white/5 rounded-2xl pointer-events-none" />
+                    <div className="absolute inset-0 border-2 border-celeste/30 rounded-2xl pointer-events-none" />
                   )}
                 </button>
               );
@@ -113,7 +131,7 @@ export function CVStepper({ initialData }: { initialData: any }) {
         </div>
 
         {/* Formulario Activo */}
-        <div className="flex-1 bg-white/70 dark:bg-slate-900/40 backdrop-blur-2xl rounded-3xl border border-slate-200/60 dark:border-white/10 p-6 sm:p-8 shadow-2xl shadow-slate-200/40 dark:shadow-black/40">
+        <div className="flex-1 bg-blanco rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-2xl shadow-slate-200/50">
           {currentStep === 1 && (
             <AcademicInfoForm 
               initialData={initialData.academic} 
@@ -142,25 +160,61 @@ export function CVStepper({ initialData }: { initialData: any }) {
           )}
 
           {/* Stepper Footer Buttons */}
-          <div className="flex justify-between items-center mt-10 pt-8 border-t border-slate-200/60 dark:border-white/10">
+          <div className="flex justify-between items-center mt-10 pt-8 border-t border-slate-200">
             <button
               onClick={() => handleStepChange(Math.max(1, currentStep - 1))}
               disabled={currentStep === 1}
-              className="inline-flex items-center justify-center rounded-xl text-sm font-semibold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 disabled:pointer-events-none disabled:opacity-50 border border-slate-200 dark:border-white/10 bg-white/50 dark:bg-white/5 shadow-sm hover:bg-slate-100 dark:hover:bg-white/10 dark:text-slate-200 hover:-translate-y-0.5 h-11 px-6 py-2"
+              className="inline-flex items-center justify-center rounded-xl text-sm font-semibold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 disabled:pointer-events-none disabled:opacity-50 border border-slate-300 bg-blanco shadow-sm hover:bg-slate-100 text-negro-base h-11 px-6 py-2 whitespace-nowrap min-w-[140px]"
             >
               Paso Anterior
             </button>
-            <button
-              onClick={() => handleStepChange(Math.min(steps.length, currentStep + 1))}
-              disabled={currentStep === steps.length}
-              className="inline-flex items-center justify-center rounded-xl text-sm font-semibold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 disabled:pointer-events-none disabled:opacity-50 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 text-white shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:-translate-y-0.5 h-11 px-8 py-2"
-            >
-              Siguiente Paso
-            </button>
+            {currentStep === steps.length ? (
+              <button
+                onClick={() => setShowModal(true)}
+                disabled={!isComplete}
+                className="inline-flex items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 disabled:pointer-events-none disabled:opacity-50 bg-[#003B4F] hover:bg-[#002b3a] text-white shadow-[0_4px_12px_rgba(0,59,79,0.35)] hover:shadow-[0_6px_18px_rgba(0,59,79,0.45)] hover:-translate-y-0.5 h-11 px-6 py-2 whitespace-nowrap min-w-[140px]"
+              >
+                <FileText className="w-4 h-4" />
+                {isComplete ? 'Generar mi CV' : 'Faltan datos'}
+              </button>
+            ) : (
+              <button
+                onClick={() => handleStepChange(currentStep + 1)}
+                className="inline-flex items-center justify-center rounded-xl text-sm font-semibold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amarillo disabled:pointer-events-none disabled:opacity-50 bg-[#E84F26] hover:bg-[#c93f1a] text-white shadow-[0_4px_12px_rgba(232,79,38,0.35)] hover:shadow-[0_6px_18px_rgba(232,79,38,0.45)] hover:-translate-y-0.5 h-11 px-8 py-2 whitespace-nowrap min-w-[140px]"
+              >
+                Siguiente Paso
+              </button>
+            )}
           </div>
         </div>
+        </div>
+
+        {/* Lado derecho: Vista Previa */}
+        {showPreview && (
+          <div className="hidden xl:block w-full max-w-[420px] shrink-0">
+            <VistaPreviaCV />
+          </div>
+        )}
+        
+        {/* Mobile Preview (Overlay Modal) */}
+        {showPreview && (
+          <div className="xl:hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm" onClick={() => setShowPreview(false)}>
+            <div className="w-full max-w-[420px] max-h-[90vh] overflow-y-auto relative rounded-3xl bg-slate-50 border border-slate-200 shadow-2xl" onClick={e => e.stopPropagation()}>
+              <button onClick={() => setShowPreview(false)} className="absolute top-4 right-4 z-10 p-2 bg-white/80 backdrop-blur rounded-full text-slate-500 hover:text-slate-900 shadow-sm transition-all border border-slate-200">
+                <span className="sr-only">Cerrar vista previa</span>
+                <EyeOff className="w-5 h-5" />
+              </button>
+              <div className="p-4">
+                <VistaPreviaCV />
+              </div>
+            </div>
+          </div>
+        )}
 
       </div>
     </div>
+    
+    {showModal && <ModalGenerarCV onClose={() => setShowModal(false)} />}
+    </>
   );
 }
