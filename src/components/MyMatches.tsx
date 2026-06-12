@@ -224,7 +224,6 @@ function TarjetaMatch({ match, onAccionar }: PropsTarjetaMatch) {
         {/* Toggle expandir/colapsar */}
         <button
           type="button"
-          id={`btn-expandir-${match.id}`}
           onClick={() => setExpandido(prev => !prev)}
           className="flex items-center gap-1 mt-2 text-xs text-slate-500 hover:text-slate-300 transition-colors duration-150"
         >
@@ -238,7 +237,6 @@ function TarjetaMatch({ match, onAccionar }: PropsTarjetaMatch) {
         <div className="flex gap-2 px-5 pb-5">
           <button
             type="button"
-            id={`btn-rechazar-${match.id}`}
             disabled={isPending}
             onClick={() => manejarAccion('rechazar')}
             className="flex items-center justify-center gap-1.5 flex-1 py-2 rounded-xl bg-red-500/10 border border-red-500/25 text-red-400 text-sm font-medium hover:bg-red-500/20 hover:border-red-500/40 active:scale-[0.98] transition-all duration-150 disabled:opacity-50"
@@ -248,7 +246,6 @@ function TarjetaMatch({ match, onAccionar }: PropsTarjetaMatch) {
           </button>
           <button
             type="button"
-            id={`btn-contactar-${match.id}`}
             disabled={isPending}
             onClick={() => manejarAccion('contactar')}
             className="flex items-center justify-center gap-1.5 flex-1 py-2 rounded-xl bg-slate-700/50 border border-slate-600/50 text-slate-300 text-sm font-medium hover:bg-slate-700 hover:border-slate-600 active:scale-[0.98] transition-all duration-150 disabled:opacity-50"
@@ -258,7 +255,6 @@ function TarjetaMatch({ match, onAccionar }: PropsTarjetaMatch) {
           </button>
           <button
             type="button"
-            id={`btn-aceptar-${match.id}`}
             disabled={isPending}
             onClick={() => manejarAccion('aceptar')}
             className="flex items-center justify-center gap-1.5 flex-1 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-sm font-semibold hover:from-emerald-500 hover:to-teal-500 active:scale-[0.98] transition-all duration-150 shadow-md shadow-emerald-900/20 disabled:opacity-50"
@@ -273,7 +269,6 @@ function TarjetaMatch({ match, onAccionar }: PropsTarjetaMatch) {
         <div className="px-5 pb-5">
           <button
             type="button"
-            id={`btn-activar-${match.id}`}
             disabled={isPending}
             onClick={() => manejarAccion('contactar')}
             className="w-full flex items-center justify-center gap-2 py-2 rounded-xl bg-amber-500/10 border border-amber-500/25 text-amber-300 text-sm font-medium hover:bg-amber-500/20 active:scale-[0.98] transition-all duration-150 disabled:opacity-50"
@@ -370,12 +365,11 @@ export default function MisMatches({ matchesIniciales, onAccionar }: PropsMisMat
       <div className="max-w-5xl mx-auto px-4 py-6 space-y-5">
 
         {/* ── FILTROS DE ESTADO ── */}
-        <div className="flex gap-2 overflow-x-auto pb-1">
+        <div className="flex gap-2 overflow-x-auto pb-2 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {ESTADOS_FILTRO.map(({ valor, label }) => (
             <button
               key={valor}
               type="button"
-              id={`btn-filtro-estado-${valor}`}
               onClick={() => setFiltroEstado(valor)}
               className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-150 ${
                 filtroEstado === valor
@@ -405,18 +399,27 @@ export default function MisMatches({ matchesIniciales, onAccionar }: PropsMisMat
             ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center py-24 gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center">
-              <Users className="w-7 h-7 text-slate-600" />
+          <div className="flex flex-col items-center justify-center py-20 px-4 bg-slate-900/40 border border-slate-800/60 rounded-3xl mt-4">
+            <div className="w-20 h-20 mb-6 rounded-3xl bg-slate-800/80 border border-slate-700 flex items-center justify-center shadow-lg shadow-black/20">
+              <Users className="w-10 h-10 text-emerald-500/80" />
             </div>
-            <div className="text-center">
-              <p className="text-white font-semibold">Sin matches en este estado</p>
-              <p className="text-slate-500 text-sm mt-1">
+            <div className="text-center max-w-md">
+              <h3 className="text-xl font-bold text-white mb-2">Sin matches en este estado</h3>
+              <p className="text-slate-400 text-sm leading-relaxed mb-6">
                 {filtroEstado === 'todos'
-                  ? 'El sistema aún no ha generado sugerencias para tu perfil.'
-                  : `No tienes matches con estado "${filtroEstado}".`}
+                  ? 'El sistema aún no ha generado sugerencias para tu perfil. Intenta actualizar tus áreas de interés.'
+                  : `Actualmente no tienes ningún match en estado "${filtroEstado}".`}
               </p>
             </div>
+            {filtroEstado !== 'todos' && (
+              <button
+                type="button"
+                onClick={() => setFiltroEstado('todos')}
+                className="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium rounded-xl border border-slate-700 transition-all flex items-center gap-2"
+              >
+                Ver todos los matches
+              </button>
+            )}
           </div>
         )}
       </div>

@@ -135,6 +135,7 @@ export default function DirectorioEstudiantes() {
   const [filtros, setFiltros] = useState<EstadoFiltros>(FILTROS_VACIOS);
   const [estudiantes, setEstudiantes] = useState<EstudiantePublico[]>([]);
   const [cargando, setCargando] = useState(true);
+  const [mostrarFiltros, setMostrarFiltros] = useState(false); // Nuevo estado para móviles
 
   useEffect(() => {
     async function cargarEstudiantes() {
@@ -280,26 +281,40 @@ export default function DirectorioEstudiantes() {
       <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
 
         {/* ── BARRA DE BÚSQUEDA RÁPIDA ── */}
-        <div className="relative">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-          <input
-            id="input-busqueda-directorio"
-            type="text"
-            placeholder="Buscar por nombre o título de proyecto..."
-            value={filtros.busqueda}
-            onChange={e => manejarCambioFiltroSimple('busqueda', e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/70 focus:ring-1 focus:ring-blue-500/30 transition-all duration-200"
-          />
+        <div className="flex flex-col sm:flex-row gap-3 relative">
+          <div className="relative flex-1">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+            <input
+              id="input-busqueda-directorio"
+              type="text"
+              placeholder="Buscar por nombre o título de proyecto..."
+              value={filtros.busqueda}
+              onChange={e => manejarCambioFiltroSimple('busqueda', e.target.value)}
+              className="w-full pl-10 pr-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/70 focus:ring-1 focus:ring-blue-500/30 transition-all duration-200 shadow-sm"
+            />
+          </div>
+          <button 
+            onClick={() => setMostrarFiltros(!mostrarFiltros)}
+            className={`flex items-center justify-center gap-2 sm:hidden px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+              mostrarFiltros || hayFiltrosActivos 
+                ? 'bg-blue-600 text-white' 
+                : 'bg-slate-800 border border-slate-700 text-slate-300'
+            }`}
+          >
+            <SlidersHorizontal className="w-4 h-4" />
+            <span>Filtros {hayFiltrosActivos && '(Activos)'}</span>
+            {mostrarFiltros ? <ChevronDown className="w-4 h-4 rotate-180 transition-transform" /> : <ChevronDown className="w-4 h-4 transition-transform" />}
+          </button>
         </div>
 
         {/* ── PANEL DE FILTROS ── */}
-        <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-4">
-          <div className="flex items-center justify-between mb-4">
+        <div className={`bg-slate-900/50 border border-slate-800 rounded-2xl p-4 sm:block ${mostrarFiltros ? 'block' : 'hidden'}`}>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3">
             <div className="flex items-center gap-2">
-              <SlidersHorizontal className="w-4 h-4 text-slate-400" />
-              <span className="text-sm font-medium text-slate-300">Filtros</span>
+              <SlidersHorizontal className="w-4 h-4 text-slate-400 hidden sm:block" />
+              <span className="text-sm font-medium text-slate-300 hidden sm:block">Filtros Avanzados</span>
               {hayFiltrosActivos && (
-                <span className="text-xs bg-blue-600 text-white px-1.5 py-0.5 rounded-full font-semibold">
+                <span className="text-xs bg-blue-600 text-white px-2 py-0.5 rounded-full font-semibold">
                   {[
                     filtros.carreras.length,
                     filtros.areasTematicas.length,
@@ -316,7 +331,7 @@ export default function DirectorioEstudiantes() {
                 type="button"
                 id="btn-limpiar-filtros"
                 onClick={limpiarFiltros}
-                className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors duration-150"
+                className="flex items-center justify-center w-full sm:w-auto gap-1.5 text-xs bg-slate-800 hover:bg-slate-700 sm:bg-transparent text-slate-300 sm:text-slate-400 sm:hover:text-white px-3 py-2 sm:p-0 rounded-lg transition-colors duration-150"
               >
                 <X className="w-3.5 h-3.5" />
                 Limpiar filtros
@@ -426,21 +441,24 @@ export default function DirectorioEstudiantes() {
           </div>
         ) : (
           /* Estado vacío cuando no hay resultados */
-          <div className="flex flex-col items-center justify-center py-24 gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center">
-              <Search className="w-7 h-7 text-slate-600" />
+          <div className="flex flex-col items-center justify-center py-20 px-4 bg-slate-900/40 border border-slate-800/60 rounded-3xl mt-4">
+            <div className="w-20 h-20 mb-6 rounded-3xl bg-slate-800/80 border border-slate-700 flex items-center justify-center shadow-lg shadow-black/20">
+              <Search className="w-10 h-10 text-blue-500/80" />
             </div>
-            <div className="text-center">
-              <p className="text-white font-semibold">Sin resultados</p>
-              <p className="text-slate-500 text-sm mt-1">Ningún proyecto coincide con los filtros aplicados.</p>
+            <div className="text-center max-w-md">
+              <h3 className="text-xl font-bold text-white mb-2">Sin resultados</h3>
+              <p className="text-slate-400 text-sm leading-relaxed mb-6">
+                No pudimos encontrar ningún proyecto o estudiante que coincida exactamente con los filtros aplicados. Intenta ampliar tu búsqueda o remover algunos filtros.
+              </p>
             </div>
             <button
               type="button"
               id="btn-limpiar-filtros-vacio"
               onClick={limpiarFiltros}
-              className="text-sm text-blue-400 hover:text-blue-300 underline underline-offset-2 transition-colors"
+              className="px-5 py-2.5 bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 text-sm font-medium rounded-xl border border-blue-500/20 transition-all flex items-center gap-2"
             >
-              Limpiar filtros
+              <X className="w-4 h-4" />
+              Limpiar todos los filtros
             </button>
           </div>
         )}
