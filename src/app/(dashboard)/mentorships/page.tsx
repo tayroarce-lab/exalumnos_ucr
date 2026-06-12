@@ -1,155 +1,338 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/client'
+import {
+  Handshake, GraduationCap, Briefcase, MessageCircle, Check,
+  X, Users, Clock, Star, BookOpen, ChevronDown, ChevronUp
+} from 'lucide-react'
 import Card from '@/components/ui/card'
-import { Search, Star, GraduationCap } from 'lucide-react'
 
-const MOCK_MENTORS = [
-  {
-    id: '1',
-    name: 'Ing. Carlos Salazar',
-    role: 'Staff Engineer',
-    company: 'Amazon Web Services',
-    rating: 4.9,
-    sessions: 42,
-    degree: 'Ingeniería Eléctrica, UCR',
-    skills: ['AWS', 'Cloud Architecture', 'Python', 'DevOps'],
-    quote: 'Me apasiona guiar a estudiantes en la transición del ámbito académico al corporativo global.',
-    initials: 'CS',
-    avatarBg: 'bg-blue-700'
-  },
-  {
-    id: '2',
-    name: 'Lic. Laura Rodríguez',
-    role: 'Product Manager',
-    company: 'Fintech Solutions',
-    rating: 4.7,
-    sessions: 18,
-    degree: 'Dirección de Empresas, UCR',
-    skills: ['Scrum', 'Product Design', 'Agile', 'Finanzas'],
-    quote: 'Apoyo a definir objetivos de carrera y metodologías ágiles en equipos multidisciplinarios.',
-    initials: 'LR',
-    avatarBg: 'bg-indigo-600'
-  },
-  {
-    id: '3',
-    name: 'M.Sc. Esteban Vargas',
-    role: 'Data Scientist Lead',
-    company: 'Intel Corporation',
-    rating: 4.8,
-    sessions: 29,
-    degree: 'Matemáticas y Computación, UCR',
-    skills: ['Data Science', 'Machine Learning', 'SQL', 'R/Python'],
-    quote: 'Te ayudo a adentrarte en el mundo de la analítica avanzada y la inteligencia artificial práctica.',
-    initials: 'EV',
-    avatarBg: 'bg-sky-600'
+// ─── TIPOS ──────────────────────────────────────────────────────────────────
+type EstadoMatch = 'sugerido' | 'contactado' | 'activo' | 'cerrado'
+
+interface Estudiante {
+  id: string
+  nombre: string
+  apellidos: string | null
+  foto_url: string | null
+  carrera_principal: string | null
+  proyecto_titulo: string | null
+}
+
+interface MatchReal {
+  id: string
+  score_match: number
+  estado: EstadoMatch
+  areas_comunes: string[]
+  created_at: string
+  estudiante: Estudiante | null
+}
+
+// ─── CONFIG DE ESTADO ────────────────────────────────────────────────────────
+const ESTADO_CONFIG: Record<EstadoMatch, { label: string; clase: string }> = {
+  sugerido:   { label: 'Sugerido',   clase: 'bg-blue-500/15 text-blue-700 border border-blue-300'       },
+  contactado: { label: 'Contactado', clase: 'bg-amber-500/15 text-amber-700 border border-amber-300'    },
+  activo:     { label: 'Activo',     clase: 'bg-emerald-500/15 text-emerald-700 border border-emerald-300' },
+  cerrado:    { label: 'Cerrado',    clase: 'bg-slate-200 text-slate-500 border border-slate-300'       },
+}
+
+function getScoreColor(score: number) {
+  if (score >= 80) return 'from-emerald-500 to-teal-600'
+  if (score >= 60) return 'from-blue-500 to-violet-600'
+  if (score >= 40) return 'from-amber-500 to-orange-600'
+  return 'from-slate-400 to-slate-500'
+}
+
+// ─── TARJETA DE MATCH ────────────────────────────────────────────────────────
+function TarjetaMatch({ match, onAccion }: {
+  match: MatchReal
+  onAccion: (id: string, accion: 'aceptar' | 'rechazar' | 'contactar') => Promise<void>
+}) {
+  const [expandido, setExpandido] = useState(false)
+  const [pendiente, setPendiente] = useState(false)
+  const est = match.estudiante
+  const estadoConf = ESTADO_CONFIG[match.estado]
+  const nombre = est ? `${est.nombre} ${est.apellidos ?? ''}`.trim() : 'Estudiante UCR'
+  const initials = nombre.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
+
+  const handleAccion = async (accion: 'aceptar' | 'rechazar' | 'contactar') => {
+    setPendiente(true)
+    await onAccion(match.id, accion)
+    setPendiente(false)
   }
-]
-
-export default function MentorshipsPage() {
-  const [searchTerm, setSearchTerm] = useState('')
-
-  const filteredMentors = MOCK_MENTORS.filter((mentor) => {
-    return (
-      mentor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      mentor.skills.some((skill) => skill.toLowerCase().includes(searchTerm.toLowerCase()))
-    )
-  })
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-100 to-white py-10 px-6 lg:px-10 relative overflow-hidden">
-      {/* Decorativos de fondo */}
-      <div className="absolute right-0 top-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl -z-10"></div>
-      <div className="absolute left-10 bottom-10 w-72 h-72 bg-indigo-400/10 rounded-full blur-2xl -z-10"></div>
-
-      <div className="max-w-6xl mx-auto space-y-10">
-        {/* Header */}
-        <div className="space-y-2 pt-2">
-          <h1 className="text-4xl font-extrabold uppercase font-display text-slate-900 tracking-wide">
-            Directorio de Mentores
-          </h1>
-          <p className="text-sm text-slate-700 font-medium max-w-2xl leading-relaxed">
-            Conéctate con graduados experimentados dispuestos a guiar tu desarrollo profesional.
-          </p>
+    <article className="bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden">
+      {/* Cabecera con score */}
+      <div className="flex items-start gap-4 p-5">
+        <div className={`flex-shrink-0 w-14 h-14 rounded-2xl bg-gradient-to-br ${getScoreColor(match.score_match)} flex flex-col items-center justify-center shadow`}>
+          <span className="text-white text-lg font-black leading-none">{match.score_match}</span>
+          <span className="text-white/70 text-[10px] font-medium">pts</span>
         </div>
 
-        {/* Buscador */}
-        <div className="relative bg-white rounded-2xl border border-slate-200 shadow-sm">
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-            <Search className="w-4 h-4" />
-          </span>
-          <input
-            type="text"
-            placeholder="Buscar por especialidad (ej. AWS, Scrum) o nombre..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full h-12 pl-11 pr-4 bg-transparent rounded-2xl text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
-          />
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            {/* Avatar */}
+            {est?.foto_url ? (
+              <img src={est.foto_url} alt={nombre} className="w-8 h-8 rounded-full object-cover ring-2 ring-slate-100" />
+            ) : (
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-institutional to-blue-700 text-white text-xs font-bold flex items-center justify-center ring-2 ring-slate-100">
+                {initials}
+              </div>
+            )}
+            <div className="min-w-0">
+              <p className="text-sm font-bold text-slate-900 truncate">{nombre}</p>
+              {est?.carrera_principal && (
+                <p className="text-xs text-slate-500 flex items-center gap-1">
+                  <GraduationCap className="w-3 h-3" />
+                  {est.carrera_principal}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap mt-2">
+            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${estadoConf.clase}`}>
+              {estadoConf.label}
+            </span>
+            <span className="text-[10px] text-slate-400 flex items-center gap-1">
+              <Clock className="w-3 h-3" />
+              {new Date(match.created_at).toLocaleDateString('es-CR', { day: 'numeric', month: 'short' })}
+            </span>
+          </div>
         </div>
+      </div>
 
-        {/* Grid de Mentores */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredMentors.length > 0 ? (
-            filteredMentors.map((mentor) => (
-              <Card key={mentor.id} hoverEffect={true} className="flex flex-col justify-between space-y-6 bg-white border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 rounded-2xl p-6">
-                <div className="space-y-4">
-                  {/* Avatar + Info */}
-                  <div className="flex items-center gap-4">
-                    <div className={`w-14 h-14 rounded-full ${mentor.avatarBg} text-white font-bold font-display text-lg flex items-center justify-center shadow-md shrink-0`}>
-                      {mentor.initials}
-                    </div>
-                    <div className="space-y-0.5">
-                      <h3 className="font-display font-bold text-sm text-slate-900 uppercase tracking-wide leading-snug">
-                        {mentor.name}
-                      </h3>
-                      <p className="text-xs font-semibold text-blue-700">
-                        {mentor.role} en {mentor.company}
-                      </p>
-                      <div className="flex items-center gap-1 text-[11px] font-bold text-amber-500 mt-0.5">
-                        <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                        <span>{mentor.rating}</span>
-                        <span className="text-slate-500 font-medium ml-1">({mentor.sessions} sesiones)</span>
-                      </div>
-                    </div>
-                  </div>
+      {/* Áreas en común */}
+      {match.areas_comunes && match.areas_comunes.length > 0 && (
+        <div className="px-5 pb-3">
+          <div className={`flex items-center gap-2 p-2.5 rounded-xl border text-xs bg-blue-50 border-blue-100 text-blue-700`}>
+            <BookOpen className="w-3.5 h-3.5 shrink-0" />
+            <span className="font-medium">{match.areas_comunes.length} área(s) de interés en común</span>
+          </div>
 
-                  {/* Carrera y cita */}
-                  <div className="space-y-2">
-                    <p className="flex items-center gap-1.5 text-xs text-slate-700 font-semibold">
-                      <GraduationCap className="w-4 h-4 text-blue-600 shrink-0" />
-                      {mentor.degree}
-                    </p>
-                    <p className="italic text-xs text-slate-500 leading-relaxed line-clamp-2">
-                      "{mentor.quote}"
-                    </p>
-                  </div>
-                </div>
-
-                {/* Skills + CTA */}
-                <div className="space-y-4 pt-4 border-t border-slate-100">
-                  <div className="flex flex-wrap gap-1.5">
-                    {mentor.skills.map((skill, idx) => (
-                      <span key={idx} className="bg-blue-50 text-blue-700 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide">
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-
-                  <Link href={`/mentorships/${mentor.id}`}>
-                    <span className="block text-center text-xs font-bold text-blue-700 hover:text-blue-900 transition-colors uppercase tracking-wider pt-2 cursor-pointer">
-                      Ver Perfil del Mentor →
-                    </span>
-                  </Link>
-                </div>
-              </Card>
-            ))
-          ) : (
-            <div className="col-span-full text-center py-12 text-slate-500 font-medium text-sm">
-              No se encontraron mentores disponibles.
+          {expandido && (
+            <div className="mt-2 flex flex-wrap gap-1.5 p-3 bg-slate-50 rounded-xl border border-slate-100">
+              {match.areas_comunes.map(area => (
+                <span key={area} className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-medium">{area}</span>
+              ))}
             </div>
           )}
+
+          {est?.proyecto_titulo && expandido && (
+            <div className="mt-2 p-3 bg-slate-50 rounded-xl border border-slate-100">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">Proyecto del estudiante</p>
+              <p className="text-sm text-slate-800 font-semibold">{est.proyecto_titulo}</p>
+            </div>
+          )}
+
+          <button
+            type="button"
+            onClick={() => setExpandido(p => !p)}
+            className="flex items-center gap-1 mt-2 text-xs text-slate-500 hover:text-slate-700 transition-colors"
+          >
+            {expandido ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+            {expandido ? 'Ver menos' : 'Ver detalles'}
+          </button>
         </div>
+      )}
+
+      {/* Acciones */}
+      {match.estado === 'sugerido' && (
+        <div className="flex gap-2 px-5 pb-5">
+          <button type="button" disabled={pendiente} onClick={() => handleAccion('rechazar')}
+            className="flex items-center justify-center gap-1.5 flex-1 py-2 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-bold hover:bg-red-100 transition-all disabled:opacity-50">
+            <X className="w-4 h-4" /> Rechazar
+          </button>
+          <button type="button" disabled={pendiente} onClick={() => handleAccion('contactar')}
+            className="flex items-center justify-center gap-1.5 flex-1 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-100 transition-all disabled:opacity-50">
+            <MessageCircle className="w-4 h-4" /> Contactar
+          </button>
+          <button type="button" disabled={pendiente} onClick={() => handleAccion('aceptar')}
+            className="flex items-center justify-center gap-1.5 flex-1 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-all shadow disabled:opacity-50">
+            <Check className="w-4 h-4" /> Aceptar
+          </button>
+        </div>
+      )}
+
+      {match.estado === 'contactado' && (
+        <div className="px-5 pb-5">
+          <button type="button" disabled={pendiente} onClick={() => handleAccion('contactar')}
+            className="w-full flex items-center justify-center gap-2 py-2 rounded-xl bg-amber-50 border border-amber-200 text-amber-700 text-xs font-bold hover:bg-amber-100 transition-all disabled:opacity-50">
+            <MessageCircle className="w-4 h-4" /> Ver conversación
+          </button>
+        </div>
+      )}
+    </article>
+  )
+}
+
+// ─── PÁGINA PRINCIPAL ────────────────────────────────────────────────────────
+export default function MentoriasPage() {
+  const [matches, setMatches] = useState<MatchReal[]>([])
+  const [cargando, setCargando] = useState(true)
+  const [filtro, setFiltro] = useState<EstadoMatch | 'todos'>('todos')
+  const [error, setError] = useState<string | null>(null)
+
+  const cargarMatches = useCallback(async () => {
+    setCargando(true)
+    setError(null)
+    const supabase = createClient()
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) { window.location.href = '/login'; return }
+
+      const { data, error: fetchError } = await supabase
+        .from('matches')
+        .select(`
+          id,
+          score_match,
+          estado,
+          areas_comunes,
+          created_at,
+          estudiante:users!matches_estudiante_id_fkey (
+            id, nombre, apellidos, foto_url, carrera_principal, proyecto_titulo
+          )
+        `)
+        .eq('exalumno_id', user.id)
+        .order('score_match', { ascending: false })
+
+      if (fetchError) throw new Error(fetchError.message)
+      setMatches((data ?? []) as unknown as MatchReal[])
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'No se pudieron cargar los matches.')
+    } finally {
+      setCargando(false)
+    }
+  }, [])
+
+  useEffect(() => { cargarMatches() }, [cargarMatches])
+
+  const handleAccion = async (matchId: string, accion: 'aceptar' | 'rechazar' | 'contactar') => {
+    const supabase = createClient()
+    let nuevoEstado: EstadoMatch | null = null
+    if (accion === 'aceptar')  nuevoEstado = 'contactado'
+    if (accion === 'rechazar') nuevoEstado = 'cerrado'
+
+    if (nuevoEstado) {
+      await supabase.from('matches').update({ estado: nuevoEstado }).eq('id', matchId)
+      setMatches(prev => prev.map(m => m.id === matchId ? { ...m, estado: nuevoEstado! } : m))
+    }
+  }
+
+  const matchesFiltrados = filtro === 'todos' ? matches : matches.filter(m => m.estado === filtro)
+  const totalSugeridos  = matches.filter(m => m.estado === 'sugerido').length
+  const totalActivos    = matches.filter(m => m.estado === 'activo').length
+  const scorePromedio   = matches.length > 0
+    ? Math.round(matches.reduce((a, m) => a + m.score_match, 0) / matches.length)
+    : 0
+
+  const FILTROS: Array<{ valor: EstadoMatch | 'todos'; label: string }> = [
+    { valor: 'todos',      label: 'Todos'       },
+    { valor: 'sugerido',   label: 'Sugeridos'   },
+    { valor: 'contactado', label: 'Contactados' },
+    { valor: 'activo',     label: 'Activos'     },
+    { valor: 'cerrado',    label: 'Cerrados'    },
+  ]
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white py-8 px-4 sm:px-6 lg:px-10">
+      <div className="max-w-5xl mx-auto space-y-8">
+
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-2">
+          <div>
+            <h1 className="text-3xl font-extrabold uppercase font-display text-slate-900 tracking-wide flex items-center gap-3">
+              <Handshake className="w-8 h-8 text-institutional" />
+              Mis Mentorías
+            </h1>
+            <p className="text-sm text-slate-500 font-medium mt-1">
+              Estudiantes sugeridos por el sistema según compatibilidad de perfil.
+            </p>
+          </div>
+          <Link href="/network" className="text-xs font-bold text-institutional hover:underline uppercase tracking-wider">
+            Ver directorio completo →
+          </Link>
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-3 gap-4">
+          {[
+            { label: 'Sugeridos', value: totalSugeridos, color: 'text-blue-600',    bg: 'bg-blue-50 border-blue-100'       },
+            { label: 'Activos',   value: totalActivos,   color: 'text-emerald-600', bg: 'bg-emerald-50 border-emerald-100' },
+            { label: 'Score prom.', value: `${scorePromedio}pts`, color: 'text-violet-600', bg: 'bg-violet-50 border-violet-100' },
+          ].map(stat => (
+            <div key={stat.label} className={`${stat.bg} border rounded-2xl p-4 text-center`}>
+              <p className={`text-2xl font-black ${stat.color}`}>{stat.value}</p>
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">{stat.label}</p>
+            </div>
+          ))}
+        </div>
+
+        {error && (
+          <div className="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
+            ⚠️ {error} — Asegúrate de tener conexión y un perfil actualizado.
+          </div>
+        )}
+
+        {cargando ? (
+          <div className="flex flex-col items-center justify-center py-24 bg-white border border-slate-200 rounded-2xl">
+            <div className="w-10 h-10 border-4 border-slate-200 border-t-institutional rounded-full animate-spin mb-4" />
+            <p className="text-sm font-bold text-slate-500 uppercase tracking-wide">Cargando matches...</p>
+          </div>
+        ) : (
+          <>
+            {/* Filtros */}
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              {FILTROS.map(({ valor, label }) => (
+                <button key={valor} type="button" onClick={() => setFiltro(valor)}
+                  className={`flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
+                    filtro === valor
+                      ? 'bg-institutional text-white border-institutional'
+                      : 'bg-white text-slate-600 border-slate-200 hover:border-slate-400'
+                  }`}>
+                  {label}
+                  {valor !== 'todos' && (
+                    <span className="ml-1.5 opacity-70">({matches.filter(m => m.estado === valor).length})</span>
+                  )}
+                </button>
+              ))}
+            </div>
+
+            {/* Grid de matches */}
+            {matchesFiltrados.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20 bg-white border border-dashed border-slate-300 rounded-2xl text-center">
+                <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mb-4">
+                  <Users className="w-8 h-8 text-slate-400" />
+                </div>
+                <h3 className="text-sm font-bold text-slate-600 mb-1">
+                  {filtro === 'todos'
+                    ? 'Aún no tienes matches generados'
+                    : `No hay matches en estado "${filtro}"`}
+                </h3>
+                <p className="text-xs text-slate-400 max-w-xs mt-1">
+                  {filtro === 'todos'
+                    ? 'Actualiza tu perfil con tus áreas de interés y el sistema encontrará estudiantes compatibles.'
+                    : 'Cambia el filtro para ver otros matches.'}
+                </p>
+                {filtro !== 'todos' && (
+                  <button type="button" onClick={() => setFiltro('todos')}
+                    className="mt-4 text-xs font-bold text-institutional hover:underline uppercase tracking-wider">
+                    Ver todos los matches
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                {matchesFiltrados.map(match => (
+                  <TarjetaMatch key={match.id} match={match} onAccion={handleAccion} />
+                ))}
+              </div>
+            )}
+          </>
+        )}
       </div>
     </div>
   )

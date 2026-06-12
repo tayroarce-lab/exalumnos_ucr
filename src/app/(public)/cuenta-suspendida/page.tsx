@@ -18,7 +18,7 @@ export default async function CuentaSuspendidaPage() {
     if (user) {
       const { data } = await supabase
         .from('users')
-        .select('suspension_reason, suspended_at')
+        .select('suspension_reason')
         .eq('id', user.id)
         .single()
 

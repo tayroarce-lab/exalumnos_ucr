@@ -37,16 +37,18 @@ export async function upsertCertification(data: CertificationData) {
     payload.id = validation.data.id;
   }
 
-  const { error } = await supabase
+  const { data: savedData, error } = await supabase
     .from('cv_certifications')
-    .upsert(payload);
+    .upsert(payload)
+    .select()
+    .single();
 
   if (error) {
     return { success: false, message: `Error guardando certificación: ${error.message}` };
   }
 
   revalidatePath('/dashboard/cv');
-  return { success: true, message: 'Certificación guardada' };
+  return { success: true, message: 'Certificación guardada', data: savedData };
 }
 
 export async function deleteCertification(id: string) {

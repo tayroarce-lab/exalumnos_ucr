@@ -5,6 +5,7 @@ import { TagInput, SkillLevel } from '../ui/TagInput';
 import { upsertSkill, deleteSkill } from '@/app/actions/cv/skills.actions';
 import { SkillData } from '@/app/actions/cv/schemas';
 import { SaveState } from '../SaveIndicator';
+import { useCVLive } from '../CVLiveContext';
 
 interface Props {
   initialData?: SkillData[];
@@ -13,6 +14,11 @@ interface Props {
 
 export function SkillsForm({ initialData = [], onSaveStateChange }: Props) {
   const [skills, setSkills] = useState<SkillData[]>(initialData);
+  const { setSkills: setLiveSkills } = useCVLive();
+
+  React.useEffect(() => {
+    setLiveSkills(skills);
+  }, [skills, setLiveSkills]);
 
   const handleAdd = async (name: string, level: SkillLevel, type: 'technical' | 'soft' | 'language') => {
     // Optimistic update
@@ -57,12 +63,12 @@ export function SkillsForm({ initialData = [], onSaveStateChange }: Props) {
   const langSkills = skills.filter(s => s.skill_type === 'language').map(s => ({ id: s.id as string, name: s.name, level: s.level as SkillLevel }));
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 font-sans">
       
       <section className="space-y-4">
-        <div>
-          <h3 className="text-xl font-extrabold tracking-tight dark:text-white mb-6">Habilidades Técnicas</h3>
-          <p className="text-sm text-slate-500">Lenguajes de programación, frameworks, herramientas de software, etc.</p>
+        <div className="mb-6">
+          <h3 className="text-2xl font-black uppercase font-display text-esmeralda mb-1">Habilidades Técnicas</h3>
+          <p className="text-sm text-slate-500 font-medium">Lenguajes de programación, frameworks, herramientas de software, etc.</p>
         </div>
         <TagInput 
           type="technical"
@@ -72,10 +78,10 @@ export function SkillsForm({ initialData = [], onSaveStateChange }: Props) {
         />
       </section>
 
-      <section className="space-y-4 border-t border-slate-200/60 dark:border-white/10 pt-6">
-        <div>
-          <h3 className="text-xl font-extrabold tracking-tight dark:text-white mb-6">Habilidades Blandas</h3>
-          <p className="text-sm text-slate-500">Liderazgo, trabajo en equipo, resolución de problemas...</p>
+      <section className="space-y-4 border-t border-slate-200 pt-6">
+        <div className="mb-6">
+          <h3 className="text-2xl font-black uppercase font-display text-esmeralda mb-1">Habilidades Blandas</h3>
+          <p className="text-sm text-slate-500 font-medium">Liderazgo, trabajo en equipo, resolución de problemas...</p>
         </div>
         <TagInput 
           type="soft"
@@ -85,10 +91,10 @@ export function SkillsForm({ initialData = [], onSaveStateChange }: Props) {
         />
       </section>
 
-      <section className="space-y-4 border-t border-slate-200/60 dark:border-white/10 pt-6">
-        <div>
-          <h3 className="text-xl font-extrabold tracking-tight dark:text-white mb-6">Idiomas</h3>
-          <p className="text-sm text-slate-500">Selecciona el nivel según el Marco Común Europeo de Referencia.</p>
+      <section className="space-y-4 border-t border-slate-200 pt-6">
+        <div className="mb-6">
+          <h3 className="text-2xl font-black uppercase font-display text-esmeralda mb-1">Idiomas</h3>
+          <p className="text-sm text-slate-500 font-medium">Selecciona el nivel según el Marco Común Europeo de Referencia.</p>
         </div>
         <TagInput 
           type="language"

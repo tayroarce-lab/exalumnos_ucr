@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { Mail, Lock, Eye, EyeOff, LogIn, GraduationCap, Users, ShieldCheck } from "lucide-react";
+import AuthBackground from '@/components/ui/AuthBackground';
 import { iniciarSesion } from "@/actions/auth";
 import { obtenerMiPerfil } from "@/actions/users";
 import logoUCR from "@/images/Logo_UCR.png";
@@ -16,7 +17,9 @@ import '@/styles/loadingSpinner.css';
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get('redirectTo') || '/dashboard';
+  // redirectTo del query param (guardado por el middleware para rutas protegidas)
+  const redirectToParam = searchParams.get('redirectTo');
+  const redirectTo = redirectToParam || '/dashboard';
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,6 +28,7 @@ export default function LoginPage() {
   const [message, setMessage] = useState<{ text: string; type: "error" | "success" } | null>(null);
 
   const manejarInicioSesion = async () => {
+    if (loading) return;
     setMessage(null);
 
     if (!email.trim()) {
@@ -36,6 +40,8 @@ export default function LoginPage() {
       setMessage({ text: "Por favor, ingresa tu contraseña.", type: "error" });
       return;
     }
+
+    setLoading(true);
 
     try {
       setLoading(true);
@@ -59,7 +65,7 @@ export default function LoginPage() {
       }
     } catch (error: any) {
       setLoading(false);
-      setMessage({ text: error.message || "Credenciales incorrectas", type: "error" });
+      setMessage({ text: error.message || "Credenciales incorrectas. Verifica tu correo y contraseña.", type: "error" });
     }
   };
 
@@ -71,6 +77,7 @@ export default function LoginPage() {
 
   return (
     <div className="login-page-wrapper">
+      <AuthBackground />
       <div className="login-container">
         {/* Panel Izquierdo — Decorativo */}
         <div className="login-left">
