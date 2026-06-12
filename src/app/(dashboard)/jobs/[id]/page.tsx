@@ -6,7 +6,8 @@ import Card from '@/components/ui/card'
 import Button from '@/components/ui/button'
 import Modal from '@/components/ui/modal'
 import { Input, Textarea } from '@/components/ui/input'
-import { ArrowLeft, MapPin, Building, Briefcase, Calendar, CheckCircle2 } from 'lucide-react'
+import { ArrowLeft, MapPin, Building, Briefcase, Calendar, CheckCircle2, Sparkles } from 'lucide-react'
+import { obtenerVersionAdaptadaPorPosicion } from '@/actions/accionGuardarVersion'
 
 // Datos de vacantes mock
 const MOCK_JOBS = [
@@ -90,6 +91,30 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
   const [fileName, setFileName] = useState('')
   const [isApplying, setIsApplying] = useState(false)
   const [isApplied, setIsApplied] = useState(false)
+  const [versionAdaptada, setVersionAdaptada] = useState<any>(null)
+  const [selectedCvType, setSelectedCvType] = useState<'base' | 'adaptado' | null>(null)
+  const [isFetchingVersion, setIsFetchingVersion] = useState(false)
+
+  React.useEffect(() => {
+    async function fetchVersion() {
+      setIsFetchingVersion(true)
+      const res = await obtenerVersionAdaptadaPorPosicion(id)
+      if (res.success && res.version) {
+        setVersionAdaptada(res.version)
+      }
+      setIsFetchingVersion(false)
+    }
+    fetchVersion()
+  }, [id])
+
+  const handleApplyClick = () => {
+    if (versionAdaptada) {
+      setSelectedCvType(null)
+    } else {
+      setSelectedCvType('base')
+    }
+    setIsModalOpen(true)
+  }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -195,12 +220,24 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
                   <span>¡Aplicación enviada con éxito!</span>
                 </div>
               ) : (
-                <Button
-                  onClick={() => setIsModalOpen(true)}
-                  className="w-full h-12 text-sm uppercase tracking-wider font-bold"
-                >
-                  Aplicar Ahora
-                </Button>
+                <>
+                  <Button
+                    onClick={handleApplyClick}
+                    className="w-full h-12 text-sm uppercase tracking-wider font-bold"
+                    disabled={isFetchingVersion}
+                  >
+                    {isFetchingVersion ? 'Cargando...' : 'Aplicar Ahora'}
+                  </Button>
+                  <Link href={`/jobs/${id}/adaptar`} className="w-full">
+                    <Button
+                      variant="secondary"
+                      className="w-full h-12 text-sm uppercase tracking-wider font-bold mt-3 border-emerald-200 text-emerald-700 hover:bg-emerald-50 bg-white"
+                    >
+                      <Sparkles className="w-4 h-4 mr-2 inline" />
+                      Adaptar CV con IA
+                    </Button>
+                  </Link>
+                </>
               )}
               <span className="text-[10px] text-slate-400 block font-semibold uppercase">
                 Requiere validación de grado UCR
@@ -225,7 +262,7 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
               variant="primary"
               onClick={handleApplySubmit}
               isLoading={isApplying}
-              disabled={!fileName}
+              disabled={!selectedCvType}
             >
               Confirmar Aplicación
             </Button>
@@ -237,32 +274,82 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
             Completa tu información de postulación para <span className="font-bold text-slate-800">{job.title}</span> en <span className="font-bold text-slate-800">{job.company}</span>.
           </p>
 
-          <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider">
-              Adjuntar Currículum Vitae (PDF)
-            </label>
-            <div className="relative border-2 border-dashed border-slate-200 rounded-xl p-6 text-center hover:border-brand-emerald/40 transition-colors cursor-pointer bg-slate-50">
-              <Input
-                type="file"
-                accept=".pdf"
-                onChange={handleFileChange}
-                className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-              />
-              <span className="text-xs font-bold text-brand-emerald block uppercase">
-                {fileName ? `✓ ${fileName}` : 'Buscar Archivo PDF'}
-              </span>
-              <span className="text-[10px] text-slate-400 block mt-1 uppercase font-semibold">
-                Máximo 5MB
-              </span>
-            </div>
-          </div>
+          {versionAdaptada && !selectedCvType && (
+            <div className="space-y-4">
+              <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <Sparkles className="w-5 h-5 text-orange-500 shrink-0 mt-0.5" />
+                  <div>
+                    <h4 className="text-sm font-bold text-orange-900 mb-1">CV Optimizado Detectado</h4>
+                    <p className="text-xs text-orange-800">
+                      Detectamos que creaste un CV optimizado para esta vacante. ¿Deseas aplicar utilizando tu <strong>{versionAdaptada.titulo_version}</strong> o prefieres usar tu CV Base?
+                    </p>
+                  </div>
+                </div>
+              </div>
 
-          <Textarea
-            label="Carta de Motivación (Opcional)"
-            placeholder="Escribe brevemente por qué te interesa este puesto y cómo encaja tu perfil..."
-            value={coverLetter}
-            onChange={(e) => setCoverLetter(e.target.value)}
-          />
+              <div className="flex flex-col gap-3">
+                <div 
+                  className="border-2 border-slate-200 rounded-xl p-4 cursor-pointer hover:border-brand-emerald/50 transition-colors"
+                  onClick={() => setSelectedCvType('adaptado')}
+                >
+                  <h5 className="font-bold text-sm text-slate-800">{versionAdaptada.titulo_version}</h5>
+                  <p className="text-xs text-slate-500 mt-1">Usar la versión optimizada con IA para aumentar tus posibilidades.</p>
+                </div>
+                <div 
+                  className="border-2 border-slate-200 rounded-xl p-4 cursor-pointer hover:border-brand-emerald/50 transition-colors"
+                  onClick={() => setSelectedCvType('base')}
+                >
+                  <h5 className="font-bold text-sm text-slate-800">CV Base</h5>
+                  <p className="text-xs text-slate-500 mt-1">Usar tu curriculum estándar registrado en la plataforma.</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {selectedCvType && (
+            <>
+              <div className="space-y-1.5">
+                <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                  Currículum Seleccionado
+                </label>
+                <div className="bg-slate-50 border border-slate-200 rounded-lg p-3">
+                  <span className="text-sm font-medium text-slate-700">
+                    {selectedCvType === 'adaptado' ? versionAdaptada?.titulo_version : 'CV Base del Sistema'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="space-y-1.5 mt-4">
+                <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                  Adjuntar Currículum Adicional (PDF) - Opcional
+                </label>
+                <div className="relative border-2 border-dashed border-slate-200 rounded-xl p-6 text-center hover:border-brand-emerald/40 transition-colors cursor-pointer bg-slate-50">
+                  <Input
+                    type="file"
+                    accept=".pdf"
+                    onChange={handleFileChange}
+                    className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                  />
+                  <span className="text-xs font-bold text-brand-emerald block uppercase">
+                    {fileName ? `✓ ${fileName}` : 'Buscar Archivo PDF'}
+                  </span>
+                  <span className="text-[10px] text-slate-400 block mt-1 uppercase font-semibold">
+                    Máximo 5MB
+                  </span>
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <Textarea
+                  label="Carta de Motivación (Opcional)"
+                  placeholder="Escribe brevemente por qué te interesa este puesto y cómo encaja tu perfil..."
+                  value={coverLetter}
+                  onChange={(e) => setCoverLetter(e.target.value)}
+                />
+              </div>
+            </>
+          )}
         </div>
       </Modal>
     </div>
