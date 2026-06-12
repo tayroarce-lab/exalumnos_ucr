@@ -1,10 +1,11 @@
+'use client';
+
 import React from 'react';
 import { EstudianteDirectorio } from '@/types/estudiantes';
 import GrillaEstudiantes from './GrillaEstudiantes';
 
 interface Props {
   estudiante: EstudianteDirectorio;
-  tagsApoyo: string[];
   estudiantesRelacionados: EstudianteDirectorio[];
 }
 
@@ -65,11 +66,18 @@ const IconMoney = () => (
   </svg>
 );
 
-export default function StudentProfile({ estudiante, tagsApoyo, estudiantesRelacionados }: Props) {
+export default function StudentProfile({ estudiante, estudiantesRelacionados }: Props) {
   const iniciales = estudiante.nombre.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
   const tecnicas = estudiante.habilidades_tecnicas ?? [];
   const blandas = estudiante.habilidades_blandas ?? [];
   const nd = (v: any) => v || 'No disponible';
+  
+  // Especialización Principal Fallback
+  const especializacion = estudiante.proyecto_area_tematica || estudiante.proyecto_tipo || (estudiante.areas_de_interes && estudiante.areas_de_interes.length > 0 ? estudiante.areas_de_interes[0] : 'Información no disponible');
+
+  // Modal states
+  const [showMentoriaModal, setShowMentoriaModal] = React.useState(false);
+  const [showApoyarModal, setShowApoyarModal] = React.useState(false);
 
   return (
     <div style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
@@ -152,25 +160,32 @@ export default function StudentProfile({ estudiante, tagsApoyo, estudiantesRelac
 
           {/* Necesidades + Intereses */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-            {/* Necesidades */}
+            {/* Oportunidades Laborales */}
             <div style={{ background: 'white', borderRadius: 14, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.07)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
                 <IconHand />
-                <span style={{ fontSize: 14, fontWeight: 700, color: '#0f1e2e' }}>Necesidades</span>
+                <span style={{ fontSize: 14, fontWeight: 700, color: '#0f1e2e' }}>Oportunidades Laborales</span>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {estudiante.busca_mentoria && (
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 12px', borderRadius: 20, border: '1.5px solid #c5d5e5', color: '#1e3a5f', fontSize: 12, fontWeight: 500, width: 'fit-content', background: 'white' }}>
-                    <IconDot /> Mentoría Técnica
+                {estudiante.busca_pasantia === true && (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 12px', borderRadius: 20, border: '1.5px solid #c5d5e5', color: '#1e3a5f', fontSize: 12, fontWeight: 500, width: 'fit-content', background: 'white' }} aria-label="Disponible para prácticas">
+                    <IconDot /> Disponible para prácticas profesionales
                   </span>
                 )}
                 {estudiante.busca_empleo && (
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 12px', borderRadius: 20, border: '1.5px solid #c5d5e5', color: '#1e3a5f', fontSize: 12, fontWeight: 500, width: 'fit-content', background: 'white' }}>
-                    <IconMoney /> Empleo
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 12px', borderRadius: 20, border: '1.5px solid #c5d5e5', color: '#1e3a5f', fontSize: 12, fontWeight: 500, width: 'fit-content', background: 'white' }} aria-label="Disponible para empleo">
+                    <IconMoney /> Disponible para empleo
                   </span>
                 )}
-                {!estudiante.busca_mentoria && !estudiante.busca_empleo && (
-                  <span style={{ color: '#9ab0c0', fontSize: 12 }}>No especificado.</span>
+                {estudiante.busca_mentoria && (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 12px', borderRadius: 20, border: '1.5px solid #c5d5e5', color: '#1e3a5f', fontSize: 12, fontWeight: 500, width: 'fit-content', background: 'white' }} aria-label="Disponible para mentorías">
+                    <IconBulb /> Disponible para mentorías futuras
+                  </span>
+                )}
+                {(!estudiante.busca_pasantia && !estudiante.busca_empleo && !estudiante.busca_mentoria) && (
+                  <span style={{ color: '#9ab0c0', fontSize: 12 }} aria-label="Sin preferencias laborales">
+                    Preferencias laborales no registradas
+                  </span>
                 )}
               </div>
             </div>
@@ -187,6 +202,21 @@ export default function StudentProfile({ estudiante, tagsApoyo, estudiantesRelac
                       <span key={i} style={{ padding: '5px 12px', borderRadius: 20, border: '1.5px solid #93c5e8', color: '#1a6090', fontSize: 12, fontWeight: 500, background: '#e8f3fb' }}>{b}</span>
                     ))
                   : <span style={{ color: '#9ab0c0', fontSize: 12 }}>No registrados.</span>
+                }
+              </div>
+            </div>
+            {/* Áreas de Interés Profesional */}
+            <div style={{ background: 'white', borderRadius: 14, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.07)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+                <IconBrain />
+                <span style={{ fontSize: 14, fontWeight: 700, color: '#0f1e2e' }}>Áreas de Interés Profesional</span>
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                {estudiante.areas_de_interes && estudiante.areas_de_interes.length > 0
+                  ? estudiante.areas_de_interes.map((a, i) => (
+                      <span key={i} style={{ padding: '5px 12px', borderRadius: 20, border: '1.5px solid #93c5e8', color: '#1a6090', fontSize: 12, fontWeight: 500, background: '#e8f3fb' }}>{a}</span>
+                    ))
+                  : <span style={{ color: '#9ab0c0', fontSize: 12 }}>No especificado.</span>
                 }
               </div>
             </div>
@@ -221,8 +251,10 @@ export default function StudentProfile({ estudiante, tagsApoyo, estudiantesRelac
             <h2 style={{ fontSize: 16, fontWeight: 700, color: 'white', margin: '0 0 20px' }}>Expediente Académico</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               {[
+                // TODO: [Fase Futura] Conectar 'Número de Carné' con campo real de la BD
                 { label: 'Número de Carné', value: 'No disponible' },
                 { label: 'Sede Universitaria', value: nd(estudiante.sede) },
+                // TODO: [Fase Futura] Conectar 'Nivel Actual' con campo real de la BD
                 { label: 'Nivel Actual', value: 'No disponible' },
                 ...(estudiante.anio_ingreso ? [{ label: 'Año de Ingreso', value: String(estudiante.anio_ingreso) }] : []),
               ].map(({ label, value }) => (
@@ -231,6 +263,17 @@ export default function StudentProfile({ estudiante, tagsApoyo, estudiantesRelac
                   <p style={{ fontSize: 15, fontWeight: 600, color: 'white', margin: 0 }}>{value}</p>
                 </div>
               ))}
+            </div>
+          </div>
+
+          {/* Especialización Principal */}
+          <div style={{ background: 'white', borderRadius: 14, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.07)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+              <IconMonitor />
+              <span style={{ fontSize: 14, fontWeight: 700, color: '#0f1e2e' }}>Especialización Principal</span>
+            </div>
+            <div>
+              <span style={{ color: especializacion === 'Información no disponible' ? '#9ab0c0' : '#1e3a5f', fontSize: especializacion === 'Información no disponible' ? 12 : 13, fontWeight: especializacion === 'Información no disponible' ? 400 : 500 }}>{especializacion}</span>
             </div>
           </div>
 
@@ -244,7 +287,9 @@ export default function StudentProfile({ estudiante, tagsApoyo, estudiantesRelac
               Para proteger la integridad del estudiante, la información sensible como el nivel de beca y detalles socioeconómicos están restringidos y solo son visibles para la administración de la Fundación.
             </p>
             {[
+              // TODO: [Fase Futura] Conectar 'Nivel de Beca' con campo real de la BD
               { label: 'Nivel de Beca', value: 'Categoría 5' },
+              // TODO: [Fase Futura] Conectar 'Promedio Ponderado' con campo real de la BD
               { label: 'Promedio Ponderado', value: '9.25' },
             ].map(({ label, value }) => (
               <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderTop: '1px solid #edf2f7' }}>
@@ -261,10 +306,11 @@ export default function StudentProfile({ estudiante, tagsApoyo, estudiantesRelac
           <div style={{ borderRadius: 14, border: '1.5px dashed #c5d5e5', background: '#f7fafd', padding: 20 }}>
             <p style={{ fontSize: 11, color: '#7a9ab0', textAlign: 'center', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 14 }}>Acciones para Mentores</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <button style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px 16px', borderRadius: 10, background: 'white', border: '1.5px solid #c5d5e5', color: '#0f1e2e', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
+              <button style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px 16px', borderRadius: 10, background: 'white', border: '1.5px solid #c5d5e5', color: '#0f1e2e', fontSize: 14, fontWeight: 600, cursor: 'pointer' }} onClick={() => setShowMentoriaModal(true)}>
                 <IconBulb /> Ofrecer Mentoría
               </button>
-              <button style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px 16px', borderRadius: 10, background: 'white', border: '1.5px solid #c5d5e5', color: '#0f1e2e', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
+              {/* TODO: [Fase Futura] Implementar Modal completo de Apoyar Proyecto que muestre SINPE (actualmente placeholder) y lógica de copia real */}
+              <button style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px 16px', borderRadius: 10, background: 'white', border: '1.5px solid #c5d5e5', color: '#0f1e2e', fontSize: 14, fontWeight: 600, cursor: 'pointer' }} onClick={() => setShowApoyarModal(true)}>
                 <IconSupport /> Apoyar Proyecto
               </button>
             </div>
@@ -293,6 +339,140 @@ export default function StudentProfile({ estudiante, tagsApoyo, estudiantesRelac
           <h2 style={{ fontSize: 22, fontWeight: 700, color: '#0f1e2e', marginBottom: 6 }}>Otros estudiantes que podrían interesarte</h2>
           {estudiante.carrera && <p style={{ color: '#6a8090', marginBottom: 24 }}>Estudiantes de <strong style={{ color: '#1e3a5f' }}>{estudiante.carrera}</strong>.</p>}
           <GrillaEstudiantes estudiantes={estudiantesRelacionados} />
+        </div>
+      )}
+      {/* ── MODAL MENTORÍA ── */}
+      {showMentoriaModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 30, 46, 0.5)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <div style={{ background: 'white', borderRadius: 16, padding: 32, width: '100%', maxWidth: 460, boxShadow: '0 10px 25px rgba(0,0,0,0.1)', position: 'relative' }}>
+            <button 
+              onClick={() => setShowMentoriaModal(false)}
+              style={{ position: 'absolute', top: 20, right: 20, background: 'transparent', border: 'none', cursor: 'pointer', color: '#7a9ab0', fontSize: 24, lineHeight: 1 }}
+            >
+              &times;
+            </button>
+            <div style={{ marginBottom: 24 }}>
+              <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0f1e2e', margin: '0 0 8px' }}>Ofrecer Mentoría</h2>
+              <p style={{ fontSize: 14, color: '#6a8090', margin: 0 }}>Has seleccionado ofrecer mentoría a <strong style={{ color: '#1e3a5f' }}>{estudiante.nombre}</strong>.</p>
+            </div>
+            
+            <div style={{ background: '#f7fafd', border: '1.5px solid #e2e8f0', borderRadius: 12, padding: 16, marginBottom: 24 }}>
+              <p style={{ fontSize: 12, fontWeight: 600, color: '#4a6a8a', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 4px' }}>Carrera</p>
+              <p style={{ fontSize: 14, fontWeight: 500, color: '#1e3a5f', margin: '0 0 12px' }}>{nd(estudiante.carrera)}</p>
+              
+              <p style={{ fontSize: 12, fontWeight: 600, color: '#4a6a8a', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 4px' }}>Especialización Principal</p>
+              <p style={{ fontSize: 14, fontWeight: 500, color: '#1e3a5f', margin: '0 0 12px' }}>{especializacion}</p>
+              
+              <p style={{ fontSize: 12, fontWeight: 600, color: '#4a6a8a', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 4px' }}>Áreas de Interés</p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                {estudiante.areas_de_interes && estudiante.areas_de_interes.length > 0 ? (
+                  estudiante.areas_de_interes.map((a, i) => (
+                    <span key={i} style={{ padding: '3px 8px', borderRadius: 20, border: '1px solid #c5d5e5', color: '#1e3a5f', fontSize: 11, fontWeight: 500, background: 'white' }}>{a}</span>
+                  ))
+                ) : (
+                  <span style={{ color: '#9ab0c0', fontSize: 12 }}>No especificado</span>
+                )}
+              </div>
+            </div>
+
+            <div style={{ marginBottom: 24 }}>
+              <p style={{ fontSize: 13, color: '#4a6070', lineHeight: 1.5, margin: 0 }}>
+                Las mentorías son una excelente forma de conectar exalumnos experimentados con estudiantes que requieren orientación. 
+              </p>
+            </div>
+
+            <div>
+              <p style={{ fontSize: 12, fontWeight: 700, color: '#0f1e2e', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>Información de Contacto</p>
+              {estudiante.url_linkedin || estudiante.url_portfolio ? (
+                <div style={{ display: 'flex', gap: 10 }}>
+                  {estudiante.url_linkedin && (
+                    <a href={estudiante.url_linkedin} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '10px 16px', borderRadius: 8, background: '#0a66c2', color: 'white', fontSize: 13, fontWeight: 600, textDecoration: 'none', flex: 1 }}>
+                      LinkedIn
+                    </a>
+                  )}
+                  {estudiante.url_portfolio && (
+                    <a href={estudiante.url_portfolio} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '10px 16px', borderRadius: 8, background: '#1e3a5f', color: 'white', fontSize: 13, fontWeight: 600, textDecoration: 'none', flex: 1 }}>
+                      Portafolio
+                    </a>
+                  )}
+                </div>
+              ) : (
+                <div style={{ background: '#f0f4f8', borderRadius: 8, padding: 12, textAlign: 'center' }}>
+                  <span style={{ fontSize: 12.5, color: '#6a8090', fontWeight: 500 }}>La información de contacto será habilitada por la administración.</span>
+                </div>
+              )}
+            </div>
+            
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 24 }}>
+              <button 
+                onClick={() => setShowMentoriaModal(false)}
+                style={{ padding: '10px 20px', borderRadius: 8, background: 'transparent', border: '1.5px solid #c5d5e5', color: '#4a6a8a', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* ── MODAL APÓYAR PROYECTO ── */}
+      {showApoyarModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 30, 46, 0.5)', zIndex: 9998, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <div style={{ background: 'white', borderRadius: 16, padding: 32, width: '100%', maxWidth: 460, boxShadow: '0 10px 25px rgba(0,0,0,0.1)', position: 'relative' }}>
+            <button
+              onClick={() => setShowApoyarModal(false)}
+              style={{ position: 'absolute', top: 20, right: 20, background: 'transparent', border: 'none', cursor: 'pointer', color: '#7a9ab0', fontSize: 24, lineHeight: 1 }}
+            >
+              &times;
+            </button>
+            <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0f1e2e', margin: '0 0 8px' }}>Apoyar Proyecto</h2>
+            <p style={{ fontSize: 14, color: '#6a8090', margin: '0 0 16px' }}>
+              Estás a punto de apoyar a <strong style={{ color: '#1e3a5f' }}>{estudiante.nombre}</strong> en su proyecto.
+            </p>
+            <div style={{ background: '#f7fafd', border: '1.5px solid #e2e8f0', borderRadius: 12, padding: 16, marginBottom: 24 }}>
+              <p style={{ fontSize: 12, fontWeight: 600, color: '#4a6a8a', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 4px' }}>Carrera</p>
+              <p style={{ fontSize: 14, fontWeight: 500, color: '#1e3a5f', margin: '0 0 12px' }}>{nd(estudiante.carrera)}</p>
+              <p style={{ fontSize: 12, fontWeight: 600, color: '#4a6a8a', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 4px' }}>Especialización Principal</p>
+              <p style={{ fontSize: 14, fontWeight: 500, color: '#1e3a5f', margin: '0 0 12px' }}>{especializacion}</p>
+              <p style={{ fontSize: 12, fontWeight: 600, color: '#4a6a8a', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 4px' }}>Áreas de Interés</p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                {estudiante.areas_de_interes && estudiante.areas_de_interes.length > 0 ? (
+                  estudiante.areas_de_interes.map((a, i) => (
+                    <span key={i} style={{ padding: '3px 8px', borderRadius: 20, border: '1px solid #c5d5e5', color: '#1e3a5f', fontSize: 11, fontWeight: 500, background: 'white' }}>{a}</span>
+                  ))
+                ) : (
+                  <span style={{ color: '#9ab0c0', fontSize: 12 }}>No especificado</span>
+                )}
+              </div>
+            </div>
+            <div style={{ marginBottom: 24 }}>
+              <p style={{ fontSize: 13, color: '#4a6070', lineHeight: 1.5, margin: 0 }}>
+                Si dispones de datos de contacto (LinkedIn o Portafolio) aparecerán abajo. De lo contrario muestra un mensaje informativo.
+              </p>
+            </div>
+            <div style={{ marginBottom: 24 }}>
+              {estudiante.url_linkedin || estudiante.url_portfolio ? (
+                <div style={{ display: 'flex', gap: 10 }}>
+                  {estudiante.url_linkedin && (
+                    <a href={estudiante.url_linkedin} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '10px 16px', borderRadius: 8, background: '#0a66c2', color: 'white', fontSize: 13, fontWeight: 600, textDecoration: 'none', flex: 1 }}>
+                      LinkedIn
+                    </a>
+                  )}
+                  {estudiante.url_portfolio && (
+                    <a href={estudiante.url_portfolio} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '10px 16px', borderRadius: 8, background: '#1e3a5f', color: 'white', fontSize: 13, fontWeight: 600, textDecoration: 'none', flex: 1 }}>
+                      Portafolio
+                    </a>
+                  )}
+                </div>
+              ) : (
+                <div style={{ background: '#f0f4f8', borderRadius: 8, padding: 12, textAlign: 'center' }}>
+                  <span style={{ fontSize: 12.5, color: '#6a8090', fontWeight: 500 }}>La información de contacto será habilitada por la administración.</span>
+                </div>
+              )}
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <button onClick={() => setShowApoyarModal(false)} style={{ padding: '10px 20px', borderRadius: 8, background: 'transparent', border: '1.5px solid #c5d5e5', color: '#4a6a8a', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Cerrar</button>
+            </div>
+          </div>
         </div>
       )}
     </div>

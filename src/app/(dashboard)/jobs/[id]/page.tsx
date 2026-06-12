@@ -78,11 +78,11 @@ const MOCK_JOBS = [
 ]
 
 interface JobDetailPageProps {
-  params: Promise<{ id: string }>
+  params: { id: string }
 }
 
 export default function JobDetailPage({ params }: JobDetailPageProps) {
-  const { id } = React.use(params)
+  const { id } = params
   const job = MOCK_JOBS.find((j) => j.id === id) || MOCK_JOBS[0]
 
   const [isModalOpen, setIsModalOpen] = useState(false)

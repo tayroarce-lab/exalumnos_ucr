@@ -9,6 +9,7 @@ import {
 import Card from '@/components/ui/card'
 import Button from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
+import { generarMatchesMentoria } from '@/actions/matching'
 import {
   CARRERAS_UCR,
   ESCUELAS_UCR,
@@ -744,6 +745,15 @@ export default function ProfileEditPage() {
       setErrors(['Error al guardar el perfil: ' + error.message])
       setIsSaving(false)
       return
+    }
+
+    // Generar matches automáticamente si el usuario ofrece mentoría
+    if (data.ofrece_mentoria) {
+      try {
+        await generarMatchesMentoria()
+      } catch (err) {
+        console.error('Error al generar matches de mentoría en segundo plano:', err)
+      }
     }
 
     await refreshProfile()

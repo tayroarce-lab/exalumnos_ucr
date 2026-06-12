@@ -16,7 +16,7 @@ export async function obtenerMiPerfil() {
     .from('users')
     .select('*').is('deleted_at', null)
     .eq('id', user.id)
-    .single()
+    .maybeSingle()
 
   if (dbError) throw new Error(dbError.message)
 

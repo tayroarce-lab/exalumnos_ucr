@@ -46,16 +46,18 @@ export async function upsertExperience(data: ExperienceData) {
     payload.id = validation.data.id;
   }
 
-  const { error } = await supabase
+  const { data: savedData, error } = await supabase
     .from('cv_experiences')
-    .upsert(payload);
+    .upsert(payload)
+    .select()
+    .single();
 
   if (error) {
     return { success: false, message: `Error guardando experiencia: ${error.message}` };
   }
 
   revalidatePath('/dashboard/cv');
-  return { success: true, message: 'Experiencia guardada' };
+  return { success: true, message: 'Experiencia guardada', data: savedData };
 }
 
 export async function deleteExperience(id: string) {

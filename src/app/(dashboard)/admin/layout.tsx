@@ -37,7 +37,6 @@ export default async function AdminLayout({
 
   return (
     <div className="admin-layout">
-      <Sidebar />
       <div className="admin-main-content">
         {children}
         <AdminFooter />
@@ -45,3 +44,4 @@ export default async function AdminLayout({
     </div>
   )
 }
+
