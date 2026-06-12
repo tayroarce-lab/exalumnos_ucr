@@ -22,10 +22,11 @@ import { revalidatePath } from 'next/cache'
 // ─── Tipos de retorno ─────────────────────────────────────────────────────────
 
 export interface DesgloseMentoria {
-  carrera: number       // 0 | 30
-  areasInteres: number  // 0..30
+  carrera: number       // 0 | 25
+  areasInteres: number  // 0..25
   sectorVsAreas: number // 0 | 20
   tipoApoyo: number     // 0 | 20
+  hobbies: number       // 0..10
 }
 
 export interface MatchMentoriaResult {
@@ -94,6 +95,8 @@ interface PerfilUsuario {
   carrera_principal_id: number | null
   areas_de_interes: string[] | null
   sector_industria: string[] | null
+  hobbies: string[] | null
+  proyecto_area_tematica: string | null
   busca_mentoria: boolean
   busca_empleo: boolean
   busca_pasantia: boolean
@@ -112,10 +115,11 @@ interface PerfilUsuario {
  * Lee de public.users (schema v20260608).
  *
  * Criterios de puntuación (total máximo: 100 puntos):
- *   - Misma carrera principal (carrera_principal_id)    = 30 pts
- *   - Intersección proporcional de áreas de interés     = máx. 30 pts
- *   - Sector exalumno ∩ áreas interés estudiante        = 20 pts
+ *   - Misma carrera principal (carrera_principal_id)    = 25 pts
+ *   - Intersección proporcional de áreas de interés     = máx. 25 pts
+ *   - Sector exalumno ∩ área proyecto estudiante        = 20 pts
  *   - Al menos un tipo de apoyo coincide                = 20 pts
+ *   - Hobbies en común                                  = máx. 10 pts
  */
 export async function calcularScoreMentoria(
   estudianteId: string,
@@ -124,7 +128,7 @@ export async function calcularScoreMentoria(
   const supabase = await createClient()
 
   const camposRequeridos = `
-    id, rol, carrera_principal_id, sector_industria,
+    id, rol, carrera_principal_id, sector_industria, hobbies, proyecto_area_tematica,
     busca_mentoria, busca_empleo, busca_pasantia, busca_financiamiento,
     ofrece_mentoria, ofrece_empleo, ofrece_pasantia, ofrece_donacion_dinero,
     visible_en_directorio,
@@ -162,24 +166,26 @@ export async function calcularScoreMentoria(
   const est = mapAreas(estudiante) as PerfilUsuario
   const exal = mapAreas(exalumno) as PerfilUsuario
 
-  // ── Criterio 1: Misma carrera principal — 30 puntos ─────────────────────
+  // ── Criterio 1: Misma carrera principal — 25 puntos ─────────────────────
   const puntosCarrera =
     est.carrera_principal_id !== null &&
     exal.carrera_principal_id !== null &&
     est.carrera_principal_id === exal.carrera_principal_id
-      ? 30 : 0
+      ? 25 : 0
 
-  // ── Criterio 2: Intersección proporcional de áreas de interés — máx. 30 pts
+  // ── Criterio 2: Intersección proporcional de áreas de interés — máx. 25 pts
   const areasEst:  string[] = est.areas_de_interes ?? []
   const areasExal: string[] = exal.areas_de_interes ?? []
   const ratioAreas = interseccionProporcional(areasEst, areasExal)
-  const puntosAreas = Math.round(ratioAreas * 30)
+  const puntosAreas = Math.round(ratioAreas * 25)
 
-  // ── Criterio 3: Sector exalumno ∩ áreas interés estudiante — 20 pts ─────
+  // ── Criterio 3: Sector exalumno ∩ área proyecto estudiante — 20 pts ─────
   const sectoresExal: string[] = exal.sector_industria ?? []
-  const puntosSector = sectoresExal.some((s) =>
-    areasEst.map((a) => a.toLowerCase()).includes(s.toLowerCase())
-  ) ? 20 : 0
+  const proyectoAreaEst: string | null = est.proyecto_area_tematica
+  let puntosSector = 0
+  if (proyectoAreaEst) {
+    puntosSector = incluidoEnArray(proyectoAreaEst, sectoresExal) ? 20 : 0
+  }
 
   // ── Criterio 4: Al menos un tipo de apoyo coincide — 20 puntos ──────────
   const hayCoincidenciaApoyo =
@@ -189,7 +195,13 @@ export async function calcularScoreMentoria(
     (exal.ofrece_donacion_dinero && est.busca_financiamiento)
   const puntosTipoApoyo = hayCoincidenciaApoyo ? 20 : 0
 
-  const scoreTotal = puntosCarrera + puntosAreas + puntosSector + puntosTipoApoyo
+  // ── Criterio 5: Hobbies en común — máx. 10 puntos ──────────
+  const hobbiesEst: string[] = est.hobbies ?? []
+  const hobbiesExal: string[] = exal.hobbies ?? []
+  const ratioHobbies = interseccionProporcional(hobbiesEst, hobbiesExal)
+  const puntosHobbies = Math.round(ratioHobbies * 10)
+
+  const scoreTotal = puntosCarrera + puntosAreas + puntosSector + puntosTipoApoyo + puntosHobbies
 
   return {
     score: Math.min(scoreTotal, 100),
@@ -198,6 +210,7 @@ export async function calcularScoreMentoria(
       areasInteres:  puntosAreas,
       sectorVsAreas: puntosSector,
       tipoApoyo:     puntosTipoApoyo,
+      hobbies:       puntosHobbies,
     },
   }
 }
@@ -208,7 +221,7 @@ export async function calcularScoreMentoria(
  * Lee directamente de public.users filtrando por rol y deleted_at.
  */
 export async function generarMatchesMentoria(
-  umbralMinimo: number = 40
+  umbralMinimo: number = 1
 ): Promise<ResultadoLote> {
   const adminClient = createAdminClient()
 
@@ -245,6 +258,7 @@ export async function generarMatchesMentoria(
         if (resultado.score < umbralMinimo) continue
 
         // Verificar si ya existe un match de mentoría entre este par
+        // Si existe, lo ignoramos, incluso si fue rechazado (estado 'cerrado', resultado 'cancelado')
         const { data: matchExistente } = await adminClient
           .from('matches')
           .select('id')

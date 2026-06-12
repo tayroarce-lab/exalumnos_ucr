@@ -1,7 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import '../styles/registerStyles.css';
+import '@/styles/registerStyles.css';
+import '@/styles/loadingSpinner.css';
+import '@/styles/cycleWisdom.css';
+import LoadingSpinner from '@/components/LoadingSpinner';
+import CycleWisdomOption3 from '@/components/CycleWisdomOption3';
 import { User, Mail, AlertCircle, ArrowRight, CheckCircle2, Clock } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -145,6 +149,7 @@ export default function Register() {
                />
              </Link>
            </div>
+
            <div className="register-hero-text mt-6">
              {tipoRegistro === 'estudiante' ? (
                <>
@@ -175,6 +180,20 @@ export default function Register() {
           <div className="register-header">
             <h1>{tipoRegistro === 'estudiante' ? 'Registro de Estudiante' : 'Registro de Exalumno'}</h1>
             <p className="subtitle">{tipoRegistro === 'estudiante' ? 'Acceso sin contraseñas mediante Enlace Mágico' : 'Autodeclaración. Welcome back to the UCR community.'}</p>
+            
+            {/* Toggle móvil (solo visible cuando register-left está oculto) */}
+            <div className="block md:hidden mt-4 p-4 bg-slate-50 border border-slate-200 rounded-lg">
+              <p className="text-sm text-slate-600 mb-2">
+                {tipoRegistro === 'estudiante' ? '¿Ya te graduaste?' : '¿Aún estás estudiando?'}
+              </p>
+              <button 
+                type="button" 
+                className={`w-full py-2 px-4 rounded font-semibold text-sm transition-colors border ${tipoRegistro === 'estudiante' ? 'border-orange-500 text-orange-600 hover:bg-orange-50' : 'border-blue-500 text-blue-600 hover:bg-blue-50'}`}
+                onClick={() => setTipoRegistro(tipoRegistro === 'estudiante' ? 'exalumno' : 'estudiante')}
+              >
+                {tipoRegistro === 'estudiante' ? 'Registrarse como Exalumno' : 'Registrarse como Estudiante'}
+              </button>
+            </div>
           </div>
           
           <div className="register-info-box">
