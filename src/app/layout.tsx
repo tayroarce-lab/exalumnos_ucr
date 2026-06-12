@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   },
 }
 
-import { ProfileProvider } from '@/contexts/ProfileContext'
+
 
 import GlobalLoadingOverlay from '@/components/GlobalLoadingOverlay'
 

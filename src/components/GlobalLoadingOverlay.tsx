@@ -63,7 +63,7 @@ export default function GlobalLoadingOverlay() {
 
     window.fetch = async (...args) => {
       activeRequests++;
-      setIsLoading(true);
+      setTimeout(() => setIsLoading(true), 0);
 
       try {
         const response = await originalFetch(...args);
@@ -71,7 +71,7 @@ export default function GlobalLoadingOverlay() {
       } finally {
         activeRequests--;
         if (activeRequests === 0) {
-          setIsLoading(false);
+          setTimeout(() => setIsLoading(false), 0);
         }
       }
     };
