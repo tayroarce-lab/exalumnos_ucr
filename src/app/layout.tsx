@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   title: 'Fundación Exalumnos UCR',
   description: 'Directorio Estudiantil',
 }
-
+import GlobalLoadingOverlay from '@/components/GlobalLoadingOverlay'
 
 export default function RootLayout({
   children,
