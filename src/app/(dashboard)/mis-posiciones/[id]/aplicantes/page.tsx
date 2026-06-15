@@ -1,3 +1,4 @@
+import { getAvatarUrl } from '@/lib/utils';
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
@@ -55,7 +56,7 @@ function TarjetaAplicante({ aplicacion, onCambiarEstado }: {
       <div className="flex items-start gap-4">
         {/* Avatar */}
         {estudiante?.foto_url ? (
-          <img src={estudiante.foto_url} alt={nombre} className="w-12 h-12 rounded-xl object-cover shrink-0" />
+          <img src={getAvatarUrl(estudiante.foto_url) as string} alt={nombre} className="w-12 h-12 rounded-xl object-cover shrink-0" />
         ) : (
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-institutional to-blue-700 text-white flex items-center justify-center font-bold text-base shrink-0">
             {initials}
