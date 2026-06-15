@@ -1,4 +1,5 @@
 'use client'
+import { getAvatarUrl } from '@/lib/utils';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
@@ -49,7 +50,7 @@ function ExalumnoCard({ ex }: { ex: ExalumnoPublic }) {
       {/* Header */}
       <div className="flex items-start gap-4">
         {ex.foto_url ? (
-          <img src={ex.foto_url} alt={`Foto de ${ex.nombre} ${ex.apellidos || ''}`} className="w-14 h-14 rounded-xl object-cover shadow-sm" />
+          <img src={getAvatarUrl(ex.foto_url) as string} alt={`Foto de ${ex.nombre} ${ex.apellidos || ''}`} className="w-14 h-14 rounded-xl object-cover shadow-sm" />
         ) : (
           <div className={`w-14 h-14 rounded-xl ${ex.avatarBg} text-white flex items-center justify-center font-bold text-lg shrink-0 shadow-sm`} aria-label={`Iniciales de ${ex.nombre} ${ex.apellidos || ''}`}>
             {ex.initials}
