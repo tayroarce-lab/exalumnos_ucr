@@ -103,7 +103,7 @@ export type VersionCurriculumInput = z.infer<typeof VersionCurriculumSchema>
 
 export interface CurriculumBase {
   id: string
-  estudiante_id: string
+  user_id: string
   cursos_relevantes: string[]
   proyecto_graduacion_resumen: string | null
   habilidades_tecnicas: Record<string, unknown>
@@ -184,9 +184,9 @@ export async function obtenerOCrearCurriculum(): Promise<CurriculumBase> {
   const { supabase, user } = await obtenerUsuarioAutenticado()
 
   const { data: existente, error: errSelect } = await supabase
-    .from('curriculum')
+    .from('curriculums')
     .select('*')
-    .eq('estudiante_id', user.id)
+    .eq('user_id', user.id)
     .maybeSingle()
 
   if (errSelect) {
@@ -204,9 +204,9 @@ export async function obtenerOCrearCurriculum(): Promise<CurriculumBase> {
 
   // Crear nuevo curriculum con valores vacíos
   const { data: nuevo, error: errInsert } = await supabase
-    .from('curriculum')
+    .from('curriculums')
     .insert({
-      estudiante_id: user.id,
+      user_id: user.id,
       cursos_relevantes: [],
       proyecto_graduacion_resumen: null,
       habilidades_tecnicas: {},
@@ -246,12 +246,12 @@ export async function actualizarCurriculumPrincipal(datos: {
   const { supabase, user } = await obtenerUsuarioAutenticado()
 
   const { error } = await supabase
-    .from('curriculum')
+    .from('curriculums')
     .update({
       ...datos,
       updated_at: new Date().toISOString(),
     })
-    .eq('estudiante_id', user.id)
+    .eq('user_id', user.id)
 
   if (error) {
     throw new Error(`Error al actualizar curriculum: ${error.message}`)
@@ -337,7 +337,7 @@ export async function actualizarExperiencia(
   // Verificar propiedad: la experiencia debe pertenecer al curriculum del usuario
   const { data: expExistente, error: errCheck } = await supabase
     .from('curriculum_experiencia')
-    .select('id, curriculum:curriculum_id(estudiante_id)')
+    .select('id, curriculum:curriculum_id(user_id)')
     .eq('id', experienciaId)
     .single()
 
@@ -348,12 +348,12 @@ export async function actualizarExperiencia(
   }
 
   const currRelacion = expExistente.curriculum as
-    | { estudiante_id: string }
-    | { estudiante_id: string }[]
+    | { user_id: string }
+    | { user_id: string }[]
     | null
   const estudianteId = Array.isArray(currRelacion)
-    ? currRelacion[0]?.estudiante_id
-    : currRelacion?.estudiante_id
+    ? currRelacion[0]?.user_id
+    : currRelacion?.user_id
 
   if (estudianteId !== user.id) {
     throw new Error('No tienes permisos para modificar esta experiencia.')
@@ -396,7 +396,7 @@ export async function eliminarExperiencia(experienciaId: string): Promise<void> 
 
   const { data: expExistente, error: errCheck } = await supabase
     .from('curriculum_experiencia')
-    .select('id, curriculum:curriculum_id(estudiante_id)')
+    .select('id, curriculum:curriculum_id(user_id)')
     .eq('id', experienciaId)
     .single()
 
@@ -407,12 +407,12 @@ export async function eliminarExperiencia(experienciaId: string): Promise<void> 
   }
 
   const currRelacion = expExistente.curriculum as
-    | { estudiante_id: string }
-    | { estudiante_id: string }[]
+    | { user_id: string }
+    | { user_id: string }[]
     | null
   const estudianteId = Array.isArray(currRelacion)
-    ? currRelacion[0]?.estudiante_id
-    : currRelacion?.estudiante_id
+    ? currRelacion[0]?.user_id
+    : currRelacion?.user_id
 
   if (estudianteId !== user.id) {
     throw new Error('No tienes permisos para eliminar esta experiencia.')
@@ -488,7 +488,7 @@ export async function eliminarCertificacion(certificacionId: string): Promise<vo
 
   const { data: certExistente, error: errCheck } = await supabase
     .from('curriculum_certificaciones')
-    .select('id, curriculum:curriculum_id(estudiante_id)')
+    .select('id, curriculum:curriculum_id(user_id)')
     .eq('id', certificacionId)
     .single()
 
@@ -499,12 +499,12 @@ export async function eliminarCertificacion(certificacionId: string): Promise<vo
   }
 
   const currRelacion = certExistente.curriculum as
-    | { estudiante_id: string }
-    | { estudiante_id: string }[]
+    | { user_id: string }
+    | { user_id: string }[]
     | null
   const estudianteId = Array.isArray(currRelacion)
-    ? currRelacion[0]?.estudiante_id
-    : currRelacion?.estudiante_id
+    ? currRelacion[0]?.user_id
+    : currRelacion?.user_id
 
   if (estudianteId !== user.id) {
     throw new Error('No tienes permisos para eliminar esta certificación.')
@@ -551,10 +551,10 @@ export async function guardarVersionCurriculum(
 
   // Verificar que el curriculum_id le pertenece al usuario autenticado
   const { data: curriculum, error: errCurr } = await supabase
-    .from('curriculum')
-    .select('id, estudiante_id')
+    .from('curriculums')
+    .select('id, user_id')
     .eq('id', datos.curriculum_id)
-    .eq('estudiante_id', user.id)
+    .eq('user_id', user.id)
     .single()
 
   if (errCurr || !curriculum) {
@@ -634,10 +634,10 @@ export async function listarVersionesCurriculum(
 
   // Verificar propiedad del curriculum
   const { data: curriculum, error: errCurr } = await supabase
-    .from('curriculum')
+    .from('curriculums')
     .select('id')
     .eq('id', curriculumId)
-    .eq('estudiante_id', user.id)
+    .eq('user_id', user.id)
     .single()
 
   if (errCurr || !curriculum) {
@@ -684,7 +684,7 @@ export async function eliminarVersionCurriculum(versionId: string): Promise<void
   // Verificar propiedad a través del curriculum relacionado
   const { data: version, error: errCheck } = await supabase
     .from('curriculum_versiones')
-    .select('id, curriculum:curriculum_id(estudiante_id)')
+    .select('id, curriculum:curriculum_id(user_id)')
     .eq('id', versionId)
     .single()
 
@@ -695,12 +695,12 @@ export async function eliminarVersionCurriculum(versionId: string): Promise<void
   }
 
   const currRelacion = version.curriculum as
-    | { estudiante_id: string }
-    | { estudiante_id: string }[]
+    | { user_id: string }
+    | { user_id: string }[]
     | null
   const estudianteId = Array.isArray(currRelacion)
-    ? currRelacion[0]?.estudiante_id
-    : currRelacion?.estudiante_id
+    ? currRelacion[0]?.user_id
+    : currRelacion?.user_id
 
   if (estudianteId !== user.id) {
     throw new Error('No tienes permisos para eliminar esta versión de CV.')

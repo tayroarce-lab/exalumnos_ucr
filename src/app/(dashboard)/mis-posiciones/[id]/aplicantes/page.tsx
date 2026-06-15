@@ -11,17 +11,16 @@ type AplicantesData = Awaited<ReturnType<typeof obtenerAplicantesPorPosicion>>
 type Aplicacion = AplicantesData['aplicantes'][number]
 
 const ESTADOS: Array<{
-  valor: 'pendiente' | 'en_revision' | 'entrevistado' | 'aceptado' | 'rechazado'
+  valor: 'enviada' | 'en_revision' | 'seleccionado' | 'descartado'
   label: string
   bg: string
   text: string
   dot: string
 }> = [
-  { valor: 'pendiente',    label: 'Pendiente',    bg: 'bg-slate-100',    text: 'text-slate-600',   dot: 'bg-slate-400'   },
+  { valor: 'enviada',      label: 'Pendiente',    bg: 'bg-slate-100',    text: 'text-slate-600',   dot: 'bg-slate-400'   },
   { valor: 'en_revision',  label: 'En Revisión',  bg: 'bg-blue-50',      text: 'text-blue-700',    dot: 'bg-blue-500'    },
-  { valor: 'entrevistado', label: 'Entrevistado', bg: 'bg-violet-50',    text: 'text-violet-700',  dot: 'bg-violet-500'  },
-  { valor: 'aceptado',     label: 'Aceptado',     bg: 'bg-emerald-50',   text: 'text-emerald-700', dot: 'bg-emerald-500' },
-  { valor: 'rechazado',    label: 'Rechazado',    bg: 'bg-red-50',       text: 'text-red-700',     dot: 'bg-red-500'     },
+  { valor: 'seleccionado', label: 'Aceptado',     bg: 'bg-emerald-50',   text: 'text-emerald-700', dot: 'bg-emerald-500' },
+  { valor: 'descartado',   label: 'Rechazado',    bg: 'bg-red-50',       text: 'text-red-700',     dot: 'bg-red-500'     },
 ]
 
 function getEstadoConf(estado: string) {
@@ -30,7 +29,7 @@ function getEstadoConf(estado: string) {
 
 function TarjetaAplicante({ aplicacion, onCambiarEstado }: {
   aplicacion: Aplicacion
-  onCambiarEstado: (id: string, estado: 'pendiente' | 'en_revision' | 'entrevistado' | 'aceptado' | 'rechazado') => Promise<void>
+  onCambiarEstado: (id: string, estado: 'enviada' | 'en_revision' | 'seleccionado' | 'descartado') => Promise<void>
 }) {
   const [actualizando, setActualizando] = useState(false)
   const [menuAbierto, setMenuAbierto] = useState(false)
@@ -163,7 +162,7 @@ export default function AplicantesPage({ params }: AplicantesPageProps) {
 
   const handleCambiarEstado = async (
     aplicacionId: string,
-    nuevoEstado: 'pendiente' | 'en_revision' | 'entrevistado' | 'aceptado' | 'rechazado'
+    nuevoEstado: 'enviada' | 'en_revision' | 'seleccionado' | 'descartado'
   ) => {
     await actualizarEstadoAplicacion(aplicacionId, nuevoEstado)
     setData(prev => {

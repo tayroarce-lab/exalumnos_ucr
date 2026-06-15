@@ -3,7 +3,6 @@
 import { useState, useEffect, useTransition } from 'react'
 import { X, CheckCircle, FileText, Send } from 'lucide-react'
 import { applyToPosition } from '@/actions/applications'
-import { obtenerOCrearCurriculum, listarVersionesCurriculum } from '@/actions/curriculum'
 import LoadingSpinner from '@/components/LoadingSpinner'
 
 interface ApplyModalProps {
@@ -25,9 +24,22 @@ export default function ApplyModal({ position, onClose, onSuccess }: ApplyModalP
   useEffect(() => {
     async function loadCvs() {
       try {
-        const curr = await obtenerOCrearCurriculum()
-        const versiones = await listarVersionesCurriculum(curr.id)
-        setCvs(versiones)
+        const { createClient } = await import('@/lib/supabase/client')
+        const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+        
+        if (user) {
+          const { data } = await supabase
+            .from('cv_profiles')
+            .select('id')
+            .eq('user_id', user.id)
+            .single()
+            
+          if (data) {
+            setCvs([{ id: data.id, nombre_version: 'Mi CV Principal' }])
+            setCvId(data.id) // Preseleccionar el CV principal
+          }
+        }
       } catch (err) {
         console.error('Error cargando CVs:', err)
       } finally {

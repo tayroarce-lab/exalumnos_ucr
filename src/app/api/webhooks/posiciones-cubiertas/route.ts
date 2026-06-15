@@ -35,10 +35,10 @@ export async function POST(request: Request) {
 
     // 1. Obtener todas las aplicaciones 'pendientes' para esta posición
     const { data: aplicaciones, error: aplicacionesError } = await supabaseAdmin
-      .from('aplicaciones')
-      .select('estudiante_id')
-      .eq('posicion_id', posicionId)
-      .eq('estado', 'pendiente')
+      .from('applications')
+      .select('student_id')
+      .eq('position_id', posicionId)
+      .eq('status', 'enviada')
 
     if (aplicacionesError) throw aplicacionesError
 
@@ -46,7 +46,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: 'No hay aplicaciones pendientes para notificar' })
     }
 
-    const estudianteIds = aplicaciones.map(a => a.estudiante_id)
+    const estudianteIds = aplicaciones.map(a => a.student_id)
 
     // 2. Obtener los emails de esos estudiantes
     const { data: usuarios, error: usuariosError } = await supabaseAdmin
@@ -91,7 +91,7 @@ export async function POST(request: Request) {
 
     // 4. (Opcional) Marcar aplicaciones como 'rechazada' o 'cerrada'
     // Descomentar la siguiente línea si el negocio dicta que se deben cerrar las aplicaciones pendientes
-    // await supabaseAdmin.from('aplicaciones').update({ estado: 'cerrada' }).eq('posicion_id', posicionId).eq('estado', 'pendiente')
+    // await supabaseAdmin.from('applications').update({ status: 'descartado' }).eq('position_id', posicionId).eq('status', 'enviada')
 
     return NextResponse.json({ 
       success: true, 
