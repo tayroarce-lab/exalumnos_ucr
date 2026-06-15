@@ -9,6 +9,9 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
   const resolvedParams = await Promise.resolve(params);
   const supabase = await createClient()
 
+  const { data: { user } } = await supabase.auth.getUser()
+  const isAdmin = user?.user_metadata?.rol === 'admin'
+
   const { data: profile, error } = await supabase
     .from('profiles')
     .select('*')
@@ -28,7 +31,7 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
         {/* Back navigation */}
         <Link 
           href="/network" 
-          className="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-institutional transition-colors uppercase tracking-wider"
+          className="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-[#F34B26] transition-colors uppercase tracking-wider"
         >
           <ChevronLeft className="w-4 h-4" />
           Volver al Directorio
@@ -37,7 +40,7 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
         {/* Header Profile Card */}
         <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
           {/* Banner */}
-          <div className="h-32 bg-gradient-to-r from-institutional to-blue-500"></div>
+          <div className="h-32 bg-gradient-to-r from-[#F34B26] to-[#FF9B18]"></div>
           
           <div className="px-6 sm:px-10 pb-10 relative">
             {/* Avatar */}
@@ -49,7 +52,7 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
                   className="w-32 h-32 rounded-full object-cover"
                 />
               ) : (
-                <div className="w-32 h-32 rounded-full bg-gradient-to-br from-institutional to-blue-800 text-white flex items-center justify-center text-4xl font-black">
+                <div className="w-32 h-32 rounded-full bg-gradient-to-br from-[#F34B26] to-[#FF9B18] text-white flex items-center justify-center text-4xl font-black">
                   {initials}
                 </div>
               )}
@@ -57,7 +60,7 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
 
             {/* Acciones principales - Desktop right align */}
             <div className="flex justify-end pt-4 pb-2 min-h-16">
-              {profile.linkedin_url && (
+              {!isAdmin && profile.linkedin_url && (
                 <a 
                   href={profile.linkedin_url.startsWith('http') ? profile.linkedin_url : `https://${profile.linkedin_url}`}
                   target="_blank"
@@ -102,7 +105,7 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
             {/* Badges de soporte */}
             <div className="flex flex-wrap gap-2 mt-6">
               {profile.ofrece_mentoria && (
-                <span className="bg-sky-50 text-sky-700 border border-sky-200 px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider">
+                <span className="bg-[#FF9B18]/10 text-[#FF9B18] border border-[#FF9B18]/20 px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider">
                   Ofrece Mentoría
                 </span>
               )}
@@ -161,7 +164,7 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
                     </h2>
                     <div className="flex flex-wrap gap-2">
                       {profile.areas_de_interes.map((area: string) => (
-                        <span key={area} className="bg-blue-50 text-blue-700 border border-blue-100 px-3 py-1.5 rounded-xl text-sm font-semibold">
+                        <span key={area} className="bg-orange-50 text-[#F34B26] border border-[#F34B26]/20 px-3 py-1.5 rounded-xl text-sm font-semibold">
                           {area}
                         </span>
                       ))}
@@ -181,7 +184,7 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
               <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">Contacto</h3>
               <div className="space-y-3">
                 {profile.email && (
-                  <a href={`mailto:${profile.email}`} className="flex items-center gap-3 text-slate-600 hover:text-institutional transition-colors">
+                  <a href={`mailto:${profile.email}`} className="flex items-center gap-3 text-slate-600 hover:text-[#F34B26] transition-colors">
                     <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center shrink-0">
                       <Mail className="w-4 h-4" />
                     </div>
