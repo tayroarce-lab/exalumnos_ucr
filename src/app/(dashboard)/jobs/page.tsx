@@ -56,23 +56,14 @@ export default function JobsPage() {
               Encuentra y publica oportunidades de empleo exclusivas para la comunidad UCR.
             </p>
           </div>
-<<<<<<< HEAD
           {!isAdmin && (
             <Link href="/jobs/publish">
-              <Button variant="primary" className="bg-brand-blue hover:bg-brand-blue/90 font-bold uppercase tracking-wider text-xs px-6 py-3 flex items-center gap-2 shadow-md">
+              <Button variant="primary" className="bg-[#F34B26] hover:bg-[#C82A08] hover:scale-105 active:scale-95 transition-all duration-300 font-bold uppercase tracking-wider text-xs px-6 py-3 flex items-center gap-2 shadow-md border-0">
                 <Plus className="w-4 h-4" />
                 <span>Publicar Oportunidad</span>
               </Button>
             </Link>
           )}
-=======
-          <Link href="/jobs/publish">
-            <Button variant="primary" className="bg-[#F34B26] hover:bg-[#C82A08] hover:scale-105 active:scale-95 transition-all duration-300 font-bold uppercase tracking-wider text-xs px-6 py-3 flex items-center gap-2 shadow-md border-0">
-              <Plus className="w-4 h-4" />
-              <span>Publicar Oportunidad</span>
-            </Button>
-          </Link>
->>>>>>> 225b1fbfd597bf561489650a1ecba9a0fb040680
         </div>
 
         {/* Buscador y Filtros Rápidos */}
