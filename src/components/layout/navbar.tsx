@@ -66,7 +66,11 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
   const initials = name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase()
   const email = user?.email || 'usuario@ucr.ac.cr'
   const rawFotoUrl = profile?.foto_url || null
-  const fotoUrl = rawFotoUrl && (rawFotoUrl.startsWith('http') || rawFotoUrl.startsWith('/')) ? rawFotoUrl : null
+  const fotoUrl = rawFotoUrl 
+    ? (rawFotoUrl.startsWith('http') || rawFotoUrl.startsWith('data:') || rawFotoUrl.startsWith('/'))
+      ? rawFotoUrl
+      : `${process.env.NEXT_PUBLIC_SUPABASE_URL || ''}/storage/v1/object/public/avatars/${rawFotoUrl}`
+    : null
 
   const handleLogout = async () => {
     setIsDropdownOpen(false)
@@ -80,8 +84,9 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
   }
 
   // Lógica de contexto: Admin, Estudiantes, Exalumnos
-  const isAdmin = pathname?.startsWith('/admin')
-  const isStudent = pathname?.includes('/directorio/estudiantes') || profile?.es_exalumno === false
+  const isAdmin = pathname?.startsWith('/admin') || user?.user_metadata?.rol === 'admin'
+  const isStudentUser = user?.user_metadata?.rol === 'estudiante' || profile?.es_exalumno === false
+  const isStudent = pathname?.includes('/directorio/estudiantes') || (isStudentUser && user?.user_metadata?.rol !== 'exalumno')
 
   // Dashboard de inicio según rol
   const dashboardHref = isAdmin ? '/admin' : isStudent ? '/student-dashboard' : '/dashboard'

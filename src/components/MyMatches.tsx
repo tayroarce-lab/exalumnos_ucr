@@ -14,6 +14,7 @@ import {
   Briefcase, Tag, Handshake, ChevronDown, ChevronUp, Users,
 } from 'lucide-react';
 import type { MatchSugerido, EstadoMatch } from '@/services/matchingService';
+import { getAvatarUrl } from '@/lib/utils';
 
 // ─── TIPOS LOCALES ───────────────────────────────────────────────────────────
 
@@ -90,7 +91,7 @@ function TarjetaMatch({ match, onAccionar }: PropsTarjetaMatch) {
             {/* Estudiante */}
             <div className="flex items-center gap-2 min-w-0">
               {estudiante.foto_url ? (
-                <img src={estudiante.foto_url} alt={estudiante.nombre}
+                <img src={getAvatarUrl(estudiante.foto_url) as string} alt={estudiante.nombre}
                   className="w-8 h-8 rounded-full object-cover ring-2 ring-slate-600 flex-shrink-0" />
               ) : (
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center ring-2 ring-slate-600 flex-shrink-0">
@@ -113,7 +114,7 @@ function TarjetaMatch({ match, onAccionar }: PropsTarjetaMatch) {
             {/* Exalumno */}
             <div className="flex items-center gap-2 min-w-0">
               {exalumno.foto_url ? (
-                <img src={exalumno.foto_url} alt={exalumno.nombre}
+                <img src={getAvatarUrl(exalumno.foto_url) as string} alt={exalumno.nombre}
                   className="w-8 h-8 rounded-full object-cover ring-2 ring-slate-600 flex-shrink-0" />
               ) : (
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center ring-2 ring-slate-600 flex-shrink-0">

@@ -7,76 +7,8 @@ import Button from '@/components/ui/button'
 import Modal from '@/components/ui/modal'
 import { Input, Textarea } from '@/components/ui/input'
 import { ArrowLeft, MapPin, Building, Briefcase, Calendar, CheckCircle2, Sparkles } from 'lucide-react'
-import { obtenerVersionAdaptadaPorPosicion } from '@/actions/accionGuardarVersion'
-
-// Datos de vacantes mock
-const MOCK_JOBS = [
-  {
-    id: '1',
-    title: 'Desarrollador React Senior',
-    company: 'Tech Costa Rica',
-    location: 'San José (Híbrido)',
-    type: 'Tiempo Completo',
-    modality: 'Híbrido',
-    salary: '₡1,800,000 - ₡2,400,000',
-    desc: 'Buscamos un desarrollador React experimentado para liderar el rediseño de nuestras plataformas de comercio electrónico.',
-    posted: 'Hace 2 días',
-    requirements: [
-      'Más de 5 años de experiencia con React, TypeScript y Redux/Zustand.',
-      'Experiencia sólida en diseño responsivo y optimización de rendimiento frontend.',
-      'Familiaridad con prácticas de CI/CD e infraestructura en la nube.',
-      'Graduado o estudiante avanzado de la UCR.'
-    ],
-    responsibilities: [
-      'Liderar el desarrollo de nuevas interfaces de usuario utilizando Next.js.',
-      'Colaborar estrechamente con diseñadores UI/UX y desarrolladores backend.',
-      'Escribir pruebas unitarias y de integración robustas.',
-      'Mentorear a desarrolladores junior en el equipo.'
-    ]
-  },
-  {
-    id: '2',
-    title: 'Analista de Datos Junior',
-    company: 'Finanzas Globales',
-    location: 'Remoto',
-    type: 'Tiempo Completo',
-    modality: 'Remoto',
-    salary: 'No especificado',
-    desc: 'Únete a nuestro equipo de análisis financiero. Experiencia básica en SQL y Python/R requerida.',
-    posted: 'Hace 4 días',
-    requirements: [
-      'Bachillerato universitario en Computación, Estadística o Matemáticas (UCR).',
-      'Conocimientos sólidos en SQL y herramientas de BI (PowerBI/Tableau).',
-      'Nivel de inglés intermedio-avanzado.'
-    ],
-    responsibilities: [
-      'Crear y mantener dashboards analíticos para el equipo de finanzas.',
-      'Extraer y procesar grandes volúmenes de datos transaccionales.',
-      'Generar informes periódicos sobre tendencias de mercado.'
-    ]
-  },
-  {
-    id: '3',
-    title: 'Diseñador UI/UX Senior',
-    company: 'Creativos Digitales',
-    location: 'San Pedro (Presencial)',
-    type: 'Medio Tiempo / Freelance',
-    modality: 'Presencial',
-    salary: '₡800,000 - ₡1,200,000',
-    desc: 'Buscamos un diseñador con portafolio de Figma comprobado para optimizar las interacciones en aplicaciones móviles financieras.',
-    posted: 'Hace 1 semana',
-    requirements: [
-      'Más de 4 años de experiencia en diseño de interfaces e investigación de usuarios.',
-      'Dominio experto de Figma y herramientas de prototipado.',
-      'Conocimiento en guías de marca e identidad corporativa.'
-    ],
-    responsibilities: [
-      'Crear maquetas interactivas y wireframes de alta fidelidad.',
-      'Realizar pruebas de usabilidad con usuarios finales.',
-      'Mantener y escalar el sistema de diseño del producto.'
-    ]
-  }
-]
+import { obtenerPosicionPorId } from '@/actions/positions'
+import ApplyModal from '@/components/applications/ApplyModal'
 
 interface JobDetailPageProps {
   params: { id: string }
@@ -84,51 +16,41 @@ interface JobDetailPageProps {
 
 export default function JobDetailPage({ params }: JobDetailPageProps) {
   const { id } = params
-  const job = MOCK_JOBS.find((j) => j.id === id) || MOCK_JOBS[0]
 
+  const [job, setJob] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [coverLetter, setCoverLetter] = useState('')
-  const [fileName, setFileName] = useState('')
-  const [isApplying, setIsApplying] = useState(false)
   const [isApplied, setIsApplied] = useState(false)
-  const [versionAdaptada, setVersionAdaptada] = useState<any>(null)
-  const [selectedCvType, setSelectedCvType] = useState<'base' | 'adaptado' | null>(null)
-  const [isFetchingVersion, setIsFetchingVersion] = useState(false)
 
   React.useEffect(() => {
-    async function fetchVersion() {
-      setIsFetchingVersion(true)
-      const res = await obtenerVersionAdaptadaPorPosicion(id)
-      if (res.success && res.version) {
-        setVersionAdaptada(res.version)
+    async function loadJob() {
+      try {
+        const position = await obtenerPosicionPorId(id)
+        setJob(position)
+      } catch (err) {
+        console.error("Error loading position:", err)
+      } finally {
+        setLoading(false)
       }
-      setIsFetchingVersion(false)
     }
-    fetchVersion()
+    loadJob()
   }, [id])
 
   const handleApplyClick = () => {
-    if (versionAdaptada) {
-      setSelectedCvType(null)
-    } else {
-      setSelectedCvType('base')
-    }
     setIsModalOpen(true)
   }
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFileName(e.target.files[0].name)
-    }
+  const handleSuccess = () => {
+    setIsApplied(true)
+    setIsModalOpen(false)
   }
 
-  const handleApplySubmit = () => {
-    setIsApplying(true)
-    setTimeout(() => {
-      setIsApplying(false)
-      setIsApplied(true)
-      setIsModalOpen(false)
-    }, 1500)
+  if (loading) {
+    return <div className="text-center py-20 text-slate-500 font-bold uppercase">Cargando detalles de la vacante...</div>
+  }
+
+  if (!job) {
+    return <div className="text-center py-20 text-red-500 font-bold uppercase">Posición no encontrada</div>
   }
 
   return (
@@ -151,17 +73,17 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
               </div>
               <div className="space-y-1">
                 <h1 className="text-2xl font-extrabold uppercase font-display text-slate-800 tracking-wide">
-                  {job.title}
+                  {job.titulo}
                 </h1>
-                <p className="text-sm font-semibold text-brand-emerald">{job.company}</p>
+                <p className="text-sm font-semibold text-brand-emerald">{job.empresa}</p>
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500 font-medium">
                   <span className="flex items-center gap-1.5">
                     <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                    {job.location}
+                    {job.lugar || 'No especificado'}
                   </span>
                   <span className="flex items-center gap-1.5">
                     <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                    Publicado {job.posted}
+                    Publicado {new Date(job.created_at).toLocaleDateString()}
                   </span>
                 </div>
               </div>
@@ -172,7 +94,7 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
                 Descripción del puesto
               </h3>
               <p className="text-xs text-slate-600 leading-relaxed">
-                {job.desc}
+                {job.descripcion_general}
               </p>
             </div>
 
@@ -182,20 +104,20 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
                   Requisitos clave
                 </h3>
                 <ul className="list-disc pl-5 space-y-2 text-xs text-slate-600">
-                  {job.requirements.map((req, idx) => (
+                  {job.habilidades_requeridas.map((req: string, idx: number) => (
                     <li key={idx} className="leading-relaxed">{req}</li>
                   ))}
                 </ul>
               </div>
             )}
 
-            {job.responsibilities && (
+            {job.responsabilidades && (
               <div className="space-y-4">
                 <h3 className="font-display font-bold text-base text-slate-700 uppercase tracking-wider">
                   Responsabilidades principales
                 </h3>
                 <ul className="list-disc pl-5 space-y-2 text-xs text-slate-600">
-                  {job.responsibilities.map((resp, idx) => (
+                  {job.responsabilidades.map((resp: string, idx: number) => (
                     <li key={idx} className="leading-relaxed">{resp}</li>
                   ))}
                 </ul>
@@ -209,7 +131,7 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
           <Card hoverEffect={false} className="space-y-6 text-center">
             <div className="space-y-1">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Compensación</span>
-              <span className="text-xl font-bold text-brand-emerald block">{job.salary}</span>
+              <span className="text-xl font-bold text-brand-emerald block">Competitivo</span>
               <span className="text-[10px] text-slate-400 font-semibold block uppercase">Moneda local (CRC)</span>
             </div>
 
@@ -224,9 +146,8 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
                   <Button
                     onClick={handleApplyClick}
                     className="w-full h-12 text-sm uppercase tracking-wider font-bold"
-                    disabled={isFetchingVersion}
                   >
-                    {isFetchingVersion ? 'Cargando...' : 'Aplicar Ahora'}
+                    Aplicar Ahora
                   </Button>
                   <Link href={`/jobs/${id}/adaptar`} className="w-full">
                     <Button
@@ -248,110 +169,14 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
 
       </div>
 
-      {/* Modal de Aplicación */}
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title="Enviar Postulación"
-        footer={
-          <>
-            <Button variant="ghost" onClick={() => setIsModalOpen(false)}>
-              Cancelar
-            </Button>
-            <Button
-              variant="primary"
-              onClick={handleApplySubmit}
-              isLoading={isApplying}
-              disabled={!selectedCvType}
-            >
-              Confirmar Aplicación
-            </Button>
-          </>
-        }
-      >
-        <div className="space-y-5 text-left">
-          <p className="text-xs text-slate-500">
-            Completa tu información de postulación para <span className="font-bold text-slate-800">{job.title}</span> en <span className="font-bold text-slate-800">{job.company}</span>.
-          </p>
-
-          {versionAdaptada && !selectedCvType && (
-            <div className="space-y-4">
-              <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-                <div className="flex items-start gap-3">
-                  <Sparkles className="w-5 h-5 text-orange-500 shrink-0 mt-0.5" />
-                  <div>
-                    <h4 className="text-sm font-bold text-orange-900 mb-1">CV Optimizado Detectado</h4>
-                    <p className="text-xs text-orange-800">
-                      Detectamos que creaste un CV optimizado para esta vacante. ¿Deseas aplicar utilizando tu <strong>{versionAdaptada.titulo_version}</strong> o prefieres usar tu CV Base?
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-3">
-                <div 
-                  className="border-2 border-slate-200 rounded-xl p-4 cursor-pointer hover:border-brand-emerald/50 transition-colors"
-                  onClick={() => setSelectedCvType('adaptado')}
-                >
-                  <h5 className="font-bold text-sm text-slate-800">{versionAdaptada.titulo_version}</h5>
-                  <p className="text-xs text-slate-500 mt-1">Usar la versión optimizada con IA para aumentar tus posibilidades.</p>
-                </div>
-                <div 
-                  className="border-2 border-slate-200 rounded-xl p-4 cursor-pointer hover:border-brand-emerald/50 transition-colors"
-                  onClick={() => setSelectedCvType('base')}
-                >
-                  <h5 className="font-bold text-sm text-slate-800">CV Base</h5>
-                  <p className="text-xs text-slate-500 mt-1">Usar tu curriculum estándar registrado en la plataforma.</p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {selectedCvType && (
-            <>
-              <div className="space-y-1.5">
-                <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  Currículum Seleccionado
-                </label>
-                <div className="bg-slate-50 border border-slate-200 rounded-lg p-3">
-                  <span className="text-sm font-medium text-slate-700">
-                    {selectedCvType === 'adaptado' ? versionAdaptada?.titulo_version : 'CV Base del Sistema'}
-                  </span>
-                </div>
-              </div>
-
-              <div className="space-y-1.5 mt-4">
-                <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  Adjuntar Currículum Adicional (PDF) - Opcional
-                </label>
-                <div className="relative border-2 border-dashed border-slate-200 rounded-xl p-6 text-center hover:border-brand-emerald/40 transition-colors cursor-pointer bg-slate-50">
-                  <Input
-                    type="file"
-                    accept=".pdf"
-                    onChange={handleFileChange}
-                    className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-                  />
-                  <span className="text-xs font-bold text-brand-emerald block uppercase">
-                    {fileName ? `✓ ${fileName}` : 'Buscar Archivo PDF'}
-                  </span>
-                  <span className="text-[10px] text-slate-400 block mt-1 uppercase font-semibold">
-                    Máximo 5MB
-                  </span>
-                </div>
-              </div>
-
-              <div className="mt-4">
-                <Textarea
-                  label="Carta de Motivación (Opcional)"
-                  placeholder="Escribe brevemente por qué te interesa este puesto y cómo encaja tu perfil..."
-                  value={coverLetter}
-                  onChange={(e) => setCoverLetter(e.target.value)}
-                />
-              </div>
-            </>
-          )}
-        </div>
-      </Modal>
+      {/* Modal Real de Aplicación */}
+      {isModalOpen && (
+        <ApplyModal 
+          position={{ id: job.id, title: job.titulo, alumni_name: job.exalumno?.nombre || 'Exalumno' }}
+          onClose={() => setIsModalOpen(false)}
+          onSuccess={handleSuccess}
+        />
+      )}
     </div>
   )
 }

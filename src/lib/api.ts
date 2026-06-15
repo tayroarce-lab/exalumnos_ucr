@@ -93,8 +93,13 @@ export async function getEstudiantes(
 export async function getEstudianteById(id: string): Promise<EstudianteDirectorio | null> {
   try {
     const estudianteCrudo = await obtenerEstudiantePorId(id);
+    if (!estudianteCrudo) {
+      console.error('getEstudianteById: estudianteCrudo is null for id:', id);
+      return null;
+    }
     return aplanarEstudiante(estudianteCrudo);
   } catch (error) {
+    console.error('getEstudianteById: Error fetching student with id', id, ':', error);
     return null;
   }
 }

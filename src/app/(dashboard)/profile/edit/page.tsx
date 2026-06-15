@@ -303,16 +303,38 @@ function SeccionPersonal({ data, update, isAdmin }: { data: ProfileFormData; upd
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [isUploading, setIsUploading] = useState(false)
+
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
     if (file.size > 2 * 1024 * 1024) { setErrors(p => ({ ...p, foto: 'Máx 2MB permitido.' })); return }
     if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) { setErrors(p => ({ ...p, foto: 'Solo JPG, PNG o WEBP.' })); return }
     setErrors(p => ({ ...p, foto: '' }))
     setPreviewUrl(URL.createObjectURL(file))
-    // En producción aquí se subiría a Supabase Storage
-    update('foto_url', file.name)
+    
+    setIsUploading(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      const { uploadFileAction } = await import('@/actions/storage')
+      const result = await uploadFileAction(formData, 'avatars', 'profiles')
+      if (result.success) {
+        update('foto_url', result.path)
+      }
+    } catch (err: any) {
+      setErrors(p => ({ ...p, foto: err.message || 'Error al subir imagen.' }))
+    } finally {
+      setIsUploading(false)
+    }
   }
+
+  const rawFotoUrl = data.foto_url
+  const currentFotoUrl = rawFotoUrl 
+    ? (rawFotoUrl.startsWith('http') || rawFotoUrl.startsWith('data:') || rawFotoUrl.startsWith('blob:') || rawFotoUrl.startsWith('/'))
+      ? rawFotoUrl
+      : `${process.env.NEXT_PUBLIC_SUPABASE_URL || ''}/storage/v1/object/public/avatars/${rawFotoUrl}`
+    : null
 
   return (
     <div className="space-y-5">
@@ -323,15 +345,15 @@ function SeccionPersonal({ data, update, isAdmin }: { data: ProfileFormData; upd
         <FieldLabel>Foto de Perfil <span className="text-slate-400 font-normal normal-case">(opcional, máx. 2MB)</span></FieldLabel>
         <div className="flex items-center gap-5">
           <div className="w-20 h-20 rounded-full bg-slate-200 flex items-center justify-center border-2 border-slate-300 overflow-hidden shrink-0">
-            {previewUrl
-              ? <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
+            {previewUrl || currentFotoUrl
+              ? <img src={previewUrl || currentFotoUrl || ''} alt="Preview" className="w-full h-full object-cover" />
               : <User className="w-8 h-8 text-slate-400" />
             }
           </div>
-          <label className="cursor-pointer flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-dashed border-slate-300 hover:border-blue-400 text-xs font-bold text-slate-500 hover:text-blue-700 transition-all">
+          <label className={`cursor-pointer flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-dashed border-slate-300 hover:border-blue-400 text-xs font-bold text-slate-500 hover:text-blue-700 transition-all ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
             <Upload className="w-4 h-4" />
-            Subir foto
-            <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleFile} />
+            {isUploading ? 'Subiendo...' : 'Subir foto'}
+            <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleFile} disabled={isUploading} />
           </label>
         </div>
         <ErrorMsg msg={errors.foto} />

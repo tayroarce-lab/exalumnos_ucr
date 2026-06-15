@@ -1,16 +1,18 @@
+import { getAvatarUrl } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowLeft, Briefcase, MapPin, Linkedin, Mail, Twitter, Instagram, GraduationCap, CheckCircle2, ChevronLeft } from 'lucide-react'
 
 // El servidor inyectará params por ser App Router
-export default async function NetworkProfilePage({ params }: { params: { id: string } }) {
+export default async function NetworkProfilePage({ params }: { params: { id: string } | Promise<{ id: string }> }) {
+  const resolvedParams = await Promise.resolve(params);
   const supabase = await createClient()
 
   const { data: profile, error } = await supabase
     .from('profiles')
     .select('*')
-    .eq('id', params.id)
+    .eq('id', resolvedParams.id)
     .single()
 
   if (error || !profile) {
@@ -42,7 +44,7 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
             <div className="absolute -top-16 border-4 border-white rounded-full bg-white shadow-md">
               {profile.foto_url ? (
                 <img 
-                  src={profile.foto_url} 
+                  src={getAvatarUrl(profile.foto_url) as string} 
                   alt={profile.full_name || 'Perfil'} 
                   className="w-32 h-32 rounded-full object-cover"
                 />

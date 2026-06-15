@@ -88,7 +88,7 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
         <div style={{ position: 'relative', flexShrink: 0 }}>
           <div style={{ width: 120, height: 120, borderRadius: 14, background: '#dce8f5', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #c8d8ea' }}>
             {estudiante.foto_url
-              ? <img src={estudiante.foto_url} alt={estudiante.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ? <img src={getAvatarUrl(estudiante.foto_url) as string} alt={estudiante.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               : <span style={{ fontSize: 36, fontWeight: 700, color: '#5a7fa0' }}>{iniciales}</span>
             }
           </div>

@@ -6,53 +6,37 @@ import Card from '@/components/ui/card'
 import Button from '@/components/ui/button'
 import { Search, Filter, Briefcase, MapPin, Building, Plus } from 'lucide-react'
 import { Select } from '@/components/ui/input'
+import { useProfile } from '@/contexts/ProfileContext'
 
-// Datos de vacantes mock
-const MOCK_JOBS = [
-  {
-    id: '1',
-    title: 'Desarrollador React Senior',
-    company: 'Tech Costa Rica',
-    location: 'San José (Híbrido)',
-    type: 'Tiempo Completo',
-    modality: 'Híbrido',
-    salary: '₡1,800,000 - ₡2,400,000',
-    desc: 'Buscamos un desarrollador React experimentado para liderar el rediseño de nuestras plataformas de comercio electrónico.',
-    posted: 'Hace 2 días'
-  },
-  {
-    id: '2',
-    title: 'Analista de Datos Junior',
-    company: 'Finanzas Globales',
-    location: 'Remoto',
-    type: 'Tiempo Completo',
-    modality: 'Remoto',
-    salary: 'No especificado',
-    desc: 'Únete a nuestro equipo de análisis financiero. Experiencia básica en SQL y Python/R requerida.',
-    posted: 'Hace 4 días'
-  },
-  {
-    id: '3',
-    title: 'Diseñador UI/UX Senior',
-    company: 'Creativos Digitales',
-    location: 'San Pedro (Presencial)',
-    type: 'Medio Tiempo / Freelance',
-    modality: 'Presencial',
-    salary: '₡800,000 - ₡1,200,000',
-    desc: 'Buscamos un diseñador con portafolio comprobado para optimizar las interacciones en aplicaciones móviles financieras.',
-    posted: 'Hace 1 semana'
-  }
-]
+import { listarPosicionesPublicas } from '@/actions/positions'
 
 export default function JobsPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedModality, setSelectedModality] = useState('all')
+  const [dbJobs, setDbJobs] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const { user } = useProfile()
+  const isAdmin = user?.user_metadata?.rol === 'admin' || user?.user_metadata?.tipo === 'admin'
 
-  const filteredJobs = MOCK_JOBS.filter((job) => {
-    const matchesSearch =
-      job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      job.company.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesModality = selectedModality === 'all' || job.modality === selectedModality
+  React.useEffect(() => {
+    async function loadJobs() {
+      try {
+        const positions = await listarPosicionesPublicas()
+        setDbJobs(positions || [])
+      } catch (err) {
+        console.error("Error loading jobs", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadJobs()
+  }, [])
+
+  const filteredJobs = dbJobs.filter((job) => {
+    const titleMatch = (job.titulo || '').toLowerCase().includes(searchTerm.toLowerCase())
+    const companyMatch = (job.empresa || '').toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesSearch = titleMatch || companyMatch
+    const matchesModality = selectedModality === 'all' || (job.modalidad && job.modalidad.toLowerCase() === selectedModality.toLowerCase())
     return matchesSearch && matchesModality
   })
 
@@ -72,12 +56,14 @@ export default function JobsPage() {
               Encuentra y publica oportunidades de empleo exclusivas para la comunidad UCR.
             </p>
           </div>
-          <Link href="/jobs/publish">
-            <Button variant="primary" className="bg-brand-blue hover:bg-brand-blue/90 font-bold uppercase tracking-wider text-xs px-6 py-3 flex items-center gap-2 shadow-md">
-              <Plus className="w-4 h-4" />
-              <span>Publicar Oportunidad</span>
-            </Button>
-          </Link>
+          {!isAdmin && (
+            <Link href="/jobs/publish">
+              <Button variant="primary" className="bg-brand-blue hover:bg-brand-blue/90 font-bold uppercase tracking-wider text-xs px-6 py-3 flex items-center gap-2 shadow-md">
+                <Plus className="w-4 h-4" />
+                <span>Publicar Oportunidad</span>
+              </Button>
+            </Link>
+          )}
         </div>
 
         {/* Buscador y Filtros Rápidos */}
@@ -112,7 +98,11 @@ export default function JobsPage() {
 
         {/* Listado de Vacantes */}
         <div className="space-y-5">
-          {filteredJobs.length > 0 ? (
+          {loading ? (
+            <div className="text-center py-16 bg-white border border-slate-200/60 rounded-2xl text-slate-400 font-medium text-sm shadow-sm">
+              Cargando oportunidades...
+            </div>
+          ) : filteredJobs.length > 0 ? (
             filteredJobs.map((job) => (
               <Card 
                 key={job.id} 
@@ -126,32 +116,32 @@ export default function JobsPage() {
                   <div className="flex-1 space-y-3 w-full">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <h3 className="font-display font-extrabold text-lg text-slate-900 uppercase tracking-wide">
-                        {job.title}
+                        {job.titulo}
                       </h3>
                       <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
-                        Publicado {job.posted}
+                        Publicado {new Date(job.created_at).toLocaleDateString()}
                       </span>
                     </div>
                     <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs text-slate-700 font-semibold">
                       <span className="flex items-center gap-2">
                         <Building className="w-4 h-4 text-blue-600" />
-                        {job.company}
+                        {job.empresa}
                       </span>
                       <span className="flex items-center gap-2">
                         <MapPin className="w-4 h-4 text-blue-600" />
-                        {job.location}
+                        {job.lugar || 'No especificado'}
                       </span>
                     </div>
-                    <p className="text-xs text-slate-600 leading-relaxed py-1">
-                      {job.desc}
+                    <p className="text-xs text-slate-600 leading-relaxed py-1 line-clamp-2">
+                      {job.descripcion_general}
                     </p>
                     <div className="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-slate-100">
                       <div className="flex gap-2">
                         <span className="bg-blue-50 text-blue-700 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                          {job.type}
+                          {job.jornada?.replace('_', ' ') || 'Tiempo Completo'}
                         </span>
                         <span className="bg-sky-50 text-sky-700 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                          {job.modality}
+                          {job.modalidad || 'Híbrido'}
                         </span>
                       </div>
                       <Link href={`/jobs/${job.id}`}>

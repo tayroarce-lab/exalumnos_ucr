@@ -1,4 +1,5 @@
 'use client'
+import { getAvatarUrl } from '@/lib/utils';
 
 import React, { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
@@ -76,7 +77,7 @@ function TarjetaMatch({ match, onAccion }: {
           <div className="flex items-center gap-2 mb-1">
             {/* Avatar */}
             {est?.foto_url ? (
-              <img src={est.foto_url} alt={nombre} className="w-8 h-8 rounded-full object-cover ring-2 ring-slate-100" />
+              <img src={getAvatarUrl(est.foto_url) as string} alt={nombre} className="w-8 h-8 rounded-full object-cover ring-2 ring-slate-100" />
             ) : (
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-institutional to-blue-700 text-white text-xs font-bold flex items-center justify-center ring-2 ring-slate-100">
                 {initials}

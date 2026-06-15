@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { crearDonacion } from '@/actions/donations'
+import { useProfile } from '@/contexts/ProfileContext'
 
 function ProgressFill({ value, colorClass = 'bg-blue-700' }: { value: number; colorClass?: string }) {
   const ref = useRef<HTMLDivElement>(null)
@@ -155,6 +156,8 @@ function FondoCard({
 // PÁGINA PRINCIPAL
 // ============================================================
 export default function DonationsPage() {
+  const { user } = useProfile()
+  const isAdmin = user?.user_metadata?.rol === 'admin' || user?.user_metadata?.tipo === 'admin'
   const [form, setForm] = useState<FormDonacion>(INITIAL_FORM)
   const [comprobante, setComprobante] = useState<File | null>(null)
   const [comprobanteError, setComprobanteError] = useState('')
@@ -177,6 +180,29 @@ export default function DonationsPage() {
   const update = (k: keyof FormDonacion, v: string) => setForm(p => ({ ...p, [k]: v }))
 
   const fondoSeleccionado = FONDOS.find(f => f.id === form.fondo_id)
+
+  if (isAdmin) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-slate-100 to-white flex items-center justify-center py-12 px-6">
+        <div className="text-center space-y-5 max-w-md mx-auto">
+          <div className="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mx-auto">
+            <AlertCircle className="w-12 h-12 text-red-600" />
+          </div>
+          <h2 className="text-3xl font-black text-slate-900 uppercase font-display tracking-wide">Acceso Denegado</h2>
+          <p className="text-sm text-slate-600 font-medium leading-relaxed">
+            Los administradores no pueden realizar donaciones desde esta cuenta. Si deseas donar, por favor ingresa con una cuenta de exalumno.
+          </p>
+          <div className="flex justify-center pt-4">
+            <Link href="/dashboard">
+              <Button variant="primary" className="bg-blue-700 hover:bg-blue-800 font-bold uppercase tracking-wider text-xs px-6 py-3 shadow-md">
+                Ir al inicio
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   // --- Archivo comprobante ---
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -237,7 +263,7 @@ export default function DonationsPage() {
       const fileExt = comprobante!.name.split('.').pop()
       const fileName = `${user.id}/${Date.now()}_comprobante.${fileExt}`
       const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('comprobantes')
+        .from('receipts')
         .upload(fileName, comprobante!)
         
       if (uploadError) throw new Error("Error al subir comprobante: " + uploadError.message)
