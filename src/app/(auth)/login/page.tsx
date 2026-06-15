@@ -10,6 +10,7 @@ import { Mail, Lock, Eye, EyeOff, LogIn, GraduationCap, Users, ShieldCheck } fro
 import AuthBackground from '@/components/ui/AuthBackground';
 import { iniciarSesion } from "@/actions/auth";
 import { obtenerMiPerfil } from "@/actions/users";
+import { useProfile } from "@/contexts/ProfileContext";
 import logoUCR from "@/images/Logo_UCR.png";
 import '@/styles/loginStyles.css';
 import '@/styles/loadingSpinner.css';
@@ -20,6 +21,8 @@ export default function LoginPage() {
   // redirectTo del query param (guardado por el middleware para rutas protegidas)
   const redirectToParam = searchParams.get('redirectTo');
   const redirectTo = redirectToParam || '/dashboard';
+  
+  const { refreshProfile } = useProfile();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -56,6 +59,9 @@ export default function LoginPage() {
         const destino = result.rutaDestino === '/admin'
           ? '/admin'
           : (redirectToParam ? redirectToParam : result.rutaDestino);
+
+        // Actualizar el contexto de perfil antes de navegar para que el Navbar se renderice correctamente
+        await refreshProfile();
 
         // router.push + refresh para que Next.js sincronice la sesión del servidor
         if (destino) {
