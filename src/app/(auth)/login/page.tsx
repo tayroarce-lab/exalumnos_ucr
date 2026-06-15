@@ -48,24 +48,30 @@ export default function LoginPage() {
       // iniciarSesion expects an object { email, password }
       const result = await iniciarSesion({ email, password });
 
-      if (result?.success) {
+      if (result && result.success) {
         setMessage({ text: "Inicio de sesión exitoso. Redirigiendo...", type: "success" });
-        try {
-          const perfil = await obtenerMiPerfil();
-          setLoading(false);
-          if (perfil?.tipo === "admin") {
-            router.push("/admin");
-          } else {
-            router.push(redirectTo);
-          }
-        } catch (perfilError) {
-          setLoading(false);
-          router.push(redirectTo);
+
+        // Si el usuario venía de una ruta específica válida, la usamos
+        // EXCEPTO si es admin (siempre va a /admin)
+        const destino = result.rutaDestino === '/admin'
+          ? '/admin'
+          : (redirectToParam ? redirectToParam : result.rutaDestino);
+
+        // router.push + refresh para que Next.js sincronice la sesión del servidor
+        if (destino) {
+          router.push(destino);
+          router.refresh();
         }
+        
+        // Timeout para resetear el loading en caso de que el push sea silenciosamente ignorado (ej. redirigido al mismo lugar)
+        setTimeout(() => setLoading(false), 2000);
+      } else if (result && !result.success) {
+        setLoading(false);
+        setMessage({ text: result.error || "Credenciales incorrectas. Verifica tu correo y contraseña.", type: "error" });
       }
     } catch (error: any) {
       setLoading(false);
-      setMessage({ text: error.message || "Credenciales incorrectas. Verifica tu correo y contraseña.", type: "error" });
+      setMessage({ text: "Error de conexión. Intenta nuevamente.", type: "error" });
     }
   };
 
