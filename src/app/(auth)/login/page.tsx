@@ -94,15 +94,17 @@ export default function LoginPage() {
         {/* Panel Izquierdo — Decorativo */}
         <div className="login-left">
           <div className="login-logo-container">
-            <Image
-              src={logoUCR}
-              alt="Logo Alumni UCR"
-              width={320}
-              height={105}
-              className="login-brand-logo"
-              style={{ objectFit: 'contain' }}
-              priority
-            />
+            <Link href="/">
+              <Image
+                src={logoUCR}
+                alt="Logo Alumni UCR"
+                width={320}
+                height={105}
+                className="login-brand-logo"
+                style={{ objectFit: 'contain', cursor: 'pointer' }}
+                priority
+              />
+            </Link>
           </div>
           
           <div className="login-hero-text" style={{ marginTop: '1.5rem' }}>

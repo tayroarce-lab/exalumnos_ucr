@@ -132,12 +132,22 @@ function SelectorMultiple({ id, etiqueta, opciones, seleccionados, alCambiar }: 
 import { listarEstudiantes } from '@/actions/students';
 
 export default function DirectorioEstudiantes() {
+  const [isAdmin, setIsAdmin] = useState(false);
   const [filtros, setFiltros] = useState<EstadoFiltros>(FILTROS_VACIOS);
   const [estudiantes, setEstudiantes] = useState<EstudiantePublico[]>([]);
   const [cargando, setCargando] = useState(true);
   const [mostrarFiltros, setMostrarFiltros] = useState(false); // Nuevo estado para móviles
 
   useEffect(() => {
+    import('@/lib/supabase/client').then(({ createClient }) => {
+      const supabase = createClient()
+      supabase.auth.getUser().then(({ data: { user } }) => {
+        if (user) {
+          setIsAdmin(user.user_metadata?.rol === 'admin')
+        }
+      })
+    })
+
     async function cargarEstudiantes() {
       try {
         const { data } = await listarEstudiantes();
@@ -435,6 +445,7 @@ export default function DirectorioEstudiantes() {
               <TarjetaEstudiante
                 key={est.id}
                 estudiante={est}
+                isAdmin={isAdmin}
                 alOfrecerApoyo={ejecutarOfrecerApoyo}
               />
             ))}

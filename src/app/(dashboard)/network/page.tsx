@@ -42,11 +42,11 @@ const APOYO_FILTROS = [
 // ============================================================
 // TARJETA DE EXALUMNO
 // ============================================================
-function ExalumnoCard({ ex }: { ex: ExalumnoPublic }) {
+function ExalumnoCard({ ex, isAdmin }: { ex: ExalumnoPublic, isAdmin: boolean }) {
   const apoyos = APOYO_FILTROS.filter(a => ex[a.key as keyof ExalumnoPublic])
   
   return (
-    <Card hoverEffect={true} className="bg-white border border-slate-200 border-t-4 border-t-institutional rounded-2xl p-5 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col gap-4">
+    <Card hoverEffect={true} className="bg-white border border-slate-200 border-t-4 border-t-[#F34B26] rounded-2xl p-5 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col gap-4">
       {/* Header */}
       <div className="flex items-start gap-4">
         {ex.foto_url ? (
@@ -57,9 +57,9 @@ function ExalumnoCard({ ex }: { ex: ExalumnoPublic }) {
           </div>
         )}
         <div className="flex-1 min-w-0">
-          <h3 className="font-sans font-semibold text-institutional text-base leading-tight">{ex.nombre} {ex.apellidos}</h3>
+          <h3 className="font-sans font-semibold text-[#F34B26] text-base leading-tight">{ex.nombre} {ex.apellidos}</h3>
           <p className="text-xs text-slate-500 mt-1">{ex.carrera_principal || 'Exalumno UCR'}{(ex.anio_graduacion) ? `, ${ex.anio_graduacion}` : ''}</p>
-          <p className="text-xs font-bold text-blue-600 mt-0.5">{ex.cargo_actual || 'Profesional'} en {ex.empresa_actual || 'Independiente'}</p>
+          <p className="text-xs font-bold text-[#FF9B18] mt-0.5">{ex.cargo_actual || 'Profesional'} en {ex.empresa_actual || 'Independiente'}</p>
           <div className="mt-2 flex flex-wrap gap-2 items-center">
              {ex.pais_ciudad && (
                 <span className="text-slate-500 text-[10px] flex items-center gap-1">
@@ -81,10 +81,10 @@ function ExalumnoCard({ ex }: { ex: ExalumnoPublic }) {
           <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2">Intereses</p>
           <div className="flex flex-wrap gap-1.5">
             {ex.areas_de_interes.slice(0, 3).map(a => (
-              <span key={a} className="bg-soft-green text-institutional text-[10px] font-semibold px-2.5 py-1 rounded-full">{a}</span>
+              <span key={a} className="bg-orange-50 text-[#F34B26] text-[10px] font-semibold px-2.5 py-1 rounded-full">{a}</span>
             ))}
             {ex.areas_de_interes.length > 3 && (
-              <span className="bg-soft-green text-institutional text-[10px] font-semibold px-2.5 py-1 rounded-full">+{ex.areas_de_interes.length - 3}</span>
+              <span className="bg-orange-50 text-[#F34B26] text-[10px] font-semibold px-2.5 py-1 rounded-full">+{ex.areas_de_interes.length - 3}</span>
             )}
           </div>
         </div>
@@ -107,7 +107,7 @@ function ExalumnoCard({ ex }: { ex: ExalumnoPublic }) {
       {/* Botón */}
       <div className="mt-auto pt-4 flex gap-2">
         <Link href={`/network/${ex.id}`} className="flex-1">
-          <Button variant="secondary" className="w-full bg-white border-slate-300 text-institutional hover:bg-slate-50 font-medium text-xs py-2">
+          <Button variant="secondary" className="w-full bg-white border-orange-200 text-[#F34B26] hover:bg-orange-50/40 font-medium text-xs py-2">
             Ver Perfil y Conectar
           </Button>
         </Link>
@@ -160,8 +160,8 @@ function FilterPanel({
     </div>
   )
 
-  const inputClassName = "w-full text-sm py-2 px-3 border-[0.5px] border-slate-300 rounded-md appearance-none bg-white focus:outline-none focus:border-institutional text-slate-800 placeholder-slate-400"
-  const selectClassName = "w-full text-sm py-2 pl-3 pr-8 border-[0.5px] border-slate-300 rounded-md appearance-none bg-white focus:outline-none focus:border-institutional text-slate-800"
+  const inputClassName = "w-full text-sm py-2 px-3 border-[0.5px] border-slate-300 rounded-md appearance-none bg-white focus:outline-none focus:border-[#F34B26] text-slate-800 placeholder-slate-400"
+  const selectClassName = "w-full text-sm py-2 pl-3 pr-8 border-[0.5px] border-slate-300 rounded-md appearance-none bg-white focus:outline-none focus:border-[#F34B26] text-slate-800"
 
   const CheckboxGroup = ({ options, selected, onToggle }: { options: {label: string, value: string}[], selected: string[], onToggle: (val: string) => void }) => {
      return (
@@ -174,7 +174,7 @@ function FilterPanel({
                     checked={selected.includes(opt.value)}
                     onChange={() => onToggle(opt.value)}
                  />
-                 <div className={`w-4 h-4 mt-0.5 rounded border flex items-center justify-center shrink-0 transition-colors ${selected.includes(opt.value) ? 'bg-institutional border-institutional text-white' : 'border-slate-300 bg-white group-hover:border-institutional'}`}>
+                 <div className={`w-4 h-4 mt-0.5 rounded border flex items-center justify-center shrink-0 transition-colors ${selected.includes(opt.value) ? 'bg-[#F34B26] border-[#F34B26] text-white' : 'border-slate-300 bg-white group-hover:border-[#F34B26]'}`}>
                     {selected.includes(opt.value) && <Check className="w-3 h-3" />}
                  </div>
                  <span className="text-[13px] text-slate-700 leading-tight">{opt.label}</span>
@@ -282,6 +282,7 @@ function FilterPanel({
 // PÁGINA PRINCIPAL — DIRECTORIO
 // ============================================================
 export default function NetworkPage() {
+  const [isAdmin, setIsAdmin] = useState(false)
   const [filters, setFilters] = useState<Filters>({
     search: '', facultad: '', escuela: '', carreras: [], sectores: [], areas: [], apoyos: [], pais_ciudad: ''
   })
@@ -304,6 +305,8 @@ export default function NetworkPage() {
         window.location.href = '/login'
       } else if (!user.email_confirmed_at) {
         window.location.href = '/verificar-correo'
+      } else {
+        setIsAdmin(user.user_metadata?.rol === 'admin')
       }
     })
   }, [])
@@ -343,7 +346,7 @@ export default function NetworkPage() {
           ...p,
           nombre: p.nombre || 'Exalumno',
           initials: init,
-          avatarBg: 'bg-blue-600',
+          avatarBg: 'bg-[#F34B26]',
         }
       })
 
@@ -387,17 +390,17 @@ export default function NetworkPage() {
               placeholder="Buscar por nombre, cargo o empresa..."
               value={filters.search}
               onChange={e => setFilters(p => ({ ...p, search: e.target.value }))}
-              className="w-full h-12 pl-11 pr-4 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-institutional focus:ring-2 focus:ring-institutional/10 transition-all placeholder:text-slate-400 shadow-sm"
+              className="w-full h-12 pl-11 pr-4 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-[#F34B26] focus:ring-2 focus:ring-[#F34B26]/10 transition-all placeholder:text-slate-400 shadow-sm"
             />
           </div>
           <button
             onClick={() => setShowMobileFilters(!showMobileFilters)}
-            className="lg:hidden h-12 px-4 flex items-center gap-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 hover:border-institutional transition-all shadow-sm"
+            className="lg:hidden h-12 px-4 flex items-center gap-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 hover:border-[#F34B26] transition-all shadow-sm"
           >
             <SlidersHorizontal className="w-4 h-4" />
             Filtros
             {activeFilterCount > 0 && (
-              <span className="w-5 h-5 bg-institutional text-white text-[9px] font-bold rounded-full flex items-center justify-center">{activeFilterCount}</span>
+              <span className="w-5 h-5 bg-[#F34B26] text-white text-[9px] font-bold rounded-full flex items-center justify-center">{activeFilterCount}</span>
             )}
           </button>
         </div>
@@ -431,13 +434,13 @@ export default function NetworkPage() {
 
             {cargando && page === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 bg-white border border-slate-200 rounded-2xl shadow-sm">
-                <div className="w-10 h-10 border-4 border-slate-200 border-t-institutional rounded-full animate-spin mb-4"></div>
+                <div className="w-10 h-10 border-4 border-slate-200 border-t-[#F34B26] rounded-full animate-spin mb-4"></div>
                 <h3 className="text-sm font-bold text-slate-600 uppercase tracking-wide">Cargando directorio...</h3>
               </div>
             ) : exalumnos.length > 0 ? (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
-                  {exalumnos.map((ex, index) => <ExalumnoCard key={`${ex.id}-${index}`} ex={ex} />)}
+                  {exalumnos.map((ex, index) => <ExalumnoCard key={`${ex.id}-${index}`} ex={ex} isAdmin={isAdmin} />)}
                 </div>
                 {hasMore && (
                   <div className="text-center pb-8 mt-auto">
@@ -459,7 +462,7 @@ export default function NetworkPage() {
                 <p className="text-xs text-slate-400 font-medium mb-4">Ajuste los filtros de búsqueda o intente con otros términos.</p>
                 <button
                   onClick={() => setFilters({ search: '', facultad: '', escuela: '', carreras: [], sectores: [], areas: [], apoyos: [], pais_ciudad: '' })}
-                  className="text-xs font-bold text-institutional hover:underline uppercase tracking-wider"
+                  className="text-xs font-bold text-[#F34B26] hover:underline uppercase tracking-wider"
                 >
                   Limpiar filtros
                 </button>
