@@ -41,7 +41,7 @@ const APOYO_FILTROS = [
 // ============================================================
 // TARJETA DE EXALUMNO
 // ============================================================
-function ExalumnoCard({ ex }: { ex: ExalumnoPublic }) {
+function ExalumnoCard({ ex, isAdmin }: { ex: ExalumnoPublic, isAdmin: boolean }) {
   const apoyos = APOYO_FILTROS.filter(a => ex[a.key as keyof ExalumnoPublic])
   
   return (
@@ -107,7 +107,7 @@ function ExalumnoCard({ ex }: { ex: ExalumnoPublic }) {
       <div className="mt-auto pt-4 flex gap-2">
         <Link href={`/network/${ex.id}`} className="flex-1">
           <Button variant="secondary" className="w-full bg-white border-slate-300 text-institutional hover:bg-slate-50 font-medium text-xs py-2">
-            Ver Perfil y Conectar
+            {isAdmin ? 'Ver Perfil' : 'Ver Perfil y Conectar'}
           </Button>
         </Link>
       </div>
@@ -281,6 +281,7 @@ function FilterPanel({
 // PÁGINA PRINCIPAL — DIRECTORIO
 // ============================================================
 export default function NetworkPage() {
+  const [isAdmin, setIsAdmin] = useState(false)
   const [filters, setFilters] = useState<Filters>({
     search: '', facultad: '', escuela: '', carreras: [], sectores: [], areas: [], apoyos: [], pais_ciudad: ''
   })
@@ -303,6 +304,8 @@ export default function NetworkPage() {
         window.location.href = '/login'
       } else if (!user.email_confirmed_at) {
         window.location.href = '/verificar-correo'
+      } else {
+        setIsAdmin(user.user_metadata?.rol === 'admin')
       }
     })
   }, [])
@@ -436,7 +439,7 @@ export default function NetworkPage() {
             ) : exalumnos.length > 0 ? (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
-                  {exalumnos.map((ex, index) => <ExalumnoCard key={`${ex.id}-${index}`} ex={ex} />)}
+                  {exalumnos.map((ex, index) => <ExalumnoCard key={`${ex.id}-${index}`} ex={ex} isAdmin={isAdmin} />)}
                 </div>
                 {hasMore && (
                   <div className="text-center pb-8 mt-auto">
