@@ -34,7 +34,7 @@ export async function GET(request: Request) {
       const { data: admins } = await adminClient
         .from('users')
         .select('email')
-        .eq('tipo', 'admin')
+        .eq('rol', 'admin')
         .eq('activo', true);
 
       if (admins && admins.length > 0) {
