@@ -9,6 +9,7 @@ import Link from "next/link";
 import { Mail, Lock, Eye, EyeOff, LogIn, GraduationCap, Users, ShieldCheck } from "lucide-react";
 import AuthBackground from '@/components/ui/AuthBackground';
 import { iniciarSesion } from "@/actions/auth";
+import { obtenerMiPerfil } from "@/actions/users";
 import logoUCR from "@/images/Logo_UCR.png";
 import '@/styles/loginStyles.css';
 import '@/styles/loadingSpinner.css';
@@ -18,6 +19,7 @@ export default function LoginPage() {
   const searchParams = useSearchParams();
   // redirectTo del query param (guardado por el middleware para rutas protegidas)
   const redirectToParam = searchParams.get('redirectTo');
+  const redirectTo = redirectToParam || '/dashboard';
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -42,8 +44,9 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      // iniciarSesion devuelve { success, rol, rutaDestino } desde el servidor
-      const result = await iniciarSesion({ email: email.trim(), password });
+      setLoading(true);
+      // iniciarSesion expects an object { email, password }
+      const result = await iniciarSesion({ email, password });
 
       if (result && result.success) {
         setMessage({ text: "Inicio de sesión exitoso. Redirigiendo...", type: "success" });
@@ -85,17 +88,15 @@ export default function LoginPage() {
         {/* Panel Izquierdo — Decorativo */}
         <div className="login-left">
           <div className="login-logo-container">
-            <Link href="/">
-              <Image
-                src={logoUCR}
-                alt="Logo Alumni UCR"
-                width={320}
-                height={105}
-                className="login-brand-logo"
-                style={{ objectFit: 'contain', cursor: 'pointer' }}
-                priority
-              />
-            </Link>
+            <Image
+              src={logoUCR}
+              alt="Logo Alumni UCR"
+              width={320}
+              height={105}
+              className="login-brand-logo"
+              style={{ objectFit: 'contain' }}
+              priority
+            />
           </div>
           
           <div className="login-hero-text" style={{ marginTop: '1.5rem' }}>
