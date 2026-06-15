@@ -30,6 +30,7 @@ export interface EstudiantePublico {
 
 interface PropsTarjetaEstudiante {
   estudiante: EstudiantePublico;
+  isAdmin?: boolean;
   alOfrecerApoyo: (id: string) => void;
 }
 
@@ -61,7 +62,7 @@ function obtenerClaseAnchoBarra(porcentaje: number): string {
 
 // [VERDE - FUNCION: TarjetaEstudiante]
 // Componente de presentación pública del perfil de proyecto de un estudiante UCR.
-export function TarjetaEstudiante({ estudiante, alOfrecerApoyo }: PropsTarjetaEstudiante) {
+export function TarjetaEstudiante({ estudiante, isAdmin, alOfrecerApoyo }: PropsTarjetaEstudiante) {
   const router = useRouter();
   const { nombreCompleto, carrera, sede, fotoPerfil, proyecto, areasInteres, tiposApoyoBuscado } = estudiante;
   const { titulo, areaTematica, tipoProyecto, porcentajeAvance } = proyecto;
@@ -181,14 +182,16 @@ export function TarjetaEstudiante({ estudiante, alOfrecerApoyo }: PropsTarjetaEs
       )}
 
       {/* ── BOTÓN OFRECER APOYO ── */}
-      <button
-        type="button"
-        id={`btn-ofrecer-apoyo-${estudiante.id}`}
-        onClick={() => router.push('/donations?metodo=sinpe')}
-        className="mt-auto w-full py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 text-white text-sm font-semibold tracking-wide hover:from-blue-500 hover:to-violet-500 active:scale-[0.98] transition-all duration-200 shadow-md shadow-blue-900/20 hover:shadow-blue-700/30 relative"
-      >
-        Ofrecer apoyo
-      </button>
+      {!isAdmin && (
+        <button
+          type="button"
+          id={`btn-ofrecer-apoyo-${estudiante.id}`}
+          onClick={() => router.push('/donations?metodo=sinpe')}
+          className="mt-auto w-full py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 text-white text-sm font-semibold tracking-wide hover:from-blue-500 hover:to-violet-500 active:scale-[0.98] transition-all duration-200 shadow-md shadow-blue-900/20 hover:shadow-blue-700/30 relative"
+        >
+          Ofrecer apoyo
+        </button>
+      )}
     </article>
   );
 }

@@ -12,7 +12,7 @@ import {
 import { createClient } from '@/lib/supabase/client'
 import { crearDonacion } from '@/actions/donations'
 
-function ProgressFill({ value, colorClass = 'bg-blue-700' }: { value: number; colorClass?: string }) {
+function ProgressFill({ value, colorClass = 'bg-[#F34B26]' }: { value: number; colorClass?: string }) {
   const ref = useRef<HTMLDivElement>(null)
   useEffect(() => {
     if (ref.current) {
@@ -123,11 +123,11 @@ function FondoCard({
       type="button"
       onClick={onSelect}
       className={`w-full text-left p-5 rounded-2xl border-2 transition-all space-y-3 ${
-        selected ? 'border-blue-700 bg-blue-50/60 shadow-md' : 'border-slate-200 bg-white hover:border-blue-300 hover:shadow-sm'
+        selected ? 'border-[#F34B26] bg-orange-50/40 shadow-md' : 'border-slate-200 bg-white hover:border-orange-200 hover:shadow-sm'
       }`}
     >
       <div className="flex items-start gap-3">
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${selected ? 'bg-blue-700 text-white' : 'bg-slate-100 text-slate-500'}`}>
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${selected ? 'bg-[#F34B26] text-white' : 'bg-slate-100 text-slate-500'}`}>
           <Heart className="w-5 h-5" />
         </div>
         <div>
@@ -139,7 +139,7 @@ function FondoCard({
         <div className="space-y-1.5">
           <div className="flex justify-between text-[10px] font-bold text-slate-500 uppercase tracking-wider">
             <span>₡{fondo.raised.toLocaleString('es-CR')} recaudados</span>
-            <span className="text-blue-700">{pct}%</span>
+            <span className="text-[#F34B26]">{pct}%</span>
           </div>
           <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
             <ProgressFill value={pct} />
@@ -237,7 +237,7 @@ export default function DonationsPage() {
       const fileExt = comprobante!.name.split('.').pop()
       const fileName = `${user.id}/${Date.now()}_comprobante.${fileExt}`
       const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('comprobantes')
+        .from('receipts')
         .upload(fileName, comprobante!)
         
       if (uploadError) throw new Error("Error al subir comprobante: " + uploadError.message)
@@ -280,7 +280,7 @@ export default function DonationsPage() {
           <div className="bg-white border border-slate-200 rounded-2xl p-5 text-left space-y-2 shadow-sm">
             <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Resumen</p>
             <p className="text-sm font-bold text-slate-800">{fondoSeleccionado?.title}</p>
-            <p className="text-lg font-black text-blue-700">{formatCurrency(Number(form.monto), form.moneda)}</p>
+            <p className="text-lg font-black text-[#F34B26]">{formatCurrency(Number(form.monto), form.moneda)}</p>
             <div className="flex items-center gap-2 text-xs text-amber-700 font-bold bg-amber-50 border border-amber-100 rounded-xl p-3 mt-2">
               <Clock className="w-4 h-4 shrink-0" />
               Estado: <span className="uppercase tracking-wide">Pendiente de Confirmación</span>
@@ -295,7 +295,7 @@ export default function DonationsPage() {
               <Button variant="secondary" className="font-bold uppercase tracking-wider text-xs px-5">Ver mi historial</Button>
             </Link>
             <Link href="/dashboard">
-              <Button variant="primary" className="bg-blue-700 hover:bg-blue-800 font-bold uppercase tracking-wider text-xs px-5">Ir al inicio</Button>
+              <Button variant="primary" className="bg-[#F34B26] hover:bg-[#C82A08] font-bold uppercase tracking-wider text-xs px-5">Ir al inicio</Button>
             </Link>
           </div>
         </div>
@@ -338,7 +338,7 @@ export default function DonationsPage() {
                   value={form.monto}
                   onChange={e => update('monto', e.target.value)}
                   placeholder="Ej: 25000"
-                  className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10 transition-all"
+                  className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-[#F34B26] focus:ring-2 focus:ring-[#F34B26]/10 transition-all"
                 />
               </div>
               <div>
@@ -347,7 +347,7 @@ export default function DonationsPage() {
                   id="moneda"
                   value={form.moneda}
                   onChange={(e: React.ChangeEvent<HTMLSelectElement>) => update('moneda', e.target.value as 'CRC' | 'USD')}
-                  className="w-full h-11 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10 transition-all"
+                  className="w-full h-11 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-[#F34B26] focus:ring-2 focus:ring-[#F34B26]/10 transition-all"
                 >
                   <option value="CRC">₡ CRC</option>
                   <option value="USD">$ USD</option>
@@ -364,11 +364,11 @@ export default function DonationsPage() {
                     type="button"
                     onClick={() => update('metodo', key)}
                     className={`p-4 rounded-xl border-2 flex items-center gap-3 transition-all text-left ${
-                      form.metodo === key ? 'border-blue-700 bg-blue-50' : 'border-slate-200 bg-slate-50 hover:border-blue-300'
+                      form.metodo === key ? 'border-[#F34B26] bg-orange-50/40 shadow-sm' : 'border-slate-200 bg-slate-50 hover:border-orange-300'
                     }`}
                   >
-                    <div className={`shrink-0 ${form.metodo === key ? 'text-blue-700' : 'text-slate-400'}`}>{m.icon}</div>
-                    <span className={`text-xs font-bold uppercase tracking-wide ${form.metodo === key ? 'text-blue-700' : 'text-slate-600'}`}>{m.label}</span>
+                    <div className={`shrink-0 ${form.metodo === key ? 'text-[#F34B26]' : 'text-slate-400'}`}>{m.icon}</div>
+                    <span className={`text-xs font-bold uppercase tracking-wide ${form.metodo === key ? 'text-[#F34B26]' : 'text-slate-600'}`}>{m.label}</span>
                   </button>
                 ))}
               </div>
@@ -386,12 +386,12 @@ export default function DonationsPage() {
               <Card hoverEffect={false} className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-3">
                 <h3 className="text-xs font-black text-slate-500 uppercase tracking-wider">Resumen de Donación a:</h3>
                 <p className="font-display font-extrabold text-slate-900 text-base uppercase tracking-wide">{fondoSeleccionado?.title}</p>
-                <p className="text-2xl font-black text-blue-700">{formatCurrency(Number(form.monto), form.moneda)}</p>
+                <p className="text-2xl font-black text-[#F34B26]">{formatCurrency(Number(form.monto), form.moneda)}</p>
               </Card>
 
-              <Card hoverEffect={false} className="bg-white border border-blue-200 rounded-2xl p-5 shadow-sm space-y-4">
+              <Card hoverEffect={false} className="bg-white border-orange-200 rounded-2xl p-5 shadow-sm space-y-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-blue-700 text-white flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-[#F34B26] text-white flex items-center justify-center shrink-0">
                     {metodo?.icon}
                   </div>
                   <h3 className="font-display font-extrabold text-slate-900 uppercase tracking-wide text-sm">{metodo?.label}</h3>
@@ -401,9 +401,9 @@ export default function DonationsPage() {
                   <p className="text-xl font-black text-slate-900 font-mono">{metodo?.linea2}</p>
                   <p className="text-xs text-slate-600 font-semibold">{metodo?.linea3}</p>
                 </div>
-                <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 space-y-1">
-                  <p className="text-xs font-bold text-blue-800 flex items-center gap-1.5"><Info className="w-3.5 h-3.5" />Número de referencia a incluir (opcional):</p>
-                  <p className="font-mono font-black text-blue-900 text-lg">{ref}</p>
+                <div className="bg-orange-50 border border-orange-100 rounded-xl p-4 space-y-1">
+                  <p className="text-xs font-bold text-orange-850 flex items-center gap-1.5"><Info className="w-3.5 h-3.5" />Número de referencia a incluir (opcional):</p>
+                  <p className="font-mono font-black text-orange-950 text-lg">{ref}</p>
                 </div>
                 <p className="text-xs text-slate-500 font-medium leading-relaxed">{metodo?.detalle}</p>
               </Card>
@@ -425,7 +425,7 @@ export default function DonationsPage() {
                     type="datetime-local"
                     value={form.fecha_transferencia}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => update('fecha_transferencia', e.target.value)}
-                    className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10 transition-all"
+                    className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-[#F34B26] focus:ring-2 focus:ring-[#F34B26]/10 transition-all"
                   />
                 </div>
 
@@ -437,7 +437,7 @@ export default function DonationsPage() {
                     value={form.numero_referencia}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => update('numero_referencia', e.target.value)}
                     placeholder="Número que aparece en el comprobante"
-                    className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10 transition-all"
+                    className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-[#F34B26] focus:ring-2 focus:ring-[#F34B26]/10 transition-all"
                   />
                 </div>
 
@@ -451,7 +451,7 @@ export default function DonationsPage() {
                     maxLength={300}
                     rows={3}
                     placeholder="Escribe unas palabras de motivación..."
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10 transition-all resize-none"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-[#F34B26] focus:ring-2 focus:ring-[#F34B26]/10 transition-all resize-none"
                   />
                   <p className="text-[10px] text-slate-400 text-right mt-0.5">{form.mensaje.length}/300</p>
                 </div>
@@ -463,9 +463,9 @@ export default function DonationsPage() {
                   <span className="text-slate-400 font-normal normal-case ml-1">(JPG, PNG o PDF, máx. 5MB)</span>
                 </label>
                 {!comprobante ? (
-                  <label className="flex flex-col items-center justify-center gap-3 h-32 border-2 border-dashed border-slate-300 hover:border-blue-400 rounded-xl bg-slate-50 cursor-pointer transition-all group">
-                    <Upload className="w-8 h-8 text-slate-300 group-hover:text-blue-500 transition-colors" />
-                    <span className="text-xs font-bold text-slate-400 group-hover:text-blue-600 transition-colors uppercase tracking-wide">Haz clic o arrastra aquí tu comprobante</span>
+                  <label className="flex flex-col items-center justify-center gap-3 h-32 border-2 border-dashed border-slate-300 hover:border-orange-400 rounded-xl bg-slate-50 cursor-pointer transition-all group">
+                    <Upload className="w-8 h-8 text-slate-300 group-hover:text-[#F34B26] transition-colors" />
+                    <span className="text-xs font-bold text-slate-400 group-hover:text-[#F34B26] transition-colors uppercase tracking-wide">Haz clic o arrastra aquí tu comprobante</span>
                     <input type="file" accept=".jpg,.jpeg,.png,.webp,.pdf" className="hidden" onChange={handleFile} />
                   </label>
                 ) : (
@@ -501,7 +501,7 @@ export default function DonationsPage() {
             <p className="text-sm text-slate-700 font-medium">Apoya directamente a la permanencia y el desarrollo de estudiantes de la UCR.</p>
           </div>
           <Link href="/donations/history">
-            <Button variant="secondary" className="border-blue-700 text-blue-700 hover:bg-blue-50 font-bold uppercase tracking-wider text-xs px-5 flex items-center gap-2">
+            <Button variant="secondary" className="border-[#F34B26] text-[#F34B26] hover:bg-orange-50/40 font-bold uppercase tracking-wider text-xs px-5 flex items-center gap-2">
               <History className="w-4 h-4" />Ver mi historial
             </Button>
           </Link>
@@ -511,7 +511,7 @@ export default function DonationsPage() {
         <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-3">
           <div className="flex justify-between items-center">
             <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">Progreso de la Donación</span>
-            <span className="text-xs font-black text-blue-700">{progress}%</span>
+            <span className="text-xs font-black text-[#F34B26]">{progress}%</span>
           </div>
           <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
             <ProgressFill value={progress} />
@@ -521,13 +521,13 @@ export default function DonationsPage() {
             {STEPS.map(({ id, label, icon: Icon }) => (
               <div key={id} className="flex flex-col items-center gap-1">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
-                  step === id ? 'bg-blue-700 text-white shadow-md' :
+                  step === id ? 'bg-[#F34B26] text-white shadow-md' :
                   step > id ? 'bg-emerald-500 text-white' :
                   'bg-slate-100 text-slate-400'
                 }`}>
                   {step > id ? <CheckCircle2 className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
                 </div>
-                <span className={`text-[9px] font-bold uppercase tracking-wide hidden sm:block ${step === id ? 'text-blue-700' : step > id ? 'text-emerald-600' : 'text-slate-400'}`}>{label}</span>
+                <span className={`text-[9px] font-bold uppercase tracking-wide hidden sm:block ${step === id ? 'text-[#F34B26]' : step > id ? 'text-emerald-600' : 'text-slate-400'}`}>{label}</span>
               </div>
             ))}
           </div>
@@ -564,7 +564,7 @@ export default function DonationsPage() {
             <Button
               variant="primary"
               onClick={nextStep}
-              className="bg-blue-700 hover:bg-blue-800 font-bold uppercase tracking-wider text-xs px-6"
+              className="bg-[#F34B26] hover:bg-[#C82A08] font-bold uppercase tracking-wider text-xs px-6"
             >
               Continuar →
             </Button>

@@ -1,4 +1,5 @@
 'use client'
+import { getAvatarUrl } from '@/lib/utils';
 
 import React, { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
@@ -32,7 +33,7 @@ interface MatchReal {
 
 // ─── CONFIG DE ESTADO ────────────────────────────────────────────────────────
 const ESTADO_CONFIG: Record<EstadoMatch, { label: string; clase: string }> = {
-  sugerido:   { label: 'Sugerido',   clase: 'bg-blue-500/15 text-blue-700 border border-blue-300'       },
+  sugerido:   { label: 'Sugerido',   clase: 'bg-[#F34B26]/10 text-[#F34B26] border border-[#F34B26]/20'       },
   contactado: { label: 'Contactado', clase: 'bg-amber-500/15 text-amber-700 border border-amber-300'    },
   activo:     { label: 'Activo',     clase: 'bg-emerald-500/15 text-emerald-700 border border-emerald-300' },
   cerrado:    { label: 'Cerrado',    clase: 'bg-slate-200 text-slate-500 border border-slate-300'       },
@@ -40,7 +41,7 @@ const ESTADO_CONFIG: Record<EstadoMatch, { label: string; clase: string }> = {
 
 function getScoreColor(score: number) {
   if (score >= 80) return 'from-emerald-500 to-teal-600'
-  if (score >= 60) return 'from-blue-500 to-violet-600'
+  if (score >= 60) return 'from-[#FF9B18] to-[#F34B26]'
   if (score >= 40) return 'from-amber-500 to-orange-600'
   return 'from-slate-400 to-slate-500'
 }
@@ -76,9 +77,9 @@ function TarjetaMatch({ match, onAccion }: {
           <div className="flex items-center gap-2 mb-1">
             {/* Avatar */}
             {est?.foto_url ? (
-              <img src={est.foto_url} alt={nombre} className="w-8 h-8 rounded-full object-cover ring-2 ring-slate-100" />
+              <img src={getAvatarUrl(est.foto_url) as string} alt={nombre} className="w-8 h-8 rounded-full object-cover ring-2 ring-slate-100" />
             ) : (
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-institutional to-blue-700 text-white text-xs font-bold flex items-center justify-center ring-2 ring-slate-100">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#F34B26] to-[#FF9B18] text-white text-xs font-bold flex items-center justify-center ring-2 ring-slate-100">
                 {initials}
               </div>
             )}
@@ -108,7 +109,7 @@ function TarjetaMatch({ match, onAccion }: {
       {/* Áreas en común */}
       {match.areas_comunes && match.areas_comunes.length > 0 && (
         <div className="px-5 pb-3">
-          <div className={`flex items-center gap-2 p-2.5 rounded-xl border text-xs bg-blue-50 border-blue-100 text-blue-700`}>
+          <div className={`flex items-center gap-2 p-2.5 rounded-xl border text-xs bg-orange-50 border-[#F34B26]/25 text-[#F34B26]`}>
             <BookOpen className="w-3.5 h-3.5 shrink-0" />
             <span className="font-medium">{match.areas_comunes.length} área(s) de interés en común</span>
           </div>
@@ -116,7 +117,7 @@ function TarjetaMatch({ match, onAccion }: {
           {expandido && (
             <div className="mt-2 flex flex-wrap gap-1.5 p-3 bg-slate-50 rounded-xl border border-slate-100">
               {match.areas_comunes.map(area => (
-                <span key={area} className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-medium">{area}</span>
+                <span key={area} className="text-xs px-2 py-0.5 rounded-full bg-[#FF9B18]/10 text-[#FF9B18] font-medium">{area}</span>
               ))}
             </div>
           )}
@@ -245,14 +246,14 @@ export default function MentoriasPage() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-2">
           <div>
             <h1 className="text-3xl font-extrabold uppercase font-display text-slate-900 tracking-wide flex items-center gap-3">
-              <Handshake className="w-8 h-8 text-institutional" />
+              <Handshake className="w-8 h-8 text-[#F34B26]" />
               Mis Mentorías
             </h1>
             <p className="text-sm text-slate-500 font-medium mt-1">
               Estudiantes sugeridos por el sistema según compatibilidad de perfil.
             </p>
           </div>
-          <Link href="/network" className="text-xs font-bold text-institutional hover:underline uppercase tracking-wider">
+          <Link href="/network" className="text-xs font-bold text-[#F34B26] hover:text-[#C82A08] hover:underline uppercase tracking-wider">
             Ver directorio completo →
           </Link>
         </div>
@@ -260,9 +261,9 @@ export default function MentoriasPage() {
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4">
           {[
-            { label: 'Sugeridos', value: totalSugeridos, color: 'text-blue-600',    bg: 'bg-blue-50 border-blue-100'       },
+            { label: 'Sugeridos', value: totalSugeridos, color: 'text-[#F34B26]',    bg: 'bg-orange-50 border-[#F34B26]/20'       },
             { label: 'Activos',   value: totalActivos,   color: 'text-emerald-600', bg: 'bg-emerald-50 border-emerald-100' },
-            { label: 'Score prom.', value: `${scorePromedio}pts`, color: 'text-violet-600', bg: 'bg-violet-50 border-violet-100' },
+            { label: 'Score prom.', value: `${scorePromedio}pts`, color: 'text-[#FF9B18]', bg: 'bg-[#FF9B18]/10 border-[#FF9B18]/20' },
           ].map(stat => (
             <div key={stat.label} className={`${stat.bg} border rounded-2xl p-4 text-center`}>
               <p className={`text-2xl font-black ${stat.color}`}>{stat.value}</p>
@@ -279,7 +280,7 @@ export default function MentoriasPage() {
 
         {cargando ? (
           <div className="flex flex-col items-center justify-center py-24 bg-white border border-slate-200 rounded-2xl">
-            <div className="w-10 h-10 border-4 border-slate-200 border-t-institutional rounded-full animate-spin mb-4" />
+            <div className="w-10 h-10 border-4 border-slate-200 border-t-[#F34B26] rounded-full animate-spin mb-4" />
             <p className="text-sm font-bold text-slate-500 uppercase tracking-wide">Cargando matches...</p>
           </div>
         ) : (
@@ -290,7 +291,7 @@ export default function MentoriasPage() {
                 <button key={valor} type="button" onClick={() => setFiltro(valor)}
                   className={`flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
                     filtro === valor
-                      ? 'bg-institutional text-white border-institutional'
+                      ? 'bg-[#F34B26] text-white border-[#F34B26]'
                       : 'bg-white text-slate-600 border-slate-200 hover:border-slate-400'
                   }`}>
                   {label}
@@ -319,7 +320,7 @@ export default function MentoriasPage() {
                 </p>
                 {filtro !== 'todos' && (
                   <button type="button" onClick={() => setFiltro('todos')}
-                    className="mt-4 text-xs font-bold text-institutional hover:underline uppercase tracking-wider">
+                    className="mt-4 text-xs font-bold text-[#F34B26] hover:underline uppercase tracking-wider">
                     Ver todos los matches
                   </button>
                 )}

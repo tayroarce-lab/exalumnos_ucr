@@ -2,6 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { EstudianteDirectorio } from "@/types/estudiantes";
+import { getAvatarUrl } from "@/lib/utils";
 
 export default function TarjetaEstudiante({ estudiante }: { estudiante: EstudianteDirectorio }) {
   const router = useRouter();
@@ -33,7 +34,7 @@ export default function TarjetaEstudiante({ estudiante }: { estudiante: Estudian
         {/* Avatar */}
         <div className="w-14 h-14 rounded-full bg-gradient-to-br from-slate-100 to-slate-50 flex items-center justify-center flex-shrink-0 overflow-hidden border-2 border-slate-200/60 shadow-sm group-hover:border-[#54BCEB]/50 transition-colors duration-300">
           {estudiante.foto_url ? (
-            <img src={estudiante.foto_url} alt={estudiante.nombre} className="w-full h-full object-cover" />
+            <img src={getAvatarUrl(estudiante.foto_url) as string} alt={estudiante.nombre} className="w-full h-full object-cover" />
           ) : (
             <span className="text-[#003B4F] font-extrabold text-xl group-hover:scale-110 transition-transform duration-300">
               {estudiante.nombre.charAt(0)}

@@ -7,59 +7,40 @@ import Button from '@/components/ui/button'
 import { Search, Filter, Briefcase, MapPin, Building, Plus } from 'lucide-react'
 import { Select } from '@/components/ui/input'
 
-// Datos de vacantes mock
-const MOCK_JOBS = [
-  {
-    id: '1',
-    title: 'Desarrollador React Senior',
-    company: 'Tech Costa Rica',
-    location: 'San José (Híbrido)',
-    type: 'Tiempo Completo',
-    modality: 'Híbrido',
-    salary: '₡1,800,000 - ₡2,400,000',
-    desc: 'Buscamos un desarrollador React experimentado para liderar el rediseño de nuestras plataformas de comercio electrónico.',
-    posted: 'Hace 2 días'
-  },
-  {
-    id: '2',
-    title: 'Analista de Datos Junior',
-    company: 'Finanzas Globales',
-    location: 'Remoto',
-    type: 'Tiempo Completo',
-    modality: 'Remoto',
-    salary: 'No especificado',
-    desc: 'Únete a nuestro equipo de análisis financiero. Experiencia básica en SQL y Python/R requerida.',
-    posted: 'Hace 4 días'
-  },
-  {
-    id: '3',
-    title: 'Diseñador UI/UX Senior',
-    company: 'Creativos Digitales',
-    location: 'San Pedro (Presencial)',
-    type: 'Medio Tiempo / Freelance',
-    modality: 'Presencial',
-    salary: '₡800,000 - ₡1,200,000',
-    desc: 'Buscamos un diseñador con portafolio comprobado para optimizar las interacciones en aplicaciones móviles financieras.',
-    posted: 'Hace 1 semana'
-  }
-]
+import { listarPosicionesPublicas } from '@/actions/positions'
 
 export default function JobsPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedModality, setSelectedModality] = useState('all')
+  const [dbJobs, setDbJobs] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const filteredJobs = MOCK_JOBS.filter((job) => {
-    const matchesSearch =
-      job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      job.company.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesModality = selectedModality === 'all' || job.modality === selectedModality
+  React.useEffect(() => {
+    async function loadJobs() {
+      try {
+        const positions = await listarPosicionesPublicas()
+        setDbJobs(positions || [])
+      } catch (err) {
+        console.error("Error loading jobs", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadJobs()
+  }, [])
+
+  const filteredJobs = dbJobs.filter((job) => {
+    const titleMatch = (job.titulo || '').toLowerCase().includes(searchTerm.toLowerCase())
+    const companyMatch = (job.empresa || '').toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesSearch = titleMatch || companyMatch
+    const matchesModality = selectedModality === 'all' || (job.modalidad && job.modalidad.toLowerCase() === selectedModality.toLowerCase())
     return matchesSearch && matchesModality
   })
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-100 to-white py-10 px-6 lg:px-10 relative overflow-hidden">
-      <div className="absolute right-0 top-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl -z-10"></div>
-      <div className="absolute left-10 bottom-10 w-72 h-72 bg-sky-400/10 rounded-full blur-2xl -z-10"></div>
+      <div className="absolute right-0 top-1/4 w-96 h-96 bg-[#F34B26]/8 rounded-full blur-3xl -z-10"></div>
+      <div className="absolute left-10 bottom-10 w-72 h-72 bg-[#FF9B18]/8 rounded-full blur-2xl -z-10"></div>
 
       <div className="space-y-8 max-w-6xl mx-auto relative z-10">
         {/* Header */}
@@ -73,7 +54,7 @@ export default function JobsPage() {
             </p>
           </div>
           <Link href="/jobs/publish">
-            <Button variant="primary" className="bg-brand-blue hover:bg-brand-blue/90 font-bold uppercase tracking-wider text-xs px-6 py-3 flex items-center gap-2 shadow-md">
+            <Button variant="primary" className="bg-[#F34B26] hover:bg-[#C82A08] hover:scale-105 active:scale-95 transition-all duration-300 font-bold uppercase tracking-wider text-xs px-6 py-3 flex items-center gap-2 shadow-md border-0">
               <Plus className="w-4 h-4" />
               <span>Publicar Oportunidad</span>
             </Button>
@@ -91,7 +72,7 @@ export default function JobsPage() {
               placeholder="Buscar por puesto o empresa..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full h-12 pl-10 pr-4 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10 transition-all text-slate-800"
+              className="w-full h-12 pl-10 pr-4 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-[#F34B26] focus:bg-white focus:ring-4 focus:ring-[#F34B26]/10 transition-all text-slate-800"
             />
           </div>
           <div className="flex items-center gap-2">
@@ -105,14 +86,18 @@ export default function JobsPage() {
                 { value: 'Híbrido', label: 'Híbrido' },
                 { value: 'Presencial', label: 'Presencial' }
               ]}
-              className="h-12 bg-slate-50 border-slate-200 focus:border-blue-600 rounded-xl text-sm text-slate-800"
+              className="h-12 bg-slate-50 border-slate-200 focus:border-[#F34B26] rounded-xl text-sm text-slate-800"
             />
           </div>
         </div>
 
         {/* Listado de Vacantes */}
         <div className="space-y-5">
-          {filteredJobs.length > 0 ? (
+          {loading ? (
+            <div className="text-center py-16 bg-white border border-slate-200/60 rounded-2xl text-slate-400 font-medium text-sm shadow-sm">
+              Cargando oportunidades...
+            </div>
+          ) : filteredJobs.length > 0 ? (
             filteredJobs.map((job) => (
               <Card 
                 key={job.id} 
@@ -120,42 +105,42 @@ export default function JobsPage() {
                 className="p-6 rounded-2xl border border-slate-200/60 bg-white transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5"
               >
                 <div className="flex flex-col sm:flex-row gap-5 items-start">
-                  <div className="w-14 h-14 rounded-xl bg-brand-blue/10 text-brand-blue flex items-center justify-center shrink-0 shadow-sm">
+                  <div className="w-14 h-14 rounded-xl bg-[#F34B26]/10 text-[#F34B26] border border-[#F34B26]/20 flex items-center justify-center shrink-0 shadow-sm">
                     <Briefcase className="w-6 h-6" />
                   </div>
                   <div className="flex-1 space-y-3 w-full">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <h3 className="font-display font-extrabold text-lg text-slate-900 uppercase tracking-wide">
-                        {job.title}
+                        {job.titulo}
                       </h3>
                       <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
-                        Publicado {job.posted}
+                        Publicado {new Date(job.created_at).toLocaleDateString()}
                       </span>
                     </div>
                     <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs text-slate-700 font-semibold">
                       <span className="flex items-center gap-2">
-                        <Building className="w-4 h-4 text-blue-600" />
-                        {job.company}
+                        <Building className="w-4 h-4 text-[#F34B26]" />
+                        {job.empresa}
                       </span>
                       <span className="flex items-center gap-2">
-                        <MapPin className="w-4 h-4 text-blue-600" />
-                        {job.location}
+                        <MapPin className="w-4 h-4 text-[#F34B26]" />
+                        {job.lugar || 'No especificado'}
                       </span>
                     </div>
-                    <p className="text-xs text-slate-600 leading-relaxed py-1">
-                      {job.desc}
+                    <p className="text-xs text-slate-600 leading-relaxed py-1 line-clamp-2">
+                      {job.descripcion_general}
                     </p>
                     <div className="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-slate-100">
                       <div className="flex gap-2">
-                        <span className="bg-blue-50 text-blue-700 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                          {job.type}
+                        <span className="bg-orange-50 text-[#F34B26] text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                          {job.jornada?.replace('_', ' ') || 'Tiempo Completo'}
                         </span>
-                        <span className="bg-sky-50 text-sky-700 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                          {job.modality}
+                        <span className="bg-[#FF9B18]/10 text-[#FF9B18] text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                          {job.modalidad || 'Híbrido'}
                         </span>
                       </div>
                       <Link href={`/jobs/${job.id}`}>
-                        <span className="text-xs font-bold text-brand-blue hover:text-brand-celeste transition-colors uppercase tracking-wider cursor-pointer">
+                        <span className="text-xs font-bold text-[#F34B26] hover:text-[#C82A08] transition-colors uppercase tracking-wider cursor-pointer">
                           Ver Detalles →
                         </span>
                       </Link>

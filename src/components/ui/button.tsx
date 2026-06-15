@@ -20,8 +20,8 @@ export default function Button({
   const baseStyles = 'inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none'
   
   const variants = {
-    primary: 'bg-brand-emerald text-white hover:bg-brand-emerald/90 active:bg-brand-emerald focus:ring-brand-emerald/40',
-    secondary: 'bg-white border-2 border-brand-emerald text-brand-emerald hover:bg-brand-emerald/5 focus:ring-brand-emerald/20',
+    primary: 'bg-brand-blue text-white hover:bg-brand-blue/90 active:bg-brand-blue focus:ring-brand-blue/40',
+    secondary: 'bg-white border-2 border-brand-blue text-brand-blue hover:bg-brand-blue/5 focus:ring-brand-blue/20',
     ghost: 'bg-transparent text-slate-600 hover:bg-slate-50 hover:text-slate-900',
     danger: 'bg-rose-600 text-white hover:bg-rose-700 active:bg-rose-800 focus:ring-rose-600/40'
   }

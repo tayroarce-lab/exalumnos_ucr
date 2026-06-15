@@ -14,8 +14,8 @@ const MOCK_EVENTS = [
     time: '6:00 PM - 9:00 PM',
     location: 'Auditorio Abelardo Bonilla, Sede Rodrigo Facio, UCR',
     desc: 'Un espacio de reencuentro, networking y discusión sobre las tendencias tecnológicas y económicas en Costa Rica.',
-    gradientFrom: '#1a5f9e',
-    gradientTo: '#0ea5e9',
+    gradientFrom: '#F34B26',
+    gradientTo: '#FF9B18',
   },
   {
     id: '2',
@@ -25,8 +25,8 @@ const MOCK_EVENTS = [
     time: '10:00 AM - 12:00 PM',
     location: 'Transmisión en Vivo (Zoom)',
     desc: 'Aprende cómo las corporaciones modernas integran modelos generativos para optimizar sus procesos de desarrollo y marketing.',
-    gradientFrom: '#0ea5e9',
-    gradientTo: '#6366f1',
+    gradientFrom: '#FF9B18',
+    gradientTo: '#FFD000',
   },
   {
     id: '3',
@@ -36,8 +36,8 @@ const MOCK_EVENTS = [
     time: '8:30 AM - 4:30 PM',
     location: 'Aula Magna, Ciudad de la Investigación, UCR',
     desc: 'Charlas magistrales con expertos internacionales y presentación de TFGs estudiantiles con enfoque sostenible.',
-    gradientFrom: '#059669',
-    gradientTo: '#1a5f9e',
+    gradientFrom: '#E03A14',
+    gradientTo: '#F34B26',
   }
 ]
 
@@ -45,8 +45,8 @@ export default function EventsPage() {
   return (
     <div className="bg-gradient-to-b from-slate-100 to-white min-h-screen py-10 relative overflow-hidden">
       {/* Círculos decorativos */}
-      <div className="absolute right-0 top-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl -z-10"></div>
-      <div className="absolute left-10 bottom-10 w-72 h-72 bg-sky-400/10 rounded-full blur-2xl -z-10"></div>
+      <div className="absolute right-0 top-1/4 w-96 h-96 bg-[#F34B26]/8 rounded-full blur-3xl -z-10"></div>
+      <div className="absolute left-10 bottom-10 w-72 h-72 bg-[#FF9B18]/8 rounded-full blur-2xl -z-10"></div>
 
       <div className="space-y-10 max-w-7xl mx-auto px-6 relative z-10">
         {/* Header */}
@@ -92,14 +92,14 @@ export default function EventsPage() {
                   </p>
                   <div className="space-y-2.5 text-sm text-slate-800 font-semibold">
                     <div className="flex items-center gap-3">
-                      <Calendar className="w-4 h-4 text-blue-600 shrink-0" />
+                      <Calendar className="w-4 h-4 text-[#F34B26] shrink-0" />
                       <span>{event.date} · {event.time}</span>
                     </div>
                     <div className="flex items-start gap-3">
                       {event.category === 'Virtual' ? (
-                        <Video className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+                        <Video className="w-4 h-4 text-[#F34B26] shrink-0 mt-0.5" />
                       ) : (
-                        <MapPin className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+                        <MapPin className="w-4 h-4 text-[#F34B26] shrink-0 mt-0.5" />
                       )}
                       <span className="line-clamp-2">{event.location}</span>
                     </div>
@@ -108,7 +108,7 @@ export default function EventsPage() {
 
                 <div className="pt-4 border-t border-slate-200">
                   <Link href={`/events/${event.id}`} className="block">
-                    <span className="block text-center text-xs font-bold text-blue-700 hover:text-blue-900 transition-colors uppercase tracking-wider pt-2 cursor-pointer">
+                    <span className="block text-center text-xs font-bold text-[#F34B26] hover:text-[#C82A08] transition-colors uppercase tracking-wider pt-2 cursor-pointer">
                       Ver Detalles →
                     </span>
                   </Link>
