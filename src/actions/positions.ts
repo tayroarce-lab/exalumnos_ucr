@@ -22,6 +22,9 @@ export async function crearPosicion(data: CrearPosicionInput) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('No autenticado')
+  if (user.user_metadata?.rol === 'admin' || user.user_metadata?.tipo === 'admin') {
+    throw new Error('Acceso denegado: Los administradores no pueden crear posiciones')
+  }
 
   const { error } = await supabase
     .from('posiciones')

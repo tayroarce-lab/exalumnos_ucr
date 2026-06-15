@@ -67,7 +67,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
   const email = user?.email || 'usuario@ucr.ac.cr'
   const rawFotoUrl = profile?.foto_url || null
   const fotoUrl = rawFotoUrl 
-    ? (rawFotoUrl.startsWith('http') || rawFotoUrl.startsWith('data:'))
+    ? (rawFotoUrl.startsWith('http') || rawFotoUrl.startsWith('data:') || rawFotoUrl.startsWith('/'))
       ? rawFotoUrl
       : `${process.env.NEXT_PUBLIC_SUPABASE_URL || ''}/storage/v1/object/public/avatars/${rawFotoUrl}`
     : null

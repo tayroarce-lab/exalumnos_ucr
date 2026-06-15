@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import { crearPosicion } from '@/actions/positions'
 import type { PosicionFormValues } from '@/lib/validations/posiciones'
+import { useProfile } from '@/contexts/ProfileContext'
 
 // ──────────────────────────────────────────────
 // Catálogo de sectores disponibles
@@ -35,10 +36,18 @@ const MAX_RESP = 10
 
 export default function PublishJobPage() {
   const router = useRouter()
+  const { user } = useProfile()
   const [step, setStep] = useState(1)
   const [isPublishing, setIsPublishing] = useState(false)
   const [isPublished, setIsPublished] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
+
+  React.useEffect(() => {
+    const isAdmin = user?.user_metadata?.rol === 'admin' || user?.user_metadata?.tipo === 'admin'
+    if (isAdmin) {
+      router.replace('/jobs')
+    }
+  }, [user, router])
 
   // Datos del formulario alineados con PosicionFormValues (Zod Schema)
   const [formData, setFormData] = useState<PosicionFormValues>({

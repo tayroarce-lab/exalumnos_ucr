@@ -170,6 +170,10 @@ export async function requestConnection(matchId: string) {
   if (!user) {
     return { success: false, error: 'No autorizado' };
   }
+  
+  if (user.user_metadata?.rol === 'admin' || user.user_metadata?.tipo === 'admin') {
+    return { success: false, error: 'Acceso denegado: Los administradores no pueden solicitar conexiones' };
+  }
 
   // Marcar como contactado e iniciado por el usuario actual
   const { error } = await supabase

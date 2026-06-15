@@ -6,6 +6,7 @@ import Card from '@/components/ui/card'
 import Button from '@/components/ui/button'
 import { Search, Filter, Briefcase, MapPin, Building, Plus } from 'lucide-react'
 import { Select } from '@/components/ui/input'
+import { useProfile } from '@/contexts/ProfileContext'
 
 import { listarPosicionesPublicas } from '@/actions/positions'
 
@@ -14,6 +15,8 @@ export default function JobsPage() {
   const [selectedModality, setSelectedModality] = useState('all')
   const [dbJobs, setDbJobs] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const { user } = useProfile()
+  const isAdmin = user?.user_metadata?.rol === 'admin' || user?.user_metadata?.tipo === 'admin'
 
   React.useEffect(() => {
     async function loadJobs() {
