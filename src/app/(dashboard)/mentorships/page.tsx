@@ -1,5 +1,5 @@
-import { getAvatarUrl } from '@/lib/utils';
 'use client'
+import { getAvatarUrl } from '@/lib/utils';
 
 import React, { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
