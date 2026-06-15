@@ -192,9 +192,11 @@ export async function getPositionApplications(position_id: string) {
     .from('applications')
     .select(`
       *,
-      studentUser:users!applications_student_id_fkey(nombre, email, foto_url),
-      studentProfile:estudiantes!applications_student_id_fkey(carrera, sede),
-      cv:cv_profiles(id, cv_versiones:curriculum_versiones(nombre_version))
+      studentUser:users!applications_student_id_fkey(
+        nombre, email, foto_url,
+        estudiantes(carrera, sede)
+      ),
+      cv:cv_profiles(id)
     `)
     .eq('position_id', position_id)
     .order('compatibility_score', { ascending: false })
@@ -204,14 +206,17 @@ export async function getPositionApplications(position_id: string) {
 
   return data.map(app => {
     // Aquí podríamos generar o pedir URLs firmadas para el CV si aplica
+    const studentUserObj = app.studentUser as any;
+    const studentProfileObj = studentUserObj?.estudiantes?.[0] || studentUserObj?.estudiantes;
+    
     return {
       ...app,
       student: {
         id: app.student_id,
-        nombre: (app.studentUser as any)?.nombre,
-        foto_url: (app.studentUser as any)?.foto_url,
-        carrera: (app.studentProfile as any)?.carrera || 'N/A',
-        sede: (app.studentProfile as any)?.sede || 'N/A'
+        nombre: studentUserObj?.nombre,
+        foto_url: studentUserObj?.foto_url,
+        carrera: studentProfileObj?.carrera || 'N/A',
+        sede: studentProfileObj?.sede || 'N/A'
       },
       cv: app.cv ? {
         id: (app.cv as any).id,
