@@ -237,7 +237,7 @@ export default function DonationsPage() {
       const fileExt = comprobante!.name.split('.').pop()
       const fileName = `${user.id}/${Date.now()}_comprobante.${fileExt}`
       const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('comprobantes')
+        .from('receipts')
         .upload(fileName, comprobante!)
         
       if (uploadError) throw new Error("Error al subir comprobante: " + uploadError.message)
