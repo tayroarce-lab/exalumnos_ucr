@@ -78,6 +78,18 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
   // Modal states
   const [showMentoriaModal, setShowMentoriaModal] = React.useState(false);
   const [showApoyarModal, setShowApoyarModal] = React.useState(false);
+  const [isAdmin, setIsAdmin] = React.useState(false);
+
+  React.useEffect(() => {
+    import('@/lib/supabase/client').then(({ createClient }) => {
+      const supabase = createClient()
+      supabase.auth.getUser().then(({ data: { user } }) => {
+        if (user) {
+          setIsAdmin(user.user_metadata?.rol === 'admin')
+        }
+      })
+    })
+  }, []);
 
   return (
     <div style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
@@ -303,18 +315,20 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
           </div>
 
           {/* Acciones para Mentores */}
-          <div style={{ borderRadius: 14, border: '1.5px dashed #c5d5e5', background: '#f7fafd', padding: 20 }}>
-            <p style={{ fontSize: 11, color: '#7a9ab0', textAlign: 'center', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 14 }}>Acciones para Mentores</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <button style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px 16px', borderRadius: 10, background: 'white', border: '1.5px solid #c5d5e5', color: '#0f1e2e', fontSize: 14, fontWeight: 600, cursor: 'pointer' }} onClick={() => setShowMentoriaModal(true)}>
-                <IconBulb /> Ofrecer Mentoría
-              </button>
-              {/* TODO: [Fase Futura] Implementar Modal completo de Apoyar Proyecto que muestre SINPE (actualmente placeholder) y lógica de copia real */}
-              <button style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px 16px', borderRadius: 10, background: 'white', border: '1.5px solid #c5d5e5', color: '#0f1e2e', fontSize: 14, fontWeight: 600, cursor: 'pointer' }} onClick={() => setShowApoyarModal(true)}>
-                <IconSupport /> Apoyar Proyecto
-              </button>
+          {!isAdmin && (
+            <div style={{ borderRadius: 14, border: '1.5px dashed #c5d5e5', background: '#f7fafd', padding: 20 }}>
+              <p style={{ fontSize: 11, color: '#7a9ab0', textAlign: 'center', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 14 }}>Acciones para Mentores</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <button style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px 16px', borderRadius: 10, background: 'white', border: '1.5px solid #c5d5e5', color: '#0f1e2e', fontSize: 14, fontWeight: 600, cursor: 'pointer' }} onClick={() => setShowMentoriaModal(true)}>
+                  <IconBulb /> Ofrecer Mentoría
+                </button>
+                {/* TODO: [Fase Futura] Implementar Modal completo de Apoyar Proyecto que muestre SINPE (actualmente placeholder) y lógica de copia real */}
+                <button style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px 16px', borderRadius: 10, background: 'white', border: '1.5px solid #c5d5e5', color: '#0f1e2e', fontSize: 14, fontWeight: 600, cursor: 'pointer' }} onClick={() => setShowApoyarModal(true)}>
+                  <IconSupport /> Apoyar Proyecto
+                </button>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Redes */}
           {(estudiante.url_linkedin || estudiante.url_portfolio) && (
