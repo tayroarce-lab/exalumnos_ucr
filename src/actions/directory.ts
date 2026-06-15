@@ -55,12 +55,33 @@ export async function buscarExalumnosDirectorio(params: BuscarParams): Promise<{
     
     let query = supabase.from('profiles').select('*', { count: 'exact' }).eq('es_exalumno', true)
     
-    // Aplicar filtros básicos al fallback
+    // Aplicar filtros completos al fallback
     if (params.facultad) query = query.eq('facultad_principal', params.facultad)
     if (params.escuela) query = query.eq('escuela_principal', params.escuela)
     if (params.pais_ciudad) query = query.ilike('pais_ciudad', `%${params.pais_ciudad}%`)
+    
     if (params.search) {
-       query = query.or(`nombre.ilike.%${params.search}%,apellidos.ilike.%${params.search}%,cargo_actual.ilike.%${params.search}%`)
+       query = query.or(`nombre.ilike.%${params.search}%,apellidos.ilike.%${params.search}%,cargo_actual.ilike.%${params.search}%,empresa_actual.ilike.%${params.search}%`)
+    }
+
+    if (params.carreras && params.carreras.length > 0) {
+      query = query.in('carrera_principal', params.carreras)
+    }
+
+    if (params.sectores && params.sectores.length > 0) {
+      query = query.contains('sector_industria', params.sectores)
+    }
+
+    if (params.areas && params.areas.length > 0) {
+      query = query.contains('areas_de_interes', params.areas)
+    }
+
+    if (params.apoyos && params.apoyos.length > 0) {
+      if (params.apoyos.includes('ofrece_mentoria')) query = query.eq('ofrece_mentoria', true);
+      if (params.apoyos.includes('ofrece_empleo')) query = query.eq('ofrece_empleo', true);
+      if (params.apoyos.includes('ofrece_pasantia')) query = query.eq('ofrece_pasantia', true);
+      if (params.apoyos.includes('ofrece_proyecto')) query = query.eq('ofrece_proyecto', true);
+      if (params.apoyos.includes('ofrece_donacion_dinero')) query = query.eq('ofrece_donacion_dinero', true);
     }
     
     const { data: fallbackData, error: fallbackError, count } = await query.order('created_at', { ascending: false }).range(offset, offset + limit - 1)

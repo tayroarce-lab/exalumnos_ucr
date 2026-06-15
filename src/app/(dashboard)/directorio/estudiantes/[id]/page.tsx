@@ -4,8 +4,9 @@ import { notFound } from 'next/navigation';
 import { getEstudianteById, getEstudiantesRelacionados } from '@/lib/api';
 import StudentProfile from '../_components/StudentProfile';
 
-export default async function PerfilEstudiantePage({ params }: { params: { id: string } }) {
-  const estudiante = await getEstudianteById(params.id);
+export default async function PerfilEstudiantePage({ params }: { params: { id: string } | Promise<{ id: string }> }) {
+  const resolvedParams = await Promise.resolve(params);
+  const estudiante = await getEstudianteById(resolvedParams.id);
 
   if (!estudiante) {
     notFound();

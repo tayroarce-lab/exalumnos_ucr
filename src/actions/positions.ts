@@ -153,10 +153,10 @@ export async function restaurarPosicionAdmin(posicionId: string) {
   const { createAdminClient } = await import('@/lib/supabase/admin')
   const adminClient = createAdminClient()
 
-  const { error } = await adminClient.rpc('restaurar_registro', {
-    p_table_name: 'posiciones',
-    p_record_id: posicionId
-  })
+  const { error } = await adminClient
+    .from('posiciones')
+    .update({ deleted_at: null })
+    .eq('id', posicionId)
 
   if (error) throw new Error(`Error al restaurar posición: ${error.message}`)
 
@@ -187,46 +187,53 @@ export async function obtenerAplicantesPorPosicion(posicionId: string) {
 
   // Obtener aplicantes con datos del estudiante
   const { data, error } = await supabase
-    .from('aplicaciones')
+    .from('applications')
     .select(`
       id,
-      estado,
-      mensaje_presentacion,
+      status,
+      message,
       created_at,
       updated_at,
-      estudiante:users!aplicaciones_estudiante_id_fkey (
+      estudiante:users!applications_student_id_fkey (
         id,
         nombre,
         apellidos,
         email,
         foto_url,
-        carrera_principal
+        carrera_principal_id
       )
     `)
-    .eq('posicion_id', posicionId)
+    .eq('position_id', posicionId)
     .order('created_at', { ascending: false })
 
   if (error) throw new Error(error.message)
 
-  return { posicion, aplicantes: data ?? [] }
+  // Map status and message to the old frontend format if needed
+  const mappedData = (data ?? []).map((app: any) => ({
+    ...app,
+    estado: app.status,
+    mensaje_presentacion: app.message,
+  }))
+
+  return { posicion, aplicantes: mappedData }
 }
 
 // =============================================================================
 // FUNCIÓN: actualizarEstadoAplicacion
 // Descripción : Permite al exalumno cambiar el estado de una aplicación
-//               (en_revision, entrevistado, aceptado, rechazado).
+//               (enviada, en_revision, seleccionado, descartado).
 // =============================================================================
 export async function actualizarEstadoAplicacion(
   aplicacionId: string,
-  estado: 'pendiente' | 'en_revision' | 'entrevistado' | 'aceptado' | 'rechazado'
+  estado: 'enviada' | 'en_revision' | 'seleccionado' | 'descartado'
 ) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('No autenticado')
 
   const { error } = await supabase
-    .from('aplicaciones')
-    .update({ estado, updated_at: new Date().toISOString() })
+    .from('applications')
+    .update({ status: estado, updated_at: new Date().toISOString() })
     .eq('id', aplicacionId)
 
   if (error) throw new Error(error.message)
