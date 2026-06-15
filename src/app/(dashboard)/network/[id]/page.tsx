@@ -9,6 +9,9 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
   const resolvedParams = await Promise.resolve(params);
   const supabase = await createClient()
 
+  const { data: { user } } = await supabase.auth.getUser()
+  const isAdmin = user?.user_metadata?.rol === 'admin'
+
   const { data: profile, error } = await supabase
     .from('profiles')
     .select('*')
@@ -57,7 +60,7 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
 
             {/* Acciones principales - Desktop right align */}
             <div className="flex justify-end pt-4 pb-2 min-h-16">
-              {profile.linkedin_url && (
+              {!isAdmin && profile.linkedin_url && (
                 <a 
                   href={profile.linkedin_url.startsWith('http') ? profile.linkedin_url : `https://${profile.linkedin_url}`}
                   target="_blank"
