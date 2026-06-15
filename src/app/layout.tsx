@@ -21,11 +21,8 @@ export const metadata: Metadata = {
   description: 'Directorio Estudiantil',
 }
 
-<<<<<<< HEAD
 import GlobalLoadingOverlay from '@/components/GlobalLoadingOverlay'
 
-=======
->>>>>>> 6e204a6103b44cf8dc51ab329c5f8433c1d193c6
 export default function RootLayout({
   children,
 }: {
