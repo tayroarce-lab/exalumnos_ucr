@@ -6,6 +6,7 @@ import { CheckCircle2, Clock, XCircle, ArrowLeft, Heart, FileText, ChevronDown, 
 import Card from '@/components/ui/card'
 import Button from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
+import { obtenerMisDonaciones } from '@/actions/donations'
 
 // ============================================================
 // TIPOS
@@ -52,8 +53,8 @@ function formatDate(iso: string) {
 // ============================================================
 function EstadoBadge({ estado }: { estado: EstadoDonacion }) {
   const map = {
-    confirmada: { label: 'Confirmada', color: 'bg-emerald-100 text-emerald-700 border-emerald-200', Icon: CheckCircle2 },
-    pendiente: { label: 'Pendiente', color: 'bg-amber-100 text-amber-700 border-amber-200', Icon: Clock },
+    confirmada: { label: 'Aceptada', color: 'bg-emerald-100 text-emerald-700 border-emerald-200', Icon: CheckCircle2 },
+    pendiente: { label: 'En espera', color: 'bg-amber-100 text-amber-700 border-amber-200', Icon: Clock },
     rechazada: { label: 'Rechazada', color: 'bg-rose-100 text-rose-700 border-rose-200', Icon: XCircle },
   }
   const { label, color, Icon } = map[estado]
@@ -161,31 +162,27 @@ export default function DonationsHistoryPage() {
 
   useEffect(() => {
     const fetchDonaciones = async () => {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
+      try {
+        const { data, success } = await obtenerMisDonaciones()
 
-      const { data, error } = await supabase
-        .from('donations')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-
-      if (data && !error) {
-        const mapped: Donacion[] = data.map((d: any) => ({
-          id: d.id,
-          fondo: mapFondoIdToName(d.fondo_destino),
-          monto: Number(d.monto),
-          moneda: d.moneda as 'CRC' | 'USD',
-          metodo: d.metodo_pago.toLowerCase().includes('sinpe') ? 'sinpe' : 'transferencia_bancaria',
-          fecha_transferencia: d.fecha_transferencia,
-          numero_referencia: d.numero_referencia,
-          mensaje: d.mensaje_estudiante,
-          estado: d.estado,
-          motivo_rechazo: undefined, // no column for this yet
-          created_at: d.created_at
-        }))
-        setDonaciones(mapped)
+        if (success && data) {
+          const mapped: Donacion[] = data.map((d: any) => ({
+            id: d.id,
+            fondo: mapFondoIdToName(d.proyecto_estudiante_id),
+            monto: Number(d.monto),
+            moneda: d.moneda as 'CRC' | 'USD',
+            metodo: d.metodo_pago.toLowerCase().includes('sinpe') ? 'sinpe' : 'transferencia_bancaria',
+            fecha_transferencia: d.fecha_transferencia,
+            numero_referencia: d.numero_referencia,
+            mensaje: d.mensaje_estudiante,
+            estado: d.estado,
+            motivo_rechazo: d.motivo_rechazo,
+            created_at: d.created_at
+          }))
+          setDonaciones(mapped)
+        }
+      } catch (error) {
+        console.error(error)
       }
       setIsLoading(false)
     }
@@ -217,8 +214,8 @@ export default function DonationsHistoryPage() {
         {/* Resumen */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
-            { label: 'Confirmadas', value: totales.confirmadas, color: 'text-emerald-700', bg: 'bg-emerald-50', border: 'border-emerald-200' },
-            { label: 'Pendientes', value: totales.pendientes, color: 'text-amber-700', bg: 'bg-amber-50', border: 'border-amber-200' },
+            { label: 'Aceptadas', value: totales.confirmadas, color: 'text-emerald-700', bg: 'bg-emerald-50', border: 'border-emerald-200' },
+            { label: 'En espera', value: totales.pendientes, color: 'text-amber-700', bg: 'bg-amber-50', border: 'border-amber-200' },
             { label: 'Rechazadas', value: totales.rechazadas, color: 'text-rose-700', bg: 'bg-rose-50', border: 'border-rose-200' },
             { label: 'Total aportado', value: `₡${totales.totalCRC.toLocaleString()}`, color: 'text-blue-700', bg: 'bg-blue-50', border: 'border-blue-200' },
           ].map(({ label, value, color, bg, border }) => (
@@ -233,8 +230,8 @@ export default function DonationsHistoryPage() {
         <div className="flex items-center gap-2 flex-wrap">
           {([
             { v: 'todas', label: 'Todas' },
-            { v: 'confirmada', label: '✅ Confirmadas' },
-            { v: 'pendiente', label: '⏳ Pendientes' },
+            { v: 'confirmada', label: '✅ Aceptadas' },
+            { v: 'pendiente', label: '⏳ En espera' },
             { v: 'rechazada', label: '❌ Rechazadas' },
           ] as { v: EstadoDonacion | 'todas'; label: string }[]).map(({ v, label }) => (
             <button
@@ -261,11 +258,6 @@ export default function DonationsHistoryPage() {
             <div className="text-center py-16 bg-white border border-slate-200 rounded-2xl">
               <FileText className="w-10 h-10 text-slate-300 mx-auto mb-3" />
               <p className="text-sm font-bold text-slate-500 uppercase tracking-wide">Sin donaciones en este estado</p>
-              <Link href="/donations" className="inline-block mt-4">
-                <Button variant="primary" className="bg-blue-700 hover:bg-blue-800 text-xs font-bold uppercase tracking-wider px-5">
-                  Realizar una donación →
-                </Button>
-              </Link>
             </div>
           )}
         </div>

@@ -33,7 +33,7 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({
           <h3>Distribución por Carrera (Matches/Donaciones)</h3>
         </div>
         <div className="admin-chart-body">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" minHeight={300}>
             <BarChart
               data={graficosCarrera}
               margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
@@ -68,7 +68,7 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({
           <h3>Estudiantes por Sede UCR</h3>
         </div>
         <div className="admin-chart-body">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" minHeight={300}>
             <PieChart>
               <Pie
                 data={graficosSede}

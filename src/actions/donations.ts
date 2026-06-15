@@ -182,8 +182,8 @@ export async function crearDonacion(data: CrearDonacionInput) {
 
   try {
     const { error } = await supabase.from('donaciones').insert({
-      alumni_id: user.id,
-      proyecto_destino: data.proyecto_destino,
+      exalumno_id: user.id,
+      proyecto_estudiante_id: data.proyecto_destino,
       monto: data.monto,
       moneda: data.moneda,
       metodo_pago: data.metodo_pago,
@@ -218,7 +218,7 @@ export async function obtenerMisDonaciones() {
     const { data, error } = await supabase
       .from('donaciones')
       .select('*')
-      .eq('alumni_id', user.id)
+      .eq('exalumno_id', user.id)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
