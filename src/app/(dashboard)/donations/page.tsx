@@ -10,6 +10,7 @@ import {
   Smartphone, Building2, Clock, FileText, Info, ArrowLeft, ArrowRight, DollarSign
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { crearDonacion } from '@/actions/donations'
 
 function ProgressFill({ value, colorClass = 'bg-blue-700' }: { value: number; colorClass?: string }) {
   const ref = useRef<HTMLDivElement>(null)
@@ -236,33 +237,25 @@ export default function DonationsPage() {
       const fileExt = comprobante!.name.split('.').pop()
       const fileName = `${user.id}/${Date.now()}_comprobante.${fileExt}`
       const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('receipts')
+        .from('comprobantes')
         .upload(fileName, comprobante!)
         
       if (uploadError) throw new Error("Error al subir comprobante: " + uploadError.message)
       
       const comprobantePath = uploadData.path
 
-      // 2. INSERT en tabla donaciones
-      const isGeneral = form.fondo_id === 'general'
-      
       const mappedMetodo = form.metodo === 'sinpe' ? 'SINPE' : 'Transferencia'
 
-      const { error: dbError } = await supabase.from('donations').insert({
-        user_id: user.id,
-        fondo_general: isGeneral,
-        fondo_destino: form.fondo_id,
+      await crearDonacion({
+        proyecto_destino: form.fondo_id,
         monto: Number(form.monto),
         moneda: form.moneda,
         metodo_pago: mappedMetodo,
         fecha_transferencia: new Date(form.fecha_transferencia).toISOString(),
-        numero_referencia: form.numero_referencia || null,
+        numero_referencia: form.numero_referencia || '',
         comprobante_url: comprobantePath,
-        mensaje_estudiante: form.mensaje || null,
-        estado: 'pendiente'
+        mensaje_estudiante: form.mensaje || undefined
       })
-
-      if (dbError) throw new Error("Error al registrar donación: " + dbError.message)
 
       setSaved(true)
     } catch (err: any) {
