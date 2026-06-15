@@ -14,11 +14,11 @@ export async function GET(request: Request) {
     const adminClient = createAdminClient()
     const { data: profile } = await adminClient
       .from('users')
-      .select('tipo')
+      .select('rol')
       .eq('id', user.id)
       .single()
 
-    if (profile?.tipo !== 'admin') {
+    if (profile?.rol !== 'admin') {
       return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
     }
 

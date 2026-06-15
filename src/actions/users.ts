@@ -62,11 +62,11 @@ async function verificarAdmin() {
   const adminClient = createAdminClient()
   const { data } = await adminClient
     .from('users')
-    .select('tipo').is('deleted_at', null)
+    .select('rol').is('deleted_at', null)
     .eq('id', user.id)
     .single()
 
-  if (data?.tipo !== 'admin') {
+  if (data?.rol !== 'admin') {
     throw new Error('Acceso denegado: Se requieren permisos de administrador')
   }
 }
@@ -99,14 +99,14 @@ export async function reactivarUsuario(userId: string) {
   return { success: true }
 }
 
-export async function listarUsuarios(filtros?: { tipo?: string; activo?: boolean }) {
+export async function listarUsuarios(filtros?: { rol?: string; activo?: boolean }) {
   await verificarAdmin()
   const adminClient = createAdminClient()
 
   let query = adminClient.from('users').select('*').is('deleted_at', null).order('created_at', { ascending: false })
 
-  if (filtros?.tipo) {
-    query = query.eq('tipo', filtros.tipo)
+  if (filtros?.rol) {
+    query = query.eq('rol', filtros.rol)
   }
   if (filtros?.activo !== undefined) {
     query = query.eq('activo', filtros.activo)
