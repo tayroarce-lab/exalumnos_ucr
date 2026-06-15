@@ -43,7 +43,7 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
             <div className="absolute -top-16 border-4 border-white rounded-full bg-white shadow-md">
               {profile.foto_url ? (
                 <img 
-                  src={getAvatarUrl(.foto_url) as string} 
+                  src={getAvatarUrl(profile.foto_url) as string} 
                   alt={profile.full_name || 'Perfil'} 
                   className="w-32 h-32 rounded-full object-cover"
                 />
