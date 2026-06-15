@@ -140,9 +140,7 @@ export function DonationsHistory({ donations, onFilterChange }: DonationsHistory
                       {donation.admin_name || 'Desconocido'}
                     </span>
                     {donation.estado === 'rechazada' && (
-                      <div className="donations-rejection-reason">
-                        Motivo: {donation.motivo_rechazo}
-                      </div>
+                      <p className="text-xs text-rose-600 mt-1"><span className="font-semibold">Motivo de rechazo:</span> {donation.admin_notes}</p>
                     )}
                   </td>
                   <td>
