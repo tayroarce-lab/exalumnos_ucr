@@ -2,9 +2,9 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
+import { Bell, ChevronDown, User, LogOut, Settings, BarChart3, Users, Briefcase, Heart, ShieldAlert, GraduationCap } from 'lucide-react'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { Bell, ChevronDown, User, LogOut, Settings, BarChart3, Users, Briefcase, Heart, ShieldAlert, GraduationCap } from 'lucide-react'
 import { useProfile } from '@/contexts/ProfileContext'
 import { createClient } from '@/lib/supabase/client'
 import logoUCR from '@/images/Logo_UCR.png'
@@ -43,8 +43,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
       link: '/donations'
     }
   ])
-
-
+  
   const name = profile?.full_name || user?.user_metadata?.nombre || user?.user_metadata?.full_name || 'Usuario'
   const initials = name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase()
   const email = user?.email || 'usuario@ucr.ac.cr'

@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import { requestConnection, respondToConnection } from '@/actions/matches';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import Card from '@/components/ui/card';
+import Button from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 
 // Tipos básicos basados en la consulta de getMyMatches
@@ -138,7 +138,7 @@ export function MatchesList({ initialMatches, currentUserId }: { initialMatches:
               )}
 
               {yaSolicite && (
-                <Button disabled variant="outline" className="w-full">
+                <Button disabled variant="secondary" className="w-full">
                   Solicitud Enviada
                 </Button>
               )}
@@ -155,7 +155,7 @@ export function MatchesList({ initialMatches, currentUserId }: { initialMatches:
                   <Button 
                     onClick={() => handleResponse(match.id, false)} 
                     disabled={loadingId === match.id}
-                    variant="outline"
+                    variant="secondary"
                     className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50"
                   >
                     Rechazar
