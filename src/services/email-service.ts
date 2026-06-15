@@ -67,10 +67,10 @@ function buildEmailTemplate(title: string, body: string): string {
 export async function sendDonationConfirmationEmails(
   donorEmail: string,
   donorName: string,
-  studentEmail: string,
-  studentName: string,
   amount: number,
-  currency: string
+  currency: string,
+  studentEmail?: string | null,
+  studentName?: string | null
 ) {
   const formattedAmount = currency === 'CRC'
     ? `₡ ${amount.toLocaleString('es-CR')}`
@@ -105,33 +105,35 @@ export async function sendDonationConfirmationEmails(
       `)
     });
 
-    // Email al estudiante (beneficiario)
-    await resend.emails.send({
-      from: FROM_ADDRESS,
-      to: studentEmail,
-      subject: '🎉 ¡Recibiste una donación confirmada! — Fundación Exalumnos UCR',
-      html: buildEmailTemplate('Donación Recibida', `
-        <h2 style="margin:0 0 8px; color:#0A2540; font-size:22px;">¡Buenas noticias, ${studentName}!</h2>
-        <p style="color:#64748b; font-size:15px; margin:0 0 24px;">Una donación para tu proyecto ha sido confirmada por la Fundación.</p>
-        
-        <div style="background:#ecfdf5; border:1px solid #a7f3d0; border-radius:12px; padding:20px; margin:0 0 24px;">
-          <p style="margin:0 0 6px; font-size:13px; color:#059669; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">Monto Recibido</p>
-          <p style="margin:0; font-size:28px; font-weight:700; color:#065f46;">${formattedAmount}</p>
-        </div>
-        
-        <p style="color:#475569; font-size:14px; line-height:1.6; margin:0 0 24px;">
-          Un exalumno de la UCR ha decidido apoyar tu trayectoria académica. 
-          Sigue adelante con tu excelente trabajo — la comunidad universitaria está contigo.
-        </p>
-        
-        <div style="text-align:center; margin-top:28px;">
-          <a href="https://exalumnos.ucr.ac.cr/dashboard" 
-             style="background:#059669; color:#ffffff; padding:12px 28px; border-radius:8px; text-decoration:none; font-weight:600; font-size:14px; display:inline-block;">
-            Ver mi perfil
-          </a>
-        </div>
-      `)
-    });
+    // Email al estudiante (beneficiario) - Solo si existe
+    if (studentEmail && studentName) {
+      await resend.emails.send({
+        from: FROM_ADDRESS,
+        to: studentEmail,
+        subject: '🎉 ¡Recibiste una donación confirmada! — Fundación Exalumnos UCR',
+        html: buildEmailTemplate('Donación Recibida', `
+          <h2 style="margin:0 0 8px; color:#0A2540; font-size:22px;">¡Buenas noticias, ${studentName}!</h2>
+          <p style="color:#64748b; font-size:15px; margin:0 0 24px;">Una donación para tu proyecto ha sido confirmada por la Fundación.</p>
+          
+          <div style="background:#ecfdf5; border:1px solid #a7f3d0; border-radius:12px; padding:20px; margin:0 0 24px;">
+            <p style="margin:0 0 6px; font-size:13px; color:#059669; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">Monto Recibido</p>
+            <p style="margin:0; font-size:28px; font-weight:700; color:#065f46;">${formattedAmount}</p>
+          </div>
+          
+          <p style="color:#475569; font-size:14px; line-height:1.6; margin:0 0 24px;">
+            Un exalumno de la UCR ha decidido apoyar tu trayectoria académica. 
+            Sigue adelante con tu excelente trabajo — la comunidad universitaria está contigo.
+          </p>
+          
+          <div style="text-align:center; margin-top:28px;">
+            <a href="https://exalumnos.ucr.ac.cr/dashboard" 
+               style="background:#059669; color:#ffffff; padding:12px 28px; border-radius:8px; text-decoration:none; font-weight:600; font-size:14px; display:inline-block;">
+              Ver mi perfil
+            </a>
+          </div>
+        `)
+      });
+    }
 
     return { success: true };
   } catch (error) {

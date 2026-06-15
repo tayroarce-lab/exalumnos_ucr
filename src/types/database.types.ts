@@ -349,7 +349,7 @@ export type Database = {
         Row: {
           anio_ingreso: number
           areas_de_interes: string[]
-          beca_socioeconomica: string
+          beca_socioeconomica: string | null
           busca_empleo: boolean
           busca_financiamiento: boolean
           busca_mentoria: boolean
@@ -357,25 +357,26 @@ export type Database = {
           carnet_ucr: string
           carrera: string
           escuela_facultad: string
-          habilidades: string[]
+          habilidades: string[] | null
+          id: string
           nivel_academico: string
           perfil_completo: boolean
           promedio_ponderado: number | null
           proyecto_activo: boolean
-          proyecto_area_tematica: string | null
-          proyecto_descripcion: string | null
-          proyecto_necesidades: string[]
+          proyecto_area_tematica: string
+          proyecto_descripcion: string
+          proyecto_necesidades: string[] | null
           proyecto_porcentaje_avance: number | null
-          proyecto_tipo: string | null
-          proyecto_titulo: string | null
+          proyecto_tipo: string
+          proyecto_titulo: string
           sede: string
           user_id: string
           visible_en_directorio: boolean
         }
         Insert: {
           anio_ingreso: number
-          areas_de_interes?: string[]
-          beca_socioeconomica?: string
+          areas_de_interes: string[]
+          beca_socioeconomica?: string | null
           busca_empleo?: boolean
           busca_financiamiento?: boolean
           busca_mentoria?: boolean
@@ -383,17 +384,18 @@ export type Database = {
           carnet_ucr: string
           carrera: string
           escuela_facultad: string
-          habilidades?: string[]
+          habilidades?: string[] | null
+          id?: string
           nivel_academico: string
           perfil_completo?: boolean
           promedio_ponderado?: number | null
           proyecto_activo?: boolean
-          proyecto_area_tematica?: string | null
-          proyecto_descripcion?: string | null
-          proyecto_necesidades?: string[]
+          proyecto_area_tematica: string
+          proyecto_descripcion: string
+          proyecto_necesidades?: string[] | null
           proyecto_porcentaje_avance?: number | null
-          proyecto_tipo?: string | null
-          proyecto_titulo?: string | null
+          proyecto_tipo: string
+          proyecto_titulo: string
           sede: string
           user_id: string
           visible_en_directorio?: boolean
@@ -401,7 +403,7 @@ export type Database = {
         Update: {
           anio_ingreso?: number
           areas_de_interes?: string[]
-          beca_socioeconomica?: string
+          beca_socioeconomica?: string | null
           busca_empleo?: boolean
           busca_financiamiento?: boolean
           busca_mentoria?: boolean
@@ -409,17 +411,18 @@ export type Database = {
           carnet_ucr?: string
           carrera?: string
           escuela_facultad?: string
-          habilidades?: string[]
+          habilidades?: string[] | null
+          id?: string
           nivel_academico?: string
           perfil_completo?: boolean
           promedio_ponderado?: number | null
           proyecto_activo?: boolean
-          proyecto_area_tematica?: string | null
-          proyecto_descripcion?: string | null
-          proyecto_necesidades?: string[]
+          proyecto_area_tematica?: string
+          proyecto_descripcion?: string
+          proyecto_necesidades?: string[] | null
           proyecto_porcentaje_avance?: number | null
-          proyecto_tipo?: string | null
-          proyecto_titulo?: string | null
+          proyecto_tipo?: string
+          proyecto_titulo?: string
           sede?: string
           user_id?: string
           visible_en_directorio?: boolean
@@ -437,15 +440,16 @@ export type Database = {
       exalumnos: {
         Row: {
           anio_graduacion: number
-          anos_experiencia: number | null
+          anios_experiencia: number
           areas_de_interes: string[]
           bio: string | null
-          cargo_actual: string | null
+          cargo_actual: string
           carrera_ucr: string
-          empresa_actual: string | null
+          empresa_actual: string
           escuela_facultad: string
           horas_mes_mentoria: number | null
-          linkedin_url: string | null
+          id: string
+          linkedin_url: string
           moneda_donacion: string | null
           monto_maximo_donacion: number | null
           ofrece_donacion_dinero: boolean
@@ -453,7 +457,7 @@ export type Database = {
           ofrece_mentoria: boolean
           ofrece_pasantia: boolean
           ofrece_proyecto: boolean
-          pais_ciudad: string | null
+          pais_ciudad: string
           perfil_completo: boolean
           sector_industria: string[]
           user_id: string
@@ -461,15 +465,16 @@ export type Database = {
         }
         Insert: {
           anio_graduacion: number
-          anos_experiencia?: number | null
-          areas_de_interes?: string[]
+          anios_experiencia: number
+          areas_de_interes: string[]
           bio?: string | null
-          cargo_actual?: string | null
+          cargo_actual: string
           carrera_ucr: string
-          empresa_actual?: string | null
+          empresa_actual: string
           escuela_facultad: string
           horas_mes_mentoria?: number | null
-          linkedin_url?: string | null
+          id?: string
+          linkedin_url: string
           moneda_donacion?: string | null
           monto_maximo_donacion?: number | null
           ofrece_donacion_dinero?: boolean
@@ -477,23 +482,24 @@ export type Database = {
           ofrece_mentoria?: boolean
           ofrece_pasantia?: boolean
           ofrece_proyecto?: boolean
-          pais_ciudad?: string | null
+          pais_ciudad: string
           perfil_completo?: boolean
-          sector_industria?: string[]
+          sector_industria: string[]
           user_id: string
           visible_en_directorio?: boolean
         }
         Update: {
           anio_graduacion?: number
-          anos_experiencia?: number | null
+          anios_experiencia?: number
           areas_de_interes?: string[]
           bio?: string | null
-          cargo_actual?: string | null
+          cargo_actual?: string
           carrera_ucr?: string
-          empresa_actual?: string | null
+          empresa_actual?: string
           escuela_facultad?: string
           horas_mes_mentoria?: number | null
-          linkedin_url?: string | null
+          id?: string
+          linkedin_url?: string
           moneda_donacion?: string | null
           monto_maximo_donacion?: number | null
           ofrece_donacion_dinero?: boolean
@@ -501,7 +507,7 @@ export type Database = {
           ofrece_mentoria?: boolean
           ofrece_pasantia?: boolean
           ofrece_proyecto?: boolean
-          pais_ciudad?: string | null
+          pais_ciudad?: string
           perfil_completo?: boolean
           sector_industria?: string[]
           user_id?: string

@@ -19,15 +19,13 @@ const workSans = Work_Sans({
 export const metadata: Metadata = {
   title: 'Fundación Exalumnos UCR',
   description: 'Directorio Estudiantil',
-  icons: {
-    icon: '/logo.png',
-    shortcut: '/logo.png',
-    apple: '/logo.png',
-  },
 }
 
+<<<<<<< HEAD
 import GlobalLoadingOverlay from '@/components/GlobalLoadingOverlay'
 
+=======
+>>>>>>> 6e204a6103b44cf8dc51ab329c5f8433c1d193c6
 export default function RootLayout({
   children,
 }: {

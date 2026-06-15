@@ -43,3 +43,6 @@ Thumbs.db
 # ─── Supabase ────────────────────────────────────────────────
 supabase/.branches/
 supabase/.temp/
+
+# ─── Typescript ────────────────────────────────────────────────
+tsconfig.tsbuildinfo
