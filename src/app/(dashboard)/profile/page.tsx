@@ -82,7 +82,7 @@ export default function ProfilePage() {
           onClick={() => setActiveTab('personal')}
           className={`px-4 py-2.5 text-xs font-bold uppercase tracking-wider border-b-2 whitespace-nowrap transition-colors ${
             activeTab === 'personal'
-              ? 'border-institutional text-institutional'
+              ? 'border-[#F34B26] text-[#F34B26]'
               : 'border-transparent text-slate-400 hover:text-slate-600'
           }`}
         >
@@ -92,7 +92,7 @@ export default function ProfilePage() {
           onClick={() => setActiveTab('academica')}
           className={`px-4 py-2.5 text-xs font-bold uppercase tracking-wider border-b-2 whitespace-nowrap transition-colors ${
             activeTab === 'academica'
-              ? 'border-institutional text-institutional'
+              ? 'border-[#F34B26] text-[#F34B26]'
               : 'border-transparent text-slate-400 hover:text-slate-600'
           }`}
         >
@@ -102,7 +102,7 @@ export default function ProfilePage() {
           onClick={() => setActiveTab('profesional')}
           className={`px-4 py-2.5 text-xs font-bold uppercase tracking-wider border-b-2 whitespace-nowrap transition-colors ${
             activeTab === 'profesional'
-              ? 'border-institutional text-institutional'
+              ? 'border-[#F34B26] text-[#F34B26]'
               : 'border-transparent text-slate-400 hover:text-slate-600'
           }`}
         >
@@ -121,10 +121,10 @@ export default function ProfilePage() {
               <div className="flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left">
                 {/* Foto circular con avatar dinámico */}
                 <div className="relative shrink-0">
-                  <div className="w-20 h-20 rounded-xl bg-slate-200 border border-slate-300 overflow-hidden flex items-center justify-center font-bold text-institutional text-3xl">
+                  <div className="w-20 h-20 rounded-xl bg-slate-200 border border-slate-300 overflow-hidden flex items-center justify-center font-bold text-[#F34B26] text-3xl">
                     {initials}
                   </div>
-                  <div className="absolute -bottom-1 -right-1 bg-institutional text-white rounded-full p-1 border border-white">
+                  <div className="absolute -bottom-1 -right-1 bg-[#F34B26] text-white rounded-full p-1 border border-white">
                     <CheckCircle2 className="w-4 h-4" />
                   </div>
                 </div>
@@ -148,7 +148,7 @@ export default function ProfilePage() {
               </div>
 
               <Link href="/profile/edit">
-                <Button variant="primary" className="bg-brand-blue hover:bg-brand-blue/90 font-bold uppercase tracking-wider text-xs px-6 py-2.5">
+                <Button variant="primary" className="bg-[#F34B26] hover:bg-[#C82A08] hover:scale-105 active:scale-95 transition-all duration-300 font-bold uppercase tracking-wider text-xs px-6 py-2.5 border-0">
                   Editar perfil
                 </Button>
               </Link>
@@ -167,17 +167,17 @@ export default function ProfilePage() {
                 <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Redes sociales</h4>
                 <div className="flex items-center gap-3">
                   {linkedin && (
-                    <a href={linkedin.startsWith('http') ? linkedin : `https://${linkedin}`} target="_blank" rel="noopener noreferrer" title="Ver perfil de LinkedIn" className="p-2.5 bg-slate-100 hover:bg-brand-blue hover:text-white text-slate-500 rounded-xl transition-all">
+                    <a href={linkedin.startsWith('http') ? linkedin : `https://${linkedin}`} target="_blank" rel="noopener noreferrer" title="Ver perfil de LinkedIn" className="p-2.5 bg-slate-100 hover:bg-[#F34B26] hover:text-white text-slate-500 rounded-xl transition-all">
                       <Linkedin className="w-4 h-4" />
                     </a>
                   )}
                   {twitter && (
-                    <a href={twitter.startsWith('http') ? twitter : `https://${twitter}`} target="_blank" rel="noopener noreferrer" title="Ver perfil de Twitter" className="p-2.5 bg-slate-100 hover:bg-brand-blue hover:text-white text-slate-500 rounded-xl transition-all">
+                    <a href={twitter.startsWith('http') ? twitter : `https://${twitter}`} target="_blank" rel="noopener noreferrer" title="Ver perfil de Twitter" className="p-2.5 bg-slate-100 hover:bg-[#F34B26] hover:text-white text-slate-500 rounded-xl transition-all">
                       <Twitter className="w-4 h-4" />
                     </a>
                   )}
                   {instagram && (
-                    <a href={instagram.startsWith('http') ? instagram : `https://${instagram}`} target="_blank" rel="noopener noreferrer" title="Ver perfil de Instagram" className="p-2.5 bg-slate-100 hover:bg-brand-blue hover:text-white text-slate-500 rounded-xl transition-all">
+                    <a href={instagram.startsWith('http') ? instagram : `https://${instagram}`} target="_blank" rel="noopener noreferrer" title="Ver perfil de Instagram" className="p-2.5 bg-slate-100 hover:bg-[#F34B26] hover:text-white text-slate-500 rounded-xl transition-all">
                       <Instagram className="w-4 h-4" />
                     </a>
                   )}
@@ -214,7 +214,7 @@ export default function ProfilePage() {
             </h3>
             {academic.length > 0 ? academic.map((edu, idx) => (
               <div key={idx} className="flex gap-4">
-                <div className="p-3 bg-brand-blue/10 text-brand-blue rounded-xl shrink-0">
+                <div className="p-3 bg-[#F34B26]/10 text-[#F34B26] border border-[#F34B26]/10 rounded-xl shrink-0">
                   <GraduationCap className="w-6 h-6" />
                 </div>
                 <div className="space-y-1">
@@ -246,14 +246,14 @@ export default function ProfilePage() {
             <div className="space-y-6">
               {experience.length > 0 ? experience.map((exp, idx) => (
                 <div key={idx} className="relative pl-6 border-l-2 border-slate-200 space-y-1.5">
-                  <div className="absolute left-0 top-1.5 -translate-x-1/2 w-2.5 h-2.5 rounded-full bg-brand-blue"></div>
+                  <div className="absolute left-0 top-1.5 -translate-x-1/2 w-2.5 h-2.5 rounded-full bg-[#F34B26]"></div>
                   <div className="flex justify-between items-start gap-2">
                     <h4 className="text-sm font-bold text-slate-800 uppercase tracking-wide">{exp.role}</h4>
                     <span className="text-[10px] bg-slate-100 text-slate-500 font-bold px-2 py-0.5 rounded-full">
                       {exp.period}
                     </span>
                   </div>
-                  <p className="text-xs font-bold text-brand-celeste">{exp.company}</p>
+                  <p className="text-xs font-bold text-[#FF9B18]">{exp.company}</p>
                   <p className="text-xs text-slate-500 leading-relaxed font-medium">{exp.desc}</p>
                 </div>
               )) : (
