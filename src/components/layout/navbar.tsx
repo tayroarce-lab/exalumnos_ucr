@@ -79,8 +79,9 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
   }
 
   // Lógica de contexto: Admin, Estudiantes, Exalumnos
-  const isAdmin = pathname?.startsWith('/admin')
-  const isStudent = pathname?.includes('/directorio/estudiantes') || profile?.es_exalumno === false
+  const isAdmin = pathname?.startsWith('/admin') || user?.user_metadata?.rol === 'admin'
+  const isStudentUser = user?.user_metadata?.rol === 'estudiante' || profile?.es_exalumno === false
+  const isStudent = pathname?.includes('/directorio/estudiantes') || (isStudentUser && user?.user_metadata?.rol !== 'exalumno')
 
   // Dashboard de inicio según rol
   const dashboardHref = isAdmin ? '/admin' : isStudent ? '/student-dashboard' : '/dashboard'
