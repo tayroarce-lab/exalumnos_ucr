@@ -16,53 +16,71 @@ export interface CrearDonacionInput {
   mensaje_estudiante?: string;
 }
 
-/**
- * Obtiene las donaciones pendientes, ordenadas de más antigua a más reciente.
- * Fetches pending donations ordered by oldest to newest.
- */
+const FONDOS_MAP: Record<string, string> = {
+  '1': 'Becas de Excelencia Alumni UCR',
+  '2': 'Fondo de Emergencia Estudiantil',
+  'general': 'Fondo General'
+};
+
+async function enrichDonationsWithUsers(supabase: any, donations: any[]): Promise<DonationAdminView[]> {
+  if (!donations || donations.length === 0) return [];
+  
+  const userIds = [...new Set(donations.map(d => d.alumni_id))];
+  let usersMap: Record<string, { nombre: string, email: string }> = {};
+  
+  if (userIds.length > 0) {
+    const { data: usersData } = await supabase
+      .from('users')
+      .select('id, nombre, email')
+      .in('id', userIds);
+      
+    if (usersData) {
+      usersMap = usersData.reduce((acc: any, u: any) => {
+        acc[u.id] = { nombre: u.nombre, email: u.email };
+        return acc;
+      }, {});
+    }
+  }
+
+  return donations.map(d => {
+    const user = usersMap[d.alumni_id] || { nombre: 'Desconocido', email: '' };
+    
+    // Resolve project name
+    const projectName = FONDOS_MAP[d.proyecto_destino] || d.proyecto_destino || 'Desconocido';
+    
+    return {
+      ...d,
+      donor_name: user.nombre,
+      student_name: projectName,
+      admin_name: null // We don't track who confirmed in the new schema
+    };
+  });
+}
+
 export async function getPendingDonations(): Promise<{ data: DonationAdminView[] | null; error: string | null }> {
   const supabase = await createClient();
 
   const { data, error } = await supabase
     .from('donaciones')
-    .select(`
-      *,
-      donor:users!donaciones_exalumno_id_fkey(nombre),
-      student:users!donaciones_proyecto_estudiante_id_fkey(nombre)
-    `).is('deleted_at', null)
+    .select('*')
     .eq('estado', 'pendiente')
-    .order('created_at', { ascending: true }); // Cola FIFO (oldest first)
+    .order('created_at', { ascending: true }); 
 
   if (error) {
     console.error('Error fetching pending donations:', error);
     return { data: null, error: error.message };
   }
 
-  const formattedData: DonationAdminView[] = (data || []).map((d: any) => ({
-    ...d,
-    donor_name: Array.isArray(d.donor) ? d.donor[0]?.nombre || 'Unknown' : d.donor?.nombre || 'Unknown',
-    admin_name: Array.isArray(d.donor) ? d.donor[0]?.nombre || null : d.donor?.nombre || null,
-    student_name: Array.isArray(d.student) ? d.student[0]?.nombre || 'Unknown' : d.student?.nombre || 'Unknown',
-  }));
-
+  const formattedData = await enrichDonationsWithUsers(supabase, data || []);
   return { data: formattedData, error: null };
 }
 
-/**
- * Obtiene el historial de donaciones procesadas (confirmadas o rechazadas).
- * Fetches the history of processed donations.
- */
 export async function getDonationsHistory(filters?: DonationsHistoryFilters): Promise<{ data: DonationAdminView[] | null; error: string | null }> {
   const supabase = await createClient();
 
   let query = supabase
     .from('donaciones')
-    .select(`
-      *,
-      donor:users!donaciones_exalumno_id_fkey(nombre),
-      student:users!donaciones_proyecto_estudiante_id_fkey(nombre),
-      admin:users!donaciones_confirmado_por_fkey(nombre)
-    `).is('deleted_at', null)
+    .select('*')
     .neq('estado', 'pendiente')
     .order('updated_at', { ascending: false });
 
@@ -71,7 +89,6 @@ export async function getDonationsHistory(filters?: DonationsHistoryFilters): Pr
   }
   
   if (filters?.endDate) {
-    // Añadir 23:59:59 a la fecha fin si es necesario, pero asumimos YYYY-MM-DD
     query = query.lte('updated_at', filters.endDate + 'T23:59:59.999Z');
   }
 
@@ -82,20 +99,10 @@ export async function getDonationsHistory(filters?: DonationsHistoryFilters): Pr
     return { data: null, error: error.message };
   }
 
-  const formattedData: DonationAdminView[] = (data || []).map((d: any) => ({
-    ...d,
-    donor_name: Array.isArray(d.donor) ? d.donor[0]?.nombre || 'Unknown' : d.donor?.nombre || 'Unknown',
-    student_name: Array.isArray(d.student) ? d.student[0]?.nombre || 'Unknown' : d.student?.nombre || 'Unknown',
-    admin_name: Array.isArray(d.admin) ? d.admin[0]?.nombre || 'Unknown' : d.admin?.nombre || null,
-  }));
-
+  const formattedData = await enrichDonationsWithUsers(supabase, data || []);
   return { data: formattedData, error: null };
 }
 
-/**
- * Procesa una donación, actualiza la BD y envía los correos respectivos.
- * Processes a donation, updates the DB and sends corresponding emails.
- */
 export async function processDonation(
   donationId: string,
   action: 'confirm' | 'reject',
@@ -103,23 +110,16 @@ export async function processDonation(
 ): Promise<{ success: boolean; error?: string }> {
   const supabase = await createClient();
 
-  // 1. Obtener el usuario administrador actual / Get current admin user
   const { data: { user }, error: userError } = await supabase.auth.getUser();
   if (userError || !user) {
     return { success: false, error: 'Unauthorized: User not found' };
   }
 
-  const adminId = user.id;
   const newState = action === 'confirm' ? 'confirmada' : 'rechazada';
 
-  // 2. Obtener datos de la donación para el correo / Get donation data for emails
   const { data: donation, error: fetchError } = await supabase
     .from('donaciones')
-    .select(`
-      *,
-      donor:users!donaciones_exalumno_id_fkey(email),
-      student:users!donaciones_proyecto_estudiante_id_fkey(email)
-    `).is('deleted_at', null)
+    .select('*')
     .eq('id', donationId)
     .single();
 
@@ -127,13 +127,11 @@ export async function processDonation(
     return { success: false, error: 'Donation not found' };
   }
 
-  // 3. Actualizar la base de datos / Update DB
   const { error: updateError } = await supabase
     .from('donaciones')
     .update({
       estado: newState,
-      confirmado_por: adminId,
-      motivo_rechazo: action === 'reject' ? rejectionReason : null,
+      admin_notes: action === 'reject' ? rejectionReason : null,
       updated_at: new Date().toISOString()
     })
     .eq('id', donationId);
@@ -143,17 +141,25 @@ export async function processDonation(
     return { success: false, error: updateError.message };
   }
 
-  // Extraer emails y nombres de donante y estudiante para los correos
-  const donorEmail = Array.isArray(donation.donor) ? donation.donor[0]?.email : donation.donor?.email;
-  const donorName  = Array.isArray(donation.donor) ? donation.donor[0]?.nombre : donation.donor?.nombre || 'Estimado/a';
-  const studentEmail = Array.isArray(donation.student) ? donation.student[0]?.email : donation.student?.email;
-  const studentName  = Array.isArray(donation.student) ? donation.student[0]?.nombre : donation.student?.nombre || 'Estudiante';
+  // Get donor info
+  const { data: donor } = await supabase
+    .from('users')
+    .select('nombre, email')
+    .eq('id', donation.alumni_id)
+    .single();
 
-  if (action === 'confirm' && donorEmail && studentEmail) {
+  const donorEmail = donor?.email;
+  const donorName  = donor?.nombre || 'Estimado/a';
+  
+  // Resolve project name for email
+  const projectName = FONDOS_MAP[donation.proyecto_destino] || donation.proyecto_destino;
+
+  if (action === 'confirm' && donorEmail) {
+    // Send email to donor and "student" (project)
     await sendDonationConfirmationEmails(
       donorEmail, donorName,
-      studentEmail, studentName,
-      donation.monto, donation.moneda
+      donation.monto, donation.moneda,
+      process.env.ADMIN_EMAIL || 'admin@fundacionucr.org', projectName // No specific student email for general funds
     );
   } else if (action === 'reject' && donorEmail && rejectionReason) {
     await sendDonationRejectionEmail(donorEmail, donorName, rejectionReason);
@@ -170,20 +176,10 @@ export async function crearDonacion(data: CrearDonacionInput) {
     throw new Error('No autenticado');
   }
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('es_exalumno')
-    .eq('id', user.id)
-    .single();
-
-  if (!profile?.es_exalumno) {
-    throw new Error('Solo los exalumnos pueden registrar donaciones');
-  }
-
   try {
     const { error } = await supabase.from('donaciones').insert({
-      exalumno_id: user.id,
-      proyecto_estudiante_id: data.proyecto_destino,
+      alumni_id: user.id,
+      proyecto_destino: data.proyecto_destino,
       monto: data.monto,
       moneda: data.moneda,
       metodo_pago: data.metodo_pago,
@@ -197,7 +193,8 @@ export async function crearDonacion(data: CrearDonacionInput) {
     if (error) throw error;
 
     const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@fundacionucr.org';
-    await notificarNuevaDonacionAdmin(ADMIN_EMAIL, data.monto, data.moneda, data.proyecto_destino, data.metodo_pago);
+    const projectName = FONDOS_MAP[data.proyecto_destino] || data.proyecto_destino;
+    await notificarNuevaDonacionAdmin(ADMIN_EMAIL, data.monto, data.moneda, projectName, data.metodo_pago);
 
     return { success: true };
   } catch (error: any) {
@@ -218,11 +215,15 @@ export async function obtenerMisDonaciones() {
     const { data, error } = await supabase
       .from('donaciones')
       .select('*')
-      .eq('exalumno_id', user.id)
+      .eq('alumni_id', user.id)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return { success: true, data };
+    
+    // Enrich with names
+    const formattedData = await enrichDonationsWithUsers(supabase, data || []);
+
+    return { success: true, data: formattedData };
   } catch (error: any) {
     console.error('Error al obtener donaciones:', error);
     throw new Error(error.message || 'Error al obtener el historial de donaciones');
