@@ -283,7 +283,7 @@ export async function middleware(req: NextRequest) {
     } else if (rolActual === 'exalumno') {
       destino = redirectToPath ? redirectToPath : '/dashboard'
     } else {
-      destino = redirectToPath ? redirectToPath : '/directorio/estudiantes'
+      destino = redirectToPath ? redirectToPath : '/student-dashboard'
     }
     url.pathname = destino
     url.search = ''
