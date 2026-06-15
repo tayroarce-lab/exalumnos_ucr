@@ -50,11 +50,11 @@ export async function getSignedUrlAction(bucket: 'comprobantes' | 'avatars', pat
   // Validar el rol del usuario
   const { data: userProfile } = await adminClient
     .from('users')
-    .select('tipo').is('deleted_at', null)
+    .select('rol').is('deleted_at', null)
     .eq('id', user.id)
     .single();
 
-  if (userProfile?.tipo === 'admin') {
+  if (userProfile?.rol === 'admin') {
     allowed = true;
   } else if (bucket === 'comprobantes') {
     // Validar si es el exalumno que donó, o el estudiante que recibe

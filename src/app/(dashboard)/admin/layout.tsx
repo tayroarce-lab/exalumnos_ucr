@@ -15,6 +15,7 @@ export default async function AdminLayout({
 
   if (!user) {
     redirect('/login')
+    return null
   }
 
   // Verificar rol de administrador usando service_role para bypasear RLS
@@ -33,12 +34,8 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="admin-layout">
-      <Sidebar />
-      <div className="admin-main-content">
-        {children}
-        <AdminFooter />
-      </div>
-    </div>
+    <>
+      {children}
+    </>
   )
 }

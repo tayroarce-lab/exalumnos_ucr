@@ -21,11 +21,11 @@ async function getAuthenticatedAdmin() {
   const adminClient = createAdminClient();
   const { data: profile } = await adminClient
     .from('users')
-    .select('tipo').is('deleted_at', null)
+    .select('rol').is('deleted_at', null)
     .eq('id', user.id)
     .single();
 
-  if (profile?.tipo !== 'admin') {
+  if (profile?.rol !== 'admin') {
     throw new Error('Solo los administradores tienen acceso a esta acción');
   }
 
@@ -39,10 +39,10 @@ async function fetchUserRole(userId: string) {
   const adminClient = createAdminClient();
   const { data: profile } = await adminClient
     .from('users')
-    .select('tipo').is('deleted_at', null)
+    .select('rol').is('deleted_at', null)
     .eq('id', userId)
     .single();
-  return profile?.tipo;
+  return profile?.rol;
 }
 
 // ---------------------------------------------------------------------------
@@ -115,13 +115,13 @@ export async function getDashboardMetrics() {
     const { count: exalumnosActivos } = await adminClient
       .from('users')
       .select('id', { count: 'exact', head: true }).is('deleted_at', null)
-      .eq('tipo', 'exalumno')
+      .eq('rol', 'exalumno')
       .eq('activo', true);
 
     const { count: estudiantesActivos } = await adminClient
       .from('users')
       .select('id', { count: 'exact', head: true }).is('deleted_at', null)
-      .eq('tipo', 'estudiante')
+      .eq('rol', 'estudiante')
       .eq('activo', true);
 
     // 5. Distribución por carrera y sede
