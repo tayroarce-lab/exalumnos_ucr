@@ -117,3 +117,104 @@ export async function listarUsuarios(filtros?: { rol?: string; activo?: boolean 
 
   return data
 }
+
+export async function actualizarPerfil(data: any) {
+  const supabase = await createClient()
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+  if (authError || !user) {
+    throw new Error('No autenticado')
+  }
+
+  // Verificar rol del usuario en la tabla users para seguridad
+  const adminClient = createAdminClient()
+  const { data: userData, error: userError } = await adminClient
+    .from('users')
+    .select('rol')
+    .eq('id', user.id)
+    .single()
+
+  if (userError) {
+    throw new Error('Error al verificar el rol del usuario')
+  }
+
+  const isAdmin = userData?.rol === 'admin'
+  const isStudentUser = userData?.rol === 'estudiante'
+
+  let payloadToUpdate: any = {
+    id: user.id,
+    foto_url: data.foto_url,
+    pais_ciudad: data.pais_ciudad,
+    full_name: data.full_name,
+  }
+
+  if (isAdmin) {
+    // Si es admin, forzar nulos/falsos en campos de directorio
+    payloadToUpdate = {
+      ...payloadToUpdate,
+      linkedin_url: null,
+      bio: data.bio || null, // Permitir bio básica si se desea
+      academic: null,
+      carrera_principal: null,
+      escuela_principal: null,
+      facultad_principal: null,
+      anio_graduacion: null,
+      empresa_actual: null,
+      cargo_actual: null,
+      sector_industria: null,
+      anos_experiencia: null,
+      areas_de_interes: null,
+      ofrece_mentoria: false,
+      horas_mes_mentoria: null,
+      ofrece_empleo: false,
+      ofrece_pasantia: false,
+      ofrece_proyecto: false,
+      ofrece_donacion_dinero: false,
+      monto_maximo_donacion: null,
+      moneda_donacion: null,
+      es_exalumno: false
+    }
+  } else {
+    // Si no es admin, guardar todos los campos enviados
+    const primeraCarrera = data.academic && data.academic.length > 0 ? data.academic[0] : null
+    const hasAcademic = data.academic && data.academic.some((a: any) => a.carrera?.trim() !== '' && a.escuela?.trim() !== '' && a.anio?.trim() !== '')
+    const es_exalumno = isStudentUser ? false : hasAcademic;
+
+    payloadToUpdate = {
+      ...payloadToUpdate,
+      linkedin_url: data.linkedin_url,
+      bio: data.bio,
+      academic: data.academic,
+      carrera_principal: primeraCarrera?.carrera || null,
+      escuela_principal: primeraCarrera?.escuela || null,
+      facultad_principal: primeraCarrera?.escuela && primeraCarrera.escuela.toLowerCase().includes('facultad') 
+        ? primeraCarrera.escuela 
+        : null,
+      anio_graduacion: primeraCarrera?.anio ? parseInt(primeraCarrera.anio) : null,
+      empresa_actual: data.empresa_actual,
+      cargo_actual: data.cargo_actual,
+      sector_industria: data.sector_industria,
+      anos_experiencia: data.anos_experiencia ? Number(data.anos_experiencia) : null,
+      areas_de_interes: data.areas_de_interes,
+      ofrece_mentoria: data.ofrece_mentoria,
+      horas_mes_mentoria: data.horas_mes_mentoria ? Number(data.horas_mes_mentoria) : null,
+      ofrece_empleo: data.ofrece_empleo,
+      ofrece_pasantia: data.ofrece_pasantia,
+      ofrece_proyecto: data.ofrece_proyecto,
+      ofrece_donacion_dinero: data.ofrece_donacion_dinero,
+      monto_maximo_donacion: data.donacion_monto_max ? Number(data.donacion_monto_max) : null,
+      moneda_donacion: data.donacion_moneda,
+      es_exalumno: es_exalumno
+    }
+  }
+
+  const { error } = await adminClient
+    .from('profiles')
+    .upsert(payloadToUpdate)
+
+  if (error) {
+    throw new Error('Error al guardar el perfil: ' + error.message)
+  }
+
+  return { success: true, isAdmin }
+}

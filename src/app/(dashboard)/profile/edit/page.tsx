@@ -10,6 +10,7 @@ import Card from '@/components/ui/card'
 import Button from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
 import { generarMatchesMentoria } from '@/actions/matching'
+import { actualizarPerfil } from '@/actions/users'
 import {
   CARRERAS_UCR,
   ESCUELAS_UCR,
@@ -19,6 +20,7 @@ import {
   CARRERA_TO_ESCUELA,
 } from '@/constants/catalogs'
 import { useProfile } from '@/contexts/ProfileContext'
+import StudentProfileEdit from '@/components/forms/StudentProfileEdit'
 
 // Barra de progreso dinámica sin estilos inline en JSX
 function ProgressFill({ value, colorClass = 'bg-institutional' }: { value: number; colorClass?: string }) {
@@ -42,6 +44,7 @@ interface AcademicEntry {
 
 interface ProfileFormData {
   // Sección 1 - Personal
+  full_name: string
   foto_url: string
   pais_ciudad: string
   linkedin_url: string
@@ -69,6 +72,7 @@ interface ProfileFormData {
 }
 
 const INITIAL: ProfileFormData = {
+  full_name: '',
   foto_url: '',
   pais_ciudad: '',
   linkedin_url: '',
@@ -296,20 +300,42 @@ function MultiSelectChips({ label, required, selected, options, onChange, max }:
 // SECCIONES DEL FORMULARIO
 // ============================================================
 
-function SeccionPersonal({ data, update }: { data: ProfileFormData; update: (k: keyof ProfileFormData, v: unknown) => void }) {
+function SeccionPersonal({ data, update, isAdmin }: { data: ProfileFormData; update: (k: keyof ProfileFormData, v: unknown) => void; isAdmin?: boolean }) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [isUploading, setIsUploading] = useState(false)
+
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
     if (file.size > 2 * 1024 * 1024) { setErrors(p => ({ ...p, foto: 'Máx 2MB permitido.' })); return }
     if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) { setErrors(p => ({ ...p, foto: 'Solo JPG, PNG o WEBP.' })); return }
     setErrors(p => ({ ...p, foto: '' }))
     setPreviewUrl(URL.createObjectURL(file))
-    // En producción aquí se subiría a Supabase Storage
-    update('foto_url', file.name)
+    
+    setIsUploading(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      const { uploadFileAction } = await import('@/actions/storage')
+      const result = await uploadFileAction(formData, 'avatars', 'profiles')
+      if (result.success) {
+        update('foto_url', result.path)
+      }
+    } catch (err: any) {
+      setErrors(p => ({ ...p, foto: err.message || 'Error al subir imagen.' }))
+    } finally {
+      setIsUploading(false)
+    }
   }
+
+  const rawFotoUrl = data.foto_url
+  const currentFotoUrl = rawFotoUrl 
+    ? (rawFotoUrl.startsWith('http') || rawFotoUrl.startsWith('data:') || rawFotoUrl.startsWith('blob:') || rawFotoUrl.startsWith('/'))
+      ? rawFotoUrl
+      : `${process.env.NEXT_PUBLIC_SUPABASE_URL || ''}/storage/v1/object/public/avatars/${rawFotoUrl}`
+    : null
 
   return (
     <div className="space-y-5">
@@ -320,19 +346,26 @@ function SeccionPersonal({ data, update }: { data: ProfileFormData; update: (k: 
         <FieldLabel>Foto de Perfil <span className="text-slate-400 font-normal normal-case">(opcional, máx. 2MB)</span></FieldLabel>
         <div className="flex items-center gap-5">
           <div className="w-20 h-20 rounded-full bg-slate-200 flex items-center justify-center border-2 border-slate-300 overflow-hidden shrink-0">
-            {previewUrl
-              ? <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
+            {previewUrl || currentFotoUrl
+              ? <img src={previewUrl || currentFotoUrl || ''} alt="Preview" className="w-full h-full object-cover" />
               : <User className="w-8 h-8 text-slate-400" />
             }
           </div>
-          <label className="cursor-pointer flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-dashed border-slate-300 hover:border-blue-400 text-xs font-bold text-slate-500 hover:text-blue-700 transition-all">
+          <label className={`cursor-pointer flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-dashed border-slate-300 hover:border-blue-400 text-xs font-bold text-slate-500 hover:text-blue-700 transition-all ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
             <Upload className="w-4 h-4" />
-            Subir foto
-            <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleFile} />
+            {isUploading ? 'Subiendo...' : 'Subir foto'}
+            <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleFile} disabled={isUploading} />
           </label>
         </div>
         <ErrorMsg msg={errors.foto} />
       </div>
+
+      <TextInput
+        label="Nombre Completo" required
+        value={data.full_name}
+        onChange={v => update('full_name', v)}
+        placeholder="Tu nombre"
+      />
 
       <TextInput
         label="País y Ciudad de Residencia" required
@@ -341,21 +374,25 @@ function SeccionPersonal({ data, update }: { data: ProfileFormData; update: (k: 
         placeholder="Ej: Costa Rica, San José"
       />
 
-      <TextInput
-        label="URL de LinkedIn"
-        type="url"
-        value={data.linkedin_url}
-        onChange={v => update('linkedin_url', v)}
-        placeholder="https://linkedin.com/in/tu-perfil"
-      />
+      {!isAdmin && (
+        <>
+          <TextInput
+            label="URL de LinkedIn"
+            type="url"
+            value={data.linkedin_url}
+            onChange={v => update('linkedin_url', v)}
+            placeholder="https://linkedin.com/in/tu-perfil"
+          />
 
-      <TextAreaInput
-        label="Biografía Profesional" required
-        value={data.bio}
-        onChange={v => update('bio', v)}
-        placeholder="Cuéntanos sobre tu trayectoria profesional, logros y motivaciones…"
-        max={500}
-      />
+          <TextAreaInput
+            label="Biografía Profesional" required
+            value={data.bio}
+            onChange={v => update('bio', v)}
+            placeholder="Cuéntanos sobre tu trayectoria profesional, logros y motivaciones…"
+            max={500}
+          />
+        </>
+      )}
     </div>
   )
 }
@@ -465,14 +502,15 @@ function SeccionAcademica({ data, update }: { data: ProfileFormData; update: (k:
   )
 }
 
-function SeccionProfesional({ data, update }: { data: ProfileFormData; update: (k: keyof ProfileFormData, v: unknown) => void }) {
+function SeccionProfesional({ data, update, isStudent }: { data: ProfileFormData; update: (k: keyof ProfileFormData, v: unknown) => void; isStudent?: boolean }) {
   return (
     <div className="space-y-5">
       <h3 className="font-bold text-slate-800 text-base uppercase tracking-wide border-b border-slate-100 pb-2">Información Profesional Actual</h3>
-      <TextInput label="Empresa o Institución Actual" required value={data.empresa_actual} onChange={v => update('empresa_actual', v)} placeholder="Ej: Google, Ministerio de Salud, Freelancer" />
-      <TextInput label="Cargo Actual" required value={data.cargo_actual} onChange={v => update('cargo_actual', v)} placeholder="Ej: Ingeniería de Software Senior" />
+      {isStudent && <p className="text-xs text-slate-500 mb-4">Como estudiante activo, estos campos son opcionales.</p>}
+      <TextInput label="Empresa o Institución Actual" required={!isStudent} value={data.empresa_actual} onChange={v => update('empresa_actual', v)} placeholder="Ej: Google, Ministerio de Salud, Freelancer" />
+      <TextInput label="Cargo Actual" required={!isStudent} value={data.cargo_actual} onChange={v => update('cargo_actual', v)} placeholder="Ej: Ingeniería de Software Senior" />
       <MultiSelectDropdown
-        label="Sector / Industria" required
+        label="Sector / Industria" required={!isStudent}
         selected={data.sector_industria}
         options={SECTORES_INDUSTRIA}
         onChange={v => update('sector_industria', v)}
@@ -480,7 +518,7 @@ function SeccionProfesional({ data, update }: { data: ProfileFormData; update: (
         placeholder="Seleccionar sector..."
       />
       <div>
-        <label htmlFor="anos-experiencia" className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Años de Experiencia Laboral<span className="text-rose-500 ml-1">*</span></label>
+        <label htmlFor="anos-experiencia" className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Años de Experiencia Laboral{!isStudent && <span className="text-rose-500 ml-1">*</span>}</label>
         <input
           id="anos-experiencia"
           type="number" min="0" max="60"
@@ -514,7 +552,7 @@ function SeccionIntereses({ data, update }: { data: ProfileFormData; update: (k:
   )
 }
 
-function SeccionApoyo({ data, update }: { data: ProfileFormData; update: (k: keyof ProfileFormData, v: unknown) => void }) {
+function SeccionApoyo({ data, update, isStudent }: { data: ProfileFormData; update: (k: keyof ProfileFormData, v: unknown) => void; isStudent: boolean }) {
   return (
     <div className="space-y-5">
       <h3 className="font-bold text-slate-800 text-base uppercase tracking-wide border-b border-slate-100 pb-2">Tipo de Apoyo Ofrecido</h3>
@@ -524,10 +562,10 @@ function SeccionApoyo({ data, update }: { data: ProfileFormData; update: (k: key
         {/* Mentoría */}
         <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-3">
           <label className="flex items-center gap-3 cursor-pointer">
-            <input type="checkbox" checked={data.ofrece_mentoria} onChange={e => update('ofrece_mentoria', e.target.checked)} className="w-4 h-4 rounded text-blue-700 focus:ring-blue-600" />
-            <span className="text-sm font-bold text-slate-800">🎓 Ofrezco Mentoría</span>
+            <input type="checkbox" checked={data.ofrece_mentoria} onChange={e => update('ofrece_mentoria', e.target.checked)} disabled={isStudent} className="w-4 h-4 rounded text-blue-700 focus:ring-blue-600 disabled:opacity-50" />
+            <span className="text-sm font-bold text-slate-800">🎓 Ofrezco Mentoría {isStudent && <span className="text-rose-500 text-xs font-normal">(Solo exalumnos)</span>}</span>
           </label>
-          {data.ofrece_mentoria && (
+          {data.ofrece_mentoria && !isStudent && (
             <div className="pl-7">
               <label htmlFor="horas-mentoria" className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Horas disponibles por mes (1–40)<span className="text-rose-500 ml-1">*</span></label>
               <input
@@ -547,14 +585,15 @@ function SeccionApoyo({ data, update }: { data: ProfileFormData; update: (k: key
           { key: 'ofrece_pasantia', label: '📋 Ofrezco Pasantías' },
           { key: 'ofrece_proyecto', label: '🤝 Ofrezco Colaboración en Proyectos Empresariales' },
         ].map(({ key, label }) => (
-          <label key={key} className="flex items-center gap-3 cursor-pointer p-4 rounded-xl border border-slate-200 bg-slate-50 hover:bg-blue-50/50 transition-colors">
+          <label key={key} className={`flex items-center gap-3 cursor-pointer p-4 rounded-xl border border-slate-200 bg-slate-50 transition-colors ${isStudent ? 'opacity-50' : 'hover:bg-blue-50/50'}`}>
             <input
               type="checkbox"
+              disabled={isStudent}
               checked={data[key as keyof ProfileFormData] as boolean}
               onChange={e => update(key as keyof ProfileFormData, e.target.checked)}
-              className="w-4 h-4 rounded text-blue-700 focus:ring-blue-600"
+              className="w-4 h-4 rounded text-blue-700 focus:ring-blue-600 disabled:opacity-50"
             />
-            <span className="text-sm font-bold text-slate-800">{label}</span>
+            <span className="text-sm font-bold text-slate-800">{label} {isStudent && <span className="text-rose-500 text-xs font-normal">(Solo exalumnos)</span>}</span>
           </label>
         ))}
 
@@ -602,7 +641,7 @@ function SeccionApoyo({ data, update }: { data: ProfileFormData; update: (k: key
 // ============================================================
 // VALIDACIÓN POR PASO
 // ============================================================
-function validateStep(step: number, data: ProfileFormData): string[] {
+function validateStep(step: number, data: ProfileFormData, isStudent: boolean = false): string[] {
   const errs: string[] = []
   if (step === 1) {
     if (!data.pais_ciudad.trim()) errs.push('País y ciudad son obligatorios.')
@@ -614,7 +653,7 @@ function validateStep(step: number, data: ProfileFormData): string[] {
     if (!data.academic[0]?.escuela) errs.push('La escuela / facultad es obligatoria.')
     if (!data.academic[0]?.anio) errs.push('El año de graduación es obligatorio.')
   }
-  if (step === 3) {
+  if (step === 3 && !isStudent) {
     if (!data.empresa_actual.trim()) errs.push('Empresa actual es obligatoria.')
     if (!data.cargo_actual.trim()) errs.push('Cargo actual es obligatorio.')
     if (data.sector_industria.length === 0) errs.push('Selecciona al menos un sector.')
@@ -642,9 +681,14 @@ export default function ProfileEditPage() {
   const [isSaving, setIsSaving] = useState(false)
   const [saved, setSaved] = useState(false)
 
+  const isAdmin = user?.user_metadata?.rol === 'admin' || user?.user_metadata?.tipo === 'admin'
+  const isStudentRole = user?.user_metadata?.rol === 'estudiante'
+  const ACTIVE_STEPS = isAdmin ? [STEPS[0]] : STEPS
+
   useEffect(() => {
     if (!isLoading && profile && !dataLoaded) {
       setData({
+        full_name: profile.full_name || '',
         foto_url: profile.foto_url || '',
         pais_ciudad: profile.pais_ciudad || '',
         linkedin_url: profile.linkedin_url || '',
@@ -674,14 +718,14 @@ export default function ProfileEditPage() {
     setData(prev => ({ ...prev, [key]: value }))
   }, [])
 
-  const completedSections = STEPS.map(s => validateStep(s.id, data).length === 0).filter(Boolean).length
-  const progress = Math.round((completedSections / STEPS.length) * 100)
+  const completedSections = ACTIVE_STEPS.map(s => validateStep(s.id, data, isStudentRole).length === 0).filter(Boolean).length
+  const progress = Math.round((completedSections / ACTIVE_STEPS.length) * 100)
 
   const goNext = () => {
-    const errs = validateStep(step, data)
+    const errs = validateStep(step, data, isStudentRole)
     if (errs.length > 0) { setErrors(errs); return }
     setErrors([])
-    setStep(s => Math.min(s + 1, 5))
+    setStep(s => Math.min(s + 1, ACTIVE_STEPS.length))
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -692,8 +736,17 @@ export default function ProfileEditPage() {
   }
 
   const handleSave = async () => {
-    const errs = validateStep(step, data)
-    if (errs.length > 0) { setErrors(errs); return }
+    // Si es admin, no validamos pasos innecesarios
+    const stepsToValidate = isAdmin ? [1] : [1, 2, 3, 4, 5]
+    let allErrs: string[] = []
+    
+    // Si guardamos, verificamos el paso actual
+    const currentErrs = validateStep(step, data, isStudentRole)
+    if (currentErrs.length > 0) {
+      setErrors(currentErrs)
+      return
+    }
+
     setIsSaving(true)
 
     if (!user) {
@@ -702,65 +755,34 @@ export default function ProfileEditPage() {
       return
     }
 
-    const es_exalumno = data.academic.some(a => a.carrera.trim() !== '' && a.escuela.trim() !== '' && a.anio.trim() !== '')
-
-    // Extract principal academic data for filtering
-    const primeraCarrera = data.academic[0]
-    const carrera_principal = primeraCarrera?.carrera || null
-    const escuela_principal = primeraCarrera?.escuela || null
-    const facultad_principal = primeraCarrera?.escuela && primeraCarrera.escuela.toLowerCase().includes('facultad') 
-      ? primeraCarrera.escuela 
-      : null
-    const anio_graduacion = primeraCarrera?.anio ? parseInt(primeraCarrera.anio) : null
-
-    const supabase = createClient()
-    const { error } = await supabase.from('profiles').upsert({
-      id: user.id,
-      foto_url: data.foto_url,
-      pais_ciudad: data.pais_ciudad,
-      linkedin_url: data.linkedin_url,
-      bio: data.bio,
-      academic: data.academic as any,
-      carrera_principal,
-      escuela_principal,
-      facultad_principal,
-      anio_graduacion,
-      empresa_actual: data.empresa_actual,
-      cargo_actual: data.cargo_actual,
-      sector_industria: data.sector_industria,
-      anos_experiencia: data.anos_experiencia ? Number(data.anos_experiencia) : null,
-      areas_de_interes: data.areas_de_interes,
-      ofrece_mentoria: data.ofrece_mentoria,
-      horas_mes_mentoria: data.horas_mes_mentoria ? Number(data.horas_mes_mentoria) : null,
-      ofrece_empleo: data.ofrece_empleo,
-      ofrece_pasantia: data.ofrece_pasantia,
-      ofrece_proyecto: data.ofrece_proyecto,
-      ofrece_donacion_dinero: data.ofrece_donacion_dinero,
-      monto_maximo_donacion: data.donacion_monto_max ? Number(data.donacion_monto_max) : null,
-      moneda_donacion: data.donacion_moneda,
-      es_exalumno
-    })
-
-    if (error) {
-      setErrors(['Error al guardar el perfil: ' + error.message])
-      setIsSaving(false)
-      return
-    }
-
-    // Generar matches automáticamente si el usuario ofrece mentoría
-    if (data.ofrece_mentoria) {
-      try {
-        await generarMatchesMentoria()
-      } catch (err) {
-        console.error('Error al generar matches de mentoría en segundo plano:', err)
+    try {
+      const response = await actualizarPerfil(data)
+      
+      if (!response.success) {
+        setErrors(['Error al guardar el perfil.'])
+        setIsSaving(false)
+        return
       }
+
+      // Generar matches automáticamente si el usuario ofrece mentoría (y no es admin, esto ya lo filtra el backend o podemos chequear)
+      if (data.ofrece_mentoria && !isAdmin) {
+        try {
+          await generarMatchesMentoria()
+        } catch (err) {
+          console.error('Error al generar matches de mentoría en segundo plano:', err)
+        }
+      }
+
+      await refreshProfile()
+
+      setIsSaving(false)
+      setSaved(true)
+      setTimeout(() => { window.location.href = '/profile' }, 1500)
+
+    } catch (err: any) {
+      setErrors([err.message || 'Error inesperado al guardar el perfil'])
+      setIsSaving(false)
     }
-
-    await refreshProfile()
-
-    setIsSaving(false)
-    setSaved(true)
-    setTimeout(() => { window.location.href = '/profile' }, 1500)
   }
 
   if (!dataLoaded) {
@@ -769,11 +791,12 @@ export default function ProfileEditPage() {
 
   const renderStep = () => {
     switch (step) {
-      case 1: return <SeccionPersonal data={data} update={update} />
-      case 2: return <SeccionAcademica data={data} update={update} />
-      case 3: return <SeccionProfesional data={data} update={update} />
-      case 4: return <SeccionIntereses data={data} update={update} />
-      case 5: return <SeccionApoyo data={data} update={update} />
+      case 1: return <SeccionPersonal data={data} update={update} isAdmin={isAdmin} />
+      case 2: return !isAdmin && <SeccionAcademica data={data} update={update} />
+      case 3: return !isAdmin && <SeccionProfesional data={data} update={update} isStudent={isStudentRole} />
+      case 4: return !isAdmin && <SeccionIntereses data={data} update={update} />
+      case 5: return !isAdmin && <SeccionApoyo data={data} update={update} isStudent={isStudentRole} />
+      default: return null
     }
   }
 
@@ -785,12 +808,33 @@ export default function ProfileEditPage() {
             <CheckCircle2 className="w-10 h-10 text-emerald-600" />
           </div>
           <h2 className="text-2xl font-black text-slate-900 uppercase font-display">¡Perfil Guardado!</h2>
-          <p className="text-sm text-slate-600 font-medium">Tu perfil está completo y ya aparece en el directorio de exalumnos.</p>
+          <p className="text-sm text-slate-600 font-medium">
+            {isAdmin ? 'Tu perfil se ha actualizado correctamente.' : 'Tu perfil está completo y ya aparece en el directorio de exalumnos.'}
+          </p>
         </div>
       </div>
     )
   }
 
+  // --- RENDEREADO EXCLUSIVO PARA ESTUDIANTES ---
+  if (isStudentRole) {
+    return (
+      <div className="py-8 px-6 lg:px-10">
+        <div className="max-w-2xl mx-auto space-y-6">
+          <div className="pt-2 space-y-1">
+            <Link href="/profile" className="inline-flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-institutional transition-colors uppercase tracking-wider mb-3">
+              <ArrowLeft className="w-4 h-4" /> Volver al perfil
+            </Link>
+            <h1 className="text-4xl font-extrabold uppercase font-display text-slate-900 tracking-wide">Completar Perfil</h1>
+            <p className="text-sm text-slate-600 font-medium">Actualiza la información de tu proyecto para conectar con mentores y oportunidades.</p>
+          </div>
+          <StudentProfileEdit />
+        </div>
+      </div>
+    )
+  }
+
+  // --- RENDEREADO PARA EXALUMNOS Y ADMINS ---
   return (
     <div className="py-8 px-6 lg:px-10">
       <div className="max-w-2xl mx-auto space-y-6">
@@ -801,7 +845,7 @@ export default function ProfileEditPage() {
             <ArrowLeft className="w-4 h-4" /> Volver al perfil
           </Link>
           <h1 className="text-4xl font-extrabold uppercase font-display text-slate-900 tracking-wide">Completar Perfil</h1>
-          <p className="text-sm text-slate-600 font-medium">Tu perfil aparecerá en el directorio una vez completado al 100%.</p>
+          {!isAdmin && <p className="text-sm text-slate-600 font-medium">Tu perfil aparecerá en el directorio una vez completado al 100%.</p>}
         </div>
 
         {/* Barra de Progreso */}
@@ -815,7 +859,7 @@ export default function ProfileEditPage() {
           </div>
           {/* Indicadores de pasos */}
           <div className="flex items-center justify-between">
-            {STEPS.map(({ id, label, icon: Icon }) => (
+            {ACTIVE_STEPS.map(({ id, label, icon: Icon }) => (
               <div key={id} className="flex flex-col items-center gap-1">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
                   step === id ? 'bg-institutional text-white shadow-md' :
@@ -856,7 +900,7 @@ export default function ProfileEditPage() {
             <ArrowLeft className="w-4 h-4" /> Anterior
           </Button>
 
-          {step < 5 ? (
+          {step < ACTIVE_STEPS.length ? (
             <Button variant="primary" onClick={goNext} className="flex items-center gap-2 bg-institutional hover:bg-slate-800 font-bold uppercase text-xs px-6">
               Siguiente <ArrowRight className="w-4 h-4" />
             </Button>
