@@ -25,30 +25,29 @@ export async function actualizarPerfilEstudiante(datos: PerfilEstudianteInput) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('No autenticado')
 
-  const { areas_de_interes, ...restDatos } = datos
+  const { areas_de_interes, busca_mentoria, busca_empleo, busca_pasantia, visible_en_directorio, ...restDatos } = datos
 
-  const { error } = await supabase
+  // Actualizar users
+  const { error: usersError } = await supabase
     .from('users')
-    .update({ ...restDatos })
+    .update({ 
+      busca_mentoria, 
+      busca_empleo, 
+      busca_pasantia, 
+      visible_en_directorio 
+    })
     .eq('id', user.id)
     .eq('rol', 'estudiante')
 
-  if (error) throw new Error(error.message)
+  if (usersError) throw new Error(usersError.message)
 
-  if (areas_de_interes) {
-    const { data: areasData } = await supabase
-      .from('catalogo_areas_interes')
-      .select('id')
-      .in('nombre', areas_de_interes)
-    
-    if (areasData) {
-      await supabase.from('users_areas_interes').delete().eq('user_id', user.id)
-      const inserts = areasData.map(a => ({ user_id: user.id, area_id: a.id }))
-      if (inserts.length > 0) {
-        await supabase.from('users_areas_interes').insert(inserts)
-      }
-    }
-  }
+  // Actualizar estudiantes
+  const { error: estError } = await supabase
+    .from('estudiantes')
+    .update({ ...restDatos, areas_de_interes })
+    .eq('user_id', user.id)
+
+  if (estError) throw new Error(estError.message)
 
   revalidatePath('/mi-perfil')
   return { success: true }
@@ -63,7 +62,7 @@ export async function obtenerMiPerfilEstudiante() {
     .from('users')
     .select(`
       *,
-      users_areas_interes(catalogo_areas_interes(nombre))
+      estudiantes (*)
     `)
     .eq('id', user.id)
     .eq('rol', 'estudiante')
@@ -72,31 +71,38 @@ export async function obtenerMiPerfilEstudiante() {
   if (error && error.code !== 'PGRST116') throw new Error(error.message)
   
   if (data) {
-    const areas = (data as any).users_areas_interes?.map((ua: any) => ua.catalogo_areas_interes?.nombre).filter(Boolean) || []
-    return { ...data, areas_de_interes: areas }
+    const est = Array.isArray(data.estudiantes) ? data.estudiantes[0] : data.estudiantes;
+    return { 
+      ...data, 
+      ...est, // merge estudiantes fields
+      areas_de_interes: est?.areas_de_interes || []
+    }
   }
   return data
 }
 
 export async function verificarPerfilCompleto(userId: string) {
   const supabase = await createClient()
-  const { data: estudiante, error } = await supabase
+  const { data: userRecord, error } = await supabase
     .from('users')
-    .select('*')
+    .select('*, estudiantes(*)')
     .eq('id', userId)
     .eq('rol', 'estudiante')
     .single()
 
-  if (error || !estudiante) return false
+  if (error || !userRecord) return false
+
+  const est = Array.isArray(userRecord.estudiantes) ? userRecord.estudiantes[0] : userRecord.estudiantes;
+  if (!est) return false;
 
   const camposRequeridos = [
     'carrera', 'escuela_facultad', 'sede',
     'proyecto_titulo', 'proyecto_descripcion', 'proyecto_area_tematica',
-    'proyecto_tipo', 'proyecto_porcentaje_avance', 'areas_de_interes'
+    'proyecto_tipo', 'areas_de_interes'
   ]
 
   const estaCompleto = camposRequeridos.every(campo => {
-    const val = (estudiante as any)[campo]
+    const val = (est as any)[campo]
     if (Array.isArray(val)) return val.length > 0
     return val !== null && val !== undefined && val !== ''
   })
@@ -123,23 +129,17 @@ export async function listarEstudiantes(
   
   const hasCarreraFilter = filtros?.carrera && filtros.carrera.length > 0
   const hasSedeFilter = filtros?.sede
-  const careerJoin = (hasCarreraFilter || hasSedeFilter) ? 'users_carreras!inner' : 'users_carreras'
+  const hasAreasFilter = filtros?.areas_de_interes && filtros.areas_de_interes.length > 0
+  const hasProyectoAreaFilter = filtros?.proyecto_area_tematica && filtros.proyecto_area_tematica.length > 0
+  const hasProyectoTipoFilter = filtros?.proyecto_tipo
+  
+  const estJoin = (hasCarreraFilter || hasSedeFilter || hasAreasFilter || hasProyectoAreaFilter || hasProyectoTipoFilter) ? 'estudiantes!inner' : 'estudiantes'
 
   let query = supabase
     .from('users')
     .select(`
       *,
-      ${careerJoin} (
-        anio_ingreso,
-        anio_graduacion,
-        carrera_campus (
-          carreras (
-            nombre,
-            facultades (nombre)
-          ),
-          campus (nombre)
-        )
-      ),
+      ${estJoin} (*),
       curriculums (
         sobre_mi,
         url_linkedin,
@@ -147,39 +147,41 @@ export async function listarEstudiantes(
         habilidades_tecnicas,
         habilidades_blandas,
         proyecto_graduacion_resumen
-      ),
-      users_areas_interes(catalogo_areas_interes(nombre))
+      )
     `, { count: 'exact' })
     .eq('rol', 'estudiante')
     .eq('activo', true)
+    .eq('visible_en_directorio', true)
     .order('nombre', { ascending: true })
 
   if (filtros) {
     if (filtros.areas_de_interes && filtros.areas_de_interes.length > 0) {
-      query = query.in('users_areas_interes.catalogo_areas_interes.nombre', filtros.areas_de_interes)
+      query = query.contains('estudiantes.areas_de_interes', filtros.areas_de_interes)
     }
     if (filtros.carrera && filtros.carrera.length > 0) {
-      query = query.in('users_carreras.carrera_campus.carreras.nombre', filtros.carrera)
+      query = query.in('estudiantes.carrera', filtros.carrera)
     }
     if (filtros.sede) {
-      query = query.eq('users_carreras.carrera_campus.campus.nombre', filtros.sede)
+      query = query.eq('estudiantes.sede', filtros.sede)
+    }
+    if (filtros.proyecto_area_tematica && filtros.proyecto_area_tematica.length > 0) {
+      query = query.in('estudiantes.proyecto_area_tematica', filtros.proyecto_area_tematica)
+    }
+    if (filtros.proyecto_tipo) {
+      query = query.eq('estudiantes.proyecto_tipo', filtros.proyecto_tipo)
     }
     if (filtros.tipos_apoyo && filtros.tipos_apoyo.length > 0) {
       filtros.tipos_apoyo.forEach(tipo => {
-        if (tipo === 'financiamiento') {
-          // No hay busca_financiamiento en users, omitimos o no filtramos
-        }
+        if (tipo === 'financiamiento') query = query.eq('estudiantes.busca_financiamiento', true)
         if (tipo === 'mentoría') query = query.eq('busca_mentoria', true)
         if (tipo === 'empleo') query = query.eq('busca_empleo', true)
-        if (tipo === 'pasantía') {
-          // No hay busca_pasantia en users, omitimos o no filtramos
-        }
+        if (tipo === 'pasantía') query = query.eq('busca_pasantia', true)
       })
     }
   }
 
   if (opciones?.busqueda) {
-    query = query.ilike('nombre', `%${opciones.busqueda}%`)
+    query = query.or(`nombre.ilike.%${opciones.busqueda}%,apellidos.ilike.%${opciones.busqueda}%,estudiantes.proyecto_titulo.ilike.%${opciones.busqueda}%`)
   }
 
   if (opciones?.page && opciones?.limit) {
@@ -193,10 +195,14 @@ export async function listarEstudiantes(
   const { data, count, error } = await query
   if (error) throw new Error(error.message)
   
-  const mappedData = data?.map(d => ({
-    ...d,
-    areas_de_interes: (d as any).users_areas_interes?.map((ua: any) => ua.catalogo_areas_interes?.nombre).filter(Boolean) || []
-  }))
+  const mappedData = data?.map(d => {
+    const est = Array.isArray(d.estudiantes) ? d.estudiantes[0] : d.estudiantes;
+    return {
+      ...d,
+      estudiantes: est,
+      areas_de_interes: est?.areas_de_interes || []
+    }
+  })
 
   return { data: mappedData, count: count || 0 }
 }
@@ -207,17 +213,7 @@ export async function obtenerEstudiantePorId(id: string) {
     .from('users')
     .select(`
       *,
-      users_carreras (
-        anio_ingreso,
-        anio_graduacion,
-        carrera_campus (
-          carreras (
-            nombre,
-            facultades (nombre)
-          ),
-          campus (nombre)
-        )
-      ),
+      estudiantes (*),
       curriculums (
         sobre_mi,
         url_linkedin,
@@ -225,8 +221,7 @@ export async function obtenerEstudiantePorId(id: string) {
         habilidades_tecnicas,
         habilidades_blandas,
         proyecto_graduacion_resumen
-      ),
-      users_areas_interes(catalogo_areas_interes(nombre))
+      )
     `)
     .eq('id', id)
     .eq('rol', 'estudiante')
@@ -235,8 +230,12 @@ export async function obtenerEstudiantePorId(id: string) {
   if (error) throw new Error(error.message)
 
   if (data) {
-    const areas = (data as any).users_areas_interes?.map((ua: any) => ua.catalogo_areas_interes?.nombre).filter(Boolean) || []
-    return { ...data, areas_de_interes: areas }
+    const est = Array.isArray(data.estudiantes) ? data.estudiantes[0] : data.estudiantes;
+    return { 
+      ...data, 
+      estudiantes: est,
+      areas_de_interes: est?.areas_de_interes || [] 
+    }
   }
 
   return data
