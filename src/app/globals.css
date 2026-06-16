@@ -106,3 +106,30 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 12px 30px -10px rgba(243, 75, 38, 0.15);
   border-color: rgba(243, 75, 38, 0.25);
 }
+
+/* --------- GLOBAL A11Y CLASSES --------- */
+
+/* Large Text */
+html.a11y-large-text {
+  font-size: 110% !important; /* Increment root font size safely */
+}
+
+/* High Contrast mode */
+html.a11y-high-contrast {
+  filter: contrast(135%) saturate(110%) brightness(90%) !important;
+}
+
+/* Grayscale Mode */
+html.a11y-grayscale {
+  filter: grayscale(100%) !important;
+}
+
+/* Highlight Links */
+body.a11y-highlight-links a {
+  text-decoration: underline !important;
+  text-decoration-thickness: 3px !important;
+  color: #FFEB3B !important;
+  background-color: rgba(0,0,0,0.8) !important;
+  font-weight: 900 !important;
+  padding: 2px !important;
+}
