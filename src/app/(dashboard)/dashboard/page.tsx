@@ -47,8 +47,8 @@ export default function DashboardPage() {
       link: '/events',
       linkLabel: 'Ver eventos',
       icon: Users,
-      iconBg: 'bg-institutional text-white',
-      valueBg: 'text-institutional'
+      iconBg: 'bg-[#F34B26]/10 text-[#F34B26] border border-[#F34B26]/20',
+      valueBg: 'text-[#F34B26]'
     },
     {
       label: 'Vacantes disponibles',
@@ -56,8 +56,8 @@ export default function DashboardPage() {
       link: '/jobs',
       linkLabel: 'Ver empleo',
       icon: Briefcase,
-      iconBg: 'bg-emerald-600 text-white',
-      valueBg: 'text-emerald-700'
+      iconBg: 'bg-[#FF9B18]/10 text-[#FF9B18] border border-[#FF9B18]/20',
+      valueBg: 'text-[#FF9B18]'
     },
     {
       label: 'Fondos activos',
@@ -65,8 +65,8 @@ export default function DashboardPage() {
       link: '/donations',
       linkLabel: 'Ver donaciones',
       icon: Heart,
-      iconBg: 'bg-rose-500 text-white',
-      valueBg: 'text-rose-600'
+      iconBg: 'bg-[#E03A14]/10 text-[#E03A14] border border-[#E03A14]/20',
+      valueBg: 'text-[#E03A14]'
     },
     {
       label: 'Mentores disponibles',
@@ -74,8 +74,8 @@ export default function DashboardPage() {
       link: '/mentorships',
       linkLabel: 'Ver mentorías',
       icon: GraduationCap,
-      iconBg: 'bg-sky-500 text-white',
-      valueBg: 'text-sky-600'
+      iconBg: 'bg-[#FF7A00]/10 text-[#FF7A00] border border-[#FF7A00]/20',
+      valueBg: 'text-[#FF7A00]'
     }
   ]
 
@@ -87,8 +87,8 @@ export default function DashboardPage() {
       time: '09:00 AM',
       date: '24',
       month: 'MAY',
-      gradientFrom: '#1a5f9e',
-      gradientTo: '#0ea5e9',
+      gradientFrom: '#F34B26',
+      gradientTo: '#FF9B18',
       virtual: false
     },
     {
@@ -98,8 +98,8 @@ export default function DashboardPage() {
       time: '04:00 PM',
       date: '15',
       month: 'JUN',
-      gradientFrom: '#0ea5e9',
-      gradientTo: '#6366f1',
+      gradientFrom: '#FF9B18',
+      gradientTo: '#FFD000',
       virtual: true
     },
     {
@@ -109,8 +109,8 @@ export default function DashboardPage() {
       time: '10:00 AM',
       date: '30',
       month: 'JUN',
-      gradientFrom: '#059669',
-      gradientTo: '#1a5f9e',
+      gradientFrom: '#E03A14',
+      gradientTo: '#F34B26',
       virtual: false
     }
   ]
@@ -121,16 +121,16 @@ export default function DashboardPage() {
 
         {/* Encabezado Principal */}
         <div className="space-y-1 pt-2">
-          <h1 className="text-4xl font-extrabold uppercase font-display text-institutional tracking-wide">
+          <h1 className="text-4xl font-extrabold uppercase font-display text-slate-850 tracking-wide">
             Dashboard
           </h1>
           <p className="text-sm font-medium text-slate-600">
-            Bienvenido(a) de nuevo, <span className="font-bold text-institutional">{userName}</span> 👋 · {currentDate}
+            Bienvenido(a) de nuevo, <span className="font-bold text-[#F34B26]">{userName}</span> 👋 · {currentDate}
           </p>
         </div>
 
         {/* Banner Principal */}
-        <div className="rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-8 overflow-hidden relative shadow-md text-white bg-institutional">
+        <div className="rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-8 overflow-hidden relative shadow-md text-white bg-gradient-to-br from-[#E03A14] via-[#F34B26] to-[#FF9B18]">
           <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-white/5 rounded-l-full hidden md:block" />
           <div className="absolute right-1/4 top-1/4 w-20 h-20 bg-white/10 rounded-full blur-2xl" />
 
@@ -145,7 +145,7 @@ export default function DashboardPage() {
               Sigue formando parte del cambio desde donde estés.
             </p>
             <Link href="/jobs" className="inline-block pt-2">
-              <Button variant="primary" className="bg-white text-institutional hover:bg-slate-100 font-bold uppercase tracking-wider text-xs px-6 shadow-md">
+              <Button variant="primary" className="bg-white text-[#F34B26] hover:bg-orange-50 hover:scale-105 active:scale-95 transition-all duration-300 font-bold uppercase tracking-wider text-xs px-6 shadow-md border-0">
                 Explorar oportunidades →
               </Button>
             </Link>
@@ -153,7 +153,7 @@ export default function DashboardPage() {
 
           {/* Imagen decorativa con gradiente */}
           <div className="dashboard-banner-overlay relative w-full md:w-72 h-44 rounded-2xl overflow-hidden shadow-lg shrink-0 flex items-center justify-center">
-            <div className="text-center text-white/80 space-y-2">
+            <div className="text-center text-white/90 space-y-2">
               <div className="text-5xl font-black font-display">UCR</div>
               <div className="text-xs font-bold uppercase tracking-widest">Exalumnos · 2026</div>
             </div>
@@ -169,8 +169,8 @@ export default function DashboardPage() {
             {quickSummary.map((item, idx) => {
               const Icon = item.icon
               return (
-                <Card key={idx} hoverEffect={true} className="flex flex-col items-center text-center p-6 space-y-4 bg-white border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 rounded-2xl">
-                  <div className={`w-14 h-14 rounded-full ${item.iconBg} flex items-center justify-center shadow-md shrink-0`}>
+                <Card key={idx} hoverEffect={false} className="dashboard-card-hover flex flex-col items-center text-center p-6 space-y-4 bg-white border border-slate-100 shadow-sm rounded-2xl">
+                  <div className={`w-14 h-14 rounded-full ${item.iconBg} flex items-center justify-center shadow-sm shrink-0`}>
                     <Icon className="w-6 h-6" />
                   </div>
                   <div className="space-y-1">
@@ -181,7 +181,7 @@ export default function DashboardPage() {
                       {item.value}
                     </span>
                   </div>
-                  <Link href={item.link} className="text-xs font-bold text-blue-700 hover:text-blue-900 hover:underline uppercase tracking-wider block pt-1 transition-colors">
+                  <Link href={item.link} className="text-xs font-bold text-[#F34B26] hover:text-[#C82A08] hover:underline uppercase tracking-wider block pt-1 transition-colors">
                     {item.linkLabel} →
                   </Link>
                 </Card>
@@ -196,14 +196,14 @@ export default function DashboardPage() {
             <h2 className="text-lg font-bold uppercase tracking-wider text-slate-800 font-display">
               Próximos eventos
             </h2>
-            <Link href="/events" className="text-xs font-bold text-blue-700 hover:text-blue-900 hover:underline uppercase tracking-wider transition-colors">
+            <Link href="/events" className="text-xs font-bold text-[#F34B26] hover:text-[#C82A08] hover:underline uppercase tracking-wider transition-colors">
               Ver todos →
             </Link>
           </div>
 
-          <Card hoverEffect={false} className="divide-y divide-slate-100 p-0 overflow-hidden border border-slate-200 rounded-2xl shadow-sm">
+          <Card hoverEffect={false} className="divide-y divide-slate-100 p-0 overflow-hidden border border-slate-150 rounded-2xl shadow-sm">
             {upcomingEvents.map((event) => (
-              <div key={event.id} className="p-5 hover:bg-slate-50/60 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+              <div key={event.id} className="p-5 hover:bg-orange-50/10 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-5">
                 <div className="flex items-center gap-4">
                   {/* Cuadro de Fecha con color real */}
                   <GradientBox
@@ -221,8 +221,8 @@ export default function DashboardPage() {
                     </h4>
                     <p className="text-xs text-slate-600 font-semibold flex items-center gap-1.5">
                       {event.virtual
-                        ? <Calendar className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-                        : <MapPin className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                        ? <Calendar className="w-3.5 h-3.5 text-[#F34B26] shrink-0" />
+                        : <MapPin className="w-3.5 h-3.5 text-[#F34B26] shrink-0" />
                       }
                       {event.location} · {event.time}
                     </p>
@@ -232,7 +232,7 @@ export default function DashboardPage() {
                 <Link href={`/events/${event.id}`}>
                   <Button
                     variant="secondary"
-                    className="border-blue-700 text-blue-700 hover:bg-blue-50 font-bold uppercase tracking-wider text-xs px-5 self-start sm:self-center"
+                    className="border-[#F34B26] text-[#F34B26] hover:bg-orange-50/40 hover:scale-105 active:scale-95 transition-all duration-300 font-bold uppercase tracking-wider text-xs px-5 self-start sm:self-center"
                   >
                     Inscribirme
                   </Button>

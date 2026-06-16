@@ -8,8 +8,10 @@
 //               promedio académico o situación socioeconómica.
 // =============================================================================
 
+import { useState } from 'react';
 import { BookOpen, MapPin, Tag, Handshake } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { getAvatarUrl } from '@/lib/utils';
 
 // ⚠️ TIPO PÚBLICO — Ausencia de beca/promedio/socioeconómico es intencional y obligatoria
 export interface EstudiantePublico {
@@ -30,6 +32,7 @@ export interface EstudiantePublico {
 
 interface PropsTarjetaEstudiante {
   estudiante: EstudiantePublico;
+  isAdmin?: boolean;
   alOfrecerApoyo: (id: string) => void;
 }
 
@@ -61,8 +64,9 @@ function obtenerClaseAnchoBarra(porcentaje: number): string {
 
 // [VERDE - FUNCION: TarjetaEstudiante]
 // Componente de presentación pública del perfil de proyecto de un estudiante UCR.
-export function TarjetaEstudiante({ estudiante, alOfrecerApoyo }: PropsTarjetaEstudiante) {
+export function TarjetaEstudiante({ estudiante, isAdmin, alOfrecerApoyo }: PropsTarjetaEstudiante) {
   const router = useRouter();
+  const [imgError, setImgError] = useState(false);
   const { nombreCompleto, carrera, sede, fotoPerfil, proyecto, areasInteres, tiposApoyoBuscado } = estudiante;
   const { titulo, areaTematica, tipoProyecto, porcentajeAvance } = proyecto;
 
@@ -86,11 +90,12 @@ export function TarjetaEstudiante({ estudiante, alOfrecerApoyo }: PropsTarjetaEs
       {/* ── CABECERA: Avatar + Nombre + Carrera + Sede ── */}
       <div className="flex items-start gap-3 relative">
         <div className="relative flex-shrink-0">
-          {fotoPerfil ? (
+          {fotoPerfil && !imgError ? (
             <img
-              src={fotoPerfil}
+              src={getAvatarUrl(fotoPerfil, nombreCompleto) as string}
               alt={`Foto de ${nombreCompleto}`}
               className="w-12 h-12 rounded-full object-cover ring-2 ring-slate-600"
+              onError={() => setImgError(true)}
             />
           ) : (
             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center ring-2 ring-slate-600 flex-shrink-0">
@@ -181,14 +186,16 @@ export function TarjetaEstudiante({ estudiante, alOfrecerApoyo }: PropsTarjetaEs
       )}
 
       {/* ── BOTÓN OFRECER APOYO ── */}
-      <button
-        type="button"
-        id={`btn-ofrecer-apoyo-${estudiante.id}`}
-        onClick={() => router.push('/donations?metodo=sinpe')}
-        className="mt-auto w-full py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 text-white text-sm font-semibold tracking-wide hover:from-blue-500 hover:to-violet-500 active:scale-[0.98] transition-all duration-200 shadow-md shadow-blue-900/20 hover:shadow-blue-700/30 relative"
-      >
-        Ofrecer apoyo
-      </button>
+      {!isAdmin && (
+        <button
+          type="button"
+          id={`btn-ofrecer-apoyo-${estudiante.id}`}
+          onClick={() => router.push('/donations?metodo=sinpe')}
+          className="mt-auto w-full py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 text-white text-sm font-semibold tracking-wide hover:from-blue-500 hover:to-violet-500 active:scale-[0.98] transition-all duration-200 shadow-md shadow-blue-900/20 hover:shadow-blue-700/30 relative"
+        >
+          Ofrecer apoyo
+        </button>
+      )}
     </article>
   );
 }

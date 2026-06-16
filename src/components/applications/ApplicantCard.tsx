@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { FileText, MapPin, GraduationCap, Check, X } from 'lucide-react'
 import { AlumniApplicationView, ApplicationStatus } from '@/types/applications'
 import ApplicationStatusBadge from './ApplicationStatusBadge'
+import { getAvatarUrl } from '@/lib/utils'
 
 interface ApplicantCardProps {
   application: AlumniApplicationView
@@ -14,6 +15,7 @@ interface ApplicantCardProps {
 export default function ApplicantCard({ application, onStatusUpdate, isUpdating }: ApplicantCardProps) {
   const { student, cv, compatibility_score, status, message } = application
   const [showConfirm, setShowConfirm] = useState(false)
+  const [imgError, setImgError] = useState(false)
 
   const handleSelect = () => {
     setShowConfirm(true)
@@ -30,11 +32,12 @@ export default function ApplicantCard({ application, onStatusUpdate, isUpdating 
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-full bg-gray-100 overflow-hidden flex-shrink-0 border">
-              {student.foto_url ? (
+              {student.foto_url && !imgError ? (
                 <img 
-                  src={student.foto_url.startsWith('http') ? student.foto_url : `${process.env.NEXT_PUBLIC_SUPABASE_URL || ''}/storage/v1/object/public/avatars/${student.foto_url}`} 
+                  src={getAvatarUrl(student.foto_url, student.nombre) as string} 
                   alt={student.nombre} 
                   className="w-full h-full object-cover" 
+                  onError={() => setImgError(true)}
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-gray-400 font-bold text-lg">
