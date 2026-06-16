@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getEstudianteById, getEstudiantesRelacionados } from '@/lib/api';
 import StudentProfile from '../_components/StudentProfile';
+import DirectoryBackground from '@/components/ui/DirectoryBackground';
 
 export default async function PerfilEstudiantePage({ params }: { params: { id: string } | Promise<{ id: string }> }) {
   const resolvedParams = await Promise.resolve(params);
@@ -18,21 +19,19 @@ export default async function PerfilEstudiantePage({ params }: { params: { id: s
     estudiante.carrera || null
   );
 
-
-
   return (
-    <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8 font-sans text-slate-900">
-      <div className="max-w-5xl mx-auto space-y-0">
+    <div className="min-h-screen relative bg-[#FAF9E6] py-10 px-4 sm:px-6 lg:px-8 font-sans text-slate-900 overflow-hidden">
+      {/* Fondo alegre decorado */}
+      <DirectoryBackground />
+
+      <div className="max-w-xl mx-auto space-y-0 relative z-10">
         {/* Breadcrumb */}
         <div className="mb-6">
           <Link
             href="/directorio/estudiantes"
-            className="inline-flex items-center text-sm font-medium text-slate-500 hover:text-blue-700 transition-colors"
+            className="inline-flex items-center text-sm font-bold text-[#1F8BB6] hover:text-[#003B4F] transition-colors"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
-              <path d="m15 18-6-6 6-6" />
-            </svg>
-            Volver al Directorio
+            ← Volver a Directorio
           </Link>
         </div>
 
