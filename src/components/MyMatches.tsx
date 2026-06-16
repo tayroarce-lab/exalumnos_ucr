@@ -59,6 +59,8 @@ interface PropsTarjetaMatch {
 function TarjetaMatch({ match, onAccionar }: PropsTarjetaMatch) {
   const [expandido, setExpandido] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [imgErrorEst, setImgErrorEst] = useState(false);
+  const [imgErrorExal, setImgErrorExal] = useState(false);
   const { estudiante, exalumno, desglosePuntaje } = match;
   const etiquetaEstado = obtenerEtiquetaEstado(match.estado);
   const colorScore = obtenerColorScore(match.score_match);
@@ -90,9 +92,10 @@ function TarjetaMatch({ match, onAccionar }: PropsTarjetaMatch) {
           <div className="flex items-center gap-3 mb-2">
             {/* Estudiante */}
             <div className="flex items-center gap-2 min-w-0">
-              {estudiante.foto_url ? (
-                <img src={getAvatarUrl(estudiante.foto_url) as string} alt={estudiante.nombre}
-                  className="w-8 h-8 rounded-full object-cover ring-2 ring-slate-600 flex-shrink-0" />
+              {estudiante.foto_url && !imgErrorEst ? (
+                <img src={getAvatarUrl(estudiante.foto_url, estudiante.nombre) as string} alt={estudiante.nombre}
+                  className="w-8 h-8 rounded-full object-cover ring-2 ring-slate-600 flex-shrink-0"
+                  onError={() => setImgErrorEst(true)} />
               ) : (
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center ring-2 ring-slate-600 flex-shrink-0">
                   <span className="text-white text-xs font-bold">{inicialesEst}</span>
@@ -113,9 +116,10 @@ function TarjetaMatch({ match, onAccionar }: PropsTarjetaMatch) {
 
             {/* Exalumno */}
             <div className="flex items-center gap-2 min-w-0">
-              {exalumno.foto_url ? (
-                <img src={getAvatarUrl(exalumno.foto_url) as string} alt={exalumno.nombre}
-                  className="w-8 h-8 rounded-full object-cover ring-2 ring-slate-600 flex-shrink-0" />
+              {exalumno.foto_url && !imgErrorExal ? (
+                <img src={getAvatarUrl(exalumno.foto_url, exalumno.nombre) as string} alt={exalumno.nombre}
+                  className="w-8 h-8 rounded-full object-cover ring-2 ring-slate-600 flex-shrink-0"
+                  onError={() => setImgErrorExal(true)} />
               ) : (
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center ring-2 ring-slate-600 flex-shrink-0">
                   <span className="text-white text-xs font-bold">{inicialesExal}</span>

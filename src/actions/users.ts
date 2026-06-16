@@ -139,6 +139,7 @@ export async function actualizarPerfil(data: any) {
   }
 
   const isAdmin = userData?.rol === 'admin'
+  const isStudentUser = userData?.rol === 'estudiante'
 
   let payloadToUpdate: any = {
     id: user.id,
@@ -176,7 +177,8 @@ export async function actualizarPerfil(data: any) {
   } else {
     // Si no es admin, guardar todos los campos enviados
     const primeraCarrera = data.academic && data.academic.length > 0 ? data.academic[0] : null
-    const es_exalumno = data.academic && data.academic.some((a: any) => a.carrera?.trim() !== '' && a.escuela?.trim() !== '' && a.anio?.trim() !== '')
+    const hasAcademic = data.academic && data.academic.some((a: any) => a.carrera?.trim() !== '' && a.escuela?.trim() !== '' && a.anio?.trim() !== '')
+    const es_exalumno = isStudentUser ? false : hasAcademic;
 
     payloadToUpdate = {
       ...payloadToUpdate,

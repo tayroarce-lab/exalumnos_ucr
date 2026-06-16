@@ -69,8 +69,9 @@ export default function ProfilePage() {
   const twitter = profile?.twitter_url || ''
   const instagram = profile?.instagram_url || ''
 
-  return (
-    <div className="py-8 px-6 lg:px-10">
+  if (isAdmin) {
+    return (
+      <div className="py-8 px-6 lg:px-10">
       <div className="max-w-3xl mx-auto space-y-6">
         {/* Header */}
         <div className="pt-2 space-y-1">
@@ -243,17 +244,7 @@ export default function ProfilePage() {
                 </Link>
               </div>
 
-        {/* Pestaña: Información Académica */}
-        {activeTab === 'academica' && (
-          <div className="space-y-6">
-            <h3 className="font-display font-bold text-base text-slate-700 uppercase tracking-wider pb-2 border-b border-slate-100">
-              Historial Académico
-            </h3>
-            {academic.length > 0 ? academic.map((edu, idx) => (
-              <div key={idx} className="flex gap-4">
-                <div className="p-3 bg-[#F34B26]/10 text-[#F34B26] border border-[#F34B26]/10 rounded-xl shrink-0">
-                  <GraduationCap className="w-6 h-6" />
-                </div>
+              <div className="space-y-4 pt-4 border-t border-slate-100">
                 <div className="space-y-2">
                   <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Redes sociales</h4>
                   <div className="flex items-center gap-3">
@@ -277,40 +268,45 @@ export default function ProfilePage() {
                     )}
                   </div>
                 </div>
-              </div>
 
-              <div className="space-y-2 pt-4 border-t border-slate-100">
-                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Habilidades</h4>
-                {skills.length > 0 ? (
-                  <div className="flex flex-wrap gap-2">
-                    {skills.map((skill, idx) => (
-                      <span key={idx} className="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-semibold">{skill}</span>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-xs text-slate-500 font-medium">No se han especificado habilidades.</p>
-                )}
+                <div className="space-y-2 pt-4 border-t border-slate-100">
+                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Habilidades</h4>
+                  {skills.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {skills.map((skill, idx) => (
+                        <span key={idx} className="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-semibold">{skill}</span>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-slate-500 font-medium">No se han especificado habilidades.</p>
+                  )}
+                </div>
               </div>
             </div>
           )}
 
+          {/* Pestaña: Información Académica */}
           {activeTab === 'academica' && (
             <div className="space-y-6">
-              {experience.length > 0 ? experience.map((exp, idx) => (
-                <div key={idx} className="relative pl-6 border-l-2 border-slate-200 space-y-1.5">
-                  <div className="absolute left-0 top-1.5 -translate-x-1/2 w-2.5 h-2.5 rounded-full bg-[#F34B26]"></div>
-                  <div className="flex justify-between items-start gap-2">
-                    <h4 className="text-sm font-bold text-slate-800 uppercase tracking-wide">{exp.role}</h4>
-                    <span className="text-[10px] bg-slate-100 text-slate-500 font-bold px-2 py-0.5 rounded-full">
-                      {exp.period}
-                    </span>
+              <h3 className="font-display font-bold text-base text-slate-700 uppercase tracking-wider pb-2 border-b border-slate-100">
+                Historial Académico
+              </h3>
+              <div className="space-y-6">
+                {academic.length > 0 ? academic.map((edu, idx) => (
+                  <div key={idx} className="flex gap-4">
+                    <div className="p-3 bg-institutional/10 text-institutional border border-institutional/10 rounded-xl shrink-0">
+                      <GraduationCap className="w-6 h-6" />
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="text-sm font-bold text-slate-800 uppercase tracking-wide">{edu.degree}</h4>
+                      <p className="text-xs font-bold text-institutional">{edu.school}</p>
+                      <p className="text-xs text-slate-500 font-medium">{edu.year}</p>
+                    </div>
                   </div>
-                  <p className="text-xs font-bold text-[#FF9B18]">{exp.company}</p>
-                  <p className="text-xs text-slate-500 leading-relaxed font-medium">{exp.desc}</p>
-                </div>
-              )) : (
-                <p className="text-xs text-slate-500 font-medium">No hay información académica registrada.</p>
-              )}
+                )) : (
+                  <p className="text-xs text-slate-500 font-medium">No hay información académica registrada.</p>
+                )}
+              </div>
             </div>
           )}
 
