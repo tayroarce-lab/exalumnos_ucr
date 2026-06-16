@@ -55,14 +55,14 @@ export async function buscarExalumnosDirectorio(params: BuscarParams): Promise<{
       .eq('rol', 'exalumno')
       .eq('visible_en_directorio', true)
       .eq('activo', true)
-    
+
     // Aplicar filtros
     if (params.facultad) query = query.eq('exalumnos.escuela_facultad', params.facultad) // Nota: exalumnos usa escuela_facultad
     // if (params.escuela) // En la nueva BD escuela y facultad estan unidos en escuela_facultad
     if (params.pais_ciudad) query = query.ilike('exalumnos.pais_ciudad', `%${params.pais_ciudad}%`)
-    
+
     if (params.search) {
-       query = query.or(`nombre.ilike.%${params.search}%,apellidos.ilike.%${params.search}%,exalumnos.cargo_actual.ilike.%${params.search}%,exalumnos.empresa_actual.ilike.%${params.search}%`)
+      query = query.or(`nombre.ilike.%${params.search}%,apellidos.ilike.%${params.search}%,exalumnos.cargo_actual.ilike.%${params.search}%,exalumnos.empresa_actual.ilike.%${params.search}%`)
     }
 
     if (params.carreras && params.carreras.length > 0) {
@@ -84,7 +84,7 @@ export async function buscarExalumnosDirectorio(params: BuscarParams): Promise<{
       if (params.apoyos.includes('ofrece_proyecto')) query = query.eq('exalumnos.ofrece_proyecto', true);
       if (params.apoyos.includes('ofrece_donacion_dinero')) query = query.eq('exalumnos.ofrece_donacion_dinero', true);
     }
-    
+
     const { data: dbData, error: dbError, count } = await query.order('created_at', { ascending: false }).range(offset, offset + limit - 1)
 
     if (dbError) {
@@ -94,30 +94,30 @@ export async function buscarExalumnosDirectorio(params: BuscarParams): Promise<{
 
     // Mapear para que cumpla con el tipo ExalumnoDirectorio esperado por la UI
     const mapped = (dbData || []).map((item: any) => {
-       const ex = Array.isArray(item.exalumnos) ? item.exalumnos[0] : item.exalumnos;
-       return {
-         id: item.id,
-         nombre: item.nombre || 'Exalumno',
-         apellidos: item.apellidos || null,
-         foto_url: item.foto_url || null,
-         pais_ciudad: ex?.pais_ciudad || null,
-         carrera_principal: ex?.carrera_ucr || null,
-         escuela_principal: ex?.escuela_facultad || null,
-         facultad_principal: ex?.escuela_facultad || null,
-         anio_graduacion: ex?.anio_graduacion || null,
-         empresa_actual: ex?.empresa_actual || null,
-         cargo_actual: ex?.cargo_actual || null,
-         sector_industria: ex?.sector_industria || null,
-         areas_de_interes: ex?.areas_de_interes || null,
-         ofrece_mentoria: ex?.ofrece_mentoria || false,
-         ofrece_empleo: ex?.ofrece_empleo || false,
-         ofrece_pasantia: ex?.ofrece_pasantia || false,
-         ofrece_proyecto: ex?.ofrece_proyecto || false,
-         ofrece_donacion_dinero: ex?.ofrece_donacion_dinero || false,
-         score_match: 0,
-         created_at: item.created_at || new Date().toISOString(),
-         total_count: count || 0
-       }
+      const ex = Array.isArray(item.exalumnos) ? item.exalumnos[0] : item.exalumnos;
+      return {
+        id: item.id,
+        nombre: item.nombre || 'Exalumno',
+        apellidos: item.apellidos || null,
+        foto_url: item.foto_url || null,
+        pais_ciudad: ex?.pais_ciudad || null,
+        carrera_principal: ex?.carrera_ucr || null,
+        escuela_principal: ex?.escuela_facultad || null,
+        facultad_principal: ex?.escuela_facultad || null,
+        anio_graduacion: ex?.anio_graduacion || null,
+        empresa_actual: ex?.empresa_actual || null,
+        cargo_actual: ex?.cargo_actual || null,
+        sector_industria: ex?.sector_industria || null,
+        areas_de_interes: ex?.areas_de_interes || null,
+        ofrece_mentoria: ex?.ofrece_mentoria || false,
+        ofrece_empleo: ex?.ofrece_empleo || false,
+        ofrece_pasantia: ex?.ofrece_pasantia || false,
+        ofrece_proyecto: ex?.ofrece_proyecto || false,
+        ofrece_donacion_dinero: ex?.ofrece_donacion_dinero || false,
+        score_match: 0,
+        created_at: item.created_at || new Date().toISOString(),
+        total_count: count || 0
+      }
     }) as ExalumnoDirectorio[]
 
     return { data: mapped, total: count || 0, error: null }

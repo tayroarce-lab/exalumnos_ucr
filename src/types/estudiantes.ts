@@ -28,7 +28,14 @@ export interface EstudianteDirectorio {
   busca_pasantia: boolean;
   areas_de_interes: string[];
   activo?: boolean;
+  // Intereses humanos / vida fuera del aula
+  deportes?: string[] | null;
+  musica?: string[] | null;
+  hobbies?: string[] | null;
+  idiomas?: string[] | null;
+  actividades_extracurriculares?: string[] | null;
 }
+
 
 export interface FiltrosDirectorio {
   carrera: string[];
