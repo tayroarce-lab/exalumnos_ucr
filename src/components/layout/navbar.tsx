@@ -88,7 +88,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
   // Dashboard de inicio según rol
   const dashboardHref = isAdmin ? '/admin' : isStudent ? '/student-dashboard' : '/dashboard'
 
-  // Configuración de estilo y botones por contexto
+  // Configuración de estilo y botones por contexto (Exalumno por defecto)
   let config = {
     bgClass: 'bg-[#F34B26] text-white shadow-md border-b border-white/10',
     linkHoverClass: 'hover:bg-white/10 hover:text-white',
@@ -101,7 +101,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
     userCircleBg: 'bg-white/20 text-white',
     menuItems: [
       { name: 'Inicio', href: dashboardHref },
-      { name: 'Directorios', href: '/network' },
+      { name: 'Directorios', href: '/directorio/estudiantes' },
       { name: 'Donaciones', href: '/donations' },
       { name: 'Mentorías', href: '/mentorships' },
       { name: 'Eventos', href: '/events' },
