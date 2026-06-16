@@ -22,6 +22,9 @@ export async function crearPosicion(data: CrearPosicionInput) {
   const supabase = await createClient()
   const { error: userError, data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('No autenticado')
+  if (user.user_metadata?.rol === 'admin' || user.user_metadata?.tipo === 'admin') {
+    throw new Error('Acceso denegado: Los administradores no pueden crear posiciones')
+  }
 
   if (user.user_metadata?.rol === 'estudiante') {
     throw new Error('Los estudiantes no tienen permiso para crear posiciones')

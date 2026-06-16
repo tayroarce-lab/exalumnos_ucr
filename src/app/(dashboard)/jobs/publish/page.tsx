@@ -36,12 +36,20 @@ const MAX_RESP = 10
 
 export default function PublishJobPage() {
   const router = useRouter()
+  const { user } = useProfile()
   const [step, setStep] = useState(1)
   const [isPublishing, setIsPublishing] = useState(false)
   const [isPublished, setIsPublished] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
   const { user } = useProfile()
   const isStudent = user?.user_metadata?.rol === 'estudiante'
+
+  React.useEffect(() => {
+    const isAdmin = user?.user_metadata?.rol === 'admin' || user?.user_metadata?.tipo === 'admin'
+    if (isAdmin) {
+      router.replace('/jobs')
+    }
+  }, [user, router])
 
   // Datos del formulario alineados con PosicionFormValues (Zod Schema)
   const [formData, setFormData] = useState<PosicionFormValues>({
