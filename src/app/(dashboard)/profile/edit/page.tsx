@@ -20,6 +20,7 @@ import {
   CARRERA_TO_ESCUELA,
 } from '@/constants/catalogs'
 import { useProfile } from '@/contexts/ProfileContext'
+import StudentProfileEdit from '@/components/forms/StudentProfileEdit'
 
 // Barra de progreso dinámica sin estilos inline en JSX
 function ProgressFill({ value, colorClass = 'bg-institutional' }: { value: number; colorClass?: string }) {
@@ -815,6 +816,25 @@ export default function ProfileEditPage() {
     )
   }
 
+  // --- RENDEREADO EXCLUSIVO PARA ESTUDIANTES ---
+  if (isStudentRole) {
+    return (
+      <div className="py-8 px-6 lg:px-10">
+        <div className="max-w-2xl mx-auto space-y-6">
+          <div className="pt-2 space-y-1">
+            <Link href="/profile" className="inline-flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-institutional transition-colors uppercase tracking-wider mb-3">
+              <ArrowLeft className="w-4 h-4" /> Volver al perfil
+            </Link>
+            <h1 className="text-4xl font-extrabold uppercase font-display text-slate-900 tracking-wide">Completar Perfil</h1>
+            <p className="text-sm text-slate-600 font-medium">Actualiza la información de tu proyecto para conectar con mentores y oportunidades.</p>
+          </div>
+          <StudentProfileEdit />
+        </div>
+      </div>
+    )
+  }
+
+  // --- RENDEREADO PARA EXALUMNOS Y ADMINS ---
   return (
     <div className="py-8 px-6 lg:px-10">
       <div className="max-w-2xl mx-auto space-y-6">
