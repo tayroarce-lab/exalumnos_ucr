@@ -139,7 +139,7 @@ export async function eliminarPerfilLogico(userId: string): Promise<RespuestaPer
   }
 
   // Llamar a la función SQL de borrado lógico (SECURITY DEFINER en la migración 15)
-  const { error } = await supabase.rpc('eliminar_perfil_logico', {
+  const { error } = await supabase.rpc('eliminar_perfil_logico' as any, {
     p_user_id: userId
   });
 
@@ -181,7 +181,7 @@ export async function eliminarPerfilLogicoAdmin(
     return { exito: false, mensaje: 'No se puede eliminar lógicamente a otro administrador por esta vía' };
   }
 
-  const { error } = await adminClient.rpc('eliminar_perfil_logico', {
+  const { error } = await adminClient.rpc('eliminar_perfil_logico' as any, {
     p_user_id: targetUserId
   });
 
@@ -203,7 +203,7 @@ export async function eliminarPerfilLogicoAdmin(
 export async function restaurarPerfilAdmin(userId: string): Promise<RespuestaPerfil> {
   const adminClient = createAdminClient();
 
-  const { error } = await adminClient.rpc('restaurar_registro', {
+  const { error } = await adminClient.rpc('restaurar_registro' as any, {
     p_table_name: 'users',
     p_record_id: userId
   });
