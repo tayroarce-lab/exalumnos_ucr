@@ -87,11 +87,22 @@ h1, h2, h3, h4, h5, h6 {
 /* -------------------------------------------------------
    Gradiente estático del banner decorativo del Dashboard
    Se usa como clase para evitar estilos inline en JSX.
-------------------------------------------------------- */
+   ------------------------------------------------------- */
 .dashboard-banner-overlay {
   background: linear-gradient(
     135deg,
-    rgba(255, 255, 255, 0.15) 0%,
+    rgba(255, 255, 255, 0.2) 0%,
     rgba(255, 255, 255, 0.05) 100%
   );
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.dashboard-card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.dashboard-card-hover:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 12px 30px -10px rgba(243, 75, 38, 0.15);
+  border-color: rgba(243, 75, 38, 0.25);
 }

@@ -94,15 +94,17 @@ export default function LoginPage() {
         {/* Panel Izquierdo — Decorativo */}
         <div className="login-left">
           <div className="login-logo-container">
-            <Image
-              src={logoUCR}
-              alt="Logo Alumni UCR"
-              width={320}
-              height={105}
-              className="login-brand-logo"
-              style={{ objectFit: 'contain' }}
-              priority
-            />
+            <Link href="/">
+              <Image
+                src={logoUCR}
+                alt="Logo Alumni UCR"
+                width={320}
+                height={105}
+                className="login-brand-logo"
+                style={{ objectFit: 'contain', cursor: 'pointer' }}
+                priority
+              />
+            </Link>
           </div>
           
           <div className="login-hero-text" style={{ marginTop: '1.5rem' }}>
@@ -139,6 +141,19 @@ export default function LoginPage() {
         {/* Panel Derecho — Formulario */}
         <div className="login-right">
           <div className="login-form-header">
+            {/* Mobile Logo (visible only on mobile via CSS or inline styles) */}
+            <div className="md:hidden flex justify-center mb-6">
+              <Link href="/" style={{ display: 'block' }}>
+                <Image
+                  src={logoUCR}
+                  alt="Logo Alumni UCR"
+                  width={220}
+                  height={72}
+                  className="object-contain cursor-pointer"
+                  priority
+                />
+              </Link>
+            </div>
             <h1>Iniciar Sesión</h1>
             <p className="login-subtitle">
               Ingresa tus credenciales para acceder a la plataforma

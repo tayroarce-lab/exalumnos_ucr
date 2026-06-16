@@ -58,13 +58,13 @@ export async function getSignedUrlAction(bucket: 'comprobantes' | 'avatars', pat
     allowed = true;
   } else if (bucket === 'comprobantes') {
     // Validar si es el exalumno que donó, o el estudiante que recibe
-    const { data: donacion } = await adminClient
-      .from('donaciones')
-      .select('alumni_id').is('deleted_at', null)
+    const { data: dbData, error: dbError } = await supabase
+      .from('donations')
+      .select('user_id').is('deleted_at', null)
       .eq('comprobante_url', path)
       .single();
       
-    if (donacion && donacion.alumni_id === user.id) {
+    if (dbData && dbData.user_id === user.id) {
       allowed = true;
     }
   } else if (bucket === 'avatars') {

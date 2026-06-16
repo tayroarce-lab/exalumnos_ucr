@@ -10,7 +10,7 @@ interface UserRecord {
   id: string;
   nombre: string;
   email: string;
-  tipo: 'exalumno' | 'estudiante' | 'admin';
+  rol: 'exalumno' | 'estudiante' | 'admin';
   activo: boolean;
   sede?: string | null;
   carrera?: string | null;
@@ -19,10 +19,9 @@ interface UserRecord {
 
 interface UsersTableProps {
   initialUsers: UserRecord[];
-  onRefresh: () => void;
 }
 
-export function UsersTable({ initialUsers, onRefresh }: UsersTableProps) {
+export function UsersTable({ initialUsers }: UsersTableProps) {
   const [users, setUsers] = useState<UserRecord[]>(initialUsers);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'inactive'>('all');
@@ -65,23 +64,23 @@ export function UsersTable({ initialUsers, onRefresh }: UsersTableProps) {
     }
   };
 
-  // Determinar la clase de la píldora de tipo de usuario
-  const getTypeBadgeClass = (tipo: string) => {
+  // Determinar la clase de la píldora de rol de usuario
+  const getTypeBadgeClass = (rol: string) => {
     const map: Record<string, string> = {
       exalumno: 'exalumno',
       estudiante: 'estudiante',
       admin: 'admin',
     };
-    return `users-type-badge ${map[tipo] || ''}`;
+    return `users-type-badge ${map[rol] || ''}`;
   };
 
-  const getTypeLabel = (tipo: string) => {
+  const getTypeLabel = (rol: string) => {
     const map: Record<string, string> = {
       exalumno: 'Exalumno',
       estudiante: 'Estudiante',
       admin: 'Admin',
     };
-    return map[tipo] || tipo;
+    return map[rol] || rol;
   };
 
   return (
@@ -99,8 +98,10 @@ export function UsersTable({ initialUsers, onRefresh }: UsersTableProps) {
           />
         </div>
         <div className="users-filter-group">
-          <label className="users-filter-label">Estado</label>
+          <label htmlFor="filterStatus" className="users-filter-label">Estado</label>
           <select
+            id="filterStatus"
+            title="Estado"
             className="users-filter-select"
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value as any)}
@@ -137,11 +138,7 @@ export function UsersTable({ initialUsers, onRefresh }: UsersTableProps) {
                   <td>
                     <div className="admin-table-user">
                       <div
-                        className="admin-table-avatar"
-                        style={{
-                          background: user.tipo === 'exalumno' ? '#eff6ff' : '#f0fdf4',
-                          color: user.tipo === 'exalumno' ? '#3b82f6' : '#16a34a',
-                        }}
+                        className={`admin-table-avatar ${user.rol === 'exalumno' ? 'exalumno' : 'estudiante'}`}
                       >
                         {(user.nombre || user.email || 'U').charAt(0).toUpperCase()}
                       </div>
@@ -152,21 +149,21 @@ export function UsersTable({ initialUsers, onRefresh }: UsersTableProps) {
                     </div>
                   </td>
                   <td>
-                    <span className={getTypeBadgeClass(user.tipo)}>
-                      {getTypeLabel(user.tipo)}
+                    <span className={getTypeBadgeClass(user.rol)}>
+                      {getTypeLabel(user.rol)}
                     </span>
                   </td>
-                  <td style={{ fontSize: '13px', color: '#64748b' }}>
+                  <td className="users-table-cell-sub">
                     {user.carrera && <div>{user.carrera}</div>}
-                    {user.sede && <div style={{ color: '#94a3b8', fontSize: '12px' }}>{user.sede}</div>}
-                    {!user.carrera && !user.sede && <span style={{ color: '#cbd5e1' }}>—</span>}
+                    {user.sede && <div className="users-table-cell-sub-light">{user.sede}</div>}
+                    {!user.carrera && !user.sede && <span className="users-table-cell-empty">—</span>}
                   </td>
                   <td>
                     <span className={user.activo ? 'users-status-active' : 'users-status-inactive'}>
                       {user.activo ? 'Activo' : 'Suspendido'}
                     </span>
                   </td>
-                  <td style={{ fontSize: '13px', color: '#64748b' }}>
+                  <td className="users-table-cell-sub">
                     {new Date(user.created_at).toLocaleDateString('es-CR')}
                   </td>
                   <td>
