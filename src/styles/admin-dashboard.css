@@ -3,51 +3,61 @@
 .admin-layout {
   display: flex;
   min-height: 100vh;
-  background-color: #F0F4F8;
-  font-family: 'Inter', system-ui, sans-serif;
+  background-color: #F8FAFC; /* Modern, light clean slate background */
 }
 
 .admin-main-content {
   flex: 1;
   display: flex;
   flex-direction: column;
-  margin-left: 0;
   min-height: 100vh;
   width: 100%;
+  transition: all 0.3s ease;
 }
 
 .admin-page-container {
-  padding: 32px;
+  padding: 40px 32px;
   flex: 1;
   max-width: 1400px;
   margin: 0 auto;
   width: 100%;
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .admin-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 32px;
+  margin-bottom: 36px;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .admin-header h1 {
-  font-size: 28px;
-  font-weight: 700;
+  font-size: 30px;
+  font-weight: 800;
   color: #0A2540;
-  margin: 0 0 8px 0;
+  margin: 0 0 6px 0;
+  letter-spacing: -0.02em;
 }
 
 .admin-header p {
-  color: #64748b;
+  color: #64748B;
   font-size: 15px;
   margin: 0;
+  font-weight: 500;
 }
 
 .admin-header-actions {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .admin-date-picker-wrapper {
@@ -58,14 +68,15 @@
 
 .admin-date-picker-icon {
   position: absolute;
-  left: 12px;
-  color: #64748b;
+  left: 14px;
+  color: #64748B;
   pointer-events: none;
+  transition: color 0.2s ease;
 }
 
 .admin-date-select {
-  padding: 10px 36px 10px 40px;
-  border-radius: 9999px; /* Pill shape */
+  padding: 10px 36px 10px 42px;
+  border-radius: 12px; /* Smoother corner instead of pill for professional look */
   border: 1px solid #E2E8F0;
   background-color: #FFFFFF;
   color: #0A2540;
@@ -74,13 +85,18 @@
   appearance: none;
   cursor: pointer;
   outline: none;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  transition: border-color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  transition: all 0.2s ease;
+}
+
+.admin-date-select:hover {
+  border-color: #CBD5E1;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
 }
 
 .admin-date-select:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  border-color: #0A2540;
+  box-shadow: 0 0 0 3px rgba(10, 37, 64, 0.1);
 }
 
 .admin-export-btn {
@@ -90,26 +106,30 @@
   padding: 10px 20px;
   background-color: #0A2540;
   color: #FFFFFF;
-  border-radius: 9999px; /* Pill shape */
+  border-radius: 12px;
   font-size: 14px;
   font-weight: 600;
   border: none;
   cursor: pointer;
-  transition: background-color 0.2s, transform 0.1s;
-  box-shadow: 0 4px 6px -1px rgba(10, 37, 64, 0.2);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 12px rgba(10, 37, 64, 0.15);
 }
 
 .admin-export-btn:hover {
-  background-color: #0f3458;
+  background-color: #001E3D;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(10, 37, 64, 0.25);
 }
 
 .admin-export-btn:active {
-  transform: translateY(1px);
+  transform: translateY(0);
 }
 
 .admin-export-btn:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .admin-loading-state,
@@ -118,30 +138,33 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 300px;
-  background: #ffffff;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  color: #64748b;
+  height: 320px;
+  background: #FFFFFF;
+  border-radius: 16px;
+  border: 1px solid #E2E8F0;
+  color: #64748B;
   gap: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
 }
 
 .admin-error-state {
-  color: #ef4444;
-  background: #fef2f2;
-  border-color: #fca5a5;
+  color: #EF4444;
+  background: #FEF2F2;
+  border-color: #FCA5A5;
 }
 
 .admin-dashboard-content {
   background: transparent;
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 36px;
 }
 
 .admin-last-updated {
   text-align: center;
   font-size: 13px;
-  color: #94a3b8;
+  color: #94A3B8;
   margin-top: 24px;
+  font-weight: 500;
 }
+

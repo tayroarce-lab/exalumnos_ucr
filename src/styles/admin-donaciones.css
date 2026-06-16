@@ -6,37 +6,42 @@
 }
 
 .donations-header h1 {
-  font-size: 28px;
-  font-weight: 700;
+  font-size: 30px;
+  font-weight: 800;
   color: #0A2540;
-  margin: 0 0 8px 0;
+  margin: 0 0 6px 0;
+  letter-spacing: -0.02em;
 }
 
 .donations-header p {
-  color: #64748b;
+  color: #64748B;
   font-size: 15px;
   margin: 0;
+  font-weight: 500;
 }
 
 /* ── Tabs de navegación ── */
 .donations-tabs {
   display: flex;
-  gap: 4px;
+  gap: 8px;
   margin-bottom: 32px;
   border-bottom: 2px solid #E2E8F0;
+  padding-bottom: 2px;
 }
 
 .donations-tab-btn {
-  padding: 12px 20px;
+  padding: 12px 24px;
   font-size: 14px;
-  font-weight: 600;
-  color: #64748b;
+  font-weight: 700;
+  color: #64748B;
   background: transparent;
   border: none;
   border-bottom: 2px solid transparent;
-  margin-bottom: -2px;
+  margin-bottom: -4px;
   cursor: pointer;
-  transition: color 0.2s, border-color 0.2s;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
 }
 
 .donations-tab-btn:hover {
@@ -45,25 +50,26 @@
 
 .donations-tab-btn.active {
   color: #0A2540;
-  border-bottom-color: #0A2540;
+  border-bottom: 2px solid #0A2540;
 }
 
 .donations-tab-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #E2E8F0;
-  color: #475569;
+  background: #F1F5F9;
+  color: #64748B;
   border-radius: 9999px;
   font-size: 11px;
   font-weight: 700;
-  padding: 2px 7px;
+  padding: 2px 8px;
   margin-left: 8px;
+  transition: all 0.2s ease;
 }
 
 .donations-tab-btn.active .donations-tab-badge {
   background: #0A2540;
-  color: #ffffff;
+  color: #FFFFFF;
 }
 
 /* ── Estado de carga ── */
@@ -72,9 +78,11 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 200px;
-  color: #94a3b8;
+  height: 220px;
+  color: #94A3B8;
   gap: 12px;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 /* ── Sección de tabla pendientes ── */
@@ -83,6 +91,7 @@
   font-weight: 700;
   color: #0A2540;
   margin: 0 0 24px 0;
+  letter-spacing: -0.01em;
 }
 
 .donations-empty-state {
@@ -90,24 +99,27 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 160px;
-  background: #f8fafc;
-  border-radius: 12px;
-  border: 1px dashed #CBD5E1;
-  color: #94a3b8;
+  height: 200px;
+  background: #F8FAFC;
+  border-radius: 16px;
+  border: 2px dashed #E2E8F0;
+  color: #94A3B8;
   font-size: 14px;
+  font-weight: 500;
 }
 
 /* ── Filtros de fechas ── */
 .donations-filters-bar {
   display: flex;
   align-items: flex-end;
-  gap: 16px;
+  gap: 18px;
   background: #FFFFFF;
-  padding: 20px;
-  border-radius: 12px;
+  padding: 24px;
+  border-radius: 16px;
   border: 1px solid #E2E8F0;
   margin-bottom: 24px;
+  flex-wrap: wrap;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.01), 0 4px 12px rgba(0, 0, 0, 0.02);
 }
 
 .donations-filter-group {
@@ -117,43 +129,48 @@
 }
 
 .donations-filter-label {
-  font-size: 12px;
-  font-weight: 600;
-  color: #64748b;
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748B;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
 }
 
 .donations-filter-input {
-  padding: 8px 12px;
+  padding: 10px 14px;
   border: 1px solid #E2E8F0;
-  border-radius: 8px;
+  border-radius: 12px;
   font-size: 14px;
   color: #0A2540;
-  background: #f8fafc;
+  background: #F8FAFC;
   outline: none;
-  transition: border-color 0.2s;
+  transition: all 0.2s ease;
+  font-weight: 500;
 }
 
 .donations-filter-input:focus {
-  border-color: #3b82f6;
-  background: #fff;
+  border-color: #0A2540;
+  background: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(10, 37, 64, 0.06);
 }
 
 .donations-filter-btn {
-  padding: 9px 20px;
+  padding: 11px 24px;
   background: #0A2540;
-  color: #fff;
+  color: #FFFFFF;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 12px rgba(10, 37, 64, 0.12);
 }
 
 .donations-filter-btn:hover {
-  background: #0f3458;
+  background: #001E3D;
+  transform: translateY(-0.5px);
+  box-shadow: 0 6px 16px rgba(10, 37, 64, 0.2);
 }
 
 /* ── Totales de historial ── */
@@ -161,30 +178,33 @@
   display: flex;
   gap: 24px;
   margin-bottom: 24px;
+  flex-wrap: wrap;
 }
 
 .donations-total-card {
-  background: #ecfdf5;
-  border: 1px solid #a7f3d0;
-  border-radius: 12px;
-  padding: 16px 24px;
+  background: #ECFDF5;
+  border: 1px solid #A7F3D0;
+  border-radius: 16px;
+  padding: 20px 28px;
   display: flex;
   flex-direction: column;
   gap: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.01), 0 4px 12px rgba(16, 185, 129, 0.03);
 }
 
 .donations-total-label {
-  font-size: 12px;
-  font-weight: 600;
-  color: #059669;
+  font-size: 11px;
+  font-weight: 700;
+  color: #047857;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
 }
 
 .donations-total-value {
-  font-size: 22px;
-  font-weight: 700;
-  color: #065f46;
+  font-size: 26px;
+  font-weight: 800;
+  color: #065F46;
+  letter-spacing: -0.02em;
 }
 
 /* ── Estado de overdue (alerta +24h) ── */
@@ -192,12 +212,13 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: #dc2626;
+  color: #B91C1C;
   font-size: 12px;
   font-weight: 700;
-  background: #fef2f2;
-  padding: 4px 8px;
+  background: #FEF2F2;
+  padding: 5px 12px;
   border-radius: 9999px;
+  border: 1px solid #FEE2E2;
 }
 
 .donations-status-pending {
@@ -206,9 +227,10 @@
   padding: 4px 12px;
   border-radius: 9999px;
   font-size: 12px;
-  font-weight: 600;
-  background: #fff7ed;
-  color: #ea580c;
+  font-weight: 700;
+  background: #FFF7ED;
+  color: #C2410C;
+  border: 1px solid #FFEDD5;
 }
 
 .donations-status-confirmed {
@@ -217,9 +239,10 @@
   padding: 4px 12px;
   border-radius: 9999px;
   font-size: 12px;
-  font-weight: 600;
-  background: #ecfdf5;
-  color: #059669;
+  font-weight: 700;
+  background: #ECFDF5;
+  color: #047857;
+  border: 1px solid #D1FAE5;
 }
 
 .donations-status-rejected {
@@ -228,55 +251,61 @@
   padding: 4px 12px;
   border-radius: 9999px;
   font-size: 12px;
-  font-weight: 600;
-  background: #fef2f2;
-  color: #dc2626;
+  font-weight: 700;
+  background: #FEF2F2;
+  color: #B91C1C;
+  border: 1px solid #FEE2E2;
 }
 
 /* ── Botón revisar ── */
 .donations-review-btn {
   padding: 6px 16px;
-  background: transparent;
-  border: 1px solid #CBD5E1;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
   border-radius: 8px;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 650;
   color: #475569;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
 }
 
 .donations-review-btn:hover {
   background: #0A2540;
   border-color: #0A2540;
-  color: #fff;
+  color: #FFFFFF;
+  transform: translateY(-0.5px);
 }
 
 /* ── Enlace de comprobante ── */
 .donations-comprobante-link {
-  color: #3b82f6;
+  color: #2563EB;
   text-decoration: none;
-  font-weight: 500;
+  font-weight: 600;
   font-size: 13px;
   transition: color 0.2s;
 }
 
 .donations-comprobante-link:hover {
-  color: #1d4ed8;
+  color: #1D4ED8;
   text-decoration: underline;
 }
 
 /* ── Notas de rechazo ── */
 .donations-rejection-reason {
   font-size: 12px;
-  color: #64748b;
+  color: #64748B;
   margin-top: 4px;
   font-style: italic;
+  font-weight: 500;
 }
 
 /* ── Cantidad de registros ── */
 .donations-record-count {
   font-size: 13px;
-  color: #94a3b8;
+  color: #94A3B8;
   margin-bottom: 16px;
+  font-weight: 500;
 }
+

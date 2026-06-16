@@ -3,6 +3,7 @@
 import React from 'react';
 import { EstudianteDirectorio } from '@/types/estudiantes';
 import GrillaEstudiantes from './GrillaEstudiantes';
+import { getAvatarUrl } from '@/lib/utils';
 
 interface Props {
   estudiante: EstudianteDirectorio;
