@@ -7,6 +7,7 @@ import {
   Users, Clock, MapPin, CheckCircle2, AlertCircle, Eye
 } from 'lucide-react'
 import { obtenerMisPosiciones, actualizarEstadoPosicion, eliminarPosicionLogica } from '@/actions/positions'
+import { useProfile } from '@/contexts/ProfileContext'
 import Card from '@/components/ui/card'
 import Button from '@/components/ui/button'
 
@@ -31,6 +32,8 @@ export default function MisPosicionesPage() {
   const [accionando, setAccionando] = useState<string | null>(null)
   const [confirmarEliminar, setConfirmarEliminar] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const { user } = useProfile()
+  const isStudent = user?.user_metadata?.rol === 'estudiante'
 
   const cargarPosiciones = useCallback(async () => {
     setCargando(true)
@@ -90,12 +93,14 @@ export default function MisPosicionesPage() {
               Gestiona tus empleos y pasantías publicadas en la plataforma.
             </p>
           </div>
-          <Link href="/jobs/publish">
-            <Button className="flex items-center gap-2 shrink-0">
-              <Plus className="w-4 h-4" />
-              Nueva Publicación
-            </Button>
-          </Link>
+          {!isStudent && (
+            <Link href="/jobs/publish">
+              <Button className="flex items-center gap-2 shrink-0">
+                <Plus className="w-4 h-4" />
+                Nueva Publicación
+              </Button>
+            </Link>
+          )}
         </div>
 
         {/* Stats */}
@@ -133,14 +138,16 @@ export default function MisPosicionesPage() {
             </div>
             <h3 className="text-base font-bold text-slate-700 mb-1">No tienes publicaciones aún</h3>
             <p className="text-sm text-slate-400 mb-6 max-w-xs">
-              Crea tu primera oferta de empleo o pasantía para conectar con estudiantes UCR.
+              {isStudent ? 'No tienes permiso para crear publicaciones.' : 'Crea tu primera oferta de empleo o pasantía para conectar con estudiantes UCR.'}
             </p>
-            <Link href="/jobs/publish">
-              <Button className="flex items-center gap-2">
-                <Plus className="w-4 h-4" />
-                Publicar Ahora
-              </Button>
-            </Link>
+            {!isStudent && (
+              <Link href="/jobs/publish">
+                <Button className="flex items-center gap-2">
+                  <Plus className="w-4 h-4" />
+                  Publicar Ahora
+                </Button>
+              </Link>
+            )}
           </div>
         ) : (
           <div className="space-y-4">

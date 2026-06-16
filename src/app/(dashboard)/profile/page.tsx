@@ -72,12 +72,55 @@ export default function ProfilePage() {
   if (isAdmin) {
     return (
       <div className="py-8 px-6 lg:px-10">
+<<<<<<< HEAD
         <div className="max-w-3xl mx-auto space-y-6">
           {/* Header */}
           <div className="pt-2 space-y-1">
             <h1 className="text-4xl font-extrabold uppercase font-display text-slate-900 tracking-wide">Mi Perfil</h1>
             <p className="text-sm text-slate-600 font-medium">Gestiona tu información personal.</p>
           </div>
+=======
+      <div className="max-w-3xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="pt-2 space-y-1">
+          <h1 className="text-4xl font-extrabold uppercase font-display text-slate-900 tracking-wide">Mi Perfil</h1>
+          <p className="text-sm text-slate-600 font-medium">Gestiona tu información personal, académica y profesional.</p>
+        </div>
+
+        {/* Pestañas de Navegación */}
+        <div className="flex border-b border-slate-200 overflow-x-auto">
+        <button
+          onClick={() => setActiveTab('personal')}
+          className={`px-4 py-2.5 text-xs font-bold uppercase tracking-wider border-b-2 whitespace-nowrap transition-colors ${
+            activeTab === 'personal'
+              ? 'border-[#F34B26] text-[#F34B26]'
+              : 'border-transparent text-slate-400 hover:text-slate-600'
+          }`}
+        >
+          Información personal
+        </button>
+        <button
+          onClick={() => setActiveTab('academica')}
+          className={`px-4 py-2.5 text-xs font-bold uppercase tracking-wider border-b-2 whitespace-nowrap transition-colors ${
+            activeTab === 'academica'
+              ? 'border-[#F34B26] text-[#F34B26]'
+              : 'border-transparent text-slate-400 hover:text-slate-600'
+          }`}
+        >
+          Académica
+        </button>
+        <button
+          onClick={() => setActiveTab('profesional')}
+          className={`px-4 py-2.5 text-xs font-bold uppercase tracking-wider border-b-2 whitespace-nowrap transition-colors ${
+            activeTab === 'profesional'
+              ? 'border-[#F34B26] text-[#F34B26]'
+              : 'border-transparent text-slate-400 hover:text-slate-600'
+          }`}
+        >
+          Profesional
+        </button>
+        </div>
+>>>>>>> 98348902efc77a6241f34bb8f970a96c6592b08c
 
           <Card hoverEffect={false} className="space-y-6 bg-white border border-slate-200 shadow-sm rounded-2xl p-6">
             {/* Cabecera */}
@@ -236,25 +279,88 @@ export default function ProfilePage() {
                     <p className="text-[10px] text-slate-400 font-bold uppercase">{edu.year}</p>
                   </div>
                 </div>
+<<<<<<< HEAD
               )) : (
                 <p className="text-xs text-slate-500 font-medium">No hay información académica registrada.</p>
               )}
+=======
+                <Link href="/profile/edit">
+                  <Button variant="primary" className="bg-brand-blue hover:bg-brand-blue/90 font-bold uppercase tracking-wider text-xs px-6 py-2.5">
+                    Editar perfil
+                  </Button>
+                </Link>
+              </div>
 
-              <div className="space-y-2 pt-4 border-t border-slate-100">
-                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Habilidades</h4>
-                {skills.length > 0 ? (
-                  <div className="flex flex-wrap gap-2">
-                    {skills.map((skill, idx) => (
-                      <span key={idx} className="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-semibold">{skill}</span>
-                    ))}
+              <div className="space-y-4 pt-4 border-t border-slate-100">
+                <div className="space-y-2">
+                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Redes sociales</h4>
+                  <div className="flex items-center gap-3">
+                    {linkedin && (
+                      <a href={linkedin.startsWith('http') ? linkedin : `https://${linkedin}`} target="_blank" rel="noopener noreferrer" title="LinkedIn" className="p-2.5 bg-slate-100 hover:bg-brand-blue hover:text-white text-slate-500 rounded-xl transition-all">
+                        <Linkedin className="w-4 h-4" />
+                      </a>
+                    )}
+                    {twitter && (
+                      <a href={twitter.startsWith('http') ? twitter : `https://${twitter}`} target="_blank" rel="noopener noreferrer" title="Twitter" className="p-2.5 bg-slate-100 hover:bg-brand-blue hover:text-white text-slate-500 rounded-xl transition-all">
+                        <Twitter className="w-4 h-4" />
+                      </a>
+                    )}
+                    {instagram && (
+                      <a href={instagram.startsWith('http') ? instagram : `https://${instagram}`} target="_blank" rel="noopener noreferrer" title="Instagram" className="p-2.5 bg-slate-100 hover:bg-brand-blue hover:text-white text-slate-500 rounded-xl transition-all">
+                        <Instagram className="w-4 h-4" />
+                      </a>
+                    )}
+                    {!linkedin && !twitter && !instagram && (
+                      <span className="text-xs text-slate-400 font-medium">No configurado</span>
+                    )}
                   </div>
-                ) : (
-                  <p className="text-xs text-slate-500 font-medium">No se han especificado habilidades.</p>
+                </div>
+>>>>>>> 98348902efc77a6241f34bb8f970a96c6592b08c
+
+                <div className="space-y-2 pt-4 border-t border-slate-100">
+                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Habilidades</h4>
+                  {skills.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {skills.map((skill, idx) => (
+                        <span key={idx} className="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-semibold">{skill}</span>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-slate-500 font-medium">No se han especificado habilidades.</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+<<<<<<< HEAD
+=======
+          {/* Pestaña: Información Académica */}
+          {activeTab === 'academica' && (
+            <div className="space-y-6">
+              <h3 className="font-display font-bold text-base text-slate-700 uppercase tracking-wider pb-2 border-b border-slate-100">
+                Historial Académico
+              </h3>
+              <div className="space-y-6">
+                {academic.length > 0 ? academic.map((edu, idx) => (
+                  <div key={idx} className="flex gap-4">
+                    <div className="p-3 bg-institutional/10 text-institutional border border-institutional/10 rounded-xl shrink-0">
+                      <GraduationCap className="w-6 h-6" />
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="text-sm font-bold text-slate-800 uppercase tracking-wide">{edu.degree}</h4>
+                      <p className="text-xs font-bold text-institutional">{edu.school}</p>
+                      <p className="text-xs text-slate-500 font-medium">{edu.year}</p>
+                    </div>
+                  </div>
+                )) : (
+                  <p className="text-xs text-slate-500 font-medium">No hay información académica registrada.</p>
                 )}
               </div>
             </div>
           )}
 
+>>>>>>> 98348902efc77a6241f34bb8f970a96c6592b08c
           {activeTab === 'profesional' && (
             <div className="space-y-6">
               <h3 className="font-display font-bold text-base text-slate-700 uppercase tracking-wider pb-2 border-b border-slate-100">

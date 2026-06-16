@@ -8,8 +8,10 @@
 //               promedio académico o situación socioeconómica.
 // =============================================================================
 
+import { useState } from 'react';
 import { BookOpen, MapPin, Tag, Handshake } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { getAvatarUrl } from '@/lib/utils';
 
 // ⚠️ TIPO PÚBLICO — Ausencia de beca/promedio/socioeconómico es intencional y obligatoria
 export interface EstudiantePublico {
@@ -64,6 +66,7 @@ function obtenerClaseAnchoBarra(porcentaje: number): string {
 // Componente de presentación pública del perfil de proyecto de un estudiante UCR.
 export function TarjetaEstudiante({ estudiante, isAdmin, alOfrecerApoyo }: PropsTarjetaEstudiante) {
   const router = useRouter();
+  const [imgError, setImgError] = useState(false);
   const { nombreCompleto, carrera, sede, fotoPerfil, proyecto, areasInteres, tiposApoyoBuscado } = estudiante;
   const { titulo, areaTematica, tipoProyecto, porcentajeAvance } = proyecto;
 
@@ -87,11 +90,12 @@ export function TarjetaEstudiante({ estudiante, isAdmin, alOfrecerApoyo }: Props
       {/* ── CABECERA: Avatar + Nombre + Carrera + Sede ── */}
       <div className="flex items-start gap-3 relative">
         <div className="relative flex-shrink-0">
-          {fotoPerfil ? (
+          {fotoPerfil && !imgError ? (
             <img
-              src={fotoPerfil}
+              src={getAvatarUrl(fotoPerfil, nombreCompleto) as string}
               alt={`Foto de ${nombreCompleto}`}
               className="w-12 h-12 rounded-full object-cover ring-2 ring-slate-600"
+              onError={() => setImgError(true)}
             />
           ) : (
             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center ring-2 ring-slate-600 flex-shrink-0">
