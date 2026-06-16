@@ -148,8 +148,14 @@ export async function getMyMatches() {
       resultado,
       iniciado_por,
       created_at,
-      exalumno:users!matches_exalumno_id_fkey(nombre, foto_url, carrera_principal_id, sector_industria, hobbies),
-      estudiante:users!matches_estudiante_id_fkey(nombre, foto_url, carrera_principal_id, proyecto_area_tematica, hobbies)
+      exalumno:users!matches_exalumno_id_fkey(
+        nombre, foto_url, carrera_principal_id, hobbies,
+        perfil_exalumno:exalumnos!exalumnos_user_id_fkey(sector_industria)
+      ),
+      estudiante:users!matches_estudiante_id_fkey(
+        nombre, foto_url, carrera_principal_id, hobbies,
+        perfil_estudiante:estudiantes!estudiantes_user_id_fkey(proyecto_area_tematica)
+      )
     `)
     .is('deleted_at', null)
     .or(`estudiante_id.eq.${user.id},exalumno_id.eq.${user.id}`)
@@ -160,7 +166,19 @@ export async function getMyMatches() {
     return { data: null, error: error.message };
   }
 
-  return { data, error: null };
+  const formattedData = data.map((m: any) => {
+    let ex = Array.isArray(m.exalumno) ? m.exalumno[0] : m.exalumno;
+    if (ex) {
+      ex.sector_industria = Array.isArray(ex.perfil_exalumno) ? ex.perfil_exalumno[0]?.sector_industria : ex.perfil_exalumno?.sector_industria;
+    }
+    let est = Array.isArray(m.estudiante) ? m.estudiante[0] : m.estudiante;
+    if (est) {
+      est.proyecto_area_tematica = Array.isArray(est.perfil_estudiante) ? est.perfil_estudiante[0]?.proyecto_area_tematica : est.perfil_estudiante?.proyecto_area_tematica;
+    }
+    return m;
+  });
+
+  return { data: formattedData, error: null };
 }
 
 export async function requestConnection(matchId: string) {
