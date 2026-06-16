@@ -101,7 +101,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
     userCircleBg: 'bg-white/20 text-white',
     menuItems: [
       { name: 'Inicio', href: dashboardHref },
-      { name: 'Directorios', href: '/network' },
+      { name: 'Directorios', href: '/directorio' },
       { name: 'Donaciones', href: '/donations' },
       { name: 'Mentorías', href: '/mentorships' },
       { name: 'Eventos', href: '/events' },
@@ -142,7 +142,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
       userCircleBg: 'bg-[#004C63]/10 text-slate-800',
       menuItems: [
         { name: 'Inicio', href: dashboardHref },
-        { name: 'Directorios', href: '/network' },
+        { name: 'Directorios', href: '/directorio' },
         { name: 'Mentorías', href: '/mentorships' },
         { name: 'Eventos', href: '/events' },
         { name: 'Empleos', href: '/jobs' }
