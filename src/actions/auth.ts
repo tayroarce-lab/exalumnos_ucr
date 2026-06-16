@@ -24,7 +24,7 @@ export async function registrarEstudiante(data: { email: string; password: strin
   })
 
   if (authError) throw new Error(authError.message)
-  
+
   if (authData.user) {
     // Intentar insertar en users por compatibilidad, aunque hay un trigger, el trigger inserta lo básico
     const { error: dbError } = await adminClient.from('users').insert({
@@ -35,7 +35,7 @@ export async function registrarEstudiante(data: { email: string; password: strin
       email_verified: false,
       activo: true
     })
-    
+
     // Ignoramos error 23505 (unique violation) por si ya existía un trigger en la BD que lo insertara
     if (dbError && dbError.code !== '23505') {
       console.error('Error insertando en public.users:', dbError)
@@ -54,9 +54,9 @@ export async function registrarEstudiante(data: { email: string; password: strin
   return { success: true }
 }
 
-export async function registrarExalumno(data: { 
-  email: string; 
-  password: string; 
+export async function registrarExalumno(data: {
+  email: string;
+  password: string;
   nombre: string;
   carreras: number[];
   anio_graduacion: number;
@@ -73,7 +73,7 @@ export async function registrarExalumno(data: {
   })
 
   if (authError) throw new Error(authError.message)
-  
+
   if (authData.user) {
     const { error: dbError } = await adminClient.from('users').insert({
       id: authData.user.id,
@@ -84,7 +84,7 @@ export async function registrarExalumno(data: {
       email_verified: false,
       activo: true
     })
-    
+
     if (dbError && dbError.code !== '23505') {
       console.error('Error insertando en public.users:', dbError)
     }
@@ -168,7 +168,7 @@ export async function cerrarSesion() {
   const { error } = await supabase.auth.signOut()
 
   if (error) throw new Error(error.message)
-  
+
   revalidatePath('/', 'layout')
   return { success: true }
 }
@@ -178,7 +178,7 @@ export async function solicitarRecuperacionContrasena(email: string) {
   const { error } = await supabase.auth.resetPasswordForEmail(email)
 
   if (error) throw new Error(error.message)
-  
+
   return { success: true }
 }
 
