@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import PanelFiltros from "./PanelFiltros";
 import GrillaEstudiantes from "./GrillaEstudiantes";
+import PaginacionMock from "./PaginacionMock";
 import { FiltrosDirectorio, EstudianteDirectorio } from "@/types/estudiantes";
 import { getEstudiantes } from "@/lib/api";
 import { buildQueryString } from "@/lib/url-utils";
@@ -11,20 +12,29 @@ interface DirectorioClientProps {
   estudiantesIniciales: EstudianteDirectorio[];
   totalInicial: number;
   filtrosIniciales: FiltrosDirectorio;
+  paginaInicial: number;
 }
 
 export default function DirectorioClient({ 
   estudiantesIniciales, 
   totalInicial,
-  filtrosIniciales
+  filtrosIniciales,
+  paginaInicial
 }: DirectorioClientProps) {
   const [filtros, setFiltros] = useState<FiltrosDirectorio>(filtrosIniciales);
+  const [pagina, setPagina] = useState(paginaInicial || 1);
 
   const [estudiantes, setEstudiantes] = useState<EstudianteDirectorio[]>(estudiantesIniciales);
   const [totalItems, setTotalItems] = useState(totalInicial);
   const [isPending, setIsPending] = useState(false);
   
   const isFirstRender = useRef(true);
+
+  // Manejar cambio de filtros (resetea a página 1)
+  const handleFiltrosChange = (nuevosFiltros: FiltrosDirectorio) => {
+    setFiltros(nuevosFiltros);
+    setPagina(1);
+  };
 
   useEffect(() => {
     if (isFirstRender.current) {
@@ -36,12 +46,13 @@ export default function DirectorioClient({
       setIsPending(true);
 
       // Actualizar URL silenciosamente sin recargar Server Component
-      const newUrl = `${window.location.pathname}${buildQueryString(filtros, "", 1)}`;
+      const newUrl = `${window.location.pathname}${buildQueryString(filtros, "", pagina)}`;
       window.history.replaceState(null, '', newUrl);
 
       try {
         const { estudiantes: data, total } = await getEstudiantes(filtros, {
-          limit: 100 // En la landing limitamos a 100 ya que no hay paginación abajo
+          page: pagina,
+          limit: 12
         });
         setEstudiantes(data);
         setTotalItems(total);
@@ -53,13 +64,15 @@ export default function DirectorioClient({
     }, 300);
 
     return () => clearTimeout(handler);
-  }, [filtros]);
+  }, [filtros, pagina]);
+
+  const totalPaginas = Math.ceil(totalItems / 12);
 
   return (
     <div className="flex flex-col lg:flex-row gap-6 items-start">
       {/* Panel Lateral */}
       <aside className="w-full lg:w-64 xl:w-72 flex-shrink-0">
-        <PanelFiltros filtros={filtros} onChange={setFiltros} />
+        <PanelFiltros filtros={filtros} onChange={handleFiltrosChange} />
       </aside>
 
       {/* Grilla principal */}
@@ -77,7 +90,15 @@ export default function DirectorioClient({
         <div className={`transition-opacity duration-300 ${isPending ? "opacity-50" : "opacity-100"}`}>
           <GrillaEstudiantes estudiantes={estudiantes} />
         </div>
+
+        {/* Paginación */}
+        <PaginacionMock 
+          paginaActual={pagina} 
+          totalPaginas={totalPaginas} 
+          onChange={setPagina} 
+        />
       </main>
     </div>
   );
 }
+

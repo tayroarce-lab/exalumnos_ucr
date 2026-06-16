@@ -11,8 +11,8 @@ export default async function DirectorioEstudiantesPage(
   }
 ) {
   const searchParams = await props.searchParams;
-  const { filtros } = parseSearchParams(searchParams);
-  const { estudiantes, total } = await getEstudiantes(filtros, { limit: 100 });
+  const { filtros, pagina } = parseSearchParams(searchParams);
+  const { estudiantes, total } = await getEstudiantes(filtros, { page: pagina, limit: 12 });
 
   return (
     <div className="min-h-screen relative bg-gradient-to-br from-[#E0F2FE] via-white to-[#FFEAD2]/70 py-10 px-4 sm:px-6 lg:px-8 font-sans text-slate-900 overflow-hidden">
@@ -41,6 +41,7 @@ export default async function DirectorioEstudiantesPage(
           estudiantesIniciales={estudiantes} 
           totalInicial={total} 
           filtrosIniciales={filtros}
+          paginaInicial={pagina}
         />
       </div>
     </div>

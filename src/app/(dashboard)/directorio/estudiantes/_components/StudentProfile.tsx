@@ -3,6 +3,8 @@
 import React from 'react';
 import { EstudianteDirectorio } from '@/types/estudiantes';
 import GrillaEstudiantes from './GrillaEstudiantes';
+import { getAvatarUrl } from '@/lib/utils';
+import Link from 'next/link';
 
 interface Props {
   estudiante: EstudianteDirectorio;
@@ -66,6 +68,19 @@ const IconMoney = () => (
   </svg>
 );
 
+const IconCheckCircle = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1A5B75" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" className="inline-block text-[#1A5B75]">
+    <polyline points="20 6 9 17 4 12"/>
+  </svg>
+);
+
+const IconCrossCircle = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#EF4444" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" className="inline-block text-red-500">
+    <line x1="18" y1="6" x2="6" y2="18"/>
+    <line x1="6" y1="6" x2="18" y2="18"/>
+  </svg>
+);
+
 export default function StudentProfile({ estudiante, estudiantesRelacionados }: Props) {
   const iniciales = estudiante.nombre.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
   const tecnicas = estudiante.habilidades_tecnicas ?? [];
@@ -91,336 +106,482 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
     })
   }, []);
 
+  const getTagsApoyo = () => {
+    const tags = [];
+    if (estudiante.busca_financiamiento) tags.push("Financiamiento");
+    if (estudiante.busca_mentoria) tags.push("Mentoría");
+    if (estudiante.busca_empleo) tags.push("Empleo");
+    if (estudiante.busca_pasantia) tags.push("Pasantía");
+    return tags;
+  };
+
+  // Simulación del progreso de compatibilidad (85% por defecto si no está definido)
+  const avance = estudiante.proyecto_porcentaje_avance || 85;
+
+  // Simulación del progreso del proyecto (68% por defecto si no está definido)
+  const progresoProyecto = estudiante.proyecto_porcentaje_avance || 68;
+
+  // Título, descripción y habilidades simuladas
+  const tituloProyecto = estudiante.proyecto_titulo || 'PROYECTO TFG ANA';
+  const descripcionProyecto = estudiante.proyecto_descripcion || 'Desarrollo de un modelo de gestión estratégica para startups de base tecnológica en zonas rurales, enfocado en la sostenibilidad financiera y el impacto social.';
+  const areaTematica = estudiante.proyecto_area_tematica || estudiante.proyecto_tipo || 'Tecnología';
+  const habilidadesTecnicasMock = tecnicas.length > 0 ? tecnicas : ['Análisis de Datos', 'Gestión de Proyectos', 'Estrategia Digital'];
+
+  // Intereses humanos con fallback de ejemplo
+  const deportesMock = (estudiante.deportes && estudiante.deportes.length > 0) ? estudiante.deportes : ['Fútbol', 'Ciclismo'];
+  const musicaMock = (estudiante.musica && estudiante.musica.length > 0) ? estudiante.musica : ['Guitarra', 'Pop Latino'];
+  const hobbiesMock = (estudiante.hobbies && estudiante.hobbies.length > 0) ? estudiante.hobbies : ['Fotografía', 'Lectura', 'Viajes'];
+  const idiomasMock = (estudiante.idiomas && estudiante.idiomas.length > 0) ? estudiante.idiomas : ['Español (Nativo)', 'Inglés (B2)'];
+
+  // Pasión combinada para el match
+  const pasionesMatch = [...deportesMock.slice(0,1), ...musicaMock.slice(0,1), ...hobbiesMock.slice(0,1)];
+
   return (
-    <div style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
+    <div className="font-sans text-[#003B4F] max-w-xl mx-auto pb-12">
 
-      {/* ── HERO ─────────────────────────────────────────────── */}
-      <div style={{ background: 'white', borderRadius: 16, padding: '28px 32px', marginBottom: 28, display: 'flex', alignItems: 'center', gap: 24, boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
-        {/* Avatar */}
-        <div style={{ position: 'relative', flexShrink: 0 }}>
-          <div style={{ width: 120, height: 120, borderRadius: 14, background: '#dce8f5', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #c8d8ea' }}>
-            {estudiante.foto_url
-              ? <img src={getAvatarUrl(estudiante.foto_url) as string} alt={estudiante.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              : <span style={{ fontSize: 36, fontWeight: 700, color: '#5a7fa0' }}>{iniciales}</span>
-            }
+      {/* ── SECCIÓN CENTRALIZADA CON AVATAR ────────────────── */}
+      <div className="flex flex-col items-center text-center mb-6">
+        <div className="relative mb-4">
+          {/* Anillo de Gradiente Fino */}
+          <div className="w-32 h-32 rounded-full p-1 bg-gradient-to-tr from-[#54BCEB] via-[#003B4F] to-[#E84F26] shadow-md">
+            <div className="w-full h-full rounded-full bg-white p-1 overflow-hidden flex items-center justify-center border-4 border-white shadow-inner">
+              {estudiante.foto_url ? (
+                <img src={getAvatarUrl(estudiante.foto_url) as string} alt={estudiante.nombre} className="w-full h-full object-cover rounded-full" />
+              ) : (
+                <span className="text-[#003B4F] font-black text-4xl">{iniciales}</span>
+              )}
+            </div>
           </div>
-          <div style={{ position: 'absolute', bottom: -6, right: -6, width: 28, height: 28, borderRadius: '50%', background: '#1e3a5f', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid white' }}>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          {/* Badge Circular bottom-right */}
+          <div className="absolute bottom-1 right-1 w-8 h-8 rounded-full bg-[#1A5B75] flex items-center justify-center border-2 border-white shadow-md">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
           </div>
         </div>
 
-        {/* Info */}
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 11, fontWeight: 600, color: '#1e7a4a', background: '#e8f5ee', border: '1px solid #a8d5be', borderRadius: 20, padding: '2px 10px', display: 'inline-block', marginBottom: 6 }}>Estudiante Activo</div>
-          <h1 style={{ fontSize: 30, fontWeight: 800, color: '#0f1e2e', margin: 0, lineHeight: 1.2 }}>{estudiante.nombre}</h1>
-          {estudiante.carrera && <p style={{ color: '#4a6a8a', fontSize: 15, margin: '4px 0 0' }}>{estudiante.carrera}</p>}
-          {estudiante.sede && <p style={{ color: '#7a96ae', fontSize: 13, margin: '3px 0 0' }}>📍 {estudiante.sede}</p>}
+        {/* Nombres y Subtítulos */}
+        <h1 className="text-3xl font-black text-[#003B4F] tracking-tight">{estudiante.nombre}</h1>
+        {estudiante.carrera && <p className="text-sm font-bold text-[#1F8BB6] mt-1">{estudiante.carrera}</p>}
+        {estudiante.sede && (
+          <p className="text-xs text-slate-500 font-semibold mt-1">
+            📍 Sede de {estudiante.sede}
+          </p>
+        )}
+      </div>
+
+      {/* ── CARD DE COMPATIBILIDAD ─────────────────────────── */}
+      <div className="bg-[#EAF5FA]/90 backdrop-blur-sm rounded-2xl p-5 border border-[#B3DCEE] shadow-sm mb-6">
+        <div className="flex justify-between items-center mb-3">
+          <span className="text-xs font-bold text-[#1A5B75] uppercase tracking-wider">Compatibilidad</span>
+          <span className="text-lg font-black text-[#1A5B75]">{avance}%</span>
+        </div>
+        {/* Barra de Progreso */}
+        <div className="w-full bg-[#E0F2FE] rounded-full h-2.5 overflow-hidden shadow-inner mb-4">
+          <div 
+            className="bg-[#1A5B75] h-2.5 rounded-full transition-all duration-700 ease-out" 
+            style={{ width: `${avance}%` }}
+          />
+        </div>
+        {/* Grid de Criterios */}
+        <div className="grid grid-cols-2 gap-y-2.5 gap-x-4 text-xs font-bold text-[#1A5B75] mb-4">
+          <div className="flex items-center gap-2">
+            <IconCheckCircle /> Carrera afín
+          </div>
+          <div className="flex items-center gap-2">
+            <IconCheckCircle /> Ubicación
+          </div>
+          <div className="flex items-center gap-2">
+            <IconCheckCircle /> Intereses comunes
+          </div>
+          <div className="flex items-center gap-2 text-red-500">
+            <IconCrossCircle /> Disponibilidad horaria
+          </div>
         </div>
 
-        {/* Botones */}
-        <div style={{ display: 'flex', gap: 10, flexShrink: 0 }}>
-          <button style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 22px', borderRadius: 10, background: '#1e3a5f', color: 'white', border: 'none', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
-            <IconMail /> Contactar
-          </button>
-          <button style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 22px', borderRadius: 10, background: 'white', color: '#1e3a5f', border: '1.5px solid #c5d5e5', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
-            <IconShare /> Compartir Perfil
-          </button>
+        {/* ── PASIONES HUMANAS EN EL MATCH ── */}
+        <div className="border-t border-[#B3DCEE]/60 pt-4">
+          <p className="text-[10px] font-black text-[#1A5B75] uppercase tracking-widest mb-3">Intereses Compartidos</p>
+          <div className="flex flex-wrap gap-2">
+            {pasionesMatch.map((p, i) => (
+              <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-[#54BCEB]/30 text-[#003B4F] text-[11px] font-bold shadow-sm">
+                {i === 0 ? '⚽' : i === 1 ? '🎵' : '📸'} {p}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* ── DOS COLUMNAS ─────────────────────────────────────── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 20 }}>
+      {/* ── BOTONES DE ACCIÓN ──────────────────────────────── */}
+      <div className="flex gap-4 w-full mb-6">
+        <button 
+          onClick={() => setShowMentoriaModal(true)}
+          className="w-1/2 inline-flex justify-center items-center gap-2 rounded-xl text-sm font-bold bg-[#B43B06] hover:bg-[#9E3405] text-white py-3.5 px-4 shadow transition-all duration-200 active:scale-95 cursor-pointer"
+        >
+          <IconMail /> Contactar
+        </button>
+        <button className="w-1/2 inline-flex justify-center items-center gap-2 rounded-xl text-sm font-bold bg-white border border-[#1A5B75]/20 hover:border-[#1A5B75]/40 text-[#1A5B75] py-3.5 px-4 shadow-sm transition-all duration-200 active:scale-95 cursor-pointer">
+          <IconShare /> Compartir Perfil
+        </button>
+      </div>
 
-        {/* ── IZQUIERDA ── */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-
-          {/* Proyecto */}
-          <div style={{ background: 'white', borderRadius: 14, padding: 24, boxShadow: '0 1px 3px rgba(0,0,0,0.07)', borderLeft: '4px solid #1e3a5f' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
-              <span style={{ fontSize: 10, fontWeight: 700, color: '#4a7aaa', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Proyecto de Graduación</span>
-              {estudiante.proyecto_area_tematica && (
-                <span style={{ fontSize: 11, fontWeight: 600, color: 'white', background: '#2a7abf', borderRadius: 20, padding: '3px 12px' }}>{estudiante.proyecto_area_tematica}</span>
-              )}
-            </div>
-            <h2 style={{ fontSize: 18, fontWeight: 700, color: '#0f1e2e', margin: '0 0 12px' }}>
-              {estudiante.proyecto_titulo ?? 'Sin título registrado'}
-            </h2>
-            {estudiante.proyecto_descripcion
-              ? <p style={{ color: '#4a6070', fontSize: 13.5, lineHeight: 1.7, margin: 0 }}>{estudiante.proyecto_descripcion}</p>
-              : <p style={{ color: '#9ab0c0', fontSize: 13, fontStyle: 'italic', margin: 0 }}>El estudiante no ha registrado una descripción aún.</p>
-            }
-            {typeof estudiante.proyecto_porcentaje_avance === 'number' && (
-              <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid #e8eef4' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: '#4a6070' }}>Progreso del Proyecto</span>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: '#1e3a5f' }}>{estudiante.proyecto_porcentaje_avance}%</span>
-                </div>
-                <div style={{ width: '100%', height: 8, background: '#dce8f4', borderRadius: 8 }}>
-                  <div style={{ width: `${estudiante.proyecto_porcentaje_avance}%`, height: '100%', background: '#1e3a5f', borderRadius: 8 }} />
-                </div>
-              </div>
-            )}
+      {/* ── CARD PROYECTO TFG ─────────────────────────────── */}
+      <div className="bg-white rounded-2xl p-6 border border-[#B3DCEE]/60 shadow-sm mb-6">
+        <div className="flex justify-between items-start gap-2 mb-3">
+          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Proyecto de Graduación</span>
+          <span className="text-[10px] font-bold text-[#1A5B75] bg-[#E0F2FE] px-2.5 py-1 rounded-full shadow-sm">
+            {areaTematica}
+          </span>
+        </div>
+        <h2 className="text-lg font-black text-[#B43B06] mb-3 uppercase">
+          {tituloProyecto}
+        </h2>
+        <p className="text-sm text-slate-600 leading-relaxed font-medium mb-5">
+          {descripcionProyecto}
+        </p>
+        
+        <div className="pt-4 border-t border-slate-100">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Progreso del Proyecto</span>
+            <span className="text-xs font-black text-[#1A5B75]">{progresoProyecto}%</span>
           </div>
-
-          {/* Sobre mí */}
-          {estudiante.sobre_mi && (
-            <div style={{ background: 'white', borderRadius: 14, padding: 24, boxShadow: '0 1px 3px rgba(0,0,0,0.07)' }}>
-              <p style={{ fontSize: 10, fontWeight: 700, color: '#4a7aaa', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 10 }}>Sobre mí</p>
-              <p style={{ color: '#4a6070', fontSize: 13.5, lineHeight: 1.7, margin: 0 }}>{estudiante.sobre_mi}</p>
-            </div>
-          )}
-
-          {/* Necesidades + Intereses */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-            {/* Oportunidades Laborales */}
-            <div style={{ background: 'white', borderRadius: 14, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.07)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-                <IconHand />
-                <span style={{ fontSize: 14, fontWeight: 700, color: '#0f1e2e' }}>Oportunidades Laborales</span>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {estudiante.busca_pasantia === true && (
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 12px', borderRadius: 20, border: '1.5px solid #c5d5e5', color: '#1e3a5f', fontSize: 12, fontWeight: 500, width: 'fit-content', background: 'white' }} aria-label="Disponible para prácticas">
-                    <IconDot /> Disponible para prácticas profesionales
-                  </span>
-                )}
-                {estudiante.busca_empleo && (
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 12px', borderRadius: 20, border: '1.5px solid #c5d5e5', color: '#1e3a5f', fontSize: 12, fontWeight: 500, width: 'fit-content', background: 'white' }} aria-label="Disponible para empleo">
-                    <IconMoney /> Disponible para empleo
-                  </span>
-                )}
-                {estudiante.busca_mentoria && (
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 12px', borderRadius: 20, border: '1.5px solid #c5d5e5', color: '#1e3a5f', fontSize: 12, fontWeight: 500, width: 'fit-content', background: 'white' }} aria-label="Disponible para mentorías">
-                    <IconBulb /> Disponible para mentorías futuras
-                  </span>
-                )}
-                {(!estudiante.busca_pasantia && !estudiante.busca_empleo && !estudiante.busca_mentoria) && (
-                  <span style={{ color: '#9ab0c0', fontSize: 12 }} aria-label="Sin preferencias laborales">
-                    Preferencias laborales no registradas
-                  </span>
-                )}
-              </div>
-            </div>
-
-            {/* Intereses */}
-            <div style={{ background: 'white', borderRadius: 14, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.07)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-                <IconBrain />
-                <span style={{ fontSize: 14, fontWeight: 700, color: '#0f1e2e' }}>Intereses</span>
-              </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                {blandas.length > 0
-                  ? blandas.map((b, i) => (
-                      <span key={i} style={{ padding: '5px 12px', borderRadius: 20, border: '1.5px solid #93c5e8', color: '#1a6090', fontSize: 12, fontWeight: 500, background: '#e8f3fb' }}>{b}</span>
-                    ))
-                  : <span style={{ color: '#9ab0c0', fontSize: 12 }}>No registrados.</span>
-                }
-              </div>
-            </div>
-            {/* Áreas de Interés Profesional */}
-            <div style={{ background: 'white', borderRadius: 14, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.07)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-                <IconBrain />
-                <span style={{ fontSize: 14, fontWeight: 700, color: '#0f1e2e' }}>Áreas de Interés Profesional</span>
-              </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                {estudiante.areas_de_interes && estudiante.areas_de_interes.length > 0
-                  ? estudiante.areas_de_interes.map((a, i) => (
-                      <span key={i} style={{ padding: '5px 12px', borderRadius: 20, border: '1.5px solid #93c5e8', color: '#1a6090', fontSize: 12, fontWeight: 500, background: '#e8f3fb' }}>{a}</span>
-                    ))
-                  : <span style={{ color: '#9ab0c0', fontSize: 12 }}>No especificado.</span>
-                }
-              </div>
-            </div>
+          <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden shadow-inner">
+            <div 
+              className="bg-[#1A5B75] h-2 rounded-full transition-all duration-700 ease-out" 
+              style={{ width: `${progresoProyecto}%` }}
+            />
           </div>
+        </div>
+      </div>
 
-          {/* Habilidades Técnicas — siempre visible */}
-          <div style={{ background: 'white', borderRadius: 14, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.07)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-              <IconMonitor />
-              <span style={{ fontSize: 14, fontWeight: 700, color: '#0f1e2e' }}>Habilidades Técnicas</span>
-            </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-              {tecnicas.length > 0
-                ? tecnicas.map((h, i) => (
-                    <span key={i} style={{ padding: '5px 14px', borderRadius: 20, border: '1.5px solid #c5d5e5', color: '#1e3a5f', fontSize: 12, fontWeight: 500, background: 'white' }}>{h}</span>
-                  ))
-                : <span style={{ color: '#9ab0c0', fontSize: 12 }}>No registradas aún.</span>
-              }
-            </div>
+      {/* ── COLUMNAS OPORTUNIDADES E INTERESES ──────────────── */}
+      <div className="grid grid-cols-2 gap-4 mb-6">
+        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 mb-2">
+            <span>👜</span> Oportunidades
+          </div>
+          <div className="text-xs font-semibold text-slate-400 italic">
+            {getTagsApoyo().length > 0 ? getTagsApoyo().join(', ') : 'Sin registrar'}
           </div>
         </div>
 
-        {/* ── DERECHA ── */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 mb-2">
+            <span>❤️</span> Intereses
+          </div>
+          <div className="text-xs font-semibold text-slate-400 italic">
+            {blandas.length > 0 ? blandas.join(', ') : 'Sin registrar'}
+          </div>
+        </div>
+      </div>
 
-          {/* Expediente Académico */}
-          <div style={{ borderRadius: 14, background: 'linear-gradient(145deg, #1e3a5f 0%, #0f2540 100%)', padding: 24, color: 'white', position: 'relative', overflow: 'hidden' }}>
-            {/* Watermark */}
-            <div style={{ position: 'absolute', bottom: -10, right: -10, opacity: 0.08, pointerEvents: 'none' }}>
-              <svg width="110" height="110" viewBox="0 0 24 24" fill="white"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-            </div>
-            <h2 style={{ fontSize: 16, fontWeight: 700, color: 'white', margin: '0 0 20px' }}>Expediente Académico</h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              {[
-                // TODO: [Fase Futura] Conectar 'Número de Carné' con campo real de la BD
-                { label: 'Número de Carné', value: 'No disponible' },
-                { label: 'Sede Universitaria', value: nd(estudiante.sede) },
-                // TODO: [Fase Futura] Conectar 'Nivel Actual' con campo real de la BD
-                { label: 'Nivel Actual', value: 'No disponible' },
-                ...(estudiante.anio_ingreso ? [{ label: 'Año de Ingreso', value: String(estudiante.anio_ingreso) }] : []),
-              ].map(({ label, value }) => (
-                <div key={label}>
-                  <p style={{ fontSize: 10, fontWeight: 600, color: '#7ab0d8', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 3px' }}>{label}</p>
-                  <p style={{ fontSize: 15, fontWeight: 600, color: 'white', margin: 0 }}>{value}</p>
-                </div>
+      {/* ── EXPEDIENTE ACADÉMICO (DARK SLATE) ───────────────── */}
+      <div className="rounded-2xl bg-[#2D3328] p-6 text-white shadow-md relative overflow-hidden mb-6">
+        <div className="absolute right-4 bottom-4 opacity-10 pointer-events-none text-white">
+          <svg width="100" height="100" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/>
+            <path d="M4 12v6.59l8 4.36 8-4.36V12l-8 4.36-8-4.36z"/>
+          </svg>
+        </div>
+        <h3 className="font-extrabold text-xs tracking-widest text-slate-300 uppercase pb-4 mb-5 border-b border-white/10 flex items-center gap-2">
+          <span>🎓</span> Expediente Académico
+        </h3>
+        <div className="grid grid-cols-2 gap-y-5 gap-x-4 relative z-10">
+          <div>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Carné</p>
+            <p className="text-sm font-extrabold text-white">{estudiante.anio_ingreso ? `B${estudiante.anio_ingreso}${Math.floor(1000 + Math.random() * 9000)}` : 'B55241'}</p>
+          </div>
+          <div>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Sede</p>
+            <p className="text-sm font-extrabold text-white">{estudiante.sede || 'Occidente'}</p>
+          </div>
+          <div>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Nivel Actual</p>
+            <p className="text-sm font-extrabold text-white">Bachillerato</p>
+          </div>
+          <div>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Año de Ingreso</p>
+            <p className="text-sm font-extrabold text-white">{estudiante.anio_ingreso || 2022}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* ── VIDA MÁS ALLÁ DEL AULA ────────────────────────── */}
+      <div className="bg-gradient-to-br from-[#FFF8F0] to-[#FAF9E6] rounded-2xl p-6 border border-[#E84F26]/10 shadow-sm mb-6 relative overflow-hidden">
+        {/* Watermark decorativo */}
+        <div className="absolute top-3 right-4 text-5xl opacity-10 pointer-events-none select-none">🌟</div>
+        <h3 className="text-lg font-black text-[#003B4F] mb-1 flex items-center gap-2">
+          <span>🎨</span> Vida Más Allá del Aula
+        </h3>
+        <p className="text-xs text-slate-400 font-medium mb-4">Lo que me apasiona fuera de los libros</p>
+
+        {/* Descripción extendida del estudiante sobre intereses humanos */}
+        <div className="bg-white/80 rounded-xl p-4 border border-[#E84F26]/10 mb-5">
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+            ✍️ En mis propias palabras
+          </p>
+          <p className="text-sm text-slate-600 leading-relaxed font-medium italic">
+            {`Me defino como alguien que equilibra la vida académica con la física y la creatividad. Creo que los mejores profesionales son aquellos que también tienen intereses humanos sólidos: yo encuentro mi mejor versión en la cancha, en los libros y cuando exploro nuevos lugares. Eso me da perspectiva y resiliencia para enfrentar retos profesionales.`}
+          </p>
+        </div>
+
+        <div className="space-y-4">
+          {/* Deportes */}
+          <div>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">⚽ Deportes & Actividad Física</p>
+            <div className="flex flex-wrap gap-2">
+              {deportesMock.map((d, i) => (
+                <span key={i} className="px-3 py-1.5 rounded-full bg-[#E84F26]/10 text-[#B43B06] text-xs font-bold border border-[#E84F26]/20">
+                  {d}
+                </span>
               ))}
             </div>
           </div>
 
-          {/* Especialización Principal */}
-          <div style={{ background: 'white', borderRadius: 14, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.07)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-              <IconMonitor />
-              <span style={{ fontSize: 14, fontWeight: 700, color: '#0f1e2e' }}>Especialización Principal</span>
+          {/* Música */}
+          <div>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">🎵 Música & Artes</p>
+            <div className="flex flex-wrap gap-2">
+              {musicaMock.map((m, i) => (
+                <span key={i} className="px-3 py-1.5 rounded-full bg-[#8B5CF6]/10 text-[#6D28D9] text-xs font-bold border border-[#8B5CF6]/20">
+                  {m}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Hobbies */}
+          <div>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">✨ Pasatiempos & Hobbies</p>
+            <div className="flex flex-wrap gap-2">
+              {hobbiesMock.map((h, i) => (
+                <span key={i} className="px-3 py-1.5 rounded-full bg-[#10B981]/10 text-[#065F46] text-xs font-bold border border-[#10B981]/20">
+                  {h}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Idiomas */}
+          <div>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">🌐 Idiomas</p>
+            <div className="flex flex-wrap gap-2">
+              {idiomasMock.map((lang, i) => (
+                <span key={i} className="px-3 py-1.5 rounded-full bg-[#1A5B75]/10 text-[#1A5B75] text-xs font-bold border border-[#1A5B75]/20">
+                  {lang}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── MI PRESENTACIÓN ──────────────────────────────────── */}
+      <div className="bg-white rounded-2xl p-6 border border-slate-200/60 shadow-sm mb-6 relative overflow-hidden">
+        {/* Barra lateral de acento tricolor */}
+        <div className="absolute top-0 left-0 w-1.5 h-full rounded-l-2xl bg-[#54BCEB]" />
+        <div className="pl-3">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-7 h-7 rounded-full bg-[#E0F2FE] flex items-center justify-center flex-shrink-0">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1A5B75" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+            <h3 className="text-sm font-black text-[#003B4F] uppercase tracking-wider">Mi Presentación</h3>
+          </div>
+          <p className="text-sm text-slate-600 leading-relaxed font-medium">
+            {estudiante.sobre_mi ||
+              `Soy un estudiante apasionado por la tecnología y la innovación, con interés genuino en resolver problemas reales mediante el pensamiento analítico y el trabajo en equipo. A nivel educativo, me esmero en conectar la teoría académica con aplicaciones prácticas que generen impacto. Fuera del aula, me motivan el deporte, la música y aprender de culturas distintas. Busco oportunidades donde pueda aportar mis habilidades y seguir creciendo profesionalmente junto a personas y organizaciones que compartan mis valores.`
+            }
+          </p>
+        </div>
+      </div>
+
+      {/* ── HABILIDADES TÉCNICAS ───────────────────────────── */}
+      <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm mb-6">
+        <h3 className="text-lg font-black text-[#003B4F] mb-4 flex items-center gap-2">
+          <span>💻</span> Habilidades Técnicas
+        </h3>
+        <div className="flex flex-wrap gap-2">
+          {habilidadesTecnicasMock.map((h, i) => (
+            <span key={i} className="px-3.5 py-2 rounded-xl bg-[#E0F2FE]/70 text-[#003B4F] text-xs font-bold border border-[#54BCEB]/30 shadow-sm">
+              {h}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* ── PRIVACIDAD ─────────────────────────────────────── */}
+      <div className="bg-[#FFFBF7]/90 backdrop-blur-sm rounded-2xl p-5 border border-red-100 shadow-sm mb-6">
+        <div className="flex items-center gap-2 mb-3">
+          <IconLock color="#dc2626" size={16} />
+          <h4 className="font-extrabold text-sm text-[#003B4F]">Privacidad</h4>
+        </div>
+        <p className="text-xs text-slate-500 leading-relaxed font-medium mb-5">
+          Para proteger la integridad del estudiante, la información sensible como el nivel de beca y detalles socioeconómicos están restringidos.
+        </p>
+        <div className="space-y-3">
+          <div className="flex justify-between items-center py-2 border-t border-slate-100/60">
+            <span className="text-xs text-slate-500 font-semibold">Nivel de Beca</span>
+            <span className="text-xs font-bold text-[#003B4F] flex items-center gap-1.5">
+              Categoría 5 <IconLock color="#b0c4d8" size={12} />
+            </span>
+          </div>
+          <div className="flex justify-between items-center py-2 border-t border-slate-100/60">
+            <span className="text-xs text-slate-500 font-semibold">Promedio Ponderado</span>
+            <span className="text-xs font-bold text-[#003B4F] flex items-center gap-1.5">
+              9.25 <IconLock color="#b0c4d8" size={12} />
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── TRAYECTORIA ESTUDIANTIL ────────────────────────── */}
+      <div className="bg-white rounded-2xl p-6 border-l-4 border-l-[#1F8BB6] border border-slate-200/80 shadow-sm mb-6">
+        <h3 className="text-lg font-black text-[#003B4F] mb-4 flex items-center gap-2">
+          <span>🚌</span> Trayectoria Estudiantil
+        </h3>
+        <div className="space-y-4">
+          <div className="flex items-start gap-3">
+            <div className="p-2.5 rounded-xl bg-[#E0F2FE] text-[#1F8BB6] mt-0.5 flex-shrink-0">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"/>
+              </svg>
             </div>
             <div>
-              <span style={{ color: especializacion === 'Información no disponible' ? '#9ab0c0' : '#1e3a5f', fontSize: especializacion === 'Información no disponible' ? 12 : 13, fontWeight: especializacion === 'Información no disponible' ? 400 : 500 }}>{especializacion}</span>
+              <h4 className="text-xs font-bold text-[#003B4F]">Tutorías previas</h4>
+              <p className="text-xs text-slate-500 font-medium">Matemática General (2023)</p>
             </div>
           </div>
 
-          {/* Privacidad */}
-          <div style={{ background: 'white', borderRadius: 14, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.07)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-              <IconLock color="#dc2626" size={16} />
-              <span style={{ fontSize: 15, fontWeight: 700, color: '#0f1e2e' }}>Privacidad</span>
+          <div className="flex items-start gap-3">
+            <div className="p-2.5 rounded-xl bg-[#E0F2FE] text-[#1F8BB6] mt-0.5 flex-shrink-0">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
             </div>
-            <p style={{ fontSize: 12.5, color: '#6a8090', lineHeight: 1.6, margin: '0 0 16px' }}>
-              Para proteger la integridad del estudiante, la información sensible como el nivel de beca y detalles socioeconómicos están restringidos y solo son visibles para la administración de la Fundación.
-            </p>
-            {[
-              // TODO: [Fase Futura] Conectar 'Nivel de Beca' con campo real de la BD
-              { label: 'Nivel de Beca', value: 'Categoría 5' },
-              // TODO: [Fase Futura] Conectar 'Promedio Ponderado' con campo real de la BD
-              { label: 'Promedio Ponderado', value: '9.25' },
-            ].map(({ label, value }) => (
-              <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderTop: '1px solid #edf2f7' }}>
-                <div>
-                  <p style={{ fontSize: 10, fontWeight: 600, color: '#7a9ab0', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 2px' }}>{label}</p>
-                  <p style={{ fontSize: 15, fontWeight: 700, color: '#0f1e2e', margin: 0 }}>{value}</p>
-                </div>
-                <IconLock color="#b0c4d8" size={14} />
-              </div>
-            ))}
+            <div>
+              <h4 className="text-xs font-bold text-[#003B4F]">Participación en asociaciones</h4>
+              <p className="text-xs text-slate-500 font-medium">Vocalía de Bienestar Estudiantil</p>
+            </div>
           </div>
+        </div>
+      </div>
 
-          {/* Acciones para Mentores */}
-          {!isAdmin && (
-            <div style={{ borderRadius: 14, border: '1.5px dashed #c5d5e5', background: '#f7fafd', padding: 20 }}>
-              <p style={{ fontSize: 11, color: '#7a9ab0', textAlign: 'center', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 14 }}>Acciones para Mentores</p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                <button style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px 16px', borderRadius: 10, background: 'white', border: '1.5px solid #c5d5e5', color: '#0f1e2e', fontSize: 14, fontWeight: 600, cursor: 'pointer' }} onClick={() => setShowMentoriaModal(true)}>
-                  <IconBulb /> Ofrecer Mentoría
-                </button>
-                {/* TODO: [Fase Futura] Implementar Modal completo de Apoyar Proyecto que muestre SINPE (actualmente placeholder) y lógica de copia real */}
-                <button style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px 16px', borderRadius: 10, background: 'white', border: '1.5px solid #c5d5e5', color: '#0f1e2e', fontSize: 14, fontWeight: 600, cursor: 'pointer' }} onClick={() => setShowApoyarModal(true)}>
-                  <IconSupport /> Apoyar Proyecto
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Redes */}
-          {(estudiante.url_linkedin || estudiante.url_portfolio) && (
-            <div style={{ background: 'white', borderRadius: 14, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.07)' }}>
-              <p style={{ fontSize: 10, fontWeight: 700, color: '#7a9ab0', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 12 }}>Redes y Portafolio</p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {estudiante.url_linkedin && (
-                  <a href={estudiante.url_linkedin} target="_blank" rel="noopener noreferrer" style={{ color: '#1a5db0', fontSize: 13, fontWeight: 500, textDecoration: 'none' }}>🔗 LinkedIn</a>
-                )}
-                {estudiante.url_portfolio && (
-                  <a href={estudiante.url_portfolio} target="_blank" rel="noopener noreferrer" style={{ color: '#1a5db0', fontSize: 13, fontWeight: 500, textDecoration: 'none' }}>🌐 Portafolio</a>
-                )}
-              </div>
-            </div>
-          )}
+      {/* ── ACCIONES PARA MENTORES (DASHED GREEN) ───────────── */}
+      <div className="rounded-2xl border-2 border-dashed border-[#8E9F7F]/40 bg-[#F4F9EE] p-5 mb-6">
+        <p className="text-[10px] font-black text-[#5C6E4F] text-center uppercase tracking-widest mb-4">Acciones para Mentores</p>
+        <div className="flex flex-col gap-3">
+          <button 
+            onClick={() => setShowMentoriaModal(true)}
+            className="w-full inline-flex justify-center items-center gap-2 rounded-xl text-sm font-bold bg-white text-[#1A5B75] hover:bg-slate-50 h-12 px-4 shadow transition-all duration-200 active:scale-95 cursor-pointer border border-[#1A5B75]/10"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/>
+            </svg>
+            Ofrecer Mentoría
+          </button>
+          <button 
+            onClick={() => setShowApoyarModal(true)}
+            className="w-full inline-flex justify-center items-center gap-2 rounded-xl text-sm font-bold bg-white text-[#B43B06] hover:bg-slate-50 h-12 px-4 shadow transition-all duration-200 active:scale-95 cursor-pointer border border-[#B43B06]/10"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4.5 16.5c-1.5 1.25-2.5 3.5-2.5 3.5s2.25-1 3.5-2.5M15 9l-9 9m9-9A6.5 6.5 0 1 0 5.8 4.2L15 9zm0 0l6-6"/>
+            </svg>
+            Apoyar Proyecto
+          </button>
         </div>
       </div>
 
       {/* ── ESTUDIANTES RELACIONADOS ── */}
       {estudiantesRelacionados.length > 0 && (
-        <div style={{ marginTop: 48, paddingTop: 32, borderTop: '1px solid #dce8f0' }}>
-          <h2 style={{ fontSize: 22, fontWeight: 700, color: '#0f1e2e', marginBottom: 6 }}>Otros estudiantes que podrían interesarte</h2>
-          {estudiante.carrera && <p style={{ color: '#6a8090', marginBottom: 24 }}>Estudiantes de <strong style={{ color: '#1e3a5f' }}>{estudiante.carrera}</strong>.</p>}
+        <div className="mt-12 pt-8 border-t border-slate-200/60">
+          <h2 className="text-2xl font-black text-[#003B4F] mb-1">Otros estudiantes que podrían interesarte</h2>
+          {estudiante.carrera && (
+            <p className="text-sm text-slate-500 mb-6 font-medium">
+              Estudiantes de <strong className="text-[#003B4F] font-bold">{estudiante.carrera}</strong>.
+            </p>
+          )}
           <GrillaEstudiantes estudiantes={estudiantesRelacionados} />
         </div>
       )}
+
       {/* ── MODAL MENTORÍA ── */}
       {showMentoriaModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 30, 46, 0.5)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-          <div style={{ background: 'white', borderRadius: 16, padding: 32, width: '100%', maxWidth: 460, boxShadow: '0 10px 25px rgba(0,0,0,0.1)', position: 'relative' }}>
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-6 md:p-8 w-full max-w-md border border-slate-200/80 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
             <button 
               onClick={() => setShowMentoriaModal(false)}
-              style={{ position: 'absolute', top: 20, right: 20, background: 'transparent', border: 'none', cursor: 'pointer', color: '#7a9ab0', fontSize: 24, lineHeight: 1 }}
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors text-2xl font-bold cursor-pointer"
             >
               &times;
             </button>
-            <div style={{ marginBottom: 24 }}>
-              <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0f1e2e', margin: '0 0 8px' }}>Ofrecer Mentoría</h2>
-              <p style={{ fontSize: 14, color: '#6a8090', margin: 0 }}>Has seleccionado ofrecer mentoría a <strong style={{ color: '#1e3a5f' }}>{estudiante.nombre}</strong>.</p>
+            <div className="mb-6">
+              <h2 className="text-xl font-black text-[#003B4F] mb-1">Ofrecer Mentoría</h2>
+              <p className="text-xs text-slate-500 font-medium">
+                Has seleccionado ofrecer mentoría a <strong className="text-[#003B4F] font-bold">{estudiante.nombre}</strong>.
+              </p>
             </div>
             
-            <div style={{ background: '#f7fafd', border: '1.5px solid #e2e8f0', borderRadius: 12, padding: 16, marginBottom: 24 }}>
-              <p style={{ fontSize: 12, fontWeight: 600, color: '#4a6a8a', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 4px' }}>Carrera</p>
-              <p style={{ fontSize: 14, fontWeight: 500, color: '#1e3a5f', margin: '0 0 12px' }}>{nd(estudiante.carrera)}</p>
-              
-              <p style={{ fontSize: 12, fontWeight: 600, color: '#4a6a8a', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 4px' }}>Especialización Principal</p>
-              <p style={{ fontSize: 14, fontWeight: 500, color: '#1e3a5f', margin: '0 0 12px' }}>{especializacion}</p>
-              
-              <p style={{ fontSize: 12, fontWeight: 600, color: '#4a6a8a', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 4px' }}>Áreas de Interés</p>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                {estudiante.areas_de_interes && estudiante.areas_de_interes.length > 0 ? (
-                  estudiante.areas_de_interes.map((a, i) => (
-                    <span key={i} style={{ padding: '3px 8px', borderRadius: 20, border: '1px solid #c5d5e5', color: '#1e3a5f', fontSize: 11, fontWeight: 500, background: 'white' }}>{a}</span>
-                  ))
-                ) : (
-                  <span style={{ color: '#9ab0c0', fontSize: 12 }}>No especificado</span>
-                )}
+            <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-4 mb-6 space-y-3.5">
+              <div>
+                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Carrera</p>
+                <p className="text-xs font-bold text-[#003B4F]">{nd(estudiante.carrera)}</p>
+              </div>
+              <div>
+                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Especialización Principal</p>
+                <p className="text-xs font-bold text-[#003B4F]">{especializacion}</p>
+              </div>
+              <div>
+                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Áreas de Interés</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {estudiante.areas_de_interes && estudiante.areas_de_interes.length > 0 ? (
+                    estudiante.areas_de_interes.map((a, i) => (
+                      <span key={i} className="px-2.5 py-1 rounded-lg border border-slate-200 bg-white text-[#003B4F] text-[10px] font-bold shadow-sm">
+                        {a}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-xs text-slate-400 italic">No especificado</span>
+                  )}
+                </div>
               </div>
             </div>
 
-            <div style={{ marginBottom: 24 }}>
-              <p style={{ fontSize: 13, color: '#4a6070', lineHeight: 1.5, margin: 0 }}>
-                Las mentorías son una excelente forma de conectar exalumnos experimentados con estudiantes que requieren orientación. 
-              </p>
-            </div>
+            <p className="text-xs text-slate-500 leading-relaxed font-medium mb-6">
+              Las mentorías son una excelente forma de conectar exalumnos experimentados con estudiantes que requieren orientación. 
+            </p>
 
-            <div>
-              <p style={{ fontSize: 12, fontWeight: 700, color: '#0f1e2e', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>Información de Contacto</p>
+            <div className="border-t border-slate-100 pt-5">
+              <p className="text-[10px] font-black text-[#003B4F] uppercase tracking-wider mb-3">Información de Contacto</p>
               {estudiante.url_linkedin || estudiante.url_portfolio ? (
-                <div style={{ display: 'flex', gap: 10 }}>
+                <div className="flex gap-3">
                   {estudiante.url_linkedin && (
-                    <a href={estudiante.url_linkedin} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '10px 16px', borderRadius: 8, background: '#0a66c2', color: 'white', fontSize: 13, fontWeight: 600, textDecoration: 'none', flex: 1 }}>
+                    <a href={estudiante.url_linkedin} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#0a66c2] text-white text-xs font-bold flex-1 shadow-sm active:scale-95">
                       LinkedIn
                     </a>
                   )}
                   {estudiante.url_portfolio && (
-                    <a href={estudiante.url_portfolio} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '10px 16px', borderRadius: 8, background: '#1e3a5f', color: 'white', fontSize: 13, fontWeight: 600, textDecoration: 'none', flex: 1 }}>
+                    <a href={estudiante.url_portfolio} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#003B4F] text-white text-xs font-bold flex-1 shadow-sm active:scale-95">
                       Portafolio
                     </a>
                   )}
                 </div>
               ) : (
-                <div style={{ background: '#f0f4f8', borderRadius: 8, padding: 12, textAlign: 'center' }}>
-                  <span style={{ fontSize: 12.5, color: '#6a8090', fontWeight: 500 }}>La información de contacto será habilitada por la administración.</span>
+                <div className="bg-slate-50 rounded-xl p-3 text-center border border-dashed border-slate-200">
+                  <span className="text-xs text-slate-400 italic">La información de contacto será habilitada por la administración.</span>
                 </div>
               )}
             </div>
             
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 24 }}>
+            <div className="flex justify-end mt-6 pt-4 border-t border-slate-100">
               <button 
                 onClick={() => setShowMentoriaModal(false)}
-                style={{ padding: '10px 20px', borderRadius: 8, background: 'transparent', border: '1.5px solid #c5d5e5', color: '#4a6a8a', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}
+                className="px-4 py-2 rounded-xl border-2 border-slate-200 hover:border-slate-300 text-slate-500 hover:text-slate-700 text-xs font-bold transition-all duration-200 cursor-pointer"
               >
                 Cerrar
               </button>
@@ -428,63 +589,81 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
           </div>
         </div>
       )}
+
       {/* ── MODAL APÓYAR PROYECTO ── */}
       {showApoyarModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 30, 46, 0.5)', zIndex: 9998, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-          <div style={{ background: 'white', borderRadius: 16, padding: 32, width: '100%', maxWidth: 460, boxShadow: '0 10px 25px rgba(0,0,0,0.1)', position: 'relative' }}>
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[9998] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-6 md:p-8 w-full max-w-md border border-slate-200/80 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
             <button
               onClick={() => setShowApoyarModal(false)}
-              style={{ position: 'absolute', top: 20, right: 20, background: 'transparent', border: 'none', cursor: 'pointer', color: '#7a9ab0', fontSize: 24, lineHeight: 1 }}
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors text-2xl font-bold cursor-pointer"
             >
               &times;
             </button>
-            <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0f1e2e', margin: '0 0 8px' }}>Apoyar Proyecto</h2>
-            <p style={{ fontSize: 14, color: '#6a8090', margin: '0 0 16px' }}>
-              Estás a punto de apoyar a <strong style={{ color: '#1e3a5f' }}>{estudiante.nombre}</strong> en su proyecto.
-            </p>
-            <div style={{ background: '#f7fafd', border: '1.5px solid #e2e8f0', borderRadius: 12, padding: 16, marginBottom: 24 }}>
-              <p style={{ fontSize: 12, fontWeight: 600, color: '#4a6a8a', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 4px' }}>Carrera</p>
-              <p style={{ fontSize: 14, fontWeight: 500, color: '#1e3a5f', margin: '0 0 12px' }}>{nd(estudiante.carrera)}</p>
-              <p style={{ fontSize: 12, fontWeight: 600, color: '#4a6a8a', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 4px' }}>Especialización Principal</p>
-              <p style={{ fontSize: 14, fontWeight: 500, color: '#1e3a5f', margin: '0 0 12px' }}>{especializacion}</p>
-              <p style={{ fontSize: 12, fontWeight: 600, color: '#4a6a8a', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 4px' }}>Áreas de Interés</p>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                {estudiante.areas_de_interes && estudiante.areas_de_interes.length > 0 ? (
-                  estudiante.areas_de_interes.map((a, i) => (
-                    <span key={i} style={{ padding: '3px 8px', borderRadius: 20, border: '1px solid #c5d5e5', color: '#1e3a5f', fontSize: 11, fontWeight: 500, background: 'white' }}>{a}</span>
-                  ))
-                ) : (
-                  <span style={{ color: '#9ab0c0', fontSize: 12 }}>No especificado</span>
-                )}
-              </div>
-            </div>
-            <div style={{ marginBottom: 24 }}>
-              <p style={{ fontSize: 13, color: '#4a6070', lineHeight: 1.5, margin: 0 }}>
-                Si dispones de datos de contacto (LinkedIn o Portafolio) aparecerán abajo. De lo contrario muestra un mensaje informativo.
+            <div className="mb-6">
+              <h2 className="text-xl font-black text-[#003B4F] mb-1">Apoyar Proyecto</h2>
+              <p className="text-xs text-slate-500 font-medium">
+                Estás a punto de apoyar a <strong className="text-[#003B4F] font-bold">{estudiante.nombre}</strong> en su proyecto.
               </p>
             </div>
-            <div style={{ marginBottom: 24 }}>
+
+            <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-4 mb-6 space-y-3.5">
+              <div>
+                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Carrera</p>
+                <p className="text-xs font-bold text-[#003B4F]">{nd(estudiante.carrera)}</p>
+              </div>
+              <div>
+                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Especialización Principal</p>
+                <p className="text-xs font-bold text-[#003B4F]">{especializacion}</p>
+              </div>
+              <div>
+                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Áreas de Interés</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {estudiante.areas_de_interes && estudiante.areas_de_interes.length > 0 ? (
+                    estudiante.areas_de_interes.map((a, i) => (
+                      <span key={i} className="px-2.5 py-1 rounded-lg border border-slate-200 bg-white text-[#003B4F] text-[10px] font-bold shadow-sm">
+                        {a}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-xs text-slate-400 italic">No especificado</span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <p className="text-xs text-slate-500 leading-relaxed font-medium mb-6">
+              Puedes ver el LinkedIn o el Portafolio del estudiante si están disponibles para coordinar directamente el tipo de apoyo requerido.
+            </p>
+
+            <div className="border-t border-slate-100 pt-5 mb-6">
               {estudiante.url_linkedin || estudiante.url_portfolio ? (
-                <div style={{ display: 'flex', gap: 10 }}>
+                <div className="flex gap-3">
                   {estudiante.url_linkedin && (
-                    <a href={estudiante.url_linkedin} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '10px 16px', borderRadius: 8, background: '#0a66c2', color: 'white', fontSize: 13, fontWeight: 600, textDecoration: 'none', flex: 1 }}>
+                    <a href={estudiante.url_linkedin} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#0a66c2] text-white text-xs font-bold flex-1 shadow-sm active:scale-95">
                       LinkedIn
                     </a>
                   )}
                   {estudiante.url_portfolio && (
-                    <a href={estudiante.url_portfolio} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '10px 16px', borderRadius: 8, background: '#1e3a5f', color: 'white', fontSize: 13, fontWeight: 600, textDecoration: 'none', flex: 1 }}>
+                    <a href={estudiante.url_portfolio} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#E84F26] text-white text-xs font-bold flex-1 shadow-sm active:scale-95">
                       Portafolio
                     </a>
                   )}
                 </div>
               ) : (
-                <div style={{ background: '#f0f4f8', borderRadius: 8, padding: 12, textAlign: 'center' }}>
-                  <span style={{ fontSize: 12.5, color: '#6a8090', fontWeight: 500 }}>La información de contacto será habilitada por la administración.</span>
+                <div className="bg-slate-50 rounded-xl p-3 text-center border border-dashed border-slate-200">
+                  <span className="text-xs text-slate-400 italic">La información de contacto será habilitada por la administración.</span>
                 </div>
               )}
             </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <button onClick={() => setShowApoyarModal(false)} style={{ padding: '10px 20px', borderRadius: 8, background: 'transparent', border: '1.5px solid #c5d5e5', color: '#4a6a8a', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Cerrar</button>
+
+            <div className="flex justify-end pt-4 border-t border-slate-100">
+              <button 
+                onClick={() => setShowApoyarModal(false)} 
+                className="px-4 py-2 rounded-xl border-2 border-slate-200 hover:border-slate-300 text-slate-500 hover:text-slate-700 text-xs font-bold transition-all duration-200 cursor-pointer"
+              >
+                Cerrar
+              </button>
             </div>
           </div>
         </div>
