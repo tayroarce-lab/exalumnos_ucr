@@ -2,8 +2,10 @@
 
 import React from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import Card from '@/components/ui/card'
 import Button from '@/components/ui/button'
+import logoUCR from '@/images/Logo_UCR.png'
 import {
   Users,
   Briefcase,
@@ -125,7 +127,7 @@ export default function DashboardPage() {
             Dashboard
           </h1>
           <p className="text-sm font-medium text-slate-600">
-            Bienvenido(a) de nuevo, <span className="font-bold text-[#F34B26]">{userName}</span> 👋 · {currentDate}
+            Bienvenido(a) de nuevo, <span className="font-bold text-[#F34B26]">{userName}</span>  · {currentDate}
           </p>
         </div>
 
@@ -145,18 +147,20 @@ export default function DashboardPage() {
               Sigue formando parte del cambio desde donde estés.
             </p>
             <Link href="/jobs" className="inline-block pt-2">
-              <Button variant="primary" className="bg-white text-[#F34B26] hover:bg-orange-50 hover:scale-105 active:scale-95 transition-all duration-300 font-bold uppercase tracking-wider text-xs px-6 shadow-md border-0">
+              <Button variant="primary" className="bg-white text-[#000000] hover:bg-orange-50 hover:scale-105 active:scale-95 transition-all duration-300 font-bold uppercase tracking-wider text-xs px-6 shadow-md border-0">
                 Explorar oportunidades →
               </Button>
             </Link>
           </div>
 
-          {/* Imagen decorativa con gradiente */}
-          <div className="dashboard-banner-overlay relative w-full md:w-72 h-44 rounded-2xl overflow-hidden shadow-lg shrink-0 flex items-center justify-center">
-            <div className="text-center text-white/90 space-y-2">
-              <div className="text-5xl font-black font-display">UCR</div>
-              <div className="text-xs font-bold uppercase tracking-widest">Exalumnos · 2026</div>
-            </div>
+          <div className="relative w-full md:w-[420px] h-60 shrink-0">
+            <Image
+              src={logoUCR}
+              alt="Logo UCR"
+              fill
+              style={{ objectFit: 'contain', filter: 'brightness(0) invert(1)' }}
+              priority
+            />
           </div>
         </div>
 
