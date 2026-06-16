@@ -178,6 +178,19 @@ export default function Register() {
 
        <div className="register-right">
           <div className="register-header">
+            {/* Mobile Logo (visible only on mobile via CSS or inline styles) */}
+            <div className="md:hidden flex justify-center mb-6">
+              <Link href="/" style={{ display: 'block' }}>
+                <Image
+                  src={logoUCR}
+                  alt="Logo Alumni UCR"
+                  width={220}
+                  height={72}
+                  className="object-contain cursor-pointer"
+                  priority
+                />
+              </Link>
+            </div>
             <h1>{tipoRegistro === 'estudiante' ? 'Registro de Estudiante' : 'Registro de Exalumno'}</h1>
             <p className="subtitle">{tipoRegistro === 'estudiante' ? 'Acceso sin contraseñas mediante Enlace Mágico' : 'Autodeclaración. Welcome back to the UCR community.'}</p>
             

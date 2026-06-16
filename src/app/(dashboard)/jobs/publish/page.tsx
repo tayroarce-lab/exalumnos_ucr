@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import { crearPosicion } from '@/actions/positions'
 import type { PosicionFormValues } from '@/lib/validations/posiciones'
+import { useProfile } from '@/contexts/ProfileContext'
 
 // ──────────────────────────────────────────────
 // Catálogo de sectores disponibles
@@ -35,10 +36,20 @@ const MAX_RESP = 10
 
 export default function PublishJobPage() {
   const router = useRouter()
+  const { user } = useProfile()
   const [step, setStep] = useState(1)
   const [isPublishing, setIsPublishing] = useState(false)
   const [isPublished, setIsPublished] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
+  const { user } = useProfile()
+  const isStudent = user?.user_metadata?.rol === 'estudiante'
+
+  React.useEffect(() => {
+    const isAdmin = user?.user_metadata?.rol === 'admin' || user?.user_metadata?.tipo === 'admin'
+    if (isAdmin) {
+      router.replace('/jobs')
+    }
+  }, [user, router])
 
   // Datos del formulario alineados con PosicionFormValues (Zod Schema)
   const [formData, setFormData] = useState<PosicionFormValues>({
@@ -196,7 +207,18 @@ export default function PublishJobPage() {
       <div className="absolute left-10 bottom-10 w-72 h-72 bg-sky-400/10 rounded-full blur-2xl -z-10" />
 
       <div className="max-w-2xl mx-auto space-y-6 relative z-10">
-        {/* Botón Volver */}
+        {isStudent ? (
+          <div className="text-center py-20">
+            <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-slate-800 mb-2">Acceso Denegado</h2>
+            <p className="text-slate-600 mb-6">Los estudiantes no tienen permiso para crear vacantes o pasantías.</p>
+            <Link href="/dashboard">
+              <Button variant="primary">Volver al inicio</Button>
+            </Link>
+          </div>
+        ) : (
+          <>
+            {/* Botón Volver */}
         <Link
           href="/jobs"
           className="inline-flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-blue-700 transition-colors uppercase tracking-wider"
@@ -630,6 +652,8 @@ export default function PublishJobPage() {
           </div>
 
         </Card>
+        </>
+        )}
       </div>
     </div>
   )
