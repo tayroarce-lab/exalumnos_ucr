@@ -80,7 +80,6 @@ export async function actualizarPerfilCompletoEstudiante(datos: any) {
 
   // 2. Actualizar tabla users
   const userPayload = {
-    busca_financiamiento: datos.busca_financiamiento,
     busca_mentoria: datos.busca_mentoria,
     busca_empleo: datos.busca_empleo,
     busca_pasantia: datos.busca_pasantia,
@@ -107,6 +106,7 @@ export async function actualizarPerfilCompletoEstudiante(datos: any) {
     proyecto_porcentaje_avance: datos.proyecto_porcentaje_avance,
     proyecto_necesidades: datos.proyecto_necesidades,
     areas_de_interes: datos.areas_de_interes,
+    busca_financiamiento: datos.busca_financiamiento,
   }
 
   const { error: estError } = await supabase
