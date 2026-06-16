@@ -45,7 +45,7 @@ export default function PaginacionMock({ paginaActual, totalPaginas, onChange }:
           onClick={() => onChange(pagina)}
           className={`w-10 h-10 text-sm font-semibold rounded-xl border transition-all duration-200 ${
             pagina === paginaActual
-              ? "border-esmeralda bg-esmeralda text-white shadow-sm shadow-esmeralda/25"
+              ? "border-[#003B4F] bg-[#003B4F] text-white shadow-sm shadow-[#003B4F]/25"
               : "border-slate-200 text-slate-600 bg-white hover:bg-slate-50 hover:border-slate-300"
           }`}
         >
