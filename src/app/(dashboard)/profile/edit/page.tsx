@@ -550,7 +550,7 @@ function SeccionIntereses({ data, update }: { data: ProfileFormData; update: (k:
   )
 }
 
-function SeccionApoyo({ data, update }: { data: ProfileFormData; update: (k: keyof ProfileFormData, v: unknown) => void }) {
+function SeccionApoyo({ data, update, isStudent }: { data: ProfileFormData; update: (k: keyof ProfileFormData, v: unknown) => void; isStudent: boolean }) {
   return (
     <div className="space-y-5">
       <h3 className="font-bold text-slate-800 text-base uppercase tracking-wide border-b border-slate-100 pb-2">Tipo de Apoyo Ofrecido</h3>
@@ -560,10 +560,10 @@ function SeccionApoyo({ data, update }: { data: ProfileFormData; update: (k: key
         {/* Mentoría */}
         <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-3">
           <label className="flex items-center gap-3 cursor-pointer">
-            <input type="checkbox" checked={data.ofrece_mentoria} onChange={e => update('ofrece_mentoria', e.target.checked)} className="w-4 h-4 rounded text-blue-700 focus:ring-blue-600" />
-            <span className="text-sm font-bold text-slate-800">🎓 Ofrezco Mentoría</span>
+            <input type="checkbox" checked={data.ofrece_mentoria} onChange={e => update('ofrece_mentoria', e.target.checked)} disabled={isStudent} className="w-4 h-4 rounded text-blue-700 focus:ring-blue-600 disabled:opacity-50" />
+            <span className="text-sm font-bold text-slate-800">🎓 Ofrezco Mentoría {isStudent && <span className="text-rose-500 text-xs font-normal">(Solo exalumnos)</span>}</span>
           </label>
-          {data.ofrece_mentoria && (
+          {data.ofrece_mentoria && !isStudent && (
             <div className="pl-7">
               <label htmlFor="horas-mentoria" className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Horas disponibles por mes (1–40)<span className="text-rose-500 ml-1">*</span></label>
               <input
@@ -583,14 +583,15 @@ function SeccionApoyo({ data, update }: { data: ProfileFormData; update: (k: key
           { key: 'ofrece_pasantia', label: '📋 Ofrezco Pasantías' },
           { key: 'ofrece_proyecto', label: '🤝 Ofrezco Colaboración en Proyectos Empresariales' },
         ].map(({ key, label }) => (
-          <label key={key} className="flex items-center gap-3 cursor-pointer p-4 rounded-xl border border-slate-200 bg-slate-50 hover:bg-blue-50/50 transition-colors">
+          <label key={key} className={`flex items-center gap-3 cursor-pointer p-4 rounded-xl border border-slate-200 bg-slate-50 transition-colors ${isStudent ? 'opacity-50' : 'hover:bg-blue-50/50'}`}>
             <input
               type="checkbox"
+              disabled={isStudent}
               checked={data[key as keyof ProfileFormData] as boolean}
               onChange={e => update(key as keyof ProfileFormData, e.target.checked)}
-              className="w-4 h-4 rounded text-blue-700 focus:ring-blue-600"
+              className="w-4 h-4 rounded text-blue-700 focus:ring-blue-600 disabled:opacity-50"
             />
-            <span className="text-sm font-bold text-slate-800">{label}</span>
+            <span className="text-sm font-bold text-slate-800">{label} {isStudent && <span className="text-rose-500 text-xs font-normal">(Solo exalumnos)</span>}</span>
           </label>
         ))}
 
@@ -787,12 +788,11 @@ export default function ProfileEditPage() {
 
   const renderStep = () => {
     switch (step) {
-      case 1: return <SeccionPersonal data={data} update={update} isAdmin={isAdmin} />
-      case 2: return !isAdmin && <SeccionAcademica data={data} update={update} />
-      case 3: return !isAdmin && <SeccionProfesional data={data} update={update} />
-      case 4: return !isAdmin && <SeccionIntereses data={data} update={update} />
-      case 5: return !isAdmin && <SeccionApoyo data={data} update={update} />
-      default: return null
+      case 1: return <SeccionPersonal data={data} update={update} />
+      case 2: return <SeccionAcademica data={data} update={update} />
+      case 3: return <SeccionProfesional data={data} update={update} />
+      case 4: return <SeccionIntereses data={data} update={update} />
+      case 5: return <SeccionApoyo data={data} update={update} isStudent={user?.user_metadata?.rol === 'estudiante'} />
     }
   }
 

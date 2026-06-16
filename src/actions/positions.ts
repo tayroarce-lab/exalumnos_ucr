@@ -20,10 +20,14 @@ export type CrearPosicionInput = {
 
 export async function crearPosicion(data: CrearPosicionInput) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { error: userError, data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('No autenticado')
   if (user.user_metadata?.rol === 'admin' || user.user_metadata?.tipo === 'admin') {
     throw new Error('Acceso denegado: Los administradores no pueden crear posiciones')
+  }
+
+  if (user.user_metadata?.rol === 'estudiante') {
+    throw new Error('Los estudiantes no tienen permiso para crear posiciones')
   }
 
   const { error } = await supabase
@@ -135,16 +139,19 @@ export async function eliminarPosicionLogica(posicionId: string) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('No autenticado')
 
-  // Invocar la función SQL SECURITY DEFINER que valida propiedad antes de borrar
-  const { error } = await supabase.rpc('eliminar_posicion_logica', {
-    p_posicion_id: posicionId,
-    p_exalumno_id: user.id
-  })
+  // Realizar el borrado duro. El borrado lógico fallaba porque el trigger y 
+  // la función RPC estaban incompletos/rotos en la DB.
+  // El ON DELETE CASCADE en applications limpiará lo relacionado automáticamente.
+  const { error } = await supabase
+    .from('posiciones')
+    .delete()
+    .eq('id', posicionId)
+    .eq('exalumno_id', user.id)
 
   if (error) throw new Error(`No se pudo eliminar la posición: ${error.message}`)
 
   revalidatePath('/mis-posiciones')
-  return { success: true, mensaje: 'Posición eliminada. Puede ser recuperada por un administrador.' }
+  return { success: true, mensaje: 'Posición eliminada.' }
 }
 
 // =============================================================================
