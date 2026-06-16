@@ -501,14 +501,15 @@ function SeccionAcademica({ data, update }: { data: ProfileFormData; update: (k:
   )
 }
 
-function SeccionProfesional({ data, update }: { data: ProfileFormData; update: (k: keyof ProfileFormData, v: unknown) => void }) {
+function SeccionProfesional({ data, update, isStudent }: { data: ProfileFormData; update: (k: keyof ProfileFormData, v: unknown) => void; isStudent?: boolean }) {
   return (
     <div className="space-y-5">
       <h3 className="font-bold text-slate-800 text-base uppercase tracking-wide border-b border-slate-100 pb-2">Información Profesional Actual</h3>
-      <TextInput label="Empresa o Institución Actual" required value={data.empresa_actual} onChange={v => update('empresa_actual', v)} placeholder="Ej: Google, Ministerio de Salud, Freelancer" />
-      <TextInput label="Cargo Actual" required value={data.cargo_actual} onChange={v => update('cargo_actual', v)} placeholder="Ej: Ingeniería de Software Senior" />
+      {isStudent && <p className="text-xs text-slate-500 mb-4">Como estudiante activo, estos campos son opcionales.</p>}
+      <TextInput label="Empresa o Institución Actual" required={!isStudent} value={data.empresa_actual} onChange={v => update('empresa_actual', v)} placeholder="Ej: Google, Ministerio de Salud, Freelancer" />
+      <TextInput label="Cargo Actual" required={!isStudent} value={data.cargo_actual} onChange={v => update('cargo_actual', v)} placeholder="Ej: Ingeniería de Software Senior" />
       <MultiSelectDropdown
-        label="Sector / Industria" required
+        label="Sector / Industria" required={!isStudent}
         selected={data.sector_industria}
         options={SECTORES_INDUSTRIA}
         onChange={v => update('sector_industria', v)}
@@ -516,7 +517,7 @@ function SeccionProfesional({ data, update }: { data: ProfileFormData; update: (
         placeholder="Seleccionar sector..."
       />
       <div>
-        <label htmlFor="anos-experiencia" className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Años de Experiencia Laboral<span className="text-rose-500 ml-1">*</span></label>
+        <label htmlFor="anos-experiencia" className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Años de Experiencia Laboral{!isStudent && <span className="text-rose-500 ml-1">*</span>}</label>
         <input
           id="anos-experiencia"
           type="number" min="0" max="60"
@@ -639,7 +640,7 @@ function SeccionApoyo({ data, update, isStudent }: { data: ProfileFormData; upda
 // ============================================================
 // VALIDACIÓN POR PASO
 // ============================================================
-function validateStep(step: number, data: ProfileFormData): string[] {
+function validateStep(step: number, data: ProfileFormData, isStudent: boolean = false): string[] {
   const errs: string[] = []
   if (step === 1) {
     if (!data.pais_ciudad.trim()) errs.push('País y ciudad son obligatorios.')
@@ -651,7 +652,7 @@ function validateStep(step: number, data: ProfileFormData): string[] {
     if (!data.academic[0]?.escuela) errs.push('La escuela / facultad es obligatoria.')
     if (!data.academic[0]?.anio) errs.push('El año de graduación es obligatorio.')
   }
-  if (step === 3) {
+  if (step === 3 && !isStudent) {
     if (!data.empresa_actual.trim()) errs.push('Empresa actual es obligatoria.')
     if (!data.cargo_actual.trim()) errs.push('Cargo actual es obligatorio.')
     if (data.sector_industria.length === 0) errs.push('Selecciona al menos un sector.')
@@ -680,6 +681,7 @@ export default function ProfileEditPage() {
   const [saved, setSaved] = useState(false)
 
   const isAdmin = user?.user_metadata?.rol === 'admin' || user?.user_metadata?.tipo === 'admin'
+  const isStudentRole = user?.user_metadata?.rol === 'estudiante'
   const ACTIVE_STEPS = isAdmin ? [STEPS[0]] : STEPS
 
   useEffect(() => {
@@ -715,11 +717,11 @@ export default function ProfileEditPage() {
     setData(prev => ({ ...prev, [key]: value }))
   }, [])
 
-  const completedSections = ACTIVE_STEPS.map(s => validateStep(s.id, data).length === 0).filter(Boolean).length
+  const completedSections = ACTIVE_STEPS.map(s => validateStep(s.id, data, isStudentRole).length === 0).filter(Boolean).length
   const progress = Math.round((completedSections / ACTIVE_STEPS.length) * 100)
 
   const goNext = () => {
-    const errs = validateStep(step, data)
+    const errs = validateStep(step, data, isStudentRole)
     if (errs.length > 0) { setErrors(errs); return }
     setErrors([])
     setStep(s => Math.min(s + 1, ACTIVE_STEPS.length))
@@ -738,7 +740,7 @@ export default function ProfileEditPage() {
     let allErrs: string[] = []
     
     // Si guardamos, verificamos el paso actual
-    const currentErrs = validateStep(step, data)
+    const currentErrs = validateStep(step, data, isStudentRole)
     if (currentErrs.length > 0) {
       setErrors(currentErrs)
       return
@@ -790,9 +792,9 @@ export default function ProfileEditPage() {
     switch (step) {
       case 1: return <SeccionPersonal data={data} update={update} isAdmin={isAdmin} />
       case 2: return !isAdmin && <SeccionAcademica data={data} update={update} />
-      case 3: return !isAdmin && <SeccionProfesional data={data} update={update} />
+      case 3: return !isAdmin && <SeccionProfesional data={data} update={update} isStudent={isStudentRole} />
       case 4: return !isAdmin && <SeccionIntereses data={data} update={update} />
-      case 5: return !isAdmin && <SeccionApoyo data={data} update={update} isStudent={user?.user_metadata?.rol === 'estudiante'} />
+      case 5: return !isAdmin && <SeccionApoyo data={data} update={update} isStudent={isStudentRole} />
       default: return null
     }
   }

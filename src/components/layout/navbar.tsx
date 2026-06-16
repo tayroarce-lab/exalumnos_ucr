@@ -8,6 +8,7 @@ import { Bell, ChevronDown, User, LogOut, Briefcase, Menu, X } from 'lucide-reac
 import { useProfile } from '@/contexts/ProfileContext'
 import { createClient } from '@/lib/supabase/client'
 import logoUCR from '@/images/Logo_UCR.png'
+import { getAvatarUrl } from '@/lib/utils'
 
 interface NavbarProps {
   onMenuToggle?: () => void
@@ -17,6 +18,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [imgError, setImgError] = useState(false)
   const pathname = usePathname()
   const { user, profile } = useProfile()
 
@@ -65,12 +67,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
   const name = profile?.full_name || user?.user_metadata?.nombre || user?.user_metadata?.full_name || 'Usuario'
   const initials = name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase()
   const email = user?.email || 'usuario@ucr.ac.cr'
-  const rawFotoUrl = profile?.foto_url || null
-  const fotoUrl = rawFotoUrl 
-    ? (rawFotoUrl.startsWith('http') || rawFotoUrl.startsWith('data:') || rawFotoUrl.startsWith('/'))
-      ? rawFotoUrl
-      : `${process.env.NEXT_PUBLIC_SUPABASE_URL || ''}/storage/v1/object/public/avatars/${rawFotoUrl}`
-    : null
+  const fotoUrl = getAvatarUrl(profile?.foto_url, name)
 
   const handleLogout = async () => {
     setIsDropdownOpen(false)
@@ -247,9 +244,9 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               className="flex items-center gap-2 hover:bg-current/10 p-1.5 rounded-xl transition-all active:scale-95 focus:outline-none"
             >
-              {fotoUrl ? (
+              {fotoUrl && !imgError ? (
                 <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-current shadow-sm">
-                  <img src={fotoUrl} alt={name} className="w-full h-full object-cover" />
+                  <img src={fotoUrl} alt={name} className="w-full h-full object-cover" onError={() => setImgError(true)} />
                 </div>
               ) : (
                 <div className={`w-8 h-8 rounded-full ${config.userCircleBg} flex items-center justify-center text-xs font-bold uppercase shrink-0 shadow-sm border border-current/20`}>
@@ -312,9 +309,9 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
         {/* Cabecera del drawer */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
           <div className="flex items-center gap-3">
-            {fotoUrl ? (
+            {fotoUrl && !imgError ? (
               <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white/40 shadow">
-                <img src={fotoUrl} alt={name} className="w-full h-full object-cover" />
+                <img src={fotoUrl} alt={name} className="w-full h-full object-cover" onError={() => setImgError(true)} />
               </div>
             ) : (
               <div className={`w-10 h-10 rounded-full ${config.userCircleBg} flex items-center justify-center text-sm font-bold uppercase border border-white/20`}>
