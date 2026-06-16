@@ -137,6 +137,19 @@ export default function RecuperarPasswordPage() {
             <Link href="/login" className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-800 transition-colors mb-4 inline-flex">
               <ArrowLeft size={16} /> Volver al login
             </Link>
+            {/* Mobile Logo (visible only on mobile via CSS or inline styles) */}
+            <div className="md:hidden flex justify-center mb-6">
+              <Link href="/" style={{ display: 'block' }}>
+                <Image
+                  src={logoUCR}
+                  alt="Logo Alumni UCR"
+                  width={220}
+                  height={72}
+                  className="object-contain cursor-pointer"
+                  priority
+                />
+              </Link>
+            </div>
             <h1>Recuperar Contraseña</h1>
             <p className="login-subtitle">
               {fase === 1 
