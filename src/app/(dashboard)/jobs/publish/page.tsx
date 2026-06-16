@@ -41,7 +41,6 @@ export default function PublishJobPage() {
   const [isPublishing, setIsPublishing] = useState(false)
   const [isPublished, setIsPublished] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
-  const { user } = useProfile()
   const isStudent = user?.user_metadata?.rol === 'estudiante'
 
   React.useEffect(() => {
