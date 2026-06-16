@@ -79,15 +79,15 @@ export default function PanelFiltros({ filtros, onChange }: PanelFiltrosProps) {
     (filtros.sede ? 1 : 0);
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+    <div className="bg-white rounded-2xl border border-[#B3DCEE]/60 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden">
       {/* Header del panel */}
-      <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-2">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-esmeralda">
+      <div className="px-5 py-4 border-b border-[#B3DCEE]/40 flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-[#E84F26]">
           <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
         </svg>
-        <h2 className="font-bold text-sm text-slate-800 uppercase tracking-wider">Filtros</h2>
+        <h2 className="font-extrabold text-sm text-[#003B4F] uppercase tracking-wider">Filtros</h2>
         {filtrosActivos > 0 && (
-          <span className="ml-auto bg-esmeralda text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
+          <span className="ml-auto bg-[#E84F26] text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center shadow-sm">
             {filtrosActivos}
           </span>
         )}
@@ -98,7 +98,7 @@ export default function PanelFiltros({ filtros, onChange }: PanelFiltrosProps) {
         <div>
           <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2.5">Carrera</h3>
           <select 
-            className="w-full text-sm rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-esmeralda/30 focus:border-esmeralda disabled:bg-slate-50 disabled:text-slate-400 transition-all duration-200 appearance-none cursor-pointer"
+            className="w-full text-sm rounded-xl border border-[#B3DCEE]/60 bg-slate-50/60 px-3 py-2.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#54BCEB]/30 focus:border-[#54BCEB] disabled:bg-slate-50/40 disabled:text-slate-400 transition-all duration-200 appearance-none cursor-pointer font-medium"
             value={filtros.carrera[0] || ""}
             onChange={handleCarreraChange}
             disabled={carrerasDisponibles.length === 0}
@@ -109,7 +109,7 @@ export default function PanelFiltros({ filtros, onChange }: PanelFiltrosProps) {
             ))}
           </select>
           {carrerasDisponibles.length === 0 && (
-            <p className="text-[10px] text-slate-400 mt-1.5 pl-1">Selecciona un área temática primero</p>
+            <p className="text-[10px] text-slate-400 mt-1.5 pl-1 font-medium">Selecciona un área temática primero</p>
           )}
         </div>
 
@@ -118,14 +118,14 @@ export default function PanelFiltros({ filtros, onChange }: PanelFiltrosProps) {
           <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2.5">Área Temática</h3>
           <div className="space-y-1.5">
             {areasDisponibles.map((area) => (
-              <label key={area} className="flex items-center gap-2.5 cursor-pointer group px-2 py-1.5 rounded-lg hover:bg-slate-50 transition-colors duration-150">
+              <label key={area} className="flex items-center gap-2.5 cursor-pointer group px-2 py-1.5 rounded-lg hover:bg-[#54BCEB]/10 transition-colors duration-150">
                 <input 
                   type="checkbox"
                   checked={filtros.proyecto_area_tematica.includes(area)}
                   onChange={(e) => handleAreaChange(area, e.target.checked)}
-                  className="w-4 h-4 rounded border-slate-300 text-esmeralda focus:ring-esmeralda/30 focus:ring-offset-0 cursor-pointer"
+                  className="w-4 h-4 rounded border-slate-300 text-[#54BCEB] focus:ring-[#54BCEB]/30 focus:ring-offset-0 cursor-pointer accent-[#54BCEB]"
                 />
-                <span className="text-sm text-slate-600 group-hover:text-slate-900 transition-colors duration-150">{area}</span>
+                <span className="text-sm text-slate-600 group-hover:text-[#003B4F] font-medium transition-colors duration-150">{area}</span>
               </label>
             ))}
           </div>
@@ -135,7 +135,7 @@ export default function PanelFiltros({ filtros, onChange }: PanelFiltrosProps) {
         <div>
           <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2.5">Tipo de Proyecto</h3>
           <select 
-            className="w-full text-sm rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-esmeralda/30 focus:border-esmeralda transition-all duration-200 appearance-none cursor-pointer"
+            className="w-full text-sm rounded-xl border border-[#B3DCEE]/60 bg-slate-50/60 px-3 py-2.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#54BCEB]/30 focus:border-[#54BCEB] transition-all duration-200 appearance-none cursor-pointer font-medium"
             value={filtros.proyecto_tipo}
             onChange={(e) => onChange({ ...filtros, proyecto_tipo: e.target.value })}
           >
@@ -151,14 +151,14 @@ export default function PanelFiltros({ filtros, onChange }: PanelFiltrosProps) {
           <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2.5">Busca Apoyo En</h3>
           <div className="space-y-1.5">
             {MOCK_TIPOS_APOYO.map((apoyo) => (
-              <label key={apoyo.id} className="flex items-center gap-2.5 cursor-pointer group px-2 py-1.5 rounded-lg hover:bg-slate-50 transition-colors duration-150">
+              <label key={apoyo.id} className="flex items-center gap-2.5 cursor-pointer group px-2 py-1.5 rounded-lg hover:bg-[#54BCEB]/10 transition-colors duration-150">
                 <input 
                   type="checkbox"
                   checked={filtros.tipos_apoyo.includes(apoyo.id)}
                   onChange={(e) => handleTipoApoyoChange(apoyo.id, e.target.checked)}
-                  className="w-4 h-4 rounded border-slate-300 text-esmeralda focus:ring-esmeralda/30 focus:ring-offset-0 cursor-pointer"
+                  className="w-4 h-4 rounded border-slate-300 text-[#54BCEB] focus:ring-[#54BCEB]/30 focus:ring-offset-0 cursor-pointer accent-[#54BCEB]"
                 />
-                <span className="text-sm text-slate-600 group-hover:text-slate-900 transition-colors duration-150">{apoyo.label}</span>
+                <span className="text-sm text-slate-600 group-hover:text-[#003B4F] font-medium transition-colors duration-150">{apoyo.label}</span>
               </label>
             ))}
           </div>
@@ -168,7 +168,7 @@ export default function PanelFiltros({ filtros, onChange }: PanelFiltrosProps) {
         <div>
           <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2.5">Sede UCR</h3>
           <select 
-            className="w-full text-sm rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-esmeralda/30 focus:border-esmeralda transition-all duration-200 appearance-none cursor-pointer"
+            className="w-full text-sm rounded-xl border border-[#B3DCEE]/60 bg-slate-50/60 px-3 py-2.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#54BCEB]/30 focus:border-[#54BCEB] transition-all duration-200 appearance-none cursor-pointer font-medium"
             value={filtros.sede}
             onChange={(e) => onChange({ ...filtros, sede: e.target.value })}
           >
@@ -185,7 +185,7 @@ export default function PanelFiltros({ filtros, onChange }: PanelFiltrosProps) {
         <button 
           onClick={limpiarFiltros}
           disabled={filtrosActivos === 0}
-          className="w-full py-2.5 text-sm font-semibold rounded-xl border-2 border-slate-200 text-slate-500 bg-white hover:border-esmeralda hover:text-esmeralda disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 uppercase tracking-wide"
+          className="w-full py-2.5 text-sm font-bold rounded-xl border-2 border-slate-200 text-slate-500 bg-white hover:border-[#E84F26] hover:text-[#E84F26] disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 uppercase tracking-wider shadow-sm hover:shadow"
         >
           Limpiar Filtros
         </button>
