@@ -156,8 +156,8 @@ export async function iniciarSesion(data: { email: string; password: string }) {
   } else if (rol === 'exalumno') {
     rutaDestino = '/dashboard'
   } else {
-    // estudiante -> va directo al directorio
-    rutaDestino = '/directorio/estudiantes'
+    // estudiante -> va directo al directorio de exalumnos
+    rutaDestino = '/network'
   }
 
   return { success: true, rol, rutaDestino }
