@@ -1,0 +1,210 @@
+'use client'
+
+import React, { useState, useEffect } from 'react'
+import Link from 'next/link'
+import { CheckCircle2, Clock, XCircle, Heart, FileText, ChevronDown, ChevronUp } from 'lucide-react'
+import Card from '@/components/ui/card'
+import Button from '@/components/ui/button'
+import { obtenerMisDonaciones } from '@/actions/donations'
+
+type EstadoDonacion = 'pendiente' | 'confirmada' | 'rechazada'
+
+interface Donacion {
+  id: string
+  fondo: string
+  monto: number
+  moneda: 'CRC' | 'USD'
+  metodo: 'sinpe' | 'transferencia_bancaria'
+  fecha_transferencia: string
+  numero_referencia?: string
+  mensaje?: string
+  estado: EstadoDonacion
+  motivo_rechazo?: string
+  created_at: string
+}
+
+// Removemos mapFondoIdToName ya que viene pre-formateado del Server Action
+
+function formatCurrency(val: number, moneda: 'CRC' | 'USD') {
+  if (moneda === 'CRC') return `₡${val.toLocaleString('es-CR')}`
+  return `$${val.toLocaleString('en-US', { minimumFractionDigits: 2 })}`
+}
+
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleDateString('es-CR', {
+    day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
+  })
+}
+
+function EstadoBadge({ estado }: { estado: EstadoDonacion }) {
+  const map = {
+    confirmada: { label: 'Aceptada', color: 'bg-emerald-100 text-emerald-700 border-emerald-200', Icon: CheckCircle2 },
+    pendiente: { label: 'En espera', color: 'bg-amber-100 text-amber-700 border-amber-200', Icon: Clock },
+    rechazada: { label: 'Rechazada', color: 'bg-rose-100 text-rose-700 border-rose-200', Icon: XCircle },
+  }
+  const { label, color, Icon } = map[estado]
+  return (
+    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-[10px] font-bold uppercase tracking-wide ${color}`}>
+      <Icon className="w-3 h-3" />{label}
+    </span>
+  )
+}
+
+function DonacionCard({ d }: { d: Donacion }) {
+  const [open, setOpen] = useState(false)
+  const metodoLabel = d.metodo === 'sinpe' ? '📱 SINPE Móvil' : '🏦 Transferencia Bancaria'
+
+  return (
+    <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 hover:bg-slate-50/50 transition-colors text-left"
+      >
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
+            <Heart className="w-5 h-5" />
+          </div>
+          <div className="space-y-0.5">
+            <p className="text-sm font-bold text-slate-900 uppercase tracking-wide leading-tight">{d.fondo}</p>
+            <p className="text-xs text-slate-500 font-medium">{formatDate(d.created_at)}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-4 ml-14 sm:ml-0">
+          <div className="text-right">
+            <p className="text-lg font-black text-blue-700">{formatCurrency(d.monto, d.moneda)}</p>
+            <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wide">{metodoLabel}</p>
+          </div>
+          <EstadoBadge estado={d.estado} />
+          {open ? <ChevronUp className="w-4 h-4 text-slate-400 shrink-0" /> : <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" />}
+        </div>
+      </button>
+
+      {open && (
+        <div className="px-5 pb-5 border-t border-slate-100 pt-4 space-y-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
+            <div>
+              <p className="text-slate-400 font-bold uppercase tracking-wider mb-0.5">Fecha Transferencia</p>
+              <p className="text-slate-800 font-semibold">{formatDate(d.fecha_transferencia)}</p>
+            </div>
+            {d.numero_referencia && (
+              <div>
+                <p className="text-slate-400 font-bold uppercase tracking-wider mb-0.5">N.° Referencia</p>
+                <p className="font-mono text-slate-800 font-bold">{d.numero_referencia}</p>
+              </div>
+            )}
+            <div>
+              <p className="text-slate-400 font-bold uppercase tracking-wider mb-0.5">Método</p>
+              <p className="text-slate-800 font-semibold">{metodoLabel}</p>
+            </div>
+          </div>
+
+          {d.mensaje && (
+            <div className="bg-slate-50 border border-slate-100 rounded-xl p-3">
+              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Tu mensaje</p>
+              <p className="text-xs text-slate-600 font-medium italic">"{d.mensaje}"</p>
+            </div>
+          )}
+
+          {d.estado === 'rechazada' && d.motivo_rechazo && (
+            <div className="bg-rose-50 border border-rose-200 rounded-xl p-3 space-y-1">
+              <p className="text-[10px] font-bold text-rose-700 uppercase tracking-wider">Motivo de rechazo</p>
+              <p className="text-xs text-rose-700 font-medium">{d.motivo_rechazo}</p>
+              <Link href="/donations">
+                <Button variant="primary" className="mt-2 bg-rose-600 hover:bg-rose-700 text-xs font-bold uppercase tracking-wider px-4 py-2">
+                  Reintentar donación →
+                </Button>
+              </Link>
+            </div>
+          )}
+
+          {d.estado === 'pendiente' && (
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-start gap-2">
+              <Clock className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
+              <p className="text-xs text-amber-700 font-medium">
+                Tu donación está siendo revisada. El equipo la confirmará en un máximo de <strong>48 horas hábiles</strong>.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default function HistorialPage() {
+  const [donaciones, setDonaciones] = useState<Donacion[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchDonaciones = async () => {
+      try {
+        const { data, success } = await obtenerMisDonaciones()
+
+        if (success && data) {
+          const mapped: Donacion[] = data.map((d: any) => ({
+            id: d.id,
+            fondo: d.proyecto_destino || 'Fondo Desconocido',
+            monto: Number(d.monto),
+            moneda: d.moneda as 'CRC' | 'USD',
+            metodo: (d.metodo_pago || '').toLowerCase().includes('sinpe') ? 'sinpe' : 'transferencia_bancaria',
+            fecha_transferencia: d.fecha_transferencia || d.created_at,
+            numero_referencia: d.numero_referencia,
+            mensaje: d.mensaje_estudiante,
+            estado: d.estado || 'pendiente',
+            motivo_rechazo: d.motivo_rechazo,
+            created_at: d.created_at
+          }))
+          setDonaciones(mapped)
+        }
+      } catch (error) {
+        console.error(error)
+      }
+      setIsLoading(false)
+    }
+    fetchDonaciones()
+  }, [])
+
+  return (
+    <div className="py-8 px-6 lg:px-10">
+      <div className="max-w-3xl mx-auto space-y-8">
+        <div className="pt-2 space-y-1">
+          <h1 className="text-4xl font-extrabold uppercase font-display text-slate-900 tracking-wide flex items-center gap-3">
+            <Clock className="w-8 h-8 text-[#F34B26]" />
+            Mi Historial
+          </h1>
+          <p className="text-sm text-slate-600 font-medium">Revisa el registro de tus actividades y donaciones recientes.</p>
+        </div>
+
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
+            <Heart className="w-5 h-5 text-rose-500" />
+            <h2 className="text-xl font-bold text-slate-800 uppercase tracking-wide">Donaciones Realizadas</h2>
+          </div>
+
+          <div className="space-y-3">
+            {isLoading ? (
+              <div className="text-center py-12 bg-white border border-slate-200 rounded-2xl">
+                <p className="text-sm font-bold text-slate-500 uppercase tracking-wide flex items-center justify-center gap-2">
+                  <svg className="animate-spin h-5 w-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Cargando historial...
+                </p>
+              </div>
+            ) : donaciones.length > 0 ? (
+              donaciones.map(d => <DonacionCard key={d.id} d={d} />)
+            ) : (
+              <div className="text-center py-12 bg-white border border-slate-200 rounded-2xl">
+                <FileText className="w-10 h-10 text-slate-300 mx-auto mb-3" />
+                <p className="text-sm font-bold text-slate-500 uppercase tracking-wide">No has realizado ninguna donación aún</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+      </div>
+    </div>
+  )
+}

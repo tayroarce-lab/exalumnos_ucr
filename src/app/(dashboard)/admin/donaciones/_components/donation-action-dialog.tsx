@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DonationAdminView } from '@/types/donations';
+import { getSignedUrlAction } from '@/actions/storage';
 import '../../../../../styles/admin-matches.css';
 
 interface DonationActionDialogProps {
@@ -15,6 +16,26 @@ export function DonationActionDialog({ donation, isOpen, onClose, onProcess }: D
   const [isRejecting, setIsRejecting] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [comprobanteUrl, setComprobanteUrl] = useState<string | null>(null);
+
+  // Genera signed URL cuando se abre el modal con una donación
+  useEffect(() => {
+    if (!isOpen || !donation?.comprobante_url) {
+      setComprobanteUrl(null);
+      return;
+    }
+
+    // Si ya es una URL completa (http/https), usarla directamente
+    if (donation.comprobante_url.startsWith('http')) {
+      setComprobanteUrl(donation.comprobante_url);
+      return;
+    }
+
+    // Si es un path de storage privado, generar signed URL temporal (1 hora)
+    getSignedUrlAction('comprobantes', donation.comprobante_url, 3600)
+      .then(res => setComprobanteUrl(res.signedUrl))
+      .catch(() => setComprobanteUrl(null));
+  }, [isOpen, donation?.comprobante_url]);
 
   // Si el modal no está abierto o no hay donación seleccionada, no renderizar
   if (!isOpen || !donation) return null;
@@ -43,6 +64,8 @@ export function DonationActionDialog({ donation, isOpen, onClose, onProcess }: D
     onClose();
   };
 
+  const isPdf = donation.comprobante_url.endsWith('.pdf');
+
   return (
     <div className="admin-dialog-overlay" onClick={resetAndClose}>
       {/* Evitar que clicks dentro del modal cierren el overlay */}
@@ -60,16 +83,24 @@ export function DonationActionDialog({ donation, isOpen, onClose, onProcess }: D
           </div>
           <div className="admin-dialog-info-item">
             <p><strong>Comprobante:</strong></p>
-            {/* Visor de comprobante: iframe para PDF, img para imágenes */}
-            {donation.comprobante_url.endsWith('.pdf') ? (
-              <iframe src={donation.comprobante_url} width="100%" height="180px" title="Comprobante PDF" style={{ borderRadius: '8px', border: '1px solid #E2E8F0' }} />
+            {/* Visor de comprobante: muestra spinner mientras carga la signed URL */}
+            {comprobanteUrl ? (
+              isPdf ? (
+                <iframe src={comprobanteUrl} width="100%" height="180px" title="Comprobante PDF" style={{ borderRadius: '8px', border: '1px solid #E2E8F0' }} />
+              ) : (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={comprobanteUrl} alt="Comprobante" style={{ maxWidth: '100%', maxHeight: '180px', objectFit: 'contain', borderRadius: '8px', border: '1px solid #E2E8F0' }} />
+              )
             ) : (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={donation.comprobante_url} alt="Comprobante" style={{ maxWidth: '100%', maxHeight: '180px', objectFit: 'contain', borderRadius: '8px', border: '1px solid #E2E8F0' }} />
+              <div style={{ height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: '13px', border: '1px dashed #E2E8F0', borderRadius: '8px' }}>
+                Cargando comprobante...
+              </div>
             )}
-            <a href={donation.comprobante_url} target="_blank" rel="noreferrer" className="admin-dialog-comprobante-link">
-              Abrir comprobante completo ↗
-            </a>
+            {comprobanteUrl && (
+              <a href={comprobanteUrl} target="_blank" rel="noreferrer" className="admin-dialog-comprobante-link">
+                Abrir comprobante completo ↗
+              </a>
+            )}
           </div>
         </div>
 

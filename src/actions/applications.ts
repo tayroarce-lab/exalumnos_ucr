@@ -5,12 +5,12 @@ import { revalidatePath } from 'next/cache'
 import { createApplicationSchema, updateApplicationStatusSchema, CreateApplicationInput, UpdateApplicationStatusInput } from '@/lib/validations/application'
 import { calculateCompatibilityScore } from '@/lib/applications/compatibility'
 
-// Placeholder for email notification functions to be implemented in FASE 5
 import { 
   sendApplicationReceivedEmail, 
   sendApplicationSelectedEmail, 
   sendApplicationDiscardedEmail 
 } from '@/lib/email/application-emails'
+import { descartarAplicantesPendientes } from '@/lib/applications/discardHelpers'
 
 export async function applyToPosition(data: CreateApplicationInput) {
   try {
@@ -284,31 +284,7 @@ export async function updateApplicationStatus(data: UpdateApplicationStatusInput
       // 2. Descartar a los demás si cierra la posición
       if (parsedData.close_position) {
         await supabase.from('posiciones').update({ estado: 'cubierta' }).eq('id', app.position_id)
-
-        // Obtener a los demás aplicantes
-        const { data: others } = await supabase
-          .from('applications')
-          .select('id, student_id, studentUser:users!applications_student_id_fkey(nombre, email)')
-          .eq('position_id', app.position_id)
-          .neq('id', parsedData.application_id)
-          .neq('status', 'descartado')
-
-        if (others && others.length > 0) {
-          const otherIds = others.map(o => o.id)
-          await supabase.from('applications').update({ status: 'descartado' }).in('id', otherIds)
-
-          for (const other of others) {
-            const oEmail = (other.studentUser as any)?.email
-            const oName = (other.studentUser as any)?.nombre
-            if (oEmail && oName) {
-              await sendApplicationDiscardedEmail({
-                studentEmail: oEmail,
-                studentName: oName,
-                positionTitle
-              }).catch(console.error)
-            }
-          }
-        }
+        await descartarAplicantesPendientes(supabase, app.position_id, positionTitle, parsedData.application_id)
       }
     } else if (parsedData.status === 'descartado') {
       // Notificar descarte solo a este estudiante

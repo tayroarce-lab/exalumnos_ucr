@@ -14,19 +14,19 @@
 }
 
 .admin-chart-card {
-  background: #FFFFFF;
+  background: var(--admin-bg-card);
   border-radius: 16px;
   padding: 32px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02), 0 4px 16px rgba(0, 0, 0, 0.03);
-  border: 1px solid #E2E8F0;
+  border: 1px solid var(--admin-border-color);
   display: flex;
   flex-direction: column;
   transition: all 0.25s ease;
 }
 
 .admin-chart-card:hover {
-  border-color: #CBD5E1;
-  box-shadow: 0 8px 20px rgba(10, 37, 64, 0.04);
+  border-color: var(--admin-border-hover);
+  box-shadow: 0 8px 20px rgba(84, 188, 235, 0.1);
 }
 
 .admin-chart-header {
@@ -36,7 +36,7 @@
 .admin-chart-header h3 {
   font-size: 18px;
   font-weight: 700;
-  color: #0A2540;
+  color: var(--admin-text-primary);
   margin: 0;
   letter-spacing: -0.01em;
 }
@@ -51,22 +51,22 @@
 
 /* Tooltip Customization for Recharts */
 .recharts-tooltip-wrapper .recharts-default-tooltip {
-  background-color: #FFFFFF !important;
-  border: 1px solid #E2E8F0 !important;
+  background-color: var(--admin-bg-card) !important;
+  border: 1px solid var(--admin-border-color) !important;
   border-radius: 12px !important;
-  box-shadow: 0 10px 25px rgba(10, 37, 64, 0.08) !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2) !important;
   padding: 12px 16px !important;
 }
 
 .recharts-tooltip-wrapper .recharts-tooltip-label {
-  color: #0A2540 !important;
+  color: var(--admin-text-primary) !important;
   font-weight: 700 !important;
   margin-bottom: 6px !important;
   font-size: 13px !important;
 }
 
 .recharts-tooltip-wrapper .recharts-tooltip-item {
-  color: #475569 !important;
+  color: var(--admin-accent-celeste) !important;
   font-weight: 600 !important;
   font-size: 12px !important;
 }
