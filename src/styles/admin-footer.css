@@ -30,3 +30,16 @@
 .admin-footer-copy {
   font-size: 13px;
 }
+
+@media (max-width: 639px) {
+  .admin-footer {
+    flex-direction: column;
+    gap: 16px;
+    padding: 24px 16px;
+    text-align: center;
+  }
+  .admin-footer-links {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
