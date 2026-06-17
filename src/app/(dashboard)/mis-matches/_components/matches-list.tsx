@@ -5,6 +5,7 @@ import { requestConnection, respondToConnection } from '@/actions/matches';
 import Card from '@/components/ui/card';
 import Button from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
+import { Heart, Users, Briefcase, GraduationCap } from 'lucide-react';
 
 // Tipos básicos basados en la consulta de getMyMatches
 type UserMatchInfo = {
@@ -113,7 +114,14 @@ export function MatchesList({ initialMatches, currentUserId }: { initialMatches:
               </div>
               
               <div className="space-y-2 mb-6 text-sm text-gray-600">
-                <p><span className="font-medium text-gray-900">Tipo de apoyo:</span> <span className="capitalize">{match.tipo_apoyo}</span></p>
+                <div className="flex items-center gap-1 mb-1">
+                  <span className="font-medium text-gray-900">Tipo de apoyo:</span>
+                  {match.tipo_apoyo === 'mentoria' && <><GraduationCap className="w-4 h-4 ml-1 text-blue-600" /> <span>Mentoría profesional</span></>}
+                  {match.tipo_apoyo === 'empleo' && <><Briefcase className="w-4 h-4 ml-1 text-emerald-600" /> <span>Oferta de empleo</span></>}
+                  {match.tipo_apoyo === 'pasantia' && <><Users className="w-4 h-4 ml-1 text-violet-600" /> <span>Pasantía</span></>}
+                  {match.tipo_apoyo === 'donacion' && <><Heart className="w-4 h-4 ml-1 text-orange-600" /> <span>Donación económica</span></>}
+                  {!['mentoria', 'empleo', 'pasantia', 'donacion'].includes(match.tipo_apoyo) && <span className="capitalize ml-1">{match.tipo_apoyo}</span>}
+                </div>
                 {otherUserInfo?.hobbies && otherUserInfo.hobbies.length > 0 && (
                   <p><span className="font-medium text-gray-900">Hobbies:</span> {otherUserInfo.hobbies.join(', ')}</p>
                 )}

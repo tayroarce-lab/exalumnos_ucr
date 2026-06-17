@@ -24,8 +24,7 @@ export async function getMatches(filters?: MatchFilters): Promise<{ data: MatchA
       created_at,
       updated_at,
       exalumno:users!matches_exalumno_id_fkey(nombre),
-      estudiante:users!matches_estudiante_id_fkey(nombre),
-      perfil_estudiante:estudiantes!matches_estudiante_id_fkey(carrera)
+      estudiante:users!matches_estudiante_id_fkey(nombre, estudiantes(carrera))
     `).is('deleted_at', null);
 
   if (filters?.estado && filters.estado !== 'todos') {
@@ -53,21 +52,27 @@ export async function getMatches(filters?: MatchFilters): Promise<{ data: MatchA
 
   // Mapeamos a la interfaz que espera el frontend
   // Manejamos posilbes arrays (Supabase a veces retorna arrays de joins dependiendo de la cardinalidad definida).
-  const formattedData: MatchAdminView[] = (data || []).map((match: any) => ({
-    id: match.id,
-    exalumno_id: match.exalumno_id,
-    estudiante_id: match.estudiante_id,
-    exalumno_nombre: Array.isArray(match.exalumno) ? match.exalumno[0]?.nombre || 'Desconocido' : match.exalumno?.nombre || 'Desconocido',
-    estudiante_nombre: Array.isArray(match.estudiante) ? match.estudiante[0]?.nombre || 'Desconocido' : match.estudiante?.nombre || 'Desconocido',
-    tipo_apoyo: match.tipo_apoyo,
-    score_match: match.score_match,
-    estado: match.estado,
-    resultado: match.resultado,
-    notas_admin: match.notas_admin,
-    created_at: match.created_at,
-    updated_at: match.updated_at,
-    estudiante_carrera: Array.isArray(match.perfil_estudiante) ? match.perfil_estudiante[0]?.carrera || 'N/A' : match.perfil_estudiante?.carrera || 'N/A',
-  }));
+  const formattedData: MatchAdminView[] = (data || []).map((match: any) => {
+    const exalumnoObj = Array.isArray(match.exalumno) ? match.exalumno[0] : match.exalumno;
+    const estudianteObj = Array.isArray(match.estudiante) ? match.estudiante[0] : match.estudiante;
+    const perfilEstudiante = Array.isArray(estudianteObj?.estudiantes) ? estudianteObj?.estudiantes[0] : estudianteObj?.estudiantes;
+    
+    return {
+      id: match.id,
+      exalumno_id: match.exalumno_id,
+      estudiante_id: match.estudiante_id,
+      exalumno_nombre: exalumnoObj?.nombre || 'Desconocido',
+      estudiante_nombre: estudianteObj?.nombre || 'Desconocido',
+      tipo_apoyo: match.tipo_apoyo,
+      score_match: match.score_match,
+      estado: match.estado,
+      resultado: match.resultado,
+      notas_admin: match.notas_admin,
+      created_at: match.created_at,
+      updated_at: match.updated_at,
+      estudiante_carrera: perfilEstudiante?.carrera || 'N/A',
+    };
+  });
 
   // Filtrado por carrera en memoria ya que está anidado (si aplica)
   let finalData = formattedData;
@@ -148,8 +153,8 @@ export async function getMyMatches() {
       resultado,
       iniciado_por,
       created_at,
-      exalumno:users!matches_exalumno_id_fkey(nombre, foto_url, carrera_principal_id, sector_industria, hobbies),
-      estudiante:users!matches_estudiante_id_fkey(nombre, foto_url, carrera_principal_id, proyecto_area_tematica, hobbies)
+      exalumno:users!matches_exalumno_id_fkey(nombre, foto_url, carrera_principal_id, hobbies, exalumnos(sector_industria)),
+      estudiante:users!matches_estudiante_id_fkey(nombre, foto_url, carrera_principal_id, hobbies, estudiantes(proyecto_area_tematica))
     `)
     .is('deleted_at', null)
     .or(`estudiante_id.eq.${user.id},exalumno_id.eq.${user.id}`)
@@ -160,7 +165,29 @@ export async function getMyMatches() {
     return { data: null, error: error.message };
   }
 
-  return { data, error: null };
+  const formattedData = (data || []).map((match: any) => {
+    const exalumnoObj = Array.isArray(match.exalumno) ? match.exalumno[0] : match.exalumno;
+    const estudianteObj = Array.isArray(match.estudiante) ? match.estudiante[0] : match.estudiante;
+    
+    // Extract nested exalumnos/estudiantes data
+    const exalumnosData = exalumnoObj?.exalumnos;
+    const perfilExalumnoObj = Array.isArray(exalumnosData) ? exalumnosData[0] : exalumnosData;
+    
+    const estudiantesData = estudianteObj?.estudiantes;
+    const perfilEstudianteObj = Array.isArray(estudiantesData) ? estudiantesData[0] : estudiantesData;
+    
+    // Clean up the original nested fields to avoid sending unnecessary data
+    if (exalumnoObj) delete exalumnoObj.exalumnos;
+    if (estudianteObj) delete estudianteObj.estudiantes;
+
+    return {
+      ...match,
+      exalumno: exalumnoObj ? { ...exalumnoObj, sector_industria: perfilExalumnoObj?.sector_industria } : null,
+      estudiante: estudianteObj ? { ...estudianteObj, proyecto_area_tematica: perfilEstudianteObj?.proyecto_area_tematica } : null,
+    };
+  });
+
+  return { data: formattedData, error: null };
 }
 
 export async function requestConnection(matchId: string) {

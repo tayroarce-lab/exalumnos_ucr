@@ -72,7 +72,7 @@ function aplicarSecurityHeaders(response: NextResponse): NextResponse {
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
       `connect-src 'self' ${process.env.NEXT_PUBLIC_SUPABASE_URL} wss://*.supabase.co`,
-      "img-src 'self' data: blob: https://*.supabase.co https://*.supabase.storage",
+      "img-src 'self' data: blob: https://*.supabase.co https://*.supabase.storage https://supabase.co https://ui-avatars.com",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",
