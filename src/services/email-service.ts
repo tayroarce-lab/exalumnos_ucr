@@ -3,8 +3,10 @@ import { Resend } from 'resend';
 // Inicializa el cliente de Resend usando la API Key del entorno
 const resend = new Resend(process.env.RESEND_API_KEY || 're_mock_key');
 
-// Dirección de remitente oficial de la Fundación
-const FROM_ADDRESS = 'Fundación Exalumnos UCR <notificaciones@fundacion.ucr.ac.cr>';
+// Dirección de remitente oficial de la Fundación (Cambiado a onboarding para que funcione sin verificar dominio)
+const FROM_ADDRESS = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV
+  ? 'onboarding@resend.dev'
+  : 'Fundación Exalumnos UCR <notificaciones@fundacion.ucr.ac.cr>';
 
 // ---------------------------------------------------------------------------
 // Helper: Genera el wrapper HTML con diseño base de la marca
@@ -206,9 +208,9 @@ export async function sendMatchNotificationEmails(
 ) {
   try {
     // Email al exalumno
-    await resend.emails.send({
+    const resultAlumni = await resend.emails.send({
       from: FROM_ADDRESS,
-      to: alumniEmail,
+      to: (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV) ? 'tarcebfwd@gmail.com' : alumniEmail,
       subject: '🤝 Nuevo match sugerido para ti — Fundación Exalumnos UCR',
       html: buildEmailTemplate('Nuevo Match', `
         <h2 style="margin:0 0 8px; color:#0A2540; font-size:22px;">¡Tienes un nuevo match, ${alumniName}!</h2>
@@ -237,10 +239,12 @@ export async function sendMatchNotificationEmails(
       `)
     });
 
+    if (resultAlumni.error) console.error('Resend Error Exalumno:', resultAlumni.error);
+
     // Email al estudiante
-    await resend.emails.send({
+    const resultEst = await resend.emails.send({
       from: FROM_ADDRESS,
-      to: studentEmail,
+      to: (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV) ? 'tarcebfwd@gmail.com' : studentEmail,
       subject: '✨ ¡Un exalumno quiere apoyarte! — Fundación Exalumnos UCR',
       html: buildEmailTemplate('Nuevo Match', `
         <h2 style="margin:0 0 8px; color:#0A2540; font-size:22px;">¡Buenas noticias, ${studentName}!</h2>
@@ -269,6 +273,8 @@ export async function sendMatchNotificationEmails(
       `)
     });
 
+    if (resultEst.error) console.error('Resend Error Estudiante:', resultEst.error);
+
     return { success: true };
   } catch (error) {
     console.error('Error sending match notification emails:', error);
@@ -284,16 +290,18 @@ export async function sendMatchStatusUpdateEmail(
   recipientEmail: string,
   recipientName: string,
   newStatus: 'activo' | 'cerrado',
-  resultado?: 'exitoso' | 'cancelado' | 'en_progreso' | null
+  resultado?: 'exitoso' | 'cancelado' | 'en_progreso' | null,
+  counterpartName?: string | null,
+  counterpartEmail?: string | null
 ) {
   const isActive = newStatus === 'activo';
   const isSuccess = resultado === 'exitoso';
 
   const subject = isActive
-    ? '🟢 Tu match está ahora activo — Fundación Exalumnos UCR'
+    ? `🟢 Tu match está ahora activo, ${recipientName} — Fundación Exalumnos UCR`
     : isSuccess
-    ? '🏆 Match completado exitosamente — Fundación Exalumnos UCR'
-    : '📋 Actualización de tu match — Fundación Exalumnos UCR';
+    ? `🏆 Match completado exitosamente, ${recipientName} — Fundación Exalumnos UCR`
+    : `📋 Actualización de tu match, ${recipientName} — Fundación Exalumnos UCR`;
 
   const body = isActive
     ? `
@@ -302,7 +310,12 @@ export async function sendMatchStatusUpdateEmail(
       <div style="background:#ecfdf5; border:1px solid #a7f3d0; border-radius:12px; padding:16px; margin:0 0 24px;">
         <p style="margin:0; font-size:14px; color:#065f46; font-weight:600;">Estado: Activo ✅</p>
       </div>
-      <p style="color:#475569; font-size:14px; line-height:1.6;">Recuerda mantener una comunicación fluida y respetuosa con tu contraparte.</p>
+      <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:12px; padding:20px; margin:0 0 24px;">
+        <p style="margin:0 0 4px; font-size:13px; color:#3b82f6; font-weight:600; text-transform:uppercase;">Datos de Contacto</p>
+        <p style="margin:0 0 4px; font-size:14px; color:#1e293b;"><strong>Contraparte:</strong> ${counterpartName || 'Usuario'}</p>
+        <p style="margin:0; font-size:14px; color:#1e293b;"><strong>Email:</strong> <a href="mailto:${counterpartEmail}" style="color:#2563eb; text-decoration:none;">${counterpartEmail}</a></p>
+      </div>
+      <p style="color:#475569; font-size:14px; line-height:1.6;">Recuerda mantener una comunicación fluida y respetuosa con tu contraparte. Ya pueden coordinar directamente vía correo electrónico.</p>
     `
     : `
       <h2 style="margin:0 0 8px; color:#0A2540; font-size:22px;">Actualización de tu match</h2>
@@ -316,12 +329,14 @@ export async function sendMatchStatusUpdateEmail(
     `;
 
   try {
-    await resend.emails.send({
+    const resultUpdate = await resend.emails.send({
       from: FROM_ADDRESS,
-      to: recipientEmail,
+      to: (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV) ? 'tarcebfwd@gmail.com' : recipientEmail,
       subject,
       html: buildEmailTemplate('Actualización de Match', body)
     });
+
+    if (resultUpdate.error) console.error('Resend Error Update:', resultUpdate.error);
 
     return { success: true };
   } catch (error) {

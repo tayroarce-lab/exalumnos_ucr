@@ -85,8 +85,10 @@ export async function updateMatch(
   notas_admin: string | null
 ) {
   const supabase = await createClient();
+  const { createAdminClient } = await import('@/lib/supabase/admin');
+  const adminClient = createAdminClient();
 
-  const { error } = await supabase
+  const { error } = await adminClient
     .from('matches')
     .update({
       estado,
@@ -103,8 +105,8 @@ export async function updateMatch(
 
   // Si el estado pasa a "activo" o "cerrado", enviamos notificaciones
   if (estado === 'activo' || estado === 'cerrado') {
-    // Obtenemos los correos del exalumno y estudiante
-    const { data } = await supabase
+    // Obtenemos los correos del exalumno y estudiante usando adminClient para saltar RLS
+    const { data } = await adminClient
       .from('matches')
       .select(`
         exalumno:users!matches_exalumno_id_fkey(nombre, email),
@@ -119,9 +121,14 @@ export async function updateMatch(
       const exEmail = Array.isArray(matchDetails.exalumno) ? matchDetails.exalumno[0]?.email : matchDetails.exalumno?.email;
       const estNombre = Array.isArray(matchDetails.estudiante) ? matchDetails.estudiante[0]?.nombre : matchDetails.estudiante?.nombre;
       const estEmail = Array.isArray(matchDetails.estudiante) ? matchDetails.estudiante[0]?.email : matchDetails.estudiante?.email;
+      console.log('Sending active status emails. Details:', { exEmail, exNombre, estEmail, estNombre, estado, resultado });
 
-      if (exEmail && exNombre) await sendMatchStatusUpdateEmail(exEmail, exNombre, estado, resultado);
-      if (estEmail && estNombre) await sendMatchStatusUpdateEmail(estEmail, estNombre, estado, resultado);
+      if (exEmail && exNombre) await sendMatchStatusUpdateEmail(exEmail, exNombre, estado, resultado, estNombre, estEmail);
+      if (estEmail && estNombre) await sendMatchStatusUpdateEmail(estEmail, estNombre, estado, resultado, exNombre, exEmail);
+      
+      console.log('Finished sending active status emails');
+    } else {
+      console.error('Failed to retrieve matchDetails for email');
     }
   }
 
@@ -159,14 +166,53 @@ export async function getMyMatches() {
     `)
     .is('deleted_at', null)
     .or(`estudiante_id.eq.${user.id},exalumno_id.eq.${user.id}`)
-    .order('score_match', { ascending: false });
+    .order('score_match', { ascending: false })
+    .limit(5);
 
   if (error) {
     console.error('Error fetching user matches:', error);
     return { data: null, error: error.message };
   }
 
-  const formattedData = data.map((m: any) => {
+  let finalData = data || [];
+
+  if (finalData.length === 0 && user.user_metadata?.rol === 'estudiante') {
+    const { generarMatchesMentoria } = await import('./matching');
+    await generarMatchesMentoria(1, user.id);
+    
+    // Fetch again
+    const { data: newData, error: newError } = await supabase
+      .from('matches')
+      .select(`
+        id,
+        exalumno_id,
+        estudiante_id,
+        tipo_apoyo,
+        score_match,
+        estado,
+        resultado,
+        iniciado_por,
+        created_at,
+        exalumno:users!matches_exalumno_id_fkey(
+          nombre, foto_url, carrera_principal_id, hobbies,
+          perfil_exalumno:exalumnos!exalumnos_user_id_fkey(sector_industria)
+        ),
+        estudiante:users!matches_estudiante_id_fkey(
+          nombre, foto_url, carrera_principal_id, hobbies,
+          perfil_estudiante:estudiantes!estudiantes_user_id_fkey(proyecto_area_tematica)
+        )
+      `)
+      .is('deleted_at', null)
+      .or(`estudiante_id.eq.${user.id},exalumno_id.eq.${user.id}`)
+      .order('score_match', { ascending: false })
+      .limit(5);
+
+      if (newData) {
+        finalData = newData;
+      }
+  }
+
+  const formattedData = finalData.map((m: any) => {
     let ex = Array.isArray(m.exalumno) ? m.exalumno[0] : m.exalumno;
     if (ex) {
       ex.sector_industria = Array.isArray(ex.perfil_exalumno) ? ex.perfil_exalumno[0]?.sector_industria : ex.perfil_exalumno?.sector_industria;
@@ -193,12 +239,17 @@ export async function requestConnection(matchId: string) {
     return { success: false, error: 'Acceso denegado: Los administradores no pueden solicitar conexiones' };
   }
 
+  const { createAdminClient } = await import('@/lib/supabase/admin');
+  const adminClient = createAdminClient();
+
   // Marcar como contactado e iniciado por el usuario actual
-  const { error } = await supabase
+  const initiatorRole = user.user_metadata?.rol || 'estudiante';
+  
+  const { error } = await adminClient
     .from('matches')
     .update({
       estado: 'contactado',
-      iniciado_por: user.id,
+      iniciado_por: initiatorRole,
       updated_at: new Date().toISOString()
     })
     .eq('id', matchId)
@@ -209,11 +260,36 @@ export async function requestConnection(matchId: string) {
     return { success: false, error: error.message };
   }
 
-  // Notificar al otro usuario (se encarga updateMatch logic, pero como hicimos update directo aquí,
-  // reutilizamos updateMatch para que envíe el correo, o mejor llamamos a updateMatch)
-  // Como ya lo actualizamos, enviamos el email manualmente o refactorizamos. 
-  // Mejor usamos updateMatch para la notificación.
-  await updateMatch(matchId, 'contactado', null, null);
+  // Enviar el correo de notificación de solicitud al otro usuario
+  const { data: matchData } = await supabase
+    .from('matches')
+    .select(`
+      score_match,
+      tipo_apoyo,
+      exalumno:users!matches_exalumno_id_fkey(nombre, email),
+      estudiante:users!matches_estudiante_id_fkey(nombre, email)
+    `)
+    .eq('id', matchId)
+    .single();
+
+  if (matchData) {
+    const matchDetails = matchData as any;
+    const exNombre = Array.isArray(matchDetails.exalumno) ? matchDetails.exalumno[0]?.nombre : matchDetails.exalumno?.nombre;
+    const exEmail = Array.isArray(matchDetails.exalumno) ? matchDetails.exalumno[0]?.email : matchDetails.exalumno?.email;
+    const estNombre = Array.isArray(matchDetails.estudiante) ? matchDetails.estudiante[0]?.nombre : matchDetails.estudiante?.nombre;
+    const estEmail = Array.isArray(matchDetails.estudiante) ? matchDetails.estudiante[0]?.email : matchDetails.estudiante?.email;
+    
+    console.log('Sending notification email. Details:', { exEmail, exNombre, estEmail, estNombre, tipo_apoyo: matchDetails.tipo_apoyo, score_match: matchDetails.score_match });
+
+    // Si fue el estudiante quien inició, enviamos al exalumno
+    if (exEmail && exNombre && estNombre) {
+      const { sendMatchNotificationEmails } = await import('@/services/email-service');
+      await sendMatchNotificationEmails(exEmail, exNombre, estEmail || '', estNombre, matchDetails.tipo_apoyo, matchDetails.score_match);
+      console.log('Finished sendMatchNotificationEmails');
+    } else {
+      console.error('Missing data for email:', { exEmail, exNombre, estNombre });
+    }
+  }
 
   return { success: true };
 }

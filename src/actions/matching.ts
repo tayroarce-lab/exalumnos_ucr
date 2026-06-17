@@ -221,19 +221,26 @@ export async function calcularScoreMentoria(
  * Lee directamente de public.users filtrando por rol y deleted_at.
  */
 export async function generarMatchesMentoria(
-  umbralMinimo: number = 1
+  umbralMinimo: number = 1,
+  estudianteId?: string
 ): Promise<ResultadoLote> {
   const adminClient = createAdminClient()
 
+  let queryEstudiantes = adminClient
+    .from('users')
+    .select('id')
+    .eq('rol', 'estudiante')
+    .eq('busca_mentoria', true)
+    .eq('visible_en_directorio', true)
+    .is('deleted_at', null)
+
+  if (estudianteId) {
+    queryEstudiantes = queryEstudiantes.eq('id', estudianteId)
+  }
+
   const [{ data: estudiantes, error: errEst }, { data: exalumnos, error: errEx }] =
     await Promise.all([
-      adminClient
-        .from('users')
-        .select('id')
-        .eq('rol', 'estudiante')
-        .eq('busca_mentoria', true)
-        .eq('visible_en_directorio', true)
-        .is('deleted_at', null),
+      queryEstudiantes,
       adminClient
         .from('users')
         .select('id')
