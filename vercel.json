@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/cerrar-posiciones",
+      "schedule": "0 6 * * *"
+    }
+  ]
+}

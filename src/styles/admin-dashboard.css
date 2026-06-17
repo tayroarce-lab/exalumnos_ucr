@@ -1,9 +1,32 @@
 /* src/styles/admin-dashboard.css */
 
+/* Remove outer padding and match background of dashboard wrapper when in admin view */
+main:has(.admin-layout) {
+  padding: 0 !important;
+  background-color: #001324 !important;
+}
+
+main:has(.admin-layout) > div {
+  max-width: 100% !important;
+}
+
 .admin-layout {
+  --admin-bg-main: #001324;
+  --admin-bg-card: #001E35;
+  --admin-bg-hover: #002542;
+  --admin-bg-header: #00172B;
+  --admin-text-primary: #FFFFFF;
+  --admin-text-secondary: #94A3B8;
+  --admin-border-color: rgba(84, 188, 235, 0.2);
+  --admin-border-hover: rgba(84, 188, 235, 0.5);
+  --admin-accent-celeste: #54BCEB;
+  --admin-accent-celeste-hover: #38BDF8;
+
   display: flex;
   min-height: 100vh;
-  background-color: #F8FAFC; /* Modern, light clean slate background */
+  background-color: var(--admin-bg-main);
+  color: var(--admin-text-primary);
+  width: 100%;
 }
 
 .admin-main-content {
@@ -13,6 +36,7 @@
   min-height: 100vh;
   width: 100%;
   transition: all 0.3s ease;
+  background-color: var(--admin-bg-main);
 }
 
 .admin-page-container {
@@ -41,13 +65,13 @@
 .admin-header h1 {
   font-size: 30px;
   font-weight: 800;
-  color: #0A2540;
+  color: var(--admin-text-primary);
   margin: 0 0 6px 0;
   letter-spacing: -0.02em;
 }
 
 .admin-header p {
-  color: #64748B;
+  color: var(--admin-text-secondary);
   font-size: 15px;
   margin: 0;
   font-weight: 500;
@@ -69,17 +93,17 @@
 .admin-date-picker-icon {
   position: absolute;
   left: 14px;
-  color: #64748B;
+  color: var(--admin-accent-celeste);
   pointer-events: none;
   transition: color 0.2s ease;
 }
 
 .admin-date-select {
   padding: 10px 36px 10px 42px;
-  border-radius: 12px; /* Smoother corner instead of pill for professional look */
-  border: 1px solid #E2E8F0;
-  background-color: #FFFFFF;
-  color: #0A2540;
+  border-radius: 12px;
+  border: 1px solid var(--admin-border-color);
+  background-color: var(--admin-bg-card);
+  color: var(--admin-text-primary);
   font-size: 14px;
   font-weight: 600;
   appearance: none;
@@ -90,13 +114,13 @@
 }
 
 .admin-date-select:hover {
-  border-color: #CBD5E1;
+  border-color: var(--admin-border-hover);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
 }
 
 .admin-date-select:focus {
-  border-color: #0A2540;
-  box-shadow: 0 0 0 3px rgba(10, 37, 64, 0.1);
+  border-color: var(--admin-accent-celeste);
+  box-shadow: 0 0 0 3px rgba(84, 188, 235, 0.15);
 }
 
 .admin-export-btn {
@@ -104,21 +128,21 @@
   align-items: center;
   gap: 8px;
   padding: 10px 20px;
-  background-color: #0A2540;
-  color: #FFFFFF;
+  background-color: var(--admin-accent-celeste);
+  color: #001324;
   border-radius: 12px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   border: none;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 4px 12px rgba(10, 37, 64, 0.15);
+  box-shadow: 0 4px 12px rgba(84, 188, 235, 0.15);
 }
 
 .admin-export-btn:hover {
-  background-color: #001E3D;
+  background-color: var(--admin-accent-celeste-hover);
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(10, 37, 64, 0.25);
+  box-shadow: 0 6px 16px rgba(84, 188, 235, 0.25);
 }
 
 .admin-export-btn:active {
@@ -139,18 +163,18 @@
   justify-content: center;
   align-items: center;
   height: 320px;
-  background: #FFFFFF;
+  background: var(--admin-bg-card);
   border-radius: 16px;
-  border: 1px solid #E2E8F0;
-  color: #64748B;
+  border: 1px solid var(--admin-border-color);
+  color: var(--admin-text-secondary);
   gap: 16px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
 }
 
 .admin-error-state {
   color: #EF4444;
-  background: #FEF2F2;
-  border-color: #FCA5A5;
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
 }
 
 .admin-dashboard-content {
@@ -163,7 +187,7 @@
 .admin-last-updated {
   text-align: center;
   font-size: 13px;
-  color: #94A3B8;
+  color: var(--admin-text-secondary);
   margin-top: 24px;
   font-weight: 500;
 }

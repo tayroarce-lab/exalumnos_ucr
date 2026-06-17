@@ -5,15 +5,24 @@ export const PosicionSchema = z.object({
     .min(5, 'El título debe tener al menos 5 caracteres')
     .max(100, 'El título no puede exceder los 100 caracteres'),
   
-  tipo: z.enum(['Empleo', 'Pasantía'], {
+  tipo: z.union([
+    z.enum(['Empleo', 'Pasantía']),
+    z.enum(['empleo', 'pasantia'])
+  ], {
     required_error: 'Debe seleccionar el tipo de posición',
   }),
   
-  modalidad: z.enum(['Presencial', 'Remoto', 'Híbrido'], {
+  modalidad: z.union([
+    z.enum(['Presencial', 'Remoto', 'Híbrido']),
+    z.enum(['presencial', 'remoto', 'hibrido'])
+  ], {
     required_error: 'Debe seleccionar la modalidad',
   }),
   
-  jornada: z.enum(['Tiempo completo', 'Medio tiempo', 'Por proyecto'], {
+  jornada: z.union([
+    z.enum(['Tiempo completo', 'Medio tiempo', 'Por proyecto']),
+    z.enum(['tiempo_completo', 'medio_tiempo', 'por_proyecto'])
+  ], {
     required_error: 'Debe seleccionar la jornada',
   }),
   
