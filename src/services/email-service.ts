@@ -63,6 +63,52 @@ function buildEmailTemplate(title: string, body: string): string {
 // ---------------------------------------------------------------------------
 
 /**
+ * Envía un correo al donante confirmando que la donación está en verificación.
+ */
+export async function sendDonationVerificationEmail(
+  donorEmail: string,
+  donorName: string,
+  amount: number,
+  currency: string,
+  projectName: string
+) {
+  const formattedAmount = currency === 'CRC'
+    ? `₡ ${amount.toLocaleString('es-CR')}`
+    : `$ ${amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+
+  try {
+    await resend.emails.send({
+      from: FROM_ADDRESS,
+      to: donorEmail,
+      subject: '⏳ Tu donación está siendo verificada — Fundación Exalumnos UCR',
+      html: buildEmailTemplate('Donación en Verificación', `
+        <h2 style="margin:0 0 8px; color:#0A2540; font-size:22px;">¡Gracias por tu apoyo, ${donorName}!</h2>
+        <p style="color:#64748b; font-size:15px; margin:0 0 24px;">Hemos recibido tu reporte de donación para el proyecto: <strong>${projectName}</strong>.</p>
+        
+        <div style="background:#fef3c7; border:1px solid #fde68a; border-radius:12px; padding:20px; margin:0 0 24px;">
+          <p style="margin:0 0 6px; font-size:13px; color:#b45309; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">Monto Reportado</p>
+          <p style="margin:0; font-size:28px; font-weight:700; color:#92400e;">${formattedAmount}</p>
+        </div>
+        
+        <p style="color:#475569; font-size:14px; line-height:1.6; margin:0 0 24px;">
+          Actualmente nuestro equipo administrativo está verificando el comprobante de transferencia.
+          Este proceso suele tardar menos de 24 horas hábiles.
+        </p>
+        
+        <p style="color:#475569; font-size:14px; line-height:1.6; margin:0 0 24px;">
+          Te notificaremos por este mismo medio en cuanto la donación sea aprobada y llegue a su destino.
+        </p>
+      `)
+    });
+    return { success: true };
+  } catch (error) {
+    console.error('Error sending donation verification email:', error);
+    return { success: false, error };
+  }
+}
+
+
+/**
  * Envía correos de confirmación de donación al donante y al estudiante.
  * Sends donation confirmation emails to both donor and student.
  */

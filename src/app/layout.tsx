@@ -22,6 +22,8 @@ export const metadata: Metadata = {
   description: 'Directorio Estudiantil',
 }
 
+import A11yToolbar from '@/components/A11yToolbar'
+
 export default function RootLayout({
   children,
 }: {
@@ -31,6 +33,7 @@ export default function RootLayout({
     <html lang="es">
       <body>
         <GlobalLoadingOverlay />
+        <A11yToolbar />
         <ProfileProvider>
           {children}
         </ProfileProvider>

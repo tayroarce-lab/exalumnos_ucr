@@ -88,7 +88,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
   // Dashboard de inicio según rol
   const dashboardHref = isAdmin ? '/admin' : isStudent ? '/student-dashboard' : '/dashboard'
 
-  // Configuración de estilo y botones por contexto
+  // Configuración de estilo y botones por contexto (Exalumno por defecto)
   let config = {
     bgClass: 'bg-[#F34B26] text-white shadow-md border-b border-white/10',
     linkHoverClass: 'hover:bg-white/10 hover:text-white',
@@ -101,7 +101,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
     userCircleBg: 'bg-white/20 text-white',
     menuItems: [
       { name: 'Inicio', href: dashboardHref },
-      { name: 'Directorios', href: '/network' },
+      { name: 'Directorios', href: '/directorio' },
       { name: 'Donaciones', href: '/donations' },
       { name: 'Mentorías', href: '/mentorships' },
       { name: 'Eventos', href: '/events' },
@@ -111,14 +111,14 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
 
   if (isAdmin) {
     config = {
-      bgClass: 'bg-[#004C63] text-white shadow-md border-b border-white/10',
-      linkHoverClass: 'hover:bg-white/10 hover:text-white',
+      bgClass: 'bg-[#001324] text-white shadow-md border-b border-white/10',
+      linkHoverClass: 'hover:bg-[#38BDF8]/10 hover:text-[#38BDF8]',
       linkActiveClass: 'bg-white/20 text-white font-semibold',
-      drawerBg: 'bg-[#004C63]',
+      drawerBg: 'bg-[#001324]',
       drawerItemActive: 'bg-[#54BCEB]/30 text-white',
-      drawerItemHover: 'hover:bg-white/10',
+      drawerItemHover: 'hover:bg-[#38BDF8]/10 hover:text-[#38BDF8]',
       logoFilter: 'brightness(0) invert(1)',
-      badgeClass: 'bg-[#54BCEB] text-[#004C63]',
+      badgeClass: 'bg-[#54BCEB] text-[#001324]',
       userCircleBg: 'bg-white/20 text-white',
       menuItems: [
         { name: 'Inicio', href: dashboardHref },
@@ -142,7 +142,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
       userCircleBg: 'bg-[#004C63]/10 text-slate-800',
       menuItems: [
         { name: 'Inicio', href: dashboardHref },
-        { name: 'Directorios', href: '/network' },
+        { name: 'Directorios', href: '/directorio' },
         { name: 'Mentorías', href: '/mentorships' },
         { name: 'Eventos', href: '/events' },
         { name: 'Empleos', href: '/jobs' }

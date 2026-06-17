@@ -11,37 +11,42 @@
 }
 
 .users-header-titles h1 {
-  font-size: 28px;
-  font-weight: 700;
+  font-size: 30px;
+  font-weight: 800;
   color: #0A2540;
-  margin: 0 0 8px 0;
+  margin: 0 0 6px 0;
+  letter-spacing: -0.02em;
 }
 
 .users-header-titles p {
-  color: #64748b;
+  color: #64748B;
   font-size: 15px;
   margin: 0;
+  font-weight: 500;
 }
 
 /* ── Tabs de tipo de usuario ── */
 .users-tabs {
   display: flex;
-  gap: 4px;
+  gap: 8px;
   margin-bottom: 24px;
   border-bottom: 2px solid #E2E8F0;
+  padding-bottom: 2px;
 }
 
 .users-tab-btn {
-  padding: 12px 20px;
+  padding: 12px 24px;
   font-size: 14px;
-  font-weight: 600;
-  color: #64748b;
+  font-weight: 700;
+  color: #64748B;
   background: transparent;
   border: none;
   border-bottom: 2px solid transparent;
-  margin-bottom: -2px;
+  margin-bottom: -4px;
   cursor: pointer;
-  transition: color 0.2s, border-color 0.2s;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
 }
 
 .users-tab-btn:hover {
@@ -50,71 +55,75 @@
 
 .users-tab-btn.active {
   color: #0A2540;
-  border-bottom-color: #0A2540;
+  border-bottom: 2px solid #0A2540;
 }
 
 .users-tab-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #E2E8F0;
-  color: #475569;
+  background: #F1F5F9;
+  color: #64748B;
   border-radius: 9999px;
   font-size: 11px;
   font-weight: 700;
-  padding: 2px 7px;
+  padding: 2px 8px;
   margin-left: 8px;
+  transition: all 0.2s ease;
 }
 
 .users-tab-btn.active .users-tab-badge {
   background: #0A2540;
-  color: #ffffff;
+  color: #FFFFFF;
 }
 
 /* ── Barra de filtros y búsqueda ── */
 .users-filters-bar {
   background: #FFFFFF;
-  padding: 20px;
-  border-radius: 12px;
+  padding: 24px;
+  border-radius: 16px;
   border: 1px solid #E2E8F0;
   margin-bottom: 24px;
   display: flex;
   align-items: flex-end;
-  gap: 16px;
+  gap: 18px;
   flex-wrap: wrap;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.01), 0 4px 12px rgba(0, 0, 0, 0.02);
 }
 
 .users-search-wrapper {
   position: relative;
   flex: 1;
-  min-width: 220px;
+  min-width: 260px;
 }
 
 .users-search-icon {
   position: absolute;
-  left: 12px;
+  left: 14px;
   top: 50%;
   transform: translateY(-50%);
-  color: #94a3b8;
+  color: #94A3B8;
   pointer-events: none;
 }
 
 .users-search-input {
   width: 100%;
-  padding: 9px 12px 9px 38px;
+  padding: 11px 12px 11px 40px;
   border: 1px solid #E2E8F0;
-  border-radius: 8px;
+  border-radius: 12px;
   font-size: 14px;
   color: #0A2540;
-  background: #f8fafc;
+  background: #F8FAFC;
   outline: none;
   box-sizing: border-box;
-  transition: border-color 0.2s;
+  transition: all 0.2s ease;
+  font-weight: 500;
 }
 
 .users-search-input:focus {
-  border-color: #3b82f6;
-  background: #fff;
+  border-color: #0A2540;
+  background: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(10, 37, 64, 0.06);
 }
 
 .users-filter-group {
@@ -124,35 +133,38 @@
 }
 
 .users-filter-label {
-  font-size: 12px;
-  font-weight: 600;
-  color: #64748b;
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748B;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
 }
 
 .users-filter-select {
-  padding: 9px 12px;
+  padding: 10px 14px;
   border: 1px solid #E2E8F0;
-  border-radius: 8px;
+  border-radius: 12px;
   font-size: 14px;
   color: #0A2540;
-  background: #f8fafc;
+  background: #F8FAFC;
   outline: none;
   cursor: pointer;
-  transition: border-color 0.2s;
+  transition: all 0.2s ease;
+  font-weight: 600;
 }
 
 .users-filter-select:focus {
-  border-color: #3b82f6;
-  background: #fff;
+  border-color: #0A2540;
+  background: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(10, 37, 64, 0.06);
 }
 
 /* ── Conteo ── */
 .users-record-count {
   font-size: 13px;
-  color: #94a3b8;
+  color: #94A3B8;
   margin-bottom: 16px;
+  font-weight: 500;
 }
 
 /* ── Loading / empty ── */
@@ -161,10 +173,11 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 220px;
-  color: #94a3b8;
+  height: 240px;
+  color: #94A3B8;
   gap: 12px;
   font-size: 14px;
+  font-weight: 500;
 }
 
 .users-empty-state {
@@ -172,12 +185,13 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 180px;
-  background: #f8fafc;
-  border-radius: 12px;
-  border: 1px dashed #CBD5E1;
-  color: #94a3b8;
+  height: 200px;
+  background: #F8FAFC;
+  border-radius: 16px;
+  border: 2px dashed #E2E8F0;
+  color: #94A3B8;
   font-size: 14px;
+  font-weight: 500;
 }
 
 /* ── Status pills ── */
@@ -187,9 +201,10 @@
   padding: 4px 12px;
   border-radius: 9999px;
   font-size: 12px;
-  font-weight: 600;
-  background: #ecfdf5;
-  color: #059669;
+  font-weight: 700;
+  background: #ECFDF5;
+  color: #047857;
+  border: 1px solid #D1FAE5;
 }
 
 .users-status-inactive {
@@ -198,9 +213,10 @@
   padding: 4px 12px;
   border-radius: 9999px;
   font-size: 12px;
-  font-weight: 600;
-  background: #fef2f2;
-  color: #dc2626;
+  font-weight: 700;
+  background: #FEF2F2;
+  color: #B91C1C;
+  border: 1px solid #FEE2E2;
 }
 
 /* ── Tipo badge ── */
@@ -210,61 +226,66 @@
   padding: 4px 10px;
   border-radius: 9999px;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .users-type-badge.exalumno {
-  background: #eff6ff;
-  color: #3b82f6;
+  background: rgba(59, 130, 246, 0.08);
+  color: #1D4ED8;
 }
 
 .users-type-badge.estudiante {
-  background: #f0fdf4;
-  color: #16a34a;
+  background: rgba(16, 185, 129, 0.08);
+  color: #047857;
 }
 
 .users-type-badge.admin {
-  background: #faf5ff;
-  color: #7c3aed;
+  background: rgba(139, 92, 246, 0.08);
+  color: #6D28D9;
 }
 
 /* ── Action buttons ── */
 .users-btn-activate {
-  padding: 5px 12px;
-  background: #ecfdf5;
-  border: 1px solid #a7f3d0;
-  border-radius: 7px;
+  padding: 6px 14px;
+  background: #ECFDF5;
+  border: 1px solid #A7F3D0;
+  border-radius: 8px;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 750;
   color: #059669;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
 }
 
 .users-btn-activate:hover {
-  background: #d1fae5;
+  background: #D1FAE5;
+  color: #047857;
+  transform: translateY(-0.5px);
 }
 
 .users-btn-suspend {
-  padding: 5px 12px;
-  background: #fef2f2;
-  border: 1px solid #fca5a5;
-  border-radius: 7px;
+  padding: 6px 14px;
+  background: #FEF2F2;
+  border: 1px solid #FCA5A5;
+  border-radius: 8px;
   font-size: 12px;
-  font-weight: 600;
-  color: #dc2626;
+  font-weight: 750;
+  color: #DC2626;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
 }
 
 .users-btn-suspend:hover {
-  background: #fee2e2;
+  background: #FEE2E2;
+  color: #B91C1C;
+  transform: translateY(-0.5px);
 }
 
 .users-btn-activate:disabled,
 .users-btn-suspend:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
+  transform: none;
 }
 
 /* ── User info cell ── */
@@ -275,28 +296,113 @@
 }
 
 .users-info-name {
-  font-weight: 600;
+  font-weight: 700;
   color: #0A2540;
   font-size: 14px;
 }
 
 .users-info-email {
   font-size: 12px;
-  color: #94a3b8;
+  color: #64748B;
+  font-weight: 500;
 }
 
 /* -- Clases agregadas para eliminar estilos inline -- */
-.admin-stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 32px; }
-.admin-stat-card { background: #fff; border-radius: 12px; padding: 20px; border: 1px solid #E2E8F0; display: flex; align-items: center; gap: 16px; }
-.admin-stat-icon { border-radius: 10px; padding: 12px; }
-.admin-stat-icon.exalumnos { background: #eff6ff; color: #3b82f6; }
-.admin-stat-icon.estudiantes { background: #f0fdf4; color: #16a34a; }
-.admin-stat-icon.activos { background: #ecfdf5; color: #059669; }
-.admin-stat-label { margin: 0; font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
-.admin-stat-value { margin: 0; font-size: 28px; font-weight: 700; color: #0A2540; }
-.admin-error-msg { background: #fef2f2; border: 1px solid #fca5a5; border-radius: 12px; padding: 20px; color: #dc2626; }
-.users-table-cell-sub { font-size: 13px; color: #64748b; }
-.users-table-cell-sub-light { color: #94a3b8; font-size: 12px; }
-.users-table-cell-empty { color: #cbd5e1; }
-.admin-table-avatar.exalumno { background: #eff6ff; color: #3b82f6; }
-.admin-table-avatar.estudiante { background: #f0fdf4; color: #16a34a; }
+.admin-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 24px;
+  margin-bottom: 36px;
+}
+
+@media (min-width: 768px) {
+  .admin-stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.admin-stat-card {
+  background: #FFFFFF;
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid #E2E8F0;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02), 0 4px 12px rgba(0, 0, 0, 0.03);
+  transition: all 0.25s ease;
+}
+
+.admin-stat-card:hover {
+  transform: translateY(-2px);
+  border-color: #CBD5E1;
+  box-shadow: 0 8px 18px rgba(10, 37, 64, 0.05);
+}
+
+.admin-stat-icon {
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 -2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.admin-stat-icon.exalumnos { background: rgba(59, 130, 246, 0.08); color: #2563EB; }
+.admin-stat-icon.estudiantes { background: rgba(16, 185, 129, 0.08); color: #059669; }
+.admin-stat-icon.activos { background: rgba(16, 185, 129, 0.08); color: #059669; }
+
+.admin-stat-label {
+  margin: 0 0 2px 0;
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748B;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.admin-stat-value {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+  color: #0A2540;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.admin-error-msg {
+  background: #FEF2F2;
+  border: 1px solid #FCA5A5;
+  border-radius: 16px;
+  padding: 20px;
+  color: #DC2626;
+  font-weight: 500;
+}
+
+.users-table-cell-sub {
+  font-size: 13px;
+  color: #64748B;
+  font-weight: 500;
+}
+
+.users-table-cell-sub-light {
+  color: #94A3B8;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.users-table-cell-empty {
+  color: #CBD5E1;
+  font-style: italic;
+}
+
+.admin-table-avatar.exalumno {
+  background: rgba(59, 130, 246, 0.08);
+  color: #2563EB;
+}
+
+.admin-table-avatar.estudiante {
+  background: rgba(16, 185, 129, 0.08);
+  color: #059669;
+}
+
