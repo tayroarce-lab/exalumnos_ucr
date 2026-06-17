@@ -10,7 +10,7 @@ import {
   ArrowLeft, ChevronLeft, ChevronRight, CheckCircle2, Save,
   AlertCircle, Plus, Trash2, GripVertical
 } from 'lucide-react'
-import { crearPosicion } from '@/actions/positions'
+import { crearPosicion, type CrearPosicionInput } from '@/actions/positions'
 import type { PosicionFormValues } from '@/lib/validations/posiciones'
 import { useProfile } from '@/contexts/ProfileContext'
 
@@ -168,8 +168,16 @@ export default function PublishJobPage() {
     setServerError(null)
     setIsPublishing(true)
 
-    const mappedData = {
-      ...formData,
+    const mappedData: CrearPosicionInput = {
+      titulo: formData.titulo,
+      empresa: formData.empresa,
+      lugar: formData.lugar,
+      sector: formData.sector,
+      fecha_limite: formData.fecha_limite ?? undefined,
+      habilidades_requeridas: formData.habilidades_requeridas,
+      descripcion_general: formData.descripcion_general,
+      responsabilidades: formData.responsabilidades,
+      contexto_equipo: formData.contexto_equipo || undefined,
       tipo: (formData.tipo === 'Empleo' ? 'empleo' : 'pasantia') as 'empleo' | 'pasantia',
       modalidad: (formData.modalidad === 'Híbrido'
         ? 'hibrido'
@@ -181,7 +189,6 @@ export default function PublishJobPage() {
         : formData.jornada === 'Medio tiempo'
         ? 'medio_tiempo'
         : 'por_proyecto') as 'tiempo_completo' | 'medio_tiempo' | 'por_proyecto',
-      contexto_equipo: formData.contexto_equipo || undefined,
     }
 
     try {
