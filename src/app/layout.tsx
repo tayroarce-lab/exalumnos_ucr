@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { ProfileProvider } from '@/contexts/ProfileContext'
+import GlobalLoadingOverlay from '@/components/GlobalLoadingOverlay'
 import { Barlow_Semi_Condensed, Work_Sans } from 'next/font/google'
 import './globals.css'
 import '../styles/layout.css'
@@ -21,7 +22,7 @@ export const metadata: Metadata = {
   description: 'Directorio Estudiantil',
 }
 
-import GlobalLoadingOverlay from '@/components/GlobalLoadingOverlay'
+import A11yToolbar from '@/components/A11yToolbar'
 
 export default function RootLayout({
   children,
@@ -32,6 +33,7 @@ export default function RootLayout({
     <html lang="es">
       <body>
         <GlobalLoadingOverlay />
+        <A11yToolbar />
         <ProfileProvider>
           {children}
         </ProfileProvider>
