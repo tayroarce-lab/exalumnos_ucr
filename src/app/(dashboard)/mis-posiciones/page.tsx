@@ -104,7 +104,7 @@ export default function MisPosicionesPage() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
             { label: 'Activas',  value: activas,  color: 'text-emerald-600', bg: 'bg-emerald-50 border-emerald-100' },
             { label: 'Pausadas', value: pausadas,  color: 'text-amber-600',   bg: 'bg-amber-50 border-amber-100'     },
@@ -221,6 +221,19 @@ export default function MisPosicionesPage() {
                           Ver aplicantes
                         </button>
                       </Link>
+
+                      {/* Editar */}
+                      {estaActiva && (
+                        <Link href={`/mis-posiciones/${pos.id}/editar`}>
+                          <button
+                            type="button"
+                            className="flex items-center gap-1.5 text-xs font-bold text-slate-600 bg-slate-50 hover:bg-slate-100 border border-slate-200 px-3 py-2 rounded-xl transition-colors w-full"
+                          >
+                            <Edit3 className="w-3.5 h-3.5" />
+                            Editar
+                          </button>
+                        </Link>
+                      )}
 
                       {/* Pausar / Activar */}
                       <button

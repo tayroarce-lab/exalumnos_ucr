@@ -306,3 +306,18 @@ export async function actualizarEstadoVacanteAdmin(
   return { success: true };
 }
 
+// ---------------------------------------------------------------------------
+// eliminarPosicionAdmin — permite al admin eliminar una posición
+// ---------------------------------------------------------------------------
+export async function eliminarPosicionAdmin(id: string) {
+  const { adminClient } = await getAuthenticatedAdmin();
+
+  const { error } = await adminClient
+    .from('posiciones')
+    .delete()
+    .eq('id', id);
+
+  if (error) throw new Error(error.message);
+  return { success: true };
+}
+

@@ -1,7 +1,7 @@
 /* src/styles/admin-footer.css */
 
 .admin-footer {
-  background-color: #0A2540;
+  background-color: var(--admin-bg-main, #001324);
   color: #94a3b8;
   padding: 24px 32px;
   font-family: 'Inter', system-ui, sans-serif;
@@ -9,6 +9,7 @@
   justify-content: space-between;
   align-items: center;
   margin-top: auto;
+  border-top: 1px solid var(--admin-border-color, rgba(84, 188, 235, 0.2));
 }
 
 .admin-footer-links {
@@ -24,9 +25,22 @@
 }
 
 .admin-footer-link:hover {
-  color: #FFFFFF;
+  color: var(--admin-accent-celeste, #54BCEB);
 }
 
 .admin-footer-copy {
   font-size: 13px;
+}
+
+@media (max-width: 639px) {
+  .admin-footer {
+    flex-direction: column;
+    gap: 16px;
+    padding: 24px 16px;
+    text-align: center;
+  }
+  .admin-footer-links {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
 }

@@ -72,7 +72,7 @@ function aplicarSecurityHeaders(response: NextResponse): NextResponse {
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
       `connect-src 'self' ${process.env.NEXT_PUBLIC_SUPABASE_URL} wss://*.supabase.co`,
-      "img-src 'self' data: blob: https://*.supabase.co https://*.supabase.storage",
+      "img-src 'self' data: blob: https://*.supabase.co https://*.supabase.storage https://supabase.co https://ui-avatars.com",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",
@@ -382,6 +382,19 @@ export async function middleware(req: NextRequest) {
       }
       return aplicarSecurityHeaders(NextResponse.redirect(url))
     }
+  }
+
+  // ── CAPA 6: Dashboard Role Guard ──────────────────────────────────────────
+  if ((ruta === '/dashboard' || ruta === '/dashboard/') && userData?.rol === 'estudiante') {
+    const url = req.nextUrl.clone()
+    url.pathname = '/student-dashboard'
+    return aplicarSecurityHeaders(NextResponse.redirect(url))
+  }
+
+  if ((ruta === '/student-dashboard' || ruta === '/student-dashboard/') && userData?.rol === 'exalumno') {
+    const url = req.nextUrl.clone()
+    url.pathname = '/dashboard'
+    return aplicarSecurityHeaders(NextResponse.redirect(url))
   }
 
   return aplicarSecurityHeaders(response)
