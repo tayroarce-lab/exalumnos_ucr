@@ -384,6 +384,19 @@ export async function middleware(req: NextRequest) {
     }
   }
 
+  // ── CAPA 6: Dashboard Role Guard ──────────────────────────────────────────
+  if ((ruta === '/dashboard' || ruta === '/dashboard/') && userData?.rol === 'estudiante') {
+    const url = req.nextUrl.clone()
+    url.pathname = '/student-dashboard'
+    return aplicarSecurityHeaders(NextResponse.redirect(url))
+  }
+
+  if ((ruta === '/student-dashboard' || ruta === '/student-dashboard/') && userData?.rol === 'exalumno') {
+    const url = req.nextUrl.clone()
+    url.pathname = '/dashboard'
+    return aplicarSecurityHeaders(NextResponse.redirect(url))
+  }
+
   return aplicarSecurityHeaders(response)
 }
 

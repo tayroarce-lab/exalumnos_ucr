@@ -147,8 +147,8 @@ export default function DashboardPage() {
               Sigue formando parte del cambio desde donde estés.
             </p>
             <Link href="/jobs" className="inline-block pt-2">
-              <Button variant="primary" className="bg-white text-[#000000] hover:bg-orange-50 hover:scale-105 active:scale-95 transition-all duration-300 font-bold uppercase tracking-wider text-xs px-6 shadow-md border-0">
-                Explorar oportunidades →
+              <Button variant="primary" className="bg-white !text-black hover:bg-orange-50 hover:scale-105 active:scale-95 transition-all duration-300 font-bold uppercase tracking-wider text-xs px-6 shadow-md border-0">
+                Ver vacantes disponibles →
               </Button>
             </Link>
           </div>

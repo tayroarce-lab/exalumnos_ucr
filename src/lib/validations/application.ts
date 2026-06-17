@@ -12,7 +12,7 @@ export const createApplicationSchema = z.object({
 
 export const updateApplicationStatusSchema = z.object({
   application_id: z.string().uuid(),
-  status: z.enum(['en_revision', 'seleccionado', 'descartado']),
+  status: z.enum(['enviada', 'en_revision', 'seleccionado', 'descartado']),
   close_position: z.boolean().optional().default(false),
 })
 
