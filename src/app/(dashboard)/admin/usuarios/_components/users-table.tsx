@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { Loader2, Search, UserCheck, UserX } from 'lucide-react';
+import { Loader2, Search, UserCheck, UserX, Users, GraduationCap, ShieldCheck, LayoutGrid } from 'lucide-react';
 import { suspenderUsuario, reactivarUsuario } from '@/actions/users';
 import '../../../../../styles/admin-table.css';
 import '../../../../../styles/admin-usuarios.css';
@@ -25,9 +25,16 @@ export function UsersTable({ initialUsers }: UsersTableProps) {
   const [users, setUsers] = useState<UserRecord[]>(initialUsers);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'inactive'>('all');
+  const [filterRole, setFilterRole] = useState<'all' | 'exalumno' | 'estudiante' | 'admin'>('all');
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
-  // Filtrado local por nombre/email y estado
+  // Estadísticas rápidas para las tarjetas
+  const totalUsers = users.length;
+  const totalExalumnos = users.filter(u => u.rol === 'exalumno').length;
+  const totalEstudiantes = users.filter(u => u.rol === 'estudiante').length;
+  const totalAdmins = users.filter(u => u.rol === 'admin').length;
+
+  // Filtrado local por nombre/email, estado y rol
   const filteredUsers = users.filter(u => {
     const matchesSearch =
       u.nombre?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -36,7 +43,9 @@ export function UsersTable({ initialUsers }: UsersTableProps) {
       filterStatus === 'all' ||
       (filterStatus === 'active' && u.activo) ||
       (filterStatus === 'inactive' && !u.activo);
-    return matchesSearch && matchesStatus;
+    const matchesRole =
+      filterRole === 'all' || u.rol === filterRole;
+    return matchesSearch && matchesStatus && matchesRole;
   });
 
   const handleSuspend = async (userId: string) => {
@@ -85,7 +94,66 @@ export function UsersTable({ initialUsers }: UsersTableProps) {
 
   return (
     <div>
-      {/* Barra de búsqueda y filtros */}
+      {/* Tarjetas de resumen rápido y filtrado interactivo */}
+      <div className="admin-stats-grid">
+        {/* Tarjeta: Todos */}
+        <div 
+          className={`admin-stat-card cursor-pointer transition-all ${filterRole === 'all' ? 'active todos' : ''}`}
+          onClick={() => setFilterRole('all')}
+        >
+          <div className="admin-stat-icon todos">
+            <LayoutGrid size={22} />
+          </div>
+          <div>
+            <p className="admin-stat-label">Todos</p>
+            <p className="admin-stat-value">{totalUsers}</p>
+          </div>
+        </div>
+
+        {/* Tarjeta: Exalumnos */}
+        <div 
+          className={`admin-stat-card cursor-pointer transition-all ${filterRole === 'exalumno' ? 'active exalumnos' : ''}`}
+          onClick={() => setFilterRole('exalumno')}
+        >
+          <div className="admin-stat-icon exalumnos">
+            <Users size={22} />
+          </div>
+          <div>
+            <p className="admin-stat-label">Exalumnos</p>
+            <p className="admin-stat-value">{totalExalumnos}</p>
+          </div>
+        </div>
+
+        {/* Tarjeta: Estudiantes */}
+        <div 
+          className={`admin-stat-card cursor-pointer transition-all ${filterRole === 'estudiante' ? 'active estudiantes' : ''}`}
+          onClick={() => setFilterRole('estudiante')}
+        >
+          <div className="admin-stat-icon estudiantes">
+            <GraduationCap size={22} />
+          </div>
+          <div>
+            <p className="admin-stat-label">Estudiantes</p>
+            <p className="admin-stat-value">{totalEstudiantes}</p>
+          </div>
+        </div>
+
+        {/* Tarjeta: Administradores */}
+        <div 
+          className={`admin-stat-card cursor-pointer transition-all ${filterRole === 'admin' ? 'active admins' : ''}`}
+          onClick={() => setFilterRole('admin')}
+        >
+          <div className="admin-stat-icon admins">
+            <ShieldCheck size={22} />
+          </div>
+          <div>
+            <p className="admin-stat-label">Administradores</p>
+            <p className="admin-stat-value">{totalAdmins}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Barra de búsqueda y filtros secundarios */}
       <div className="users-filters-bar">
         <div className="users-search-wrapper">
           <Search className="users-search-icon" size={16} />

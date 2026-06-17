@@ -37,40 +37,7 @@ export default async function AdminUsuariosPage() {
         </div>
       </div>
 
-      {/* Tarjetas de resumen rápido */}
-      <div className="admin-stats-grid">
-        <div className="admin-stat-card">
-          <div className="admin-stat-icon exalumnos">
-            <Users size={22} />
-          </div>
-          <div>
-            <p className="admin-stat-label">Exalumnos</p>
-            <p className="admin-stat-value">{totalExalumnos}</p>
-          </div>
-        </div>
-
-        <div className="admin-stat-card">
-          <div className="admin-stat-icon estudiantes">
-            <GraduationCap size={22} />
-          </div>
-          <div>
-            <p className="admin-stat-label">Estudiantes</p>
-            <p className="admin-stat-value">{totalEstudiantes}</p>
-          </div>
-        </div>
-
-        <div className="admin-stat-card">
-          <div className="admin-stat-icon activos">
-            <UserCheck size={22} />
-          </div>
-          <div>
-            <p className="admin-stat-label">Perfiles Activos</p>
-            <p className="admin-stat-value">{totalActivos}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Tabla de usuarios con filtros interactivos del lado del cliente */}
+      {/* La tabla de usuarios ahora renderizará las tarjetas interactivas */}
       <main>
         {errorMsg ? (
           <div className="admin-error-msg">

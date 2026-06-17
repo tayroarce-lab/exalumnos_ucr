@@ -317,7 +317,13 @@
 
 @media (min-width: 768px) {
   .admin-stats-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .admin-stats-grid {
+    grid-template-columns: repeat(4, 1fr);
   }
 }
 
@@ -348,9 +354,39 @@
   box-shadow: inset 0 -2px 4px rgba(0, 0, 0, 0.02);
 }
 
-.admin-stat-icon.exalumnos { background: rgba(59, 130, 246, 0.15); color: #60A5FA; }
-.admin-stat-icon.estudiantes { background: rgba(16, 185, 129, 0.15); color: #10B981; }
-.admin-stat-icon.activos { background: rgba(16, 185, 129, 0.15); color: #10B981; }
+.admin-stat-icon.todos { background: rgba(100, 116, 139, 0.08); color: #64748B; }
+.admin-stat-icon.exalumnos { background: rgba(243, 75, 38, 0.08); color: #F34B26; }
+.admin-stat-icon.estudiantes { background: rgba(84, 188, 235, 0.08); color: #54BCEB; }
+.admin-stat-icon.admins { background: rgba(13, 64, 145, 0.08); color: #0D4091; }
+
+/* ── Active states for cards ── */
+.admin-stat-card.active.todos {
+  border-color: #64748B;
+  background-color: #F8FAFC;
+  box-shadow: 0 0 0 1px #64748B;
+}
+
+.admin-stat-card.active.exalumnos {
+  border-color: #F34B26;
+  background-color: #FFF5F3;
+  box-shadow: 0 0 0 1px #F34B26;
+}
+
+.admin-stat-card.active.estudiantes {
+  border-color: #54BCEB;
+  background-color: #F0FAFF;
+  box-shadow: 0 0 0 1px #54BCEB;
+}
+
+.admin-stat-card.active.admins {
+  border-color: #0D4091;
+  background-color: #F0F4FF;
+  box-shadow: 0 0 0 1px #0D4091;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
 
 .admin-stat-label {
   margin: 0 0 2px 0;
