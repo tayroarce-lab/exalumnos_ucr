@@ -128,11 +128,13 @@ export async function calcularScoreMentoria(
   const supabase = await createClient()
 
   const camposRequeridos = `
-    id, rol, carrera_principal_id, sector_industria, hobbies, proyecto_area_tematica,
+    id, rol, carrera_principal_id, hobbies,
     busca_mentoria, busca_empleo, busca_pasantia, busca_financiamiento,
     ofrece_mentoria, ofrece_empleo, ofrece_pasantia, ofrece_donacion_dinero,
     visible_en_directorio,
-    users_areas_interes(catalogo_areas_interes(nombre))
+    users_areas_interes(catalogo_areas_interes(nombre)),
+    exalumnos(sector_industria),
+    estudiantes(proyecto_area_tematica)
   `
 
   const [{ data: estudiante, error: errEst }, { data: exalumno, error: errEx }] =
@@ -160,7 +162,12 @@ export async function calcularScoreMentoria(
 
   const mapAreas = (u: any) => {
     const arr = u.users_areas_interes?.map((ua: any) => ua.catalogo_areas_interes?.nombre).filter(Boolean) || []
-    return { ...u, areas_de_interes: arr }
+    return { 
+      ...u, 
+      areas_de_interes: arr,
+      sector_industria: Array.isArray(u.exalumnos) ? u.exalumnos[0]?.sector_industria : u.exalumnos?.sector_industria,
+      proyecto_area_tematica: Array.isArray(u.estudiantes) ? u.estudiantes[0]?.proyecto_area_tematica : u.estudiantes?.proyecto_area_tematica
+    }
   }
 
   const est = mapAreas(estudiante) as PerfilUsuario
