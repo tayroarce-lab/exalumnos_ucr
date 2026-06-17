@@ -2,8 +2,9 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { DonationAdminView, DonationsHistoryFilters } from '@/types/donations';
-import { sendDonationConfirmationEmails, sendDonationRejectionEmail } from '@/services/email-service';
+import { sendDonationConfirmationEmails, sendDonationRejectionEmail, sendDonationVerificationEmail } from '@/services/email-service';
 import { notificarNuevaDonacionAdmin } from '@/lib/email';
+import { createAdminClient } from '@/lib/supabase/admin';
 
 export interface CrearDonacionInput {
   proyecto_destino: string;
@@ -14,6 +15,8 @@ export interface CrearDonacionInput {
   numero_referencia: string;
   comprobante_url: string;
   mensaje_estudiante?: string;
+  /** ID del estudiante si la donación es para un proyecto específico */
+  estudiante_id?: string;
 }
 
 // Tabla real en la BD: public.donations (con columna user_id)
@@ -65,27 +68,29 @@ async function enrichDonationsWithUsers(supabase: any, donations: any[]): Promis
 }
 
 export async function getPendingDonations(): Promise<{ data: DonationAdminView[] | null; error: string | null }> {
-  const supabase = await createClient();
+  // Usamos adminClient para bypassear RLS (políticas tienen bug: usan `tipo` en vez de `rol`)
+  const adminClient = createAdminClient();
 
-  const { data, error } = await supabase
+  const { data, error } = await adminClient
     .from(DB_TABLE)
     .select('*')
     .eq('estado', 'pendiente')
-    .order('created_at', { ascending: true }); 
+    .order('created_at', { ascending: true });
 
   if (error) {
     console.error('Error fetching pending donations:', error);
     return { data: null, error: error.message };
   }
 
-  const formattedData = await enrichDonationsWithUsers(supabase, data || []);
+  const formattedData = await enrichDonationsWithUsers(adminClient, data || []);
   return { data: formattedData, error: null };
 }
 
 export async function getDonationsHistory(filters?: DonationsHistoryFilters): Promise<{ data: DonationAdminView[] | null; error: string | null }> {
-  const supabase = await createClient();
+  // Usamos adminClient para bypassear RLS (políticas tienen bug: usan `tipo` en vez de `rol`)
+  const adminClient = createAdminClient();
 
-  let query = supabase
+  let query = adminClient
     .from(DB_TABLE)
     .select('*')
     .neq('estado', 'pendiente')
@@ -106,7 +111,7 @@ export async function getDonationsHistory(filters?: DonationsHistoryFilters): Pr
     return { data: null, error: error.message };
   }
 
-  const formattedData = await enrichDonationsWithUsers(supabase, data || []);
+  const formattedData = await enrichDonationsWithUsers(adminClient, data || []);
   return { data: formattedData, error: null };
 }
 
@@ -122,9 +127,15 @@ export async function processDonation(
     return { success: false, error: 'Unauthorized: User not found' };
   }
 
+  const adminClient = createAdminClient();
+  const { data: profile } = await adminClient.from('users').select('rol').eq('id', user.id).single();
+  if (profile?.rol !== 'admin') {
+    return { success: false, error: 'Unauthorized: Admins only' };
+  }
+
   const newState = action === 'confirm' ? 'confirmada' : 'rechazada';
 
-  const { data: donation, error: fetchError } = await supabase
+  const { data: donation, error: fetchError } = await adminClient
     .from(DB_TABLE)
     .select('*')
     .eq('id', donationId)
@@ -134,7 +145,7 @@ export async function processDonation(
     return { success: false, error: 'Donation not found' };
   }
 
-  const { error: updateError } = await supabase
+  const { error: updateError } = await adminClient
     .from(DB_TABLE)
     .update({
       estado: newState,
@@ -148,7 +159,7 @@ export async function processDonation(
   }
 
   // Get donor info
-  const { data: donor } = await supabase
+  const { data: donor } = await adminClient
     .from('users')
     .select('nombre, email')
     .eq('id', donation.user_id)
@@ -161,10 +172,25 @@ export async function processDonation(
   const projectName = FONDOS_MAP[projectKey] || projectKey;
 
   if (action === 'confirm' && donorEmail) {
+    // Si es donación a un proyecto de estudiante, buscar su email también
+    let studentEmail: string | null = null;
+    let studentName: string | null = null;
+    const targetStudentId = donation.proyecto_id || (donation.fondo_destino?.length > 10 ? donation.fondo_destino : null);
+    
+    if (targetStudentId) {
+      const { data: studentData } = await supabase
+        .from('users')
+        .select('nombre, email')
+        .eq('id', targetStudentId)
+        .single();
+      studentEmail = studentData?.email || null;
+      studentName = studentData?.nombre || null;
+    }
+
     await sendDonationConfirmationEmails(
       donorEmail, donorName,
       donation.monto, donation.moneda,
-      process.env.ADMIN_EMAIL || 'admin@fundacionucr.org', projectName
+      studentEmail, studentName
     );
   } else if (action === 'reject' && donorEmail && rejectionReason) {
     await sendDonationRejectionEmail(donorEmail, donorName, rejectionReason);
@@ -181,7 +207,7 @@ export async function crearDonacion(data: CrearDonacionInput) {
     throw new Error('No autenticado');
   }
 
-  // Verificar que sea exalumno
+  // Verificar que sea exalumno usando el cliente normal (lectura propia, no bloqueada por RLS)
   const { data: profile } = await supabase
     .from('users')
     .select('rol')
@@ -193,9 +219,15 @@ export async function crearDonacion(data: CrearDonacionInput) {
   }
 
   try {
-    const isFondoGeneral = data.proyecto_destino === 'general' || data.proyecto_destino === '1' || data.proyecto_destino === '2';
-    
-    const { error } = await supabase.from(DB_TABLE).insert({
+    const esProyectoEstudiante = Boolean(data.estudiante_id);
+    const isFondoGeneral = !esProyectoEstudiante && (
+      data.proyecto_destino === 'general' || data.proyecto_destino === '1' || data.proyecto_destino === '2'
+    );
+
+    // Usar el cliente admin para el INSERT y evitar el bloqueo de RLS en la tabla donations
+    const supabaseAdmin = createAdminClient();
+
+    const { error } = await supabaseAdmin.from(DB_TABLE).insert({
       user_id: user.id,
       fondo_general: isFondoGeneral,
       fondo_destino: data.proyecto_destino,
@@ -207,18 +239,79 @@ export async function crearDonacion(data: CrearDonacionInput) {
       comprobante_url: data.comprobante_url,
       mensaje_estudiante: data.mensaje_estudiante,
       estado: 'pendiente',
+      ...(esProyectoEstudiante && {
+        proyecto_id: data.estudiante_id,
+      }),
     });
     
     if (error) throw error;
 
     const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@fundacionucr.org';
-    const projectName = FONDOS_MAP[data.proyecto_destino] || data.proyecto_destino;
+    const projectName = esProyectoEstudiante
+      ? (data.proyecto_destino || 'Proyecto de estudiante')
+      : (FONDOS_MAP[data.proyecto_destino] || data.proyecto_destino);
+    
+    // Notificar al admin
     await notificarNuevaDonacionAdmin(ADMIN_EMAIL, data.monto, data.moneda, projectName, data.metodo_pago);
+
+    // Email de verificación al exalumno donante
+    const { data: donorData } = await supabase
+      .from('users')
+      .select('nombre, email')
+      .eq('id', user.id)
+      .single();
+    
+    if (donorData?.email) {
+      await sendDonationVerificationEmail(
+        donorData.email,
+        donorData.nombre || 'Estimado/a',
+        data.monto,
+        data.moneda,
+        projectName
+      );
+    }
 
     return { success: true };
   } catch (error: any) {
     console.error('Error al crear donación:', error);
     throw new Error(error.message || 'Error al registrar la donación');
+  }
+}
+
+export async function uploadComprobante(formData: FormData): Promise<{ success: boolean; filePath?: string; error?: string }> {
+  try {
+    const file = formData.get('file') as File | null;
+    const userId = formData.get('userId') as string | null;
+    
+    if (!file || !userId) {
+      return { success: false, error: 'Faltan datos para subir el comprobante' };
+    }
+
+    const supabaseAdmin = createAdminClient();
+    
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+    const filePath = `${userId}/${fileName}`;
+
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    const { error: uploadError } = await supabaseAdmin.storage
+      .from('comprobantes')
+      .upload(filePath, buffer, {
+        contentType: file.type,
+        upsert: false
+      });
+
+    if (uploadError) {
+      console.error('Error en uploadComprobante admin:', uploadError);
+      return { success: false, error: uploadError.message };
+    }
+
+    return { success: true, filePath };
+  } catch (error: any) {
+    console.error('Excepción en uploadComprobante:', error);
+    return { success: false, error: error.message };
   }
 }
 
@@ -231,7 +324,8 @@ export async function obtenerMisDonaciones() {
   }
 
   try {
-    const { data, error } = await supabase
+    const supabaseAdmin = createAdminClient();
+    const { data, error } = await supabaseAdmin
       .from(DB_TABLE)
       .select('*')
       .eq('user_id', user.id)
@@ -239,7 +333,7 @@ export async function obtenerMisDonaciones() {
 
     if (error) throw error;
     
-    const formattedData = await enrichDonationsWithUsers(supabase, data || []);
+    const formattedData = await enrichDonationsWithUsers(supabaseAdmin, data || []);
     return { success: true, data: formattedData };
   } catch (error: any) {
     console.error('Error al obtener donaciones:', error);

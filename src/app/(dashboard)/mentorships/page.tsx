@@ -194,14 +194,36 @@ export default function MentoriasPage() {
           areas_comunes,
           created_at,
           estudiante:users!matches_estudiante_id_fkey (
-            id, nombre, apellidos, foto_url, carrera_principal, proyecto_titulo
+            id, nombre, apellidos, foto_url,
+            estudiantes (
+              carrera,
+              proyecto_titulo
+            )
           )
         `)
         .eq('exalumno_id', user.id)
         .order('score_match', { ascending: false })
 
       if (fetchError) throw new Error(fetchError.message)
-      setMatches((data ?? []) as unknown as MatchReal[])
+
+      const mappedData = (data ?? []).map((m: any) => {
+        const estObj = Array.isArray(m.estudiante) ? m.estudiante[0] : m.estudiante;
+        const estData = Array.isArray(estObj?.estudiantes) ? estObj?.estudiantes[0] : estObj?.estudiantes;
+        
+        return {
+          ...m,
+          estudiante: estObj ? {
+            id: estObj.id,
+            nombre: estObj.nombre,
+            apellidos: estObj.apellidos,
+            foto_url: estObj.foto_url,
+            carrera_principal: estData?.carrera ?? null,
+            proyecto_titulo: estData?.proyecto_titulo ?? null,
+          } : null
+        }
+      });
+
+      setMatches(mappedData as unknown as MatchReal[])
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'No se pudieron cargar los matches.')
     } finally {
@@ -259,7 +281,7 @@ export default function MentoriasPage() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
             { label: 'Sugeridos', value: totalSugeridos, color: 'text-[#F34B26]',    bg: 'bg-orange-50 border-[#F34B26]/20'       },
             { label: 'Activos',   value: totalActivos,   color: 'text-emerald-600', bg: 'bg-emerald-50 border-emerald-100' },

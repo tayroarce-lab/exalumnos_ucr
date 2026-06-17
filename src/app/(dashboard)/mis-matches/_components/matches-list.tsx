@@ -5,6 +5,7 @@ import { requestConnection, respondToConnection } from '@/actions/matches';
 import Card from '@/components/ui/card';
 import Button from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
+import { Heart, Users, Briefcase, GraduationCap } from 'lucide-react';
 
 // Tipos básicos basados en la consulta de getMyMatches
 type UserMatchInfo = {
@@ -30,7 +31,7 @@ type MatchType = {
   estudiante: UserMatchInfo | UserMatchInfo[];
 };
 
-export function MatchesList({ initialMatches, currentUserId }: { initialMatches: MatchType[], currentUserId: string }) {
+export function MatchesList({ initialMatches, currentUserId, currentUserRole }: { initialMatches: MatchType[], currentUserId: string, currentUserRole: string }) {
   const [matches, setMatches] = useState<MatchType[]>(initialMatches);
   const { toast } = useToast();
   const [loadingId, setLoadingId] = useState<string | null>(null);
@@ -41,7 +42,7 @@ export function MatchesList({ initialMatches, currentUserId }: { initialMatches:
       const res = await requestConnection(matchId);
       if (res.success) {
         toast({ title: 'Conexión solicitada', description: 'Se ha notificado a la otra parte.' });
-        setMatches(matches.map(m => m.id === matchId ? { ...m, estado: 'contactado', iniciado_por: currentUserId } : m));
+        setMatches(matches.map(m => m.id === matchId ? { ...m, estado: 'contactado', iniciado_por: currentUserRole } : m));
       } else {
         toast({ title: 'Error', description: res.error || 'No se pudo solicitar la conexión.', variant: 'destructive' });
       }
@@ -99,8 +100,9 @@ export function MatchesList({ initialMatches, currentUserId }: { initialMatches:
 
         const isContactado = match.estado === 'contactado';
         const isActivo = match.estado === 'activo';
-        const isMiTurnoDeResponder = isContactado && match.iniciado_por !== currentUserId;
-        const yaSolicite = isContactado && match.iniciado_por === currentUserId;
+        // En DB, iniciado_por guarda el rol ('estudiante' o 'exalumno'), no el ID
+        const yaSolicite = isContactado && match.iniciado_por === currentUserRole;
+        const isMiTurnoDeResponder = isContactado && match.iniciado_por !== currentUserRole;
 
         return (
           <Card key={match.id} className="p-6 flex flex-col justify-between">
@@ -113,7 +115,14 @@ export function MatchesList({ initialMatches, currentUserId }: { initialMatches:
               </div>
               
               <div className="space-y-2 mb-6 text-sm text-gray-600">
-                <p><span className="font-medium text-gray-900">Tipo de apoyo:</span> <span className="capitalize">{match.tipo_apoyo}</span></p>
+                <div className="flex items-center gap-1 mb-1">
+                  <span className="font-medium text-gray-900">Tipo de apoyo:</span>
+                  {match.tipo_apoyo === 'mentoria' && <><GraduationCap className="w-4 h-4 ml-1 text-blue-600" /> <span>Mentoría profesional</span></>}
+                  {match.tipo_apoyo === 'empleo' && <><Briefcase className="w-4 h-4 ml-1 text-emerald-600" /> <span>Oferta de empleo</span></>}
+                  {match.tipo_apoyo === 'pasantia' && <><Users className="w-4 h-4 ml-1 text-violet-600" /> <span>Pasantía</span></>}
+                  {match.tipo_apoyo === 'donacion' && <><Heart className="w-4 h-4 ml-1 text-orange-600" /> <span>Donación económica</span></>}
+                  {!['mentoria', 'empleo', 'pasantia', 'donacion'].includes(match.tipo_apoyo) && <span className="capitalize ml-1">{match.tipo_apoyo}</span>}
+                </div>
                 {otherUserInfo?.hobbies && otherUserInfo.hobbies.length > 0 && (
                   <p><span className="font-medium text-gray-900">Hobbies:</span> {otherUserInfo.hobbies.join(', ')}</p>
                 )}

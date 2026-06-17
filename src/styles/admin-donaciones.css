@@ -309,3 +309,17 @@
   font-weight: 500;
 }
 
+@media (max-width: 639px) {
+  .donations-tabs {
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+  .donations-filters-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .donations-total-card {
+    width: 100%;
+  }
+}
+
