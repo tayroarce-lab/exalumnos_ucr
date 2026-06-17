@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import {
   Accessibility,
   Type,
@@ -18,6 +18,22 @@ const A11yToolbar = () => {
   const [grayscale, setGrayscale] = useState(false)
   const [highlightLinks, setHighlightLinks] = useState(false)
   const [textToSpeech, setTextToSpeech] = useState(false)
+  const toolbarRef = useRef<HTMLDivElement>(null)
+
+  // Handle click outside to close
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (toolbarRef.current && !toolbarRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isOpen])
 
   // Initialization from localStorage (run only on client to avoid hydration errors)
   useEffect(() => {
@@ -121,9 +137,9 @@ const A11yToolbar = () => {
   }
 
   return (
-    <div className={`fixed top-1/2 right-0 -translate-y-1/2 z-[9999] flex items-center transition-all duration-300 ${isOpen ? '' : 'translate-x-[250px]'}`}>
+    <div ref={toolbarRef} className={`fixed top-1/2 right-0 -translate-y-1/2 z-[9999] flex items-center transition-all duration-300 ${isOpen ? '' : 'translate-x-[250px]'}`}>
       <button 
-        className="bg-cyan-400 hover:bg-cyan-500 text-slate-900 border-none w-[50px] h-[50px] rounded-l-xl cursor-pointer shadow-[-2px_0_10px_rgba(0,0,0,0.5)] flex items-center justify-center transition-colors absolute left-[-50px]" 
+        className="bg-cyan-400 hover:bg-cyan-500 text-white border-none w-[50px] h-[50px] rounded-l-xl cursor-pointer shadow-[-2px_0_10px_rgba(0,0,0,0.5)] flex items-center justify-center transition-colors absolute left-[-50px]" 
         onClick={() => setIsOpen(!isOpen)}
         title="Herramientas de Accesibilidad"
         aria-label="Abrir panel de accesibilidad"
@@ -131,39 +147,39 @@ const A11yToolbar = () => {
         <Accessibility className="w-6 h-6" />
       </button>
 
-      <div className="bg-slate-900/95 backdrop-blur-md border border-slate-700 p-5 rounded-l-2xl text-white w-[250px] shadow-[-5px_0_15px_rgba(0,0,0,0.7)] flex flex-col gap-4">
-        <h3 className="text-lg font-bold m-0 border-b border-white/10 pb-2.5 text-center">Accesibilidad</h3>
+      <div className="bg-[#FDF3E7]/95 backdrop-blur-md border border-[#E6D5C3] p-5 rounded-l-2xl text-slate-900 w-[250px] shadow-[-5px_0_15px_rgba(0,0,0,0.3)] flex flex-col gap-4">
+        <h3 className="text-lg font-bold m-0 border-b border-[#E6D5C3] pb-2.5 text-center text-slate-900">Accesibilidad</h3>
         
         <button 
-          className={`bg-slate-800 border border-slate-700 text-slate-200 p-2.5 rounded-lg flex items-center gap-2.5 cursor-pointer transition-colors text-sm hover:bg-white/10 ${largeText ? 'bg-cyan-400/20 border-cyan-400 text-cyan-400' : ''}`}
+          className={`border p-2.5 rounded-lg flex items-center gap-2.5 cursor-pointer transition-colors text-sm hover:bg-white/60 ${largeText ? 'bg-cyan-500/20 border-cyan-500 text-cyan-800 font-medium' : 'bg-white/40 border-[#E6D5C3] text-slate-800'}`}
           onClick={() => setLargeText(!largeText)}
         >
           <Type className="w-5 h-5 text-center" /> Texto Grande
         </button>
 
         <button 
-          className={`bg-slate-800 border border-slate-700 text-slate-200 p-2.5 rounded-lg flex items-center gap-2.5 cursor-pointer transition-colors text-sm hover:bg-white/10 ${highContrast ? 'bg-cyan-400/20 border-cyan-400 text-cyan-400' : ''}`}
+          className={`border p-2.5 rounded-lg flex items-center gap-2.5 cursor-pointer transition-colors text-sm hover:bg-white/60 ${highContrast ? 'bg-cyan-500/20 border-cyan-500 text-cyan-800 font-medium' : 'bg-white/40 border-[#E6D5C3] text-slate-800'}`}
           onClick={() => setHighContrast(!highContrast)}
         >
           <Contrast className="w-5 h-5 text-center" /> Alto Contraste
         </button>
 
         <button 
-          className={`bg-slate-800 border border-slate-700 text-slate-200 p-2.5 rounded-lg flex items-center gap-2.5 cursor-pointer transition-colors text-sm hover:bg-white/10 ${grayscale ? 'bg-cyan-400/20 border-cyan-400 text-cyan-400' : ''}`}
+          className={`border p-2.5 rounded-lg flex items-center gap-2.5 cursor-pointer transition-colors text-sm hover:bg-white/60 ${grayscale ? 'bg-cyan-500/20 border-cyan-500 text-cyan-800 font-medium' : 'bg-white/40 border-[#E6D5C3] text-slate-800'}`}
           onClick={() => setGrayscale(!grayscale)}
         >
           <Droplet className="w-5 h-5 text-center" /> Escala de Grises
         </button>
 
         <button 
-          className={`bg-slate-800 border border-slate-700 text-slate-200 p-2.5 rounded-lg flex items-center gap-2.5 cursor-pointer transition-colors text-sm hover:bg-white/10 ${highlightLinks ? 'bg-cyan-400/20 border-cyan-400 text-cyan-400' : ''}`}
+          className={`border p-2.5 rounded-lg flex items-center gap-2.5 cursor-pointer transition-colors text-sm hover:bg-white/60 ${highlightLinks ? 'bg-cyan-500/20 border-cyan-500 text-cyan-800 font-medium' : 'bg-white/40 border-[#E6D5C3] text-slate-800'}`}
           onClick={() => setHighlightLinks(!highlightLinks)}
         >
           <LinkIcon className="w-5 h-5 text-center" /> Resaltar Enlaces
         </button>
 
         <button 
-          className={`bg-slate-800 border border-slate-700 text-slate-200 p-2.5 rounded-lg flex items-center gap-2.5 cursor-pointer transition-colors text-sm hover:bg-white/10 ${textToSpeech ? 'bg-cyan-400/20 border-cyan-400 text-cyan-400' : ''}`}
+          className={`border p-2.5 rounded-lg flex items-center gap-2.5 cursor-pointer transition-colors text-sm hover:bg-white/60 ${textToSpeech ? 'bg-cyan-500/20 border-cyan-500 text-cyan-800 font-medium' : 'bg-white/40 border-[#E6D5C3] text-slate-800'}`}
           onClick={() => {
              setTextToSpeech(!textToSpeech)
              if(!textToSpeech) {
@@ -179,7 +195,7 @@ const A11yToolbar = () => {
         </button>
 
         <button 
-          className="bg-slate-800 border border-dashed border-slate-600 text-slate-200 p-2.5 rounded-lg flex items-center justify-center gap-2.5 cursor-pointer transition-colors text-sm hover:bg-white/10 mt-2"  
+          className="bg-white/40 border border-dashed border-slate-400 text-slate-700 p-2.5 rounded-lg flex items-center justify-center gap-2.5 cursor-pointer transition-colors text-sm hover:bg-white/60 mt-2"  
           onClick={resetAll}
         >
           <RotateCcw className="w-5 h-5" /> Restablecer
