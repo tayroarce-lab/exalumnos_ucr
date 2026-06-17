@@ -13,13 +13,13 @@
 .users-header-titles h1 {
   font-size: 30px;
   font-weight: 800;
-  color: #0A2540;
+  color: var(--admin-text-primary);
   margin: 0 0 6px 0;
   letter-spacing: -0.02em;
 }
 
 .users-header-titles p {
-  color: #64748B;
+  color: var(--admin-text-secondary);
   font-size: 15px;
   margin: 0;
   font-weight: 500;
@@ -30,7 +30,7 @@
   display: flex;
   gap: 8px;
   margin-bottom: 24px;
-  border-bottom: 2px solid #E2E8F0;
+  border-bottom: 2px solid var(--admin-border-color);
   padding-bottom: 2px;
 }
 
@@ -38,7 +38,7 @@
   padding: 12px 24px;
   font-size: 14px;
   font-weight: 700;
-  color: #64748B;
+  color: var(--admin-text-secondary);
   background: transparent;
   border: none;
   border-bottom: 2px solid transparent;
@@ -50,20 +50,20 @@
 }
 
 .users-tab-btn:hover {
-  color: #0A2540;
+  color: var(--admin-text-primary);
 }
 
 .users-tab-btn.active {
-  color: #0A2540;
-  border-bottom: 2px solid #0A2540;
+  color: var(--admin-accent-celeste);
+  border-bottom: 2px solid var(--admin-accent-celeste);
 }
 
 .users-tab-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #F1F5F9;
-  color: #64748B;
+  background: var(--admin-bg-hover);
+  color: var(--admin-text-secondary);
   border-radius: 9999px;
   font-size: 11px;
   font-weight: 700;
@@ -73,16 +73,16 @@
 }
 
 .users-tab-btn.active .users-tab-badge {
-  background: #0A2540;
-  color: #FFFFFF;
+  background: var(--admin-accent-celeste);
+  color: #001324;
 }
 
 /* ── Barra de filtros y búsqueda ── */
 .users-filters-bar {
-  background: #FFFFFF;
+  background: var(--admin-bg-card);
   padding: 24px;
   border-radius: 16px;
-  border: 1px solid #E2E8F0;
+  border: 1px solid var(--admin-border-color);
   margin-bottom: 24px;
   display: flex;
   align-items: flex-end;
@@ -102,18 +102,18 @@
   left: 14px;
   top: 50%;
   transform: translateY(-50%);
-  color: #94A3B8;
+  color: var(--admin-text-secondary);
   pointer-events: none;
 }
 
 .users-search-input {
   width: 100%;
   padding: 11px 12px 11px 40px;
-  border: 1px solid #E2E8F0;
+  border: 1px solid var(--admin-border-color);
   border-radius: 12px;
   font-size: 14px;
-  color: #0A2540;
-  background: #F8FAFC;
+  color: var(--admin-text-primary);
+  background: var(--admin-bg-hover);
   outline: none;
   box-sizing: border-box;
   transition: all 0.2s ease;
@@ -121,9 +121,9 @@
 }
 
 .users-search-input:focus {
-  border-color: #0A2540;
-  background: #FFFFFF;
-  box-shadow: 0 0 0 3px rgba(10, 37, 64, 0.06);
+  border-color: var(--admin-accent-celeste);
+  background: var(--admin-bg-card);
+  box-shadow: 0 0 0 3px rgba(84, 188, 235, 0.15);
 }
 
 .users-filter-group {
@@ -135,18 +135,18 @@
 .users-filter-label {
   font-size: 11px;
   font-weight: 700;
-  color: #64748B;
+  color: var(--admin-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
 
 .users-filter-select {
   padding: 10px 14px;
-  border: 1px solid #E2E8F0;
+  border: 1px solid var(--admin-border-color);
   border-radius: 12px;
   font-size: 14px;
-  color: #0A2540;
-  background: #F8FAFC;
+  color: var(--admin-text-primary);
+  background: var(--admin-bg-hover);
   outline: none;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -154,15 +154,15 @@
 }
 
 .users-filter-select:focus {
-  border-color: #0A2540;
-  background: #FFFFFF;
-  box-shadow: 0 0 0 3px rgba(10, 37, 64, 0.06);
+  border-color: var(--admin-accent-celeste);
+  background: var(--admin-bg-card);
+  box-shadow: 0 0 0 3px rgba(84, 188, 235, 0.15);
 }
 
 /* ── Conteo ── */
 .users-record-count {
   font-size: 13px;
-  color: #94A3B8;
+  color: var(--admin-text-secondary);
   margin-bottom: 16px;
   font-weight: 500;
 }
@@ -174,7 +174,7 @@
   align-items: center;
   justify-content: center;
   height: 240px;
-  color: #94A3B8;
+  color: var(--admin-text-secondary);
   gap: 12px;
   font-size: 14px;
   font-weight: 500;
@@ -186,10 +186,10 @@
   align-items: center;
   justify-content: center;
   height: 200px;
-  background: #F8FAFC;
+  background: var(--admin-bg-card);
   border-radius: 16px;
-  border: 2px dashed #E2E8F0;
-  color: #94A3B8;
+  border: 2px dashed var(--admin-border-color);
+  color: var(--admin-text-secondary);
   font-size: 14px;
   font-weight: 500;
 }
@@ -202,9 +202,9 @@
   border-radius: 9999px;
   font-size: 12px;
   font-weight: 700;
-  background: #ECFDF5;
-  color: #047857;
-  border: 1px solid #D1FAE5;
+  background: rgba(16, 185, 129, 0.15);
+  color: #10B981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
 .users-status-inactive {
@@ -214,9 +214,9 @@
   border-radius: 9999px;
   font-size: 12px;
   font-weight: 700;
-  background: #FEF2F2;
-  color: #B91C1C;
-  border: 1px solid #FEE2E2;
+  background: rgba(239, 68, 68, 0.15);
+  color: #EF4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
 /* ── Tipo badge ── */
@@ -230,54 +230,54 @@
 }
 
 .users-type-badge.exalumno {
-  background: rgba(59, 130, 246, 0.08);
-  color: #1D4ED8;
+  background: rgba(59, 130, 246, 0.15);
+  color: #60A5FA;
 }
 
 .users-type-badge.estudiante {
-  background: rgba(16, 185, 129, 0.08);
-  color: #047857;
+  background: rgba(16, 185, 129, 0.15);
+  color: #10B981;
 }
 
 .users-type-badge.admin {
-  background: rgba(139, 92, 246, 0.08);
-  color: #6D28D9;
+  background: rgba(139, 92, 246, 0.15);
+  color: #C084FC;
 }
 
 /* ── Action buttons ── */
 .users-btn-activate {
   padding: 6px 14px;
-  background: #ECFDF5;
-  border: 1px solid #A7F3D0;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.3);
   border-radius: 8px;
   font-size: 12px;
   font-weight: 750;
-  color: #059669;
+  color: #10B981;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .users-btn-activate:hover {
-  background: #D1FAE5;
-  color: #047857;
+  background: rgba(16, 185, 129, 0.25);
+  color: #10B981;
   transform: translateY(-0.5px);
 }
 
 .users-btn-suspend {
   padding: 6px 14px;
-  background: #FEF2F2;
-  border: 1px solid #FCA5A5;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
   border-radius: 8px;
   font-size: 12px;
   font-weight: 750;
-  color: #DC2626;
+  color: #EF4444;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .users-btn-suspend:hover {
-  background: #FEE2E2;
-  color: #B91C1C;
+  background: rgba(239, 68, 68, 0.25);
+  color: #EF4444;
   transform: translateY(-0.5px);
 }
 
@@ -297,13 +297,13 @@
 
 .users-info-name {
   font-weight: 700;
-  color: #0A2540;
+  color: var(--admin-text-primary);
   font-size: 14px;
 }
 
 .users-info-email {
   font-size: 12px;
-  color: #64748B;
+  color: var(--admin-text-secondary);
   font-weight: 500;
 }
 
@@ -328,10 +328,10 @@
 }
 
 .admin-stat-card {
-  background: #FFFFFF;
+  background: var(--admin-bg-card);
   border-radius: 16px;
   padding: 24px;
-  border: 1px solid #E2E8F0;
+  border: 1px solid var(--admin-border-color);
   display: flex;
   align-items: center;
   gap: 16px;
@@ -341,8 +341,8 @@
 
 .admin-stat-card:hover {
   transform: translateY(-2px);
-  border-color: #CBD5E1;
-  box-shadow: 0 8px 18px rgba(10, 37, 64, 0.05);
+  border-color: var(--admin-border-hover);
+  box-shadow: 0 8px 18px rgba(84, 188, 235, 0.1);
 }
 
 .admin-stat-icon {
@@ -392,7 +392,7 @@
   margin: 0 0 2px 0;
   font-size: 11px;
   font-weight: 700;
-  color: #64748B;
+  color: var(--admin-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
@@ -401,44 +401,44 @@
   margin: 0;
   font-size: 28px;
   font-weight: 800;
-  color: #0A2540;
+  color: var(--admin-text-primary);
   letter-spacing: -0.02em;
   line-height: 1.2;
 }
 
 .admin-error-msg {
-  background: #FEF2F2;
-  border: 1px solid #FCA5A5;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
   border-radius: 16px;
   padding: 20px;
-  color: #DC2626;
+  color: #EF4444;
   font-weight: 500;
 }
 
 .users-table-cell-sub {
   font-size: 13px;
-  color: #64748B;
+  color: var(--admin-text-secondary);
   font-weight: 500;
 }
 
 .users-table-cell-sub-light {
-  color: #94A3B8;
+  color: var(--admin-text-secondary);
   font-size: 12px;
   font-weight: 500;
 }
 
 .users-table-cell-empty {
-  color: #CBD5E1;
+  color: var(--admin-text-secondary);
   font-style: italic;
 }
 
 .admin-table-avatar.exalumno {
-  background: rgba(59, 130, 246, 0.08);
-  color: #2563EB;
+  background: rgba(59, 130, 246, 0.15);
+  color: #60A5FA;
 }
 
 .admin-table-avatar.estudiante {
-  background: rgba(16, 185, 129, 0.08);
-  color: #059669;
+  background: rgba(16, 185, 129, 0.15);
+  color: #10B981;
 }
 

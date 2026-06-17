@@ -115,7 +115,7 @@ export default function StudentDashboardPage() {
             </p>
             <div className="pt-2">
               <Link href="/jobs" className="inline-block">
-                <Button variant="primary" className="bg-white text-[#000000] hover:bg-celeste hover:text-white font-bold uppercase tracking-wider text-xs px-6 py-3 shadow-lg hover:shadow-celeste/30 hover:scale-105 active:scale-95 transition-all duration-300">
+                <Button variant="primary" className="bg-white !text-black hover:bg-celeste hover:text-white font-bold uppercase tracking-wider text-xs px-6 py-3 shadow-lg hover:shadow-celeste/30 hover:scale-105 active:scale-95 transition-all duration-300">
                   Ver vacantes disponibles →
                 </Button>
               </Link>

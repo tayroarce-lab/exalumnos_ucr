@@ -68,27 +68,29 @@ async function enrichDonationsWithUsers(supabase: any, donations: any[]): Promis
 }
 
 export async function getPendingDonations(): Promise<{ data: DonationAdminView[] | null; error: string | null }> {
-  const supabase = await createClient();
+  // Usamos adminClient para bypassear RLS (políticas tienen bug: usan `tipo` en vez de `rol`)
+  const adminClient = createAdminClient();
 
-  const { data, error } = await supabase
+  const { data, error } = await adminClient
     .from(DB_TABLE)
     .select('*')
     .eq('estado', 'pendiente')
-    .order('created_at', { ascending: true }); 
+    .order('created_at', { ascending: true });
 
   if (error) {
     console.error('Error fetching pending donations:', error);
     return { data: null, error: error.message };
   }
 
-  const formattedData = await enrichDonationsWithUsers(supabase, data || []);
+  const formattedData = await enrichDonationsWithUsers(adminClient, data || []);
   return { data: formattedData, error: null };
 }
 
 export async function getDonationsHistory(filters?: DonationsHistoryFilters): Promise<{ data: DonationAdminView[] | null; error: string | null }> {
-  const supabase = await createClient();
+  // Usamos adminClient para bypassear RLS (políticas tienen bug: usan `tipo` en vez de `rol`)
+  const adminClient = createAdminClient();
 
-  let query = supabase
+  let query = adminClient
     .from(DB_TABLE)
     .select('*')
     .neq('estado', 'pendiente')
@@ -109,7 +111,7 @@ export async function getDonationsHistory(filters?: DonationsHistoryFilters): Pr
     return { data: null, error: error.message };
   }
 
-  const formattedData = await enrichDonationsWithUsers(supabase, data || []);
+  const formattedData = await enrichDonationsWithUsers(adminClient, data || []);
   return { data: formattedData, error: null };
 }
 
@@ -125,9 +127,15 @@ export async function processDonation(
     return { success: false, error: 'Unauthorized: User not found' };
   }
 
+  const adminClient = createAdminClient();
+  const { data: profile } = await adminClient.from('users').select('rol').eq('id', user.id).single();
+  if (profile?.rol !== 'admin') {
+    return { success: false, error: 'Unauthorized: Admins only' };
+  }
+
   const newState = action === 'confirm' ? 'confirmada' : 'rechazada';
 
-  const { data: donation, error: fetchError } = await supabase
+  const { data: donation, error: fetchError } = await adminClient
     .from(DB_TABLE)
     .select('*')
     .eq('id', donationId)
@@ -137,7 +145,7 @@ export async function processDonation(
     return { success: false, error: 'Donation not found' };
   }
 
-  const { error: updateError } = await supabase
+  const { error: updateError } = await adminClient
     .from(DB_TABLE)
     .update({
       estado: newState,
@@ -151,7 +159,7 @@ export async function processDonation(
   }
 
   // Get donor info
-  const { data: donor } = await supabase
+  const { data: donor } = await adminClient
     .from('users')
     .select('nombre, email')
     .eq('id', donation.user_id)
@@ -316,7 +324,8 @@ export async function obtenerMisDonaciones() {
   }
 
   try {
-    const { data, error } = await supabase
+    const supabaseAdmin = createAdminClient();
+    const { data, error } = await supabaseAdmin
       .from(DB_TABLE)
       .select('*')
       .eq('user_id', user.id)
@@ -324,7 +333,7 @@ export async function obtenerMisDonaciones() {
 
     if (error) throw error;
     
-    const formattedData = await enrichDonationsWithUsers(supabase, data || []);
+    const formattedData = await enrichDonationsWithUsers(supabaseAdmin, data || []);
     return { success: true, data: formattedData };
   } catch (error: any) {
     console.error('Error al obtener donaciones:', error);

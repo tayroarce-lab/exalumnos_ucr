@@ -33,7 +33,7 @@ export default async function MisMatchesPage() {
           Hubo un error cargando tus sugerencias: {error}
         </div>
       ) : (
-        <MatchesList initialMatches={matches || []} currentUserId={user.id} />
+        <MatchesList initialMatches={matches || []} currentUserId={user.id} currentUserRole={user.user_metadata?.rol || 'estudiante'} />
       )}
     </div>
   );
