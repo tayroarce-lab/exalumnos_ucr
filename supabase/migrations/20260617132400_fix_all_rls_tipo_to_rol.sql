@@ -60,60 +60,7 @@ DROP POLICY IF EXISTS "donaciones_update_admin" ON public.donaciones;
 CREATE POLICY "donaciones_update_admin" ON public.donaciones FOR UPDATE TO authenticated
 USING (EXISTS (SELECT 1 FROM public.users u WHERE u.id = auth.uid() AND u.rol = 'admin'));
 
--- 8. curriculum_select_allowed
-DROP POLICY IF EXISTS "curriculum_select_allowed" ON public.curriculum;
-CREATE POLICY "curriculum_select_allowed" ON public.curriculum FOR SELECT TO authenticated
-USING (
-  estudiante_id = auth.uid()
-  OR EXISTS (SELECT 1 FROM public.users u WHERE u.id = auth.uid() AND u.rol = 'admin')
-  OR EXISTS (
-    SELECT 1 FROM public.matches m JOIN public.users u ON u.id = auth.uid()
-    WHERE u.rol = 'exalumno' AND m.exalumno_id = auth.uid() AND m.estudiante_id = public.curriculum.estudiante_id AND m.estado = 'activo'
-  )
-);
-
--- 9. cv_exp_select_own
-DROP POLICY IF EXISTS "cv_exp_select_own" ON public.curriculum_experiencia;
-CREATE POLICY "cv_exp_select_own" ON public.curriculum_experiencia FOR SELECT TO authenticated
-USING (
-  EXISTS (SELECT 1 FROM public.curriculum c WHERE c.id = curriculum_id AND c.estudiante_id = auth.uid())
-  OR EXISTS (SELECT 1 FROM public.users u WHERE u.id = auth.uid() AND u.rol = 'admin')
-);
-
--- 10. cv_cert_select_own
-DROP POLICY IF EXISTS "cv_cert_select_own" ON public.curriculum_certificaciones;
-CREATE POLICY "cv_cert_select_own" ON public.curriculum_certificaciones FOR SELECT TO authenticated
-USING (
-  EXISTS (SELECT 1 FROM public.curriculum c WHERE c.id = curriculum_id AND c.estudiante_id = auth.uid())
-  OR EXISTS (SELECT 1 FROM public.users u WHERE u.id = auth.uid() AND u.rol = 'admin')
-);
-
--- 11. cv_ver_select_own
-DROP POLICY IF EXISTS "cv_ver_select_own" ON public.curriculum_versiones;
-CREATE POLICY "cv_ver_select_own" ON public.curriculum_versiones FOR SELECT TO authenticated
-USING (
-  EXISTS (SELECT 1 FROM public.curriculum c WHERE c.id = curriculum_id AND c.estudiante_id = auth.uid())
-  OR EXISTS (SELECT 1 FROM public.users u WHERE u.id = auth.uid() AND u.rol = 'admin')
-);
-
--- 12. aplicaciones_select_own
-DROP POLICY IF EXISTS "aplicaciones_select_own" ON public.aplicaciones;
-CREATE POLICY "aplicaciones_select_own" ON public.aplicaciones FOR SELECT TO authenticated
-USING (
-  estudiante_id = auth.uid()
-  OR EXISTS (SELECT 1 FROM public.posiciones p WHERE p.id = posicion_id AND p.exalumno_id = auth.uid())
-  OR EXISTS (SELECT 1 FROM public.users u WHERE u.id = auth.uid() AND u.rol = 'admin')
-);
-
--- 13. aplicaciones_update_exalumno_admin
-DROP POLICY IF EXISTS "aplicaciones_update_exalumno_admin" ON public.aplicaciones;
-CREATE POLICY "aplicaciones_update_exalumno_admin" ON public.aplicaciones FOR UPDATE TO authenticated
-USING (
-  EXISTS (SELECT 1 FROM public.posiciones p WHERE p.id = posicion_id AND p.exalumno_id = auth.uid())
-  OR EXISTS (SELECT 1 FROM public.users u WHERE u.id = auth.uid() AND u.rol = 'admin')
-);
-
--- 14. reportes_select_admin_propio
+-- 8. reportes_select_admin_propio
 DROP POLICY IF EXISTS "reportes_select_admin_propio" ON public.reportes_perfil;
 CREATE POLICY "reportes_select_admin_propio" ON public.reportes_perfil FOR SELECT TO authenticated
 USING (
