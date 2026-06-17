@@ -1,8 +1,10 @@
+import { config } from 'dotenv'
+config({ path: '.env' })
 import { createAdminClient } from './src/lib/supabase/admin'
 
 async function checkColumns() {
   const supabase = createAdminClient()
-  const { data, error } = await supabase.from('profiles').select('*').limit(1)
+  const { data, error } = await supabase.from('donations').select('*').limit(1)
   if (error) {
     console.error('Error:', error)
   } else {
