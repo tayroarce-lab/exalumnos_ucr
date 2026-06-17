@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { Bell, ChevronDown, User, LogOut, Briefcase, Menu, X } from 'lucide-react'
+import { Bell, ChevronDown, User, LogOut, Briefcase, Menu, X, Clock } from 'lucide-react'
 import { useProfile } from '@/contexts/ProfileContext'
 import { createClient } from '@/lib/supabase/client'
 import logoUCR from '@/images/Logo_UCR.png'
@@ -102,7 +102,6 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
     menuItems: [
       { name: 'Inicio', href: dashboardHref },
       { name: 'Directorios', href: '/directorio' },
-      { name: 'Donaciones', href: '/donations' },
       { name: 'Mentorías', href: '/mentorships' },
       { name: 'Eventos', href: '/events' },
       { name: 'Empleos', href: '/jobs' }
@@ -271,6 +270,12 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
                   <Briefcase className="w-4 h-4 text-slate-400" />
                   <span>Mis Posiciones</span>
                 </Link>
+                {!isAdmin && (
+                  <Link href="/historial" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-600 hover:bg-slate-50 hover:text-brand-blue transition-colors">
+                    <Clock className="w-4 h-4 text-slate-400" />
+                    <span>Ver mi Historial</span>
+                  </Link>
+                )}
                 <div className="border-t border-slate-100 my-1"></div>
                 <button onClick={handleLogout} className="w-full flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider text-rose-600 hover:bg-rose-50 transition-colors text-left">
                   <LogOut className="w-4 h-4 text-rose-400" />
@@ -370,6 +375,16 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
             <Briefcase className="w-4 h-4 opacity-70" />
             Mis Posiciones
           </Link>
+          {!isAdmin && (
+            <Link
+              href="/historial"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold uppercase tracking-wide text-white transition-all duration-200 ${config.drawerItemHover}`}
+            >
+              <Clock className="w-4 h-4 opacity-70" />
+              Ver mi Historial
+            </Link>
+          )}
         </nav>
 
         {/* Botón cerrar sesión al fondo */}
