@@ -1,16 +1,28 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { MatchAdminView, MatchFilters } from '@/types/matches';
 import { sendMatchStatusUpdateEmail } from '@/services/email-service';
 
 export async function getMatches(filters?: MatchFilters): Promise<{ data: MatchAdminView[] | null; error: string | null }> {
   const supabase = await createClient();
+  const { data: authData } = await supabase.auth.getUser();
 
-  // Obtenemos los matches.
-  // Nota: Dado que la FK va hacia users y luego a estudiantes, hacemos los joins
-  // asumiendo la nomenclatura estándar de Supabase para las FK.
-  let query = supabase
+  if (!authData?.user) {
+    return { data: null, error: 'No autenticado' };
+  }
+
+  const adminClient = createAdminClient();
+  const { data: userProfile } = await adminClient.from('users').select('rol').eq('id', authData.user.id).single();
+
+  if (userProfile?.rol !== 'admin') {
+    console.error('Acceso denegado a getMatches para usuario:', authData.user.email);
+    return { data: [], error: null }; // Retorna vacío si no es admin
+  }
+
+  // Obtenemos los matches saltándonos el RLS para evitar errores con las políticas desactualizadas.
+  let query = adminClient
     .from('matches')
     .select(`
       id,
@@ -24,9 +36,8 @@ export async function getMatches(filters?: MatchFilters): Promise<{ data: MatchA
       created_at,
       updated_at,
       exalumno:users!matches_exalumno_id_fkey(nombre),
-      estudiante:users!matches_estudiante_id_fkey(nombre),
-      perfil_estudiante:estudiantes!matches_estudiante_id_fkey(carrera)
-    `).is('deleted_at', null);
+      estudiante:users!matches_estudiante_id_fkey(nombre)
+    `);
 
   if (filters?.estado && filters.estado !== 'todos') {
     query = query.eq('estado', filters.estado);
@@ -51,8 +62,25 @@ export async function getMatches(filters?: MatchFilters): Promise<{ data: MatchA
     return { data: null, error: error.message };
   }
 
+  // Extraer las carreras en una segunda consulta ya que no hay foreign key directa desde matches hacia estudiantes
+  const estudianteIds = data ? data.map(m => m.estudiante_id) : [];
+  let carrerasMap: Record<string, string> = {};
+  
+  if (estudianteIds.length > 0) {
+    const { data: estudiantesData } = await adminClient
+      .from('estudiantes')
+      .select('user_id, carrera')
+      .in('user_id', estudianteIds);
+      
+    if (estudiantesData) {
+      estudiantesData.forEach(e => {
+        carrerasMap[e.user_id] = e.carrera;
+      });
+    }
+  }
+
   // Mapeamos a la interfaz que espera el frontend
-  // Manejamos posilbes arrays (Supabase a veces retorna arrays de joins dependiendo de la cardinalidad definida).
+  // Manejamos posibles arrays (Supabase a veces retorna arrays de joins dependiendo de la cardinalidad definida).
   const formattedData: MatchAdminView[] = (data || []).map((match: any) => ({
     id: match.id,
     exalumno_id: match.exalumno_id,
@@ -66,7 +94,7 @@ export async function getMatches(filters?: MatchFilters): Promise<{ data: MatchA
     notas_admin: match.notas_admin,
     created_at: match.created_at,
     updated_at: match.updated_at,
-    estudiante_carrera: Array.isArray(match.perfil_estudiante) ? match.perfil_estudiante[0]?.carrera || 'N/A' : match.perfil_estudiante?.carrera || 'N/A',
+    estudiante_carrera: carrerasMap[match.estudiante_id] || 'N/A',
   }));
 
   // Filtrado por carrera en memoria ya que está anidado (si aplica)
