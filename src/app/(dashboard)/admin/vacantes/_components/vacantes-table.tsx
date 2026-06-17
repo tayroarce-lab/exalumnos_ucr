@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Search, Loader2 } from 'lucide-react';
-import { actualizarEstadoVacanteAdmin } from '@/actions/admin';
+import { actualizarEstadoVacanteAdmin, eliminarPosicionAdmin } from '@/actions/admin';
 import '../../../../../styles/admin-table.css';
 import '../../../../../styles/admin-vacantes.css';
 
@@ -57,6 +57,22 @@ export function VacantesTable({ initialVacantes }: VacantesTableProps) {
       );
     } catch (err: any) {
       alert(`Error al actualizar vacante: ${err.message}`);
+    } finally {
+      setLoadingId(null);
+    }
+  };
+
+  // Eliminar una vacante como administrador
+  const handleEliminarClick = async (id: string) => {
+    if (!confirm('¿Estás seguro de que deseas eliminar esta vacante? Esta acción no se puede deshacer.')) {
+      return;
+    }
+    setLoadingId(id);
+    try {
+      await eliminarPosicionAdmin(id);
+      setVacantes(prev => prev.filter(v => v.id !== id));
+    } catch (err: any) {
+      alert(`Error al eliminar vacante: ${err.message}`);
     } finally {
       setLoadingId(null);
     }
@@ -198,16 +214,43 @@ export function VacantesTable({ initialVacantes }: VacantesTableProps) {
                     {loadingId === vacante.id ? (
                       <Loader2 size={18} className="animate-spin" style={{ color: '#94a3b8' }} />
                     ) : (
-                      <select
-                        className="vacantes-action-select"
-                        value={vacante.estado}
-                        onChange={(e) => handleEstadoChange(vacante.id, e.target.value as EstadoVacante)}
-                      >
-                        <option value="activa">Activar</option>
-                        <option value="pausada">Pausar</option>
-                        <option value="cerrada">Cerrar</option>
-                        <option value="cubierta">Marcar Cubierta</option>
-                      </select>
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        <select
+                          className="vacantes-action-select"
+                          value={vacante.estado}
+                          onChange={(e) => handleEstadoChange(vacante.id, e.target.value as EstadoVacante)}
+                        >
+                          <option value="activa">Activar</option>
+                          <option value="pausada">Pausar</option>
+                          <option value="cerrada">Cerrar</option>
+                          <option value="cubierta">Marcar Cubierta</option>
+                        </select>
+                        <button
+                          type="button"
+                          onClick={() => handleEliminarClick(vacante.id)}
+                          style={{
+                            background: '#fee2e2',
+                            color: '#ef4444',
+                            border: '1px solid #fca5a5',
+                            padding: '6px 12px',
+                            borderRadius: '8px',
+                            fontSize: '11px',
+                            fontWeight: 'bold',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
+                          }}
+                          onMouseOver={(e) => {
+                            e.currentTarget.style.background = '#fca5a5';
+                            e.currentTarget.style.color = '#b91c1c';
+                          }}
+                          onMouseOut={(e) => {
+                            e.currentTarget.style.background = '#fee2e2';
+                            e.currentTarget.style.color = '#ef4444';
+                          }}
+                        >
+                          Eliminar
+                        </button>
+                      </div>
                     )}
                   </td>
                 </tr>
