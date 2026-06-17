@@ -324,7 +324,8 @@ export async function obtenerMisDonaciones() {
   }
 
   try {
-    const { data, error } = await supabase
+    const supabaseAdmin = createAdminClient();
+    const { data, error } = await supabaseAdmin
       .from(DB_TABLE)
       .select('*')
       .eq('user_id', user.id)
@@ -332,7 +333,7 @@ export async function obtenerMisDonaciones() {
 
     if (error) throw error;
     
-    const formattedData = await enrichDonationsWithUsers(supabase, data || []);
+    const formattedData = await enrichDonationsWithUsers(supabaseAdmin, data || []);
     return { success: true, data: formattedData };
   } catch (error: any) {
     console.error('Error al obtener donaciones:', error);

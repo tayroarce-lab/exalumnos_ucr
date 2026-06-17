@@ -7,10 +7,12 @@ import { createClient } from '@/lib/supabase/client';
 import { Heart, UploadCloud, CheckCircle2, AlertCircle } from 'lucide-react';
 import { getAvatarUrl } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
+import { useProfile } from '@/contexts/ProfileContext';
 
 export default function FormularioDonacion({ estudiante }: { estudiante: EstudianteDirectorio | null }) {
   const router = useRouter();
   const supabase = createClient();
+  const { user } = useProfile();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -49,9 +51,8 @@ export default function FormularioDonacion({ estudiante }: { estudiante: Estudia
       if (!formData.monto || isNaN(Number(formData.monto))) throw new Error("Monto inválido.");
       if (!formData.numero_referencia) throw new Error("Número de referencia es requerido.");
 
-      // 1. Obtener el usuario actual
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      if (userError || !user) throw new Error("No estás autenticado.");
+      // 1. Obtener el usuario actual del contexto
+      if (!user) throw new Error("No estás autenticado.");
 
       // 2. Subir el archivo usando Server Action (evita el problema de RLS)
       const uploadData = new FormData();
