@@ -259,7 +259,7 @@ export default function MentoriasPage() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
             { label: 'Sugeridos', value: totalSugeridos, color: 'text-[#F34B26]',    bg: 'bg-orange-50 border-[#F34B26]/20'       },
             { label: 'Activos',   value: totalActivos,   color: 'text-emerald-600', bg: 'bg-emerald-50 border-emerald-100' },
