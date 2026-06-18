@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect, useTransition } from 'react'
-import { X, CheckCircle, FileText, Send } from 'lucide-react'
+import Link from 'next/link'
+import { X, CheckCircle, FileText, Send, Sparkles, AlertCircle } from 'lucide-react'
 import { applyToPosition } from '@/actions/applications'
 import LoadingSpinner from '@/components/LoadingSpinner'
 
@@ -103,7 +104,24 @@ export default function ApplyModal({ position, onClose, onSuccess }: ApplyModalP
             <label className="block text-sm font-medium text-gray-700">Selecciona tu CV</label>
             {loadingCvs ? (
               <div className="text-sm text-gray-500 flex items-center gap-2">
-                 Cargando tus CVs...
+                Cargando tus CVs...
+              </div>
+            ) : cvs.length === 0 ? (
+              <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 space-y-3">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-semibold text-amber-800">No tienes un CV creado</p>
+                    <p className="text-xs text-amber-700 mt-0.5">Para postularte necesitas tener tu currículum listo. ¡Créalo con ayuda de IA en minutos!</p>
+                  </div>
+                </div>
+                <Link
+                  href="/dashboard/cv"
+                  className="flex items-center justify-center gap-2 w-full bg-[#001C29] hover:bg-[#004C63] text-white text-xs font-bold py-2.5 rounded-lg transition-colors"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  Crear mi CV con IA
+                </Link>
               </div>
             ) : (
               <select
@@ -117,7 +135,9 @@ export default function ApplyModal({ position, onClose, onSuccess }: ApplyModalP
                 ))}
               </select>
             )}
-            <p className="text-xs text-gray-500">Puedes adaptar y crear versiones de CV desde tu panel de empleabilidad.</p>
+            {cvs.length > 0 && (
+              <p className="text-xs text-gray-500">Puedes adaptar y crear versiones de CV desde tu panel de empleabilidad.</p>
+            )}
           </div>
 
           <div className="space-y-2">
