@@ -377,3 +377,60 @@ export async function upsertManualMatch(estudianteId: string, tipoApoyo: string)
   }
   return { success: true };
 }
+
+export async function requestDirectConnection(targetUserId: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: 'No autorizado' };
+  }
+
+  if (user.user_metadata?.rol === 'admin' || user.user_metadata?.tipo === 'admin') {
+    return { success: false, error: 'Acceso denegado: Los administradores no pueden solicitar conexiones' };
+  }
+
+  const { createAdminClient } = await import('@/lib/supabase/admin');
+  const adminClient = createAdminClient();
+
+  const initiatorRole = user.user_metadata?.rol || 'estudiante';
+  let estudianteId = user.id;
+  let exalumnoId = targetUserId;
+  
+  if (initiatorRole === 'exalumno') {
+    exalumnoId = user.id;
+    estudianteId = targetUserId;
+  }
+
+  // Buscar si ya existe un match
+  const { data: existingMatch } = await adminClient
+    .from('matches')
+    .select('id')
+    .or(`and(estudiante_id.eq.${user.id},exalumno_id.eq.${targetUserId}),and(estudiante_id.eq.${targetUserId},exalumno_id.eq.${user.id})`)
+    .maybeSingle();
+
+  let matchId = existingMatch?.id;
+
+  if (!matchId) {
+    const { data: newMatch, error: createError } = await adminClient
+      .from('matches')
+      .insert({
+        exalumno_id: exalumnoId,
+        estudiante_id: estudianteId,
+        tipo_apoyo: 'mentoría',
+        score_match: 100,
+        estado: 'sugerido',
+        iniciado_por: initiatorRole
+      })
+      .select('id')
+      .single();
+
+    if (createError) {
+      console.error('Error creando match directo:', createError);
+      return { success: false, error: createError.message };
+    }
+    matchId = newMatch.id;
+  }
+
+  return await requestConnection(matchId);
+}
