@@ -125,7 +125,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
     menuItems: [
       { name: 'Inicio', href: dashboardHref },
       { name: 'Directorios', href: '/directorio' },
-      { name: 'Mentorías', href: '/mentorships' },
+      { name: 'Mis Matches', href: '/mis-matches' },
       { name: 'Eventos', href: '/events' },
       { name: 'Empleos', href: '/jobs' }
     ]
@@ -165,7 +165,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
       menuItems: [
         { name: 'Inicio', href: dashboardHref },
         { name: 'Directorios', href: '/directorio' },
-        { name: 'Mentorías', href: '/mentorships' },
+        { name: 'Mis Matches', href: '/mis-matches' },
         { name: 'Eventos', href: '/events' },
         { name: 'Empleos', href: '/jobs' }
       ]
@@ -326,7 +326,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
                 </Link>
                 <Link href="/mis-posiciones" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-600 hover:bg-slate-50 hover:text-brand-blue transition-colors">
                   <Briefcase className="w-4 h-4 text-slate-400" />
-                  <span>Mis Posiciones</span>
+                  <span>{isStudent ? 'Mis Postulaciones' : 'Mis Posiciones'}</span>
                 </Link>
                 {!isAdmin && (
                   <Link href="/historial" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-600 hover:bg-slate-50 hover:text-brand-blue transition-colors">
