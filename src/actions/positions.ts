@@ -184,7 +184,7 @@ export async function obtenerPosicionPorId(id: string) {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('posiciones')
-    .select('*, exalumno:users!posiciones_exalumno_id_fkey(nombre, email, foto_url)').is('deleted_at', null)
+    .select('*, exalumno:users!posiciones_exalumno_id_fkey(nombre, foto_url)').is('deleted_at', null)
     .eq('id', id)
     .single()
 

@@ -6,8 +6,10 @@ import Card from '@/components/ui/card'
 import Button from '@/components/ui/button'
 import { ArrowLeft, MapPin, Building, Briefcase, Calendar, CheckCircle2, Sparkles, AlertCircle } from 'lucide-react'
 import { obtenerPosicionPorId } from '@/actions/positions'
+import { checkApplicationStatus } from '@/actions/applications'
 import { createClient } from '@/lib/supabase/client'
 import ApplyModal from '@/components/applications/ApplyModal'
+import { getAvatarUrl } from '@/lib/utils'
 
 interface JobDetailPageProps {
   params: Promise<{ id: string }>
@@ -22,14 +24,21 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
   const [isApplied, setIsApplied] = useState(false)
   const [hasCV, setHasCV] = useState<boolean | null>(null)
   const [showNoCVNotice, setShowNoCVNotice] = useState(false)
+  const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
   React.useEffect(() => {
     async function loadJob() {
       try {
         const position = await obtenerPosicionPorId(id)
         setJob(position)
-      } catch (err) {
+        
+        const status = await checkApplicationStatus(id)
+        if (status.applied) {
+          setIsApplied(true)
+        }
+      } catch (err: any) {
         console.error("Error loading position:", err)
+        setErrorMsg(err.message || 'Error desconocido')
       } finally {
         setLoading(false)
       }
@@ -75,7 +84,12 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
   }
 
   if (!job) {
-    return <div className="text-center py-20 text-red-500 font-bold uppercase">Posición no encontrada</div>
+    return (
+      <div className="text-center py-20">
+        <div className="text-red-500 font-bold uppercase mb-2">Posición no encontrada</div>
+        {errorMsg && <div className="text-slate-500 text-sm">Detalle: {errorMsg}</div>}
+      </div>
+    )
   }
 
   return (
@@ -154,6 +168,26 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
         {/* Columna Derecha: Tarjeta de Acción */}
         <div className="space-y-6">
           <Card hoverEffect={false} className="space-y-6 text-center">
+            {job.exalumno && (
+              <div className="flex flex-col items-center gap-2 mb-4 border-b border-slate-100 pb-6">
+                <div className="w-16 h-16 rounded-full bg-slate-200 overflow-hidden shrink-0 border-2 border-white shadow-sm">
+                  {job.exalumno.foto_url ? (
+                    <img src={getAvatarUrl(job.exalumno.foto_url) as string} alt={job.exalumno.nombre} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-500 font-bold text-xl">
+                      {job.exalumno.nombre?.charAt(0)}
+                    </div>
+                  )}
+                </div>
+                <div className="space-y-0.5">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Publicado por</span>
+                  <Link href={`/network/${job.exalumno_id}`} className="text-sm font-bold text-brand-emerald hover:text-emerald-700 transition-colors block">
+                    {job.exalumno.nombre}
+                  </Link>
+                </div>
+              </div>
+            )}
+
             <div className="space-y-1">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Compensación</span>
               <span className="text-xl font-bold text-brand-emerald block">Competitivo</span>
@@ -165,6 +199,11 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
                 <div className="bg-emerald-50 text-emerald-800 p-4 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 border border-emerald-100">
                   <CheckCircle2 className="w-5 h-5 text-emerald-600" />
                   <span>¡Aplicación enviada con éxito!</span>
+                </div>
+              ) : job.estado !== 'activa' ? (
+                <div className="bg-slate-50 text-slate-500 p-4 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 border border-slate-200">
+                  <AlertCircle className="w-5 h-5 text-slate-400" />
+                  <span>Esta vacante ya no está activa</span>
                 </div>
               ) : (
                 <>
