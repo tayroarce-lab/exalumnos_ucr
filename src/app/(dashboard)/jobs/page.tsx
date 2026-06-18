@@ -29,6 +29,7 @@ export default function JobsPage() {
   const [selectedTipo, setSelectedTipo] = useState('all')
   const [selectedJornada, setSelectedJornada] = useState('all')
   const [selectedSectors, setSelectedSectors] = useState<string[]>([])
+  const [sectorDropdown, setSectorDropdown] = useState('all')
   const [skillsSearch, setSkillsSearch] = useState('')
 
   const [dbJobs, setDbJobs] = useState<any[]>([])
@@ -170,20 +171,24 @@ export default function JobsPage() {
             </div>
 
             <div className="space-y-1">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Sectores</label>
-              <select
-                multiple
-                value={selectedSectors}
+              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Sector</label>
+              <Select
+                value={sectorDropdown}
                 onChange={(e) => {
-                  const values = Array.from(e.target.selectedOptions, (option) => option.value)
-                  setSelectedSectors(values.includes('all') ? [] : values)
+                  const val = e.target.value
+                  setSectorDropdown(val)
+                  if (val !== 'all' && !selectedSectors.includes(val)) {
+                    setSelectedSectors(prev => [...prev, val])
+                  }
+                  // Reset para permitir volver a seleccionar el mismo sector
+                  setTimeout(() => setSectorDropdown('all'), 100)
                 }}
-                className="h-11 bg-slate-50 border border-slate-200 focus:border-[#F34B26] rounded-xl text-sm text-slate-800 w-full px-2"
-              >
-                {SECTORES_CATALOGO.map((sector) => (
-                  <option key={sector} value={sector}>{sector}</option>
-                ))}
-              </select>
+                options={[
+                  { value: 'all', label: 'Todos los Sectores' },
+                  ...SECTORES_CATALOGO.filter(s => !selectedSectors.includes(s)).map(s => ({ value: s, label: s }))
+                ]}
+                className="h-11 bg-slate-50 border-slate-200 focus:border-[#F34B26] rounded-xl text-sm text-slate-800 w-full"
+              />
             </div>
           </div>
 

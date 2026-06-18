@@ -26,7 +26,7 @@ interface MatchReal {
   id: string
   score_match: number
   estado: EstadoMatch
-  areas_comunes: string[]
+  tipo_apoyo: string
   created_at: string
   estudiante: Estudiante | null
 }
@@ -98,6 +98,11 @@ function TarjetaMatch({ match, onAccion }: {
             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${estadoConf.clase}`}>
               {estadoConf.label}
             </span>
+            {match.tipo_apoyo && (
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 border border-blue-200 capitalize">
+                {match.tipo_apoyo === 'mentoria' ? '🎓 Mentoría' : match.tipo_apoyo === 'empleo' ? '💼 Empleo' : '👥 Pasantía'}
+              </span>
+            )}
             <span className="text-[10px] text-slate-400 flex items-center gap-1">
               <Clock className="w-3 h-3" />
               {new Date(match.created_at).toLocaleDateString('es-CR', { day: 'numeric', month: 'short' })}
@@ -106,39 +111,6 @@ function TarjetaMatch({ match, onAccion }: {
         </div>
       </div>
 
-      {/* Áreas en común */}
-      {match.areas_comunes && match.areas_comunes.length > 0 && (
-        <div className="px-5 pb-3">
-          <div className={`flex items-center gap-2 p-2.5 rounded-xl border text-xs bg-orange-50 border-[#F34B26]/25 text-[#F34B26]`}>
-            <BookOpen className="w-3.5 h-3.5 shrink-0" />
-            <span className="font-medium">{match.areas_comunes.length} área(s) de interés en común</span>
-          </div>
-
-          {expandido && (
-            <div className="mt-2 flex flex-wrap gap-1.5 p-3 bg-slate-50 rounded-xl border border-slate-100">
-              {match.areas_comunes.map(area => (
-                <span key={area} className="text-xs px-2 py-0.5 rounded-full bg-[#FF9B18]/10 text-[#FF9B18] font-medium">{area}</span>
-              ))}
-            </div>
-          )}
-
-          {est?.proyecto_titulo && expandido && (
-            <div className="mt-2 p-3 bg-slate-50 rounded-xl border border-slate-100">
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">Proyecto del estudiante</p>
-              <p className="text-sm text-slate-800 font-semibold">{est.proyecto_titulo}</p>
-            </div>
-          )}
-
-          <button
-            type="button"
-            onClick={() => setExpandido(p => !p)}
-            className="flex items-center gap-1 mt-2 text-xs text-slate-500 hover:text-slate-700 transition-colors"
-          >
-            {expandido ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-            {expandido ? 'Ver menos' : 'Ver detalles'}
-          </button>
-        </div>
-      )}
 
       {/* Acciones */}
       {match.estado === 'sugerido' && (
@@ -185,43 +157,52 @@ export default function MentoriasPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { window.location.href = '/login'; return }
 
+      const rol = user.user_metadata?.rol || 'estudiante'
+      const isExalumno = rol === 'exalumno'
+
       const { data, error: fetchError } = await supabase
         .from('matches')
         .select(`
           id,
           score_match,
           estado,
-          areas_comunes,
+          tipo_apoyo,
           created_at,
-          estudiante:users!matches_estudiante_id_fkey (
-            id, nombre, apellidos, foto_url,
-            estudiantes (
-              carrera,
-              proyecto_titulo
-            )
+          exalumno_id,
+          estudiante_id,
+          contraparte_ex:users!matches_exalumno_id_fkey (
+            id, nombre, apellidos, foto_url
+          ),
+          contraparte_est:users!matches_estudiante_id_fkey (
+            id, nombre, apellidos, foto_url
           )
         `)
-        .eq('exalumno_id', user.id)
+        .or(`exalumno_id.eq.${user.id},estudiante_id.eq.${user.id}`)
+        .in('tipo_apoyo', ['mentoria', 'empleo', 'pasantia'])
+        .neq('estado', 'cerrado')
         .order('score_match', { ascending: false })
 
       if (fetchError) throw new Error(fetchError.message)
 
       const mappedData = (data ?? []).map((m: any) => {
-        const estObj = Array.isArray(m.estudiante) ? m.estudiante[0] : m.estudiante;
-        const estData = Array.isArray(estObj?.estudiantes) ? estObj?.estudiantes[0] : estObj?.estudiantes;
-        
+        // La "otra persona" depende del rol
+        const esElExalumno = m.exalumno_id === user.id
+        const contraparteRaw = esElExalumno
+          ? (Array.isArray(m.contraparte_est) ? m.contraparte_est[0] : m.contraparte_est)
+          : (Array.isArray(m.contraparte_ex)  ? m.contraparte_ex[0]  : m.contraparte_ex)
+
         return {
           ...m,
-          estudiante: estObj ? {
-            id: estObj.id,
-            nombre: estObj.nombre,
-            apellidos: estObj.apellidos,
-            foto_url: estObj.foto_url,
-            carrera_principal: estData?.carrera ?? null,
-            proyecto_titulo: estData?.proyecto_titulo ?? null,
+          estudiante: contraparteRaw ? {
+            id:               contraparteRaw.id,
+            nombre:           contraparteRaw.nombre,
+            apellidos:        contraparteRaw.apellidos,
+            foto_url:         contraparteRaw.foto_url,
+            carrera_principal: null,
+            proyecto_titulo:  null,
           } : null
         }
-      });
+      })
 
       setMatches(mappedData as unknown as MatchReal[])
     } catch (e: unknown) {
@@ -269,10 +250,10 @@ export default function MentoriasPage() {
           <div>
             <h1 className="text-3xl font-extrabold uppercase font-display text-slate-900 tracking-wide flex items-center gap-3">
               <Handshake className="w-8 h-8 text-[#F34B26]" />
-              Mis Mentorías
+              Mis Conexiones
             </h1>
             <p className="text-sm text-slate-500 font-medium mt-1">
-              Estudiantes sugeridos por el sistema según compatibilidad de perfil.
+              Tus matches activos de mentoría, empleo y pasantía con estudiantes y exalumnos UCR.
             </p>
           </div>
           <Link href="/network" className="text-xs font-bold text-[#F34B26] hover:text-[#C82A08] hover:underline uppercase tracking-wider">
