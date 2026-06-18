@@ -154,11 +154,11 @@ function TarjetaAplicante({ aplicacion, onCambiarEstado }: {
 }
 
 interface AplicantesPageProps {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 export default function AplicantesPage({ params }: AplicantesPageProps) {
-  const { id } = params
+  const { id } = React.use(params)
   const [posicion, setPosicion] = useState<any>(null)
   const [aplicantes, setAplicantes] = useState<Aplicacion[]>([])
   const [cargando, setCargando] = useState(true)

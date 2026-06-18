@@ -9,9 +9,10 @@
 // =============================================================================
 
 import { useState, useTransition } from 'react';
+import Link from 'next/link';
 import {
   Check, X, MessageCircle, Star, BookOpen,
-  Briefcase, Tag, Handshake, ChevronDown, ChevronUp, Users,
+  Briefcase, Tag, Handshake, ChevronDown, ChevronUp, Users, User
 } from 'lucide-react';
 import type { MatchSugerido, EstadoMatch } from '@/services/matchingService';
 import { getAvatarUrl } from '@/lib/utils';
@@ -272,15 +273,13 @@ function TarjetaMatch({ match, onAccionar }: PropsTarjetaMatch) {
 
       {match.estado === 'contactado' && (
         <div className="px-5 pb-5">
-          <button
-            type="button"
-            disabled={isPending}
-            onClick={() => manejarAccion('contactar')}
-            className="w-full flex items-center justify-center gap-2 py-2 rounded-xl bg-amber-500/10 border border-amber-500/25 text-amber-300 text-sm font-medium hover:bg-amber-500/20 active:scale-[0.98] transition-all duration-150 disabled:opacity-50"
+          <Link
+            href={`/network/${match.estudiante.id}`}
+            className="w-full flex items-center justify-center gap-2 py-2 rounded-xl bg-amber-500/10 border border-amber-500/25 text-amber-300 text-sm font-medium hover:bg-amber-500/20 active:scale-[0.98] transition-all duration-150"
           >
-            <MessageCircle className="w-4 h-4" />
-            Ver conversación
-          </button>
+            <User className="w-4 h-4" />
+            Ver información
+          </Link>
         </div>
       )}
     </article>

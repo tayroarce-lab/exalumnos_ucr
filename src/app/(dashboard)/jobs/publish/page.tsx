@@ -265,7 +265,7 @@ export default function PublishJobPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-100 to-white py-8 px-6 lg:px-10 relative overflow-hidden">
+    <div className="bg-transparent min-h-screen py-8 px-6 lg:px-10 relative overflow-hidden transition-colors duration-300">
       <div className="absolute right-0 top-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl -z-10" />
       <div className="absolute left-10 bottom-10 w-72 h-72 bg-sky-400/10 rounded-full blur-2xl -z-10" />
 

@@ -21,6 +21,8 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
   const [imgError, setImgError] = useState(false)
   // Estado local del tema admin — sincronizado con localStorage y evento custom
   const [adminIsDark, setAdminIsDark] = useState(true)
+  const [exalumnosIsDark, setExalumnosIsDark] = useState(false)
+  const [studentIsDark, setStudentIsDark] = useState(false)
   const pathname = usePathname()
   const { user, profile } = useProfile()
 
@@ -38,11 +40,53 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
     return () => window.removeEventListener('admin-theme-change', handler)
   }, [])
 
+  useEffect(() => {
+    // Sincronizar tema exalumnos
+    const savedExalumnos = localStorage.getItem('exalumnos-theme')
+    if (savedExalumnos === 'dark') setExalumnosIsDark(true)
+    else setExalumnosIsDark(false)
+
+    const handlerExalumnos = (e: Event) => {
+      const next = (e as CustomEvent<'dark' | 'light'>).detail
+      setExalumnosIsDark(next === 'dark')
+    }
+    window.addEventListener('exalumnos-theme-change', handlerExalumnos)
+    return () => window.removeEventListener('exalumnos-theme-change', handlerExalumnos)
+  }, [])
+
+  useEffect(() => {
+    // Sincronizar tema student
+    const savedStudent = localStorage.getItem('student-theme')
+    if (savedStudent === 'dark') setStudentIsDark(true)
+    else setStudentIsDark(false)
+
+    const handlerStudent = (e: Event) => {
+      const next = (e as CustomEvent<'dark' | 'light'>).detail
+      setStudentIsDark(next === 'dark')
+    }
+    window.addEventListener('student-theme-change', handlerStudent)
+    return () => window.removeEventListener('student-theme-change', handlerStudent)
+  }, [])
+
   const handleAdminThemeToggle = () => {
     const next = adminIsDark ? 'light' : 'dark'
     localStorage.setItem('admin-theme', next)
     setAdminIsDark(!adminIsDark)
     window.dispatchEvent(new CustomEvent('admin-theme-change', { detail: next }))
+  }
+
+  const handleExalumnosThemeToggle = () => {
+    const next = exalumnosIsDark ? 'light' : 'dark'
+    localStorage.setItem('exalumnos-theme', next)
+    setExalumnosIsDark(!exalumnosIsDark)
+    window.dispatchEvent(new CustomEvent('exalumnos-theme-change', { detail: next }))
+  }
+
+  const handleStudentThemeToggle = () => {
+    const next = studentIsDark ? 'light' : 'dark'
+    localStorage.setItem('student-theme', next)
+    setStudentIsDark(!studentIsDark)
+    window.dispatchEvent(new CustomEvent('student-theme-change', { detail: next }))
   }
 
   // Cerrar menú móvil al cambiar de ruta
@@ -115,9 +159,9 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
   let config = {
     bgClass: 'bg-[#F34B26] text-white shadow-md border-b border-white/10',
     linkHoverClass: 'hover:bg-white/10 hover:text-white',
-    linkActiveClass: 'bg-white/20 text-white font-semibold',
+    linkActiveClass: 'bg-[#54BCEB] text-white font-semibold shadow-sm',
     drawerBg: 'bg-[#F34B26]',
-    drawerItemActive: 'bg-white/20 text-white',
+    drawerItemActive: 'bg-[#54BCEB] text-white',
     drawerItemHover: 'hover:bg-white/10',
     logoFilter: 'brightness(0) invert(1)',
     badgeClass: 'bg-white text-[#F34B26]',
@@ -178,9 +222,9 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
       ...config,
       bgClass: 'bg-[#F34B26] text-white shadow-md border-b border-white/10',
       linkHoverClass: 'hover:bg-white/10 hover:text-white',
-      linkActiveClass: 'bg-white/20 text-white font-semibold',
+      linkActiveClass: 'bg-[#54BCEB] text-white font-semibold shadow-sm',
       drawerBg: 'bg-[#F34B26]',
-      drawerItemActive: 'bg-white/20 text-white',
+      drawerItemActive: 'bg-[#54BCEB] text-white',
       drawerItemHover: 'hover:bg-white/10',
       logoFilter: 'brightness(0) invert(1)',
       badgeClass: 'bg-white text-[#F34B26]',
@@ -232,21 +276,19 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
         {/* Derecha: Notificaciones + Perfil (desktop) + Hamburguesa (mobile) */}
         <div className="flex items-center gap-2">
 
-          {/* Toggle Día/Noche — solo admin */}
-          {isAdmin && (
-            <button
-              onClick={handleAdminThemeToggle}
-              className="p-2 rounded-xl hover:bg-white/10 transition-colors relative group"
-              aria-label={adminIsDark ? 'Cambiar a modo día' : 'Cambiar a modo noche'}
-              title={adminIsDark ? 'Modo Día (Beige)' : 'Modo Noche'}
-            >
-              {adminIsDark ? (
-                <Sun className="w-5 h-5 text-amber-300 group-hover:text-amber-200 transition-colors" />
-              ) : (
-                <Moon className="w-5 h-5 text-blue-200 group-hover:text-blue-100 transition-colors" />
-              )}
-            </button>
-          )}
+          {/* Toggle Día/Noche */}
+          <button
+            onClick={isAdmin ? handleAdminThemeToggle : isStudent ? handleStudentThemeToggle : handleExalumnosThemeToggle}
+            className="p-2 rounded-xl hover:bg-white/10 transition-colors relative group"
+            aria-label={(isAdmin ? adminIsDark : isStudent ? studentIsDark : exalumnosIsDark) ? 'Cambiar a modo día' : 'Cambiar a modo noche'}
+            title={(isAdmin ? adminIsDark : isStudent ? studentIsDark : exalumnosIsDark) ? 'Modo Día' : 'Modo Noche'}
+          >
+            {(isAdmin ? adminIsDark : isStudent ? studentIsDark : exalumnosIsDark) ? (
+              <Sun className="w-5 h-5 text-amber-300 group-hover:text-amber-200 transition-colors" />
+            ) : (
+              <Moon className="w-5 h-5 text-blue-200 group-hover:text-blue-100 transition-colors" />
+            )}
+          </button>
 
           {/* Notificaciones */}
           <div className="relative">
