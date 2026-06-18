@@ -233,7 +233,10 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
         {/* Navegación desktop */}
         <nav className="hidden lg:flex items-center gap-2">
           {config.menuItems.map((item, idx) => {
-            const isActive = pathname === item.href || pathname?.startsWith(item.href + '/')
+            const isExactOnly = item.name === 'Inicio'
+            const isActive = isExactOnly
+              ? pathname === item.href
+              : pathname === item.href || pathname?.startsWith(item.href + '/')
             return (
               <Link
                 key={idx}

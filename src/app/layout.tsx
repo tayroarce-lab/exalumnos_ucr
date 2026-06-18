@@ -4,6 +4,7 @@ import GlobalLoadingOverlay from '@/components/GlobalLoadingOverlay'
 import { Barlow_Semi_Condensed, Work_Sans } from 'next/font/google'
 import './globals.css'
 import '../styles/layout.css'
+import A11yToolbar from '@/components/A11yToolbar'
 
 const barlow = Barlow_Semi_Condensed({
   subsets: ['latin'],
@@ -21,8 +22,6 @@ export const metadata: Metadata = {
   title: 'Fundación Exalumnos UCR',
   description: 'Directorio Estudiantil',
 }
-
-import A11yToolbar from '@/components/A11yToolbar'
 
 export default function RootLayout({
   children,
