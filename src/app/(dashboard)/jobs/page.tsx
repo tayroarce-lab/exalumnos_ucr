@@ -30,6 +30,7 @@ export default function JobsPage() {
   const [selectedTipo, setSelectedTipo] = useState('all')
   const [selectedJornada, setSelectedJornada] = useState('all')
   const [selectedSectors, setSelectedSectors] = useState<string[]>([])
+  const [sectorDropdown, setSectorDropdown] = useState('all')
   const [skillsSearch, setSkillsSearch] = useState('')
 
   const [dbJobs, setDbJobs] = useState<any[]>([])
@@ -97,7 +98,7 @@ export default function JobsPage() {
   const showCVBanner = isStudent && hasCV === false && !bannerDismissed
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-100 to-white py-10 px-6 lg:px-10 relative overflow-hidden">
+    <div className="bg-transparent min-h-screen py-10 px-6 lg:px-10 relative overflow-hidden transition-colors duration-300">
       <div className="absolute right-0 top-1/4 w-96 h-96 bg-[#F34B26]/8 rounded-full blur-3xl -z-10"></div>
       <div className="absolute left-10 bottom-10 w-72 h-72 bg-[#FF9B18]/8 rounded-full blur-2xl -z-10"></div>
 
@@ -235,20 +236,24 @@ export default function JobsPage() {
             </div>
 
             <div className="space-y-1">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Sectores</label>
-              <select
-                multiple
-                value={selectedSectors}
+              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Sector</label>
+              <Select
+                value={sectorDropdown}
                 onChange={(e) => {
-                  const values = Array.from(e.target.selectedOptions, (option) => option.value)
-                  setSelectedSectors(values.includes('all') ? [] : values)
+                  const val = e.target.value
+                  setSectorDropdown(val)
+                  if (val !== 'all' && !selectedSectors.includes(val)) {
+                    setSelectedSectors(prev => [...prev, val])
+                  }
+                  // Reset para permitir volver a seleccionar el mismo sector
+                  setTimeout(() => setSectorDropdown('all'), 100)
                 }}
-                className="h-11 bg-slate-50 border border-slate-200 focus:border-[#F34B26] rounded-xl text-sm text-slate-800 w-full px-2"
-              >
-                {SECTORES_CATALOGO.map((sector) => (
-                  <option key={sector} value={sector}>{sector}</option>
-                ))}
-              </select>
+                options={[
+                  { value: 'all', label: 'Todos los Sectores' },
+                  ...SECTORES_CATALOGO.filter(s => !selectedSectors.includes(s)).map(s => ({ value: s, label: s }))
+                ]}
+                className="h-11 bg-slate-50 border-slate-200 focus:border-[#F34B26] rounded-xl text-sm text-slate-800 w-full"
+              />
             </div>
           </div>
 

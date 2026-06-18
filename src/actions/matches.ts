@@ -338,3 +338,42 @@ export async function respondToConnection(matchId: string, accept: boolean) {
 
   return result;
 }
+
+export async function upsertManualMatch(estudianteId: string, tipoApoyo: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) return { success: false, error: 'No autorizado' };
+
+  const { createAdminClient } = await import('@/lib/supabase/admin');
+  const adminClient = createAdminClient();
+
+  const { data: existing } = await adminClient
+    .from('matches')
+    .select('id, estado')
+    .eq('exalumno_id', user.id)
+    .eq('estudiante_id', estudianteId)
+    .is('deleted_at', null)
+    .single();
+
+  if (existing) {
+    if (existing.estado !== 'cerrado') {
+      const { error } = await adminClient
+        .from('matches')
+        .update({ tipo_apoyo: tipoApoyo, updated_at: new Date().toISOString() })
+        .eq('id', existing.id);
+      if (error) console.error('Error actualizando match manual:', error);
+    }
+  } else {
+    const { error } = await adminClient.from('matches').insert({
+      exalumno_id: user.id,
+      estudiante_id: estudianteId,
+      tipo_apoyo: tipoApoyo,
+      score_match: 100,
+      estado: 'sugerido',
+      iniciado_por: 'plataforma'
+    });
+    if (error) console.error('Error insertando match manual:', error);
+  }
+  return { success: true };
+}

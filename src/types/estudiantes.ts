@@ -28,6 +28,7 @@ export interface EstudianteDirectorio {
   busca_pasantia: boolean;
   areas_de_interes: string[];
   activo?: boolean;
+  match_score?: number; // Porcentaje de compatibilidad con el usuario actual
   // Intereses humanos / vida fuera del aula
   deportes?: string[] | null;
   musica?: string[] | null;

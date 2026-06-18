@@ -8,8 +8,8 @@ export const metadata = {
   title: 'Adaptar CV con IA | Fundación Exalumnos UCR',
 };
 
-export default async function AdaptarCVPage({ params }: { params: { id: string } }) {
-  const { id: posicionId } = params;
+export default async function AdaptarCVPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id: posicionId } = await params;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
