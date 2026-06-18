@@ -15,15 +15,12 @@ export default async function VerTodosEstudiantesPage(
   const { estudiantes, total } = await getEstudiantes(filtros, { page: pagina, limit: 12, busqueda });
 
   return (
-    <div className="min-h-screen relative bg-[#FAF9E6] py-10 px-4 sm:px-6 lg:px-8 font-sans text-slate-900 overflow-hidden">
-      {/* Fondo alegre decorado */}
-      <DirectoryBackground />
-
-      <div className="max-w-7xl mx-auto relative z-10">
-        <div className="mb-6 flex items-center gap-2 text-sm text-slate-500 font-medium">
-          <Link href="/directorio/estudiantes" className="hover:text-[#1F8BB6] transition-colors">Directorio</Link>
+    <div className="min-h-screen bg-gradient-to-br from-[#F34B26] via-[#ff7c5c] to-[#F34B26] p-4 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl shadow-inner w-full relative overflow-hidden text-slate-900">
+      <div className="max-w-none mx-auto w-full relative z-10">
+        <div className="mb-6 flex items-center gap-2 text-sm text-white/80 font-medium">
+          <Link href="/directorio/estudiantes" className="hover:text-white hover:underline transition-colors">Directorio</Link>
           <span>/</span>
-          <span className="text-slate-800 font-bold">Todos los estudiantes</span>
+          <span className="text-white font-bold">Todos los estudiantes</span>
         </div>
 
         <TodosClient 

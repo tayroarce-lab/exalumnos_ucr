@@ -19,18 +19,18 @@ export default function TarjetaEstudiante({ estudiante }: { estudiante: Estudian
 
   return (
     <>
-      <div className="bg-white rounded-2xl border border-[#B3DCEE]/60 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col h-full group relative">
+      <div className="bg-white rounded-2xl border border-transparent hover:border-[#54BCEB]/40 p-5 shadow-sm hover:shadow-2xl hover:shadow-[#54BCEB]/10 hover:-translate-y-1 hover:bg-[#54BCEB]/5 transition-all duration-300 flex flex-col gap-4 relative overflow-hidden group h-full">
         {/* Glow de fondo al hacer hover */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#54BCEB]/5 to-[#E84F26]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#54BCEB]/5 to-[#F34B26]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
 
         {/* Cabecera con avatar, nombre y badge */}
-        <div className="p-5 pb-3 flex items-start gap-4 relative z-10">
+        <div className="flex items-start gap-4 relative z-10">
           {/* Avatar con anillo degradado fino de UCR */}
           <div className="relative flex-shrink-0">
-            <div className="w-14 h-14 rounded-full p-0.5 bg-gradient-to-tr from-[#54BCEB] via-[#003B4F] to-[#E84F26] shadow-sm">
-              <div className="w-full h-full rounded-full bg-white p-0.5 overflow-hidden flex items-center justify-center border border-white">
+            <div className="w-14 h-14 rounded-xl p-0.5 bg-gradient-to-tr from-[#54BCEB] via-[#003B4F] to-[#F34B26] shadow-sm">
+              <div className="w-full h-full rounded-xl bg-white p-0.5 overflow-hidden flex items-center justify-center border border-white">
                 {estudiante.foto_url ? (
-                  <img src={getAvatarUrl(estudiante.foto_url) as string} alt={estudiante.nombre} className="w-full h-full object-cover rounded-full" />
+                  <img src={getAvatarUrl(estudiante.foto_url) as string} alt={estudiante.nombre} className="w-full h-full object-cover rounded-xl" />
                 ) : (
                   <span className="text-[#003B4F] font-black text-lg group-hover:scale-110 transition-transform duration-300">
                     {estudiante.nombre.charAt(0)}
@@ -49,15 +49,17 @@ export default function TarjetaEstudiante({ estudiante }: { estudiante: Estudian
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
-                <h3 className="font-black text-base text-[#003B4F] truncate leading-tight group-hover:text-[#54BCEB] transition-colors duration-200" title={estudiante.nombre}>
+                <h3 className="font-sans font-semibold text-[#003B4F] text-base leading-tight truncate" title={estudiante.nombre}>
                   {estudiante.nombre}
                 </h3>
-                <p className="text-xs text-[#1F8BB6] font-bold truncate mt-0.5">{estudiante.carrera}</p>
-                <p className="text-xs text-slate-400 font-semibold truncate mt-0.5">📍 Sede de {estudiante.sede}</p>
+                <p className="text-xs text-slate-500 mt-1 truncate">{estudiante.carrera}</p>
+                <p className="text-slate-500 text-[10px] mt-1.5 font-semibold">
+                  Sede de {estudiante.sede}
+                </p>
               </div>
               
-              {/* Badge de Match */}
-              <span className="bg-gradient-to-br from-[#003B4F] to-[#54BCEB] text-white text-[10px] font-black px-2.5 py-1.5 rounded-xl flex-shrink-0 shadow-sm flex flex-col items-center justify-center min-w-[50px]">
+              {/* Badge de Match más visible */}
+              <span className="bg-orange-100 text-[#F34B26] text-[11px] font-black px-2.5 py-1.5 rounded-xl border border-orange-200 shadow-sm flex flex-col items-center justify-center min-w-[55px] shrink-0">
                 <span>{avance}%</span>
                 <span className="text-[7px] font-extrabold uppercase tracking-wide opacity-90 leading-none mt-0.5">Match</span>
               </span>
@@ -66,42 +68,45 @@ export default function TarjetaEstudiante({ estudiante }: { estudiante: Estudian
         </div>
 
         {/* Proyecto */}
-        <div className="px-5 pb-3 flex-1 relative z-10">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Proyecto de Graduación</p>
-          <p className="text-sm font-bold text-[#B43B06] line-clamp-2 leading-snug uppercase" title={tituloProyecto}>
-            {tituloProyecto}
-          </p>
-        </div>
-
-        {/* Progreso */}
-        <div className="px-5 pb-4 relative z-10">
-          <div className="flex justify-between items-center mb-1.5">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Progreso del Proyecto</span>
-            <span className="text-xs font-black text-[#1A5B75]">{avance}%</span>
+        <div className="pt-3 border-t border-slate-100 flex-1 flex flex-col gap-3 relative z-10">
+          <div>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Proyecto de Graduación</p>
+            <p className="text-xs font-bold text-[#003B4F] line-clamp-2 leading-snug uppercase" title={tituloProyecto}>
+              {tituloProyecto}
+            </p>
           </div>
-          <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden shadow-inner relative">
-            <style>{`
-              #progress-${estudiante.user_id} {
-                width: ${avance}%;
-              }
-            `}</style>
-            <div 
-              id={`progress-${estudiante.user_id}`}
-              className="bg-[#1A5B75] h-2 rounded-full transition-all duration-700 ease-out"
-            ></div>
+
+          <div className="mt-auto">
+            <div className="flex justify-between items-center mb-1">
+              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Progreso del Proyecto</span>
+              <span className="text-[10px] font-bold text-[#F34B26]">{avance}%</span>
+            </div>
+            <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden shadow-inner relative">
+              <style>{`
+                #progress-${estudiante.user_id} {
+                  width: ${avance}%;
+                }
+              `}</style>
+              <div 
+                id={`progress-${estudiante.user_id}`}
+                className="bg-[#F34B26] h-1.5 rounded-full transition-all duration-700 ease-out"
+              ></div>
+            </div>
           </div>
         </div>
 
         {/* Footer con botones de acción */}
-        <div className="px-5 pb-5 mt-auto flex flex-col gap-2 relative z-10">
+        <div className="pt-4 mt-auto flex gap-2 border-t border-slate-100 relative z-10">
           <Link 
             href={`/directorio/estudiantes/${estudiante.user_id}`}
-            className="w-full inline-flex justify-center items-center gap-2 rounded-xl text-sm font-bold transition-all duration-200 bg-[#B43B06] hover:bg-[#9E3405] text-white h-10 px-4 active:scale-[0.98] shadow-sm hover:shadow"
+            className="flex-1"
           >
-            Ver Detalles
+            <button className="w-full bg-sky-50/50 hover:bg-[#54BCEB] border border-sky-100/70 hover:border-[#54BCEB] text-[#003B4F] hover:text-white font-semibold text-xs py-2 h-9 transition-all rounded-xl flex items-center justify-center cursor-pointer">
+              Ver Detalles
+            </button>
           </Link>
           <button 
-            className="w-full inline-flex justify-center items-center gap-2 rounded-xl text-sm font-bold transition-all duration-200 border border-[#1A5B75]/20 bg-white hover:bg-slate-50 text-[#1A5B75] h-10 px-4 active:scale-[0.98] cursor-pointer" 
+            className="flex-1 bg-orange-50 hover:bg-[#FF9B18] border border-orange-100/70 hover:border-[#FF9B18] text-[#FF9B18] hover:text-white font-semibold text-xs py-2 h-9 transition-all rounded-xl flex items-center justify-center cursor-pointer" 
             onClick={() => setModalAbierto(true)}
             id={`btn-ofrecer-apoyo-${estudiante.user_id}`}
           >

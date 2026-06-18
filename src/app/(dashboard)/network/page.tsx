@@ -39,35 +39,34 @@ const APOYO_FILTROS = [
   { key: 'ofrece_donacion_dinero', label: 'Donación', icon: '💰' },
 ]
 
-// ============================================================
-// TARJETA DE EXALUMNO
+// ==========================// TARJETA DE EXALUMNO
 // ============================================================
 function ExalumnoCard({ ex, isAdmin }: { ex: ExalumnoPublic, isAdmin: boolean }) {
   const apoyos = APOYO_FILTROS.filter(a => ex[a.key as keyof ExalumnoPublic])
   
   return (
-    <Card hoverEffect={true} className="bg-white border border-slate-200 border-t-4 border-t-[#F34B26] rounded-2xl p-5 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col gap-4">
+    <Card hoverEffect={true} className="bg-white border border-transparent hover:border-[#FFFFFF]/40 rounded-2xl p-5 shadow-sm hover:shadow-2xl hover:shadow-[#FFFFFF]/20 hover:-translate-y-1 hover:bg-[#FFFFFF]/15 transition-all duration-300 flex flex-col gap-4">
       {/* Header */}
       <div className="flex items-start gap-4">
         {ex.foto_url ? (
           <img src={getAvatarUrl(ex.foto_url) as string} alt={`Foto de ${ex.nombre} ${ex.apellidos || ''}`} className="w-14 h-14 rounded-xl object-cover shadow-sm" />
         ) : (
-          <div className={`w-14 h-14 rounded-xl ${ex.avatarBg} text-white flex items-center justify-center font-bold text-lg shrink-0 shadow-sm`} aria-label={`Iniciales de ${ex.nombre} ${ex.apellidos || ''}`}>
+          <div className="w-14 h-14 rounded-xl bg-[#54BCEB] text-white flex items-center justify-center font-bold text-lg shrink-0 shadow-sm" aria-label={`Iniciales de ${ex.nombre} ${ex.apellidos || ''}`}>
             {ex.initials}
           </div>
         )}
         <div className="flex-1 min-w-0">
-          <h3 className="font-sans font-semibold text-[#F34B26] text-base leading-tight">{ex.nombre} {ex.apellidos}</h3>
+          <h3 className="font-sans font-semibold text-[#003B4F] text-base leading-tight">{ex.nombre} {ex.apellidos}</h3>
           <p className="text-xs text-slate-500 mt-1">{ex.carrera_principal || 'Exalumno UCR'}{(ex.anio_graduacion) ? `, ${ex.anio_graduacion}` : ''}</p>
-          <p className="text-xs font-bold text-[#FF9B18] mt-0.5">{ex.cargo_actual || 'Profesional'} en {ex.empresa_actual || 'Independiente'}</p>
+          <p className="text-xs font-bold text-sky-600 mt-0.5">{ex.cargo_actual || 'Profesional'} en {ex.empresa_actual || 'Independiente'}</p>
           <div className="mt-2 flex flex-wrap gap-2 items-center">
              {ex.pais_ciudad && (
                 <span className="text-slate-500 text-[10px] flex items-center gap-1">
-                  <MapPin className="w-3 h-3" /> {ex.pais_ciudad}
+                   <MapPin className="w-3 h-3" /> {ex.pais_ciudad}
                 </span>
              )}
              {ex.score_match > 0 && (
-                <span className="inline-flex bg-amber-100 text-amber-700 text-[9px] font-bold px-2 py-0.5 rounded items-center gap-1">
+                <span className="inline-flex bg-sky-50 text-sky-700 text-[9px] font-bold px-2 py-0.5 rounded items-center gap-1 border border-sky-100">
                    ⭐ MATCH: {ex.score_match}%
                 </span>
              )}
@@ -81,10 +80,10 @@ function ExalumnoCard({ ex, isAdmin }: { ex: ExalumnoPublic, isAdmin: boolean })
           <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2">Intereses</p>
           <div className="flex flex-wrap gap-1.5">
             {ex.areas_de_interes.slice(0, 3).map(a => (
-              <span key={a} className="bg-orange-50 text-[#F34B26] text-[10px] font-semibold px-2.5 py-1 rounded-full">{a}</span>
+              <span key={a} className="bg-sky-50/50 text-[#003B4F] border border-sky-100/50 text-[10px] font-semibold px-2.5 py-1 rounded-full">{a}</span>
             ))}
             {ex.areas_de_interes.length > 3 && (
-              <span className="bg-orange-50 text-[#F34B26] text-[10px] font-semibold px-2.5 py-1 rounded-full">+{ex.areas_de_interes.length - 3}</span>
+              <span className="bg-sky-50/50 text-[#003B4F] border border-sky-100/50 text-[10px] font-semibold px-2.5 py-1 rounded-full">+{ex.areas_de_interes.length - 3}</span>
             )}
           </div>
         </div>
@@ -107,7 +106,7 @@ function ExalumnoCard({ ex, isAdmin }: { ex: ExalumnoPublic, isAdmin: boolean })
       {/* Botón */}
       <div className="mt-auto pt-4 flex gap-2">
         <Link href={`/network/${ex.id}`} className="flex-1">
-          <Button variant="secondary" className="w-full bg-white border-orange-200 text-[#F34B26] hover:bg-orange-50/40 font-medium text-xs py-2">
+          <Button variant="secondary" className="w-full bg-orange-50 hover:bg-[#FF9B18] border border-orange-100/70 hover:border-[#FF9B18] text-[#FF9B18] hover:text-white font-semibold text-xs py-2 transition-all">
             Ver Perfil y Conectar
           </Button>
         </Link>
@@ -117,7 +116,7 @@ function ExalumnoCard({ ex, isAdmin }: { ex: ExalumnoPublic, isAdmin: boolean })
 }
 
 // ============================================================
-// FILTROS SIDEBAR
+// FILTROS SIDEBAR (MODAL)
 // ============================================================
 interface Filters {
   search: string
@@ -160,8 +159,8 @@ function FilterPanel({
     </div>
   )
 
-  const inputClassName = "w-full text-sm py-2 px-3 border-[0.5px] border-slate-300 rounded-md appearance-none bg-white focus:outline-none focus:border-[#F34B26] text-slate-800 placeholder-slate-400"
-  const selectClassName = "w-full text-sm py-2 pl-3 pr-8 border-[0.5px] border-slate-300 rounded-md appearance-none bg-white focus:outline-none focus:border-[#F34B26] text-slate-800"
+  const inputClassName = "w-full text-sm py-2 px-3 border-[0.5px] border-slate-300 rounded-md appearance-none bg-white focus:outline-none focus:border-[#54BCEB] text-slate-800 placeholder-slate-400"
+  const selectClassName = "w-full text-sm py-2 pl-3 pr-8 border-[0.5px] border-slate-300 rounded-md appearance-none bg-white focus:outline-none focus:border-[#54BCEB] text-slate-800"
 
   const CheckboxGroup = ({ options, selected, onToggle }: { options: {label: string, value: string}[], selected: string[], onToggle: (val: string) => void }) => {
      return (
@@ -174,7 +173,7 @@ function FilterPanel({
                     checked={selected.includes(opt.value)}
                     onChange={() => onToggle(opt.value)}
                  />
-                 <div className={`w-4 h-4 mt-0.5 rounded border flex items-center justify-center shrink-0 transition-colors ${selected.includes(opt.value) ? 'bg-[#F34B26] border-[#F34B26] text-white' : 'border-slate-300 bg-white group-hover:border-[#F34B26]'}`}>
+                 <div className={`w-4 h-4 mt-0.5 rounded border flex items-center justify-center shrink-0 transition-colors ${selected.includes(opt.value) ? 'bg-[#54BCEB] border-[#54BCEB] text-white' : 'border-slate-300 bg-white group-hover:border-[#54BCEB]'}`}>
                     {selected.includes(opt.value) && <Check className="w-3 h-3" />}
                  </div>
                  <span className="text-[13px] text-slate-700 leading-tight">{opt.label}</span>
@@ -185,18 +184,18 @@ function FilterPanel({
   }
 
   return (
-    <div className="space-y-6 max-w-[280px] w-full">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 w-full">
+      <div className="flex items-center justify-between pb-3 border-b border-slate-100">
         <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">FILTROS</h3>
         <div className="flex items-center gap-2">
           {hasFilters && (
-            <button type="button" onClick={clearAll} className="text-[10px] font-bold text-slate-500 hover:text-slate-800 uppercase tracking-wider transition-colors underline">
+            <button type="button" onClick={clearAll} className="text-[10px] font-bold text-slate-500 hover:text-slate-800 uppercase tracking-wider transition-colors underline mr-2">
               Limpiar
             </button>
           )}
           {onClose && (
-            <button type="button" aria-label="Cerrar filtros" onClick={() => onClose()} className="p-1 text-slate-400 hover:text-slate-700 lg:hidden">
-              <X className="w-4 h-4" />
+            <button type="button" aria-label="Cerrar filtros" onClick={() => onClose()} className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
+              <X className="w-4.5 h-4.5" />
             </button>
           )}
         </div>
@@ -278,6 +277,7 @@ function FilterPanel({
     </div>
   )
 }
+
 // ============================================================
 // COMPONENTE DE PAGINACIÓN
 // ============================================================
@@ -312,7 +312,7 @@ function Paginacion({ paginaActual, totalPaginas, onChange }: PaginacionProps) {
       <button
         onClick={() => onChange(paginaActual - 1)}
         disabled={paginaActual === 1}
-        className="px-3.5 py-2 text-sm font-medium rounded-xl border border-slate-200 text-slate-600 bg-white hover:bg-slate-50 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200"
+        className="px-3.5 py-2 text-sm font-medium rounded-xl border border-white/10 text-white bg-white/10 hover:bg-white/20 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200"
       >
         ← Anterior
       </button>
@@ -323,8 +323,8 @@ function Paginacion({ paginaActual, totalPaginas, onChange }: PaginacionProps) {
           onClick={() => onChange(pagina)}
           className={`w-10 h-10 text-sm font-semibold rounded-xl border transition-all duration-200 ${
             pagina === paginaActual
-              ? "border-[#F34B26] bg-[#F34B26] text-white shadow-sm shadow-[#F34B26]/25"
-              : "border-slate-200 text-slate-600 bg-white hover:bg-slate-50 hover:border-slate-300"
+              ? "border-[#003B4F] bg-[#003B4F] text-white shadow-sm shadow-[#003B4F]/25"
+              : "border-white/10 text-white bg-white/10 hover:bg-white/20"
           }`}
         >
           {pagina}
@@ -334,7 +334,7 @@ function Paginacion({ paginaActual, totalPaginas, onChange }: PaginacionProps) {
       <button
         onClick={() => onChange(paginaActual + 1)}
         disabled={paginaActual === totalPaginas}
-        className="px-3.5 py-2 text-sm font-medium rounded-xl border border-slate-200 text-slate-600 bg-white hover:bg-slate-50 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200"
+        className="px-3.5 py-2 text-sm font-medium rounded-xl border border-white/10 text-white bg-white/10 hover:bg-white/20 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200"
       >
         Siguiente →
       </button>
@@ -354,7 +354,7 @@ export default function NetworkPage() {
   // Debounce para la búsqueda de texto
   const [debouncedFilters, setDebouncedFilters] = useState<Filters>(filters)
   
-  const [showMobileFilters, setShowMobileFilters] = useState(false)
+  const [showFiltersModal, setShowFiltersModal] = useState(false)
   const [exalumnos, setExalumnos] = useState<ExalumnoPublic[]>([])
   const [cargando, setCargando] = useState(true)
   const [page, setPage] = useState(1)
@@ -410,7 +410,7 @@ export default function NetworkPage() {
           ...p,
           nombre: p.nombre || 'Exalumno',
           initials: init,
-          avatarBg: 'bg-[#F34B26]',
+          avatarBg: 'bg-[#54BCEB]',
         }
       })
 
@@ -431,96 +431,86 @@ export default function NetworkPage() {
   const activeFilterCount = (filters.facultad ? 1 : 0) + (filters.escuela ? 1 : 0) + filters.carreras.length + filters.sectores.length + filters.apoyos.length + filters.areas.length + (filters.pais_ciudad ? 1 : 0)
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-100 to-white py-8 px-6 lg:px-10">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-[#54BCEB] via-[#85dbff] to-[#54BCEB] p-4 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl shadow-inner w-full">
+      <div className="max-w-none mx-auto w-full">
 
-        {/* Encabezado */}
-        <div className="pt-2 pb-6 space-y-1">
-          <h1 className="text-4xl font-extrabold uppercase font-display text-slate-900 tracking-wide">Directorio de Exalumnos</h1>
-          <p className="text-sm text-slate-600 font-medium">Conecta con exalumnos de la UCR que ofrecen mentoría, empleo, pasantías y más.</p>
-        </div>
-
-        {/* Buscador + Botón Filtros Móvil */}
-        <div className="flex gap-3 mb-6">
-          <div className="flex-1 relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Buscar por nombre, cargo o empresa..."
-              value={filters.search}
-              onChange={e => setFilters(p => ({ ...p, search: e.target.value }))}
-              className="w-full h-12 pl-11 pr-4 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-[#F34B26] focus:ring-2 focus:ring-[#F34B26]/10 transition-all placeholder:text-slate-400 shadow-sm"
-            />
+        {/* Encabezado con Botón de Filtro al extremo derecho */}
+        <div className="pt-2 pb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-white/20 mb-8">
+          <div className="space-y-1">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold uppercase font-display text-white tracking-wide drop-shadow-sm">Directorio de Exalumnos</h1>
+            <p className="text-xs sm:text-sm text-slate-100 font-medium">Conecta con exalumnos de la UCR que ofrecen mentoría, empleo, pasantías y más.</p>
           </div>
           <button
-            onClick={() => setShowMobileFilters(!showMobileFilters)}
-            className="lg:hidden h-12 px-4 flex items-center gap-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 hover:border-[#F34B26] transition-all shadow-sm"
+            onClick={() => setShowFiltersModal(true)}
+            className="h-11 px-5 flex items-center justify-center gap-2 bg-[#003B4F] hover:bg-[#002735] text-white rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all whitespace-nowrap self-start md:self-center"
           >
             <SlidersHorizontal className="w-4 h-4" />
             Filtros
             {activeFilterCount > 0 && (
-              <span className="w-5 h-5 bg-[#F34B26] text-white text-[9px] font-bold rounded-full flex items-center justify-center">{activeFilterCount}</span>
+              <span className="w-5 h-5 bg-[#54BCEB] text-white text-[10px] font-extrabold rounded-full flex items-center justify-center ml-1">{activeFilterCount}</span>
             )}
           </button>
         </div>
 
-        {/* Layout: Sidebar + Grid */}
-        <div className="flex gap-8">
-          {/* Sidebar de Filtros (escritorio) */}
-          <aside className="hidden lg:block w-64 shrink-0">
-            <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5 sticky top-4">
-              <FilterPanel filters={filters} setFilters={setFilters} />
-            </div>
-          </aside>
+        {/* Buscador a Ancho Completo */}
+        <div className="relative mb-8">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Buscar por nombre, cargo o empresa..."
+            value={filters.search}
+            onChange={e => setFilters(p => ({ ...p, search: e.target.value }))}
+            className="w-full h-12 pl-11 pr-4 bg-white/95 border border-sky-200/50 rounded-xl text-sm text-[#003B4F] focus:outline-none focus:border-white focus:ring-2 focus:ring-white/20 transition-all placeholder:text-slate-400 shadow-sm"
+          />
+        </div>
 
-          {/* Panel móvil de filtros */}
-          {showMobileFilters && (
-            <div className="fixed inset-0 z-50 lg:hidden">
-              <div className="absolute inset-0 bg-black/40" onClick={() => setShowMobileFilters(false)} />
-              <div className="absolute right-0 top-0 bottom-0 w-80 bg-white shadow-2xl p-6 overflow-y-auto">
-                <FilterPanel filters={filters} setFilters={setFilters} onClose={() => setShowMobileFilters(false)} />
+        {/* Modal de Filtros (Centro de la pantalla) */}
+        {showFiltersModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setShowFiltersModal(false)} />
+            <div className="relative w-full max-w-md max-h-[85vh] bg-white rounded-2xl shadow-2xl p-6 overflow-y-auto z-10 border border-slate-100 flex flex-col gap-4">
+              <FilterPanel filters={filters} setFilters={setFilters} onClose={() => setShowFiltersModal(false)} />
+            </div>
+          </div>
+        )}
+
+        {/* Grid de resultados a Ancho Completo */}
+        <div className="w-full flex flex-col">
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-xs font-bold text-white uppercase tracking-wider drop-shadow-sm" aria-live="polite">
+              {cargando && page === 1 ? 'Buscando...' : `${totalItems} resultados`}
+            </p>
+          </div>
+
+          {cargando && page === 1 ? (
+            <div className="flex flex-col items-center justify-center py-20 bg-white/10 border border-white/10 rounded-2xl shadow-sm">
+              <div className="w-10 h-10 border-4 border-white/20 border-t-white rounded-full animate-spin mb-4"></div>
+              <h3 className="text-sm font-bold text-white uppercase tracking-wide">Cargando directorio...</h3>
+            </div>
+          ) : exalumnos.length > 0 ? (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+                {exalumnos.map((ex, index) => <ExalumnoCard key={`${ex.id}-${index}`} ex={ex} isAdmin={isAdmin} />)}
               </div>
+              <Paginacion 
+                paginaActual={page} 
+                totalPaginas={Math.ceil(totalItems / limit)} 
+                onChange={setPage} 
+              />
+            </>
+          ) : (
+            <div className="text-center py-20 bg-white/10 border border-white/10 rounded-2xl shadow-sm mt-4">
+              <Users className="w-12 h-12 text-white/50 mx-auto mb-4" />
+              <h3 className="text-sm font-bold text-white uppercase tracking-wide mb-2">No se encontraron exalumnos</h3>
+              <p className="text-xs text-white/75 font-medium mb-4">Ajuste los filtros de búsqueda o intente con otros términos.</p>
+              <button
+                onClick={() => setFilters({ search: '', facultad: '', escuela: '', carreras: [], sectores: [], areas: [], apoyos: [], pais_ciudad: '' })}
+                className="text-xs font-bold text-[#003B4F] hover:underline uppercase tracking-wider"
+              >
+                Limpiar filtros
+              </button>
             </div>
           )}
-
-          {/* Grid de resultados */}
-          <div className="flex-1 min-w-0 flex flex-col">
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider" aria-live="polite">
-                {cargando && page === 1 ? 'Buscando...' : `${totalItems} resultados`}
-              </p>
-            </div>
-
-            {cargando && page === 1 ? (
-              <div className="flex flex-col items-center justify-center py-20 bg-white border border-slate-200 rounded-2xl shadow-sm">
-                <div className="w-10 h-10 border-4 border-slate-200 border-t-[#F34B26] rounded-full animate-spin mb-4"></div>
-                <h3 className="text-sm font-bold text-slate-600 uppercase tracking-wide">Cargando directorio...</h3>
-              </div>
-            ) : exalumnos.length > 0 ? (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
-                  {exalumnos.map((ex, index) => <ExalumnoCard key={`${ex.id}-${index}`} ex={ex} isAdmin={isAdmin} />)}
-                </div>
-                <Paginacion 
-                  paginaActual={page} 
-                  totalPaginas={Math.ceil(totalItems / limit)} 
-                  onChange={setPage} 
-                />
-              </>
-            ) : (
-              <div className="text-center py-20 bg-white border border-slate-200 rounded-2xl shadow-sm mt-4">
-                <Users className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-                <h3 className="text-sm font-bold text-slate-600 uppercase tracking-wide mb-2">No se encontraron exalumnos</h3>
-                <p className="text-xs text-slate-400 font-medium mb-4">Ajuste los filtros de búsqueda o intente con otros términos.</p>
-                <button
-                  onClick={() => setFilters({ search: '', facultad: '', escuela: '', carreras: [], sectores: [], areas: [], apoyos: [], pais_ciudad: '' })}
-                  className="text-xs font-bold text-[#F34B26] hover:underline uppercase tracking-wider"
-                >
-                  Limpiar filtros
-                </button>
-              </div>
-            )}
-          </div>
         </div>
 
       </div>
