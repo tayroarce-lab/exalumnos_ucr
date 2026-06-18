@@ -162,24 +162,24 @@ export function VacantesTable({ initialVacantes }: VacantesTableProps) {
                 <tr key={vacante.id}>
                   <td>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                      <span style={{ fontWeight: 600, color: '#0A2540', fontSize: '14px' }}>
+                      <span style={{ fontWeight: 600, color: 'var(--admin-text-primary)', fontSize: '14px' }}>
                         {vacante.titulo}
                       </span>
-                      <span style={{ fontSize: '12px', color: '#94a3b8' }}>
+                      <span style={{ fontSize: '12px', color: 'var(--admin-text-secondary)' }}>
                         {vacante.empresa} · {vacante.lugar}
                       </span>
                     </div>
                   </td>
                   <td>
                     <div className="admin-table-user">
-                      <div className="admin-table-avatar" style={{ background: '#eff6ff', color: '#3b82f6' }}>
+                      <div className="admin-table-avatar" style={{ background: 'var(--admin-bg-hover)', color: 'var(--admin-accent-celeste)' }}>
                         {(vacante.exalumno?.nombre || 'U').charAt(0).toUpperCase()}
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                        <span style={{ fontWeight: 500, fontSize: '13px' }}>
+                        <span style={{ fontWeight: 500, fontSize: '13px', color: 'var(--admin-text-primary)' }}>
                           {vacante.exalumno?.nombre || 'Desconocido'}
                         </span>
-                        <span style={{ fontSize: '11px', color: '#94a3b8' }}>
+                        <span style={{ fontSize: '11px', color: 'var(--admin-text-secondary)' }}>
                           {vacante.exalumno?.email}
                         </span>
                       </div>
@@ -202,7 +202,7 @@ export function VacantesTable({ initialVacantes }: VacantesTableProps) {
                         {new Date(vacante.fecha_limite).toLocaleDateString('es-CR')}
                       </span>
                     ) : (
-                      <span style={{ color: '#cbd5e1', fontSize: '12px' }}>Sin límite</span>
+                      <span style={{ color: 'var(--admin-text-muted)', fontSize: '12px' }}>Sin límite</span>
                     )}
                   </td>
                   <td>
