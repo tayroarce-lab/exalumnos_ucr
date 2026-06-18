@@ -160,7 +160,7 @@ export async function getMyApplications() {
   const { data, error } = await supabase
     .from('applications')
     .select(`
-      id, position_id, status, message, created_at,
+      id, position_id, status, message, created_at, alumni_id,
       position:posiciones(titulo, exalumno:users!posiciones_exalumno_id_fkey(nombre))
     `)
     .eq('student_id', user.id)
@@ -175,11 +175,32 @@ export async function getMyApplications() {
     status: app.status,
     message: app.message,
     created_at: app.created_at,
+    alumni_id: app.alumni_id,
     position: {
       titulo: (app.position as any)?.titulo || 'Posición desconocida',
       alumni_name: ((app.position as any)?.exalumno as any)?.nombre || 'Exalumno'
     }
   }))
+}
+
+export async function checkApplicationStatus(position_id: string) {
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { applied: false }
+
+    const { data, error } = await supabase
+      .from('applications')
+      .select('id')
+      .eq('position_id', position_id)
+      .eq('student_id', user.id)
+      .single()
+
+    if (error || !data) return { applied: false }
+    return { applied: true }
+  } catch (error) {
+    return { applied: false }
+  }
 }
 
 export async function getPositionApplications(position_id: string) {
