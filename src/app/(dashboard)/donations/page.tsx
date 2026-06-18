@@ -355,8 +355,8 @@ export default function DonationsPage() {
           <div className="space-y-6">
             <h2 className="text-xs font-black text-slate-600 uppercase tracking-wider border-b border-slate-100 pb-3">2. Monto y Método de Pago</h2>
             
-            <div className="grid grid-cols-3 gap-4 max-w-md">
-              <div className="col-span-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-md">
+              <div className="sm:col-span-2">
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Monto <span className="text-rose-500">*</span></label>
                 <input
                   type="number"

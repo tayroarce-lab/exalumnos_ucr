@@ -156,3 +156,9 @@
   transform: scale(1.05);
 }
 
+@media (max-width: 639px) {
+  .admin-table-container {
+    padding: 16px;
+  }
+}
+

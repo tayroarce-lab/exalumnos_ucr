@@ -184,7 +184,7 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
           />
         </div>
         {/* Grid de Criterios */}
-        <div className="grid grid-cols-2 gap-y-2.5 gap-x-4 text-xs font-bold text-[#1A5B75] mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2.5 gap-x-4 text-xs font-bold text-[#1A5B75] mb-4">
           <div className="flex items-center gap-2">
             <IconCheckCircle /> Carrera afín
           </div>
@@ -255,7 +255,7 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
       </div>
 
       {/* ── COLUMNAS OPORTUNIDADES E INTERESES ──────────────── */}
-      <div className="grid grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
         <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between">
           <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 mb-2">
             <span>👜</span> Oportunidades
@@ -286,7 +286,7 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
         <h3 className="font-extrabold text-xs tracking-widest text-slate-300 uppercase pb-4 mb-5 border-b border-white/10 flex items-center gap-2">
           <span>🎓</span> Expediente Académico
         </h3>
-        <div className="grid grid-cols-2 gap-y-5 gap-x-4 relative z-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-5 gap-x-4 relative z-10">
           <div>
             <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Carné</p>
             <p className="text-sm font-extrabold text-white">{estudiante.anio_ingreso ? `B${estudiante.anio_ingreso}${Math.floor(1000 + Math.random() * 9000)}` : 'B55241'}</p>

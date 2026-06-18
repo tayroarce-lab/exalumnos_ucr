@@ -87,7 +87,7 @@ export function CVStepper({ initialData }: { initialData: any }) {
       <div className={`flex flex-col ${showPreview ? 'xl:flex-row' : ''} gap-8 xl:gap-12`}>
         
         {/* Lado izquierdo: Formularios */}
-        <div className={`flex flex-col md:flex-row gap-8 xl:gap-12 ${showPreview ? 'xl:w-[calc(100%-420px-3rem)]' : 'w-full'} min-w-[480px]`}>
+        <div className={`flex flex-col md:flex-row gap-8 xl:gap-12 ${showPreview ? 'xl:w-[calc(100%-420px-3rem)]' : 'w-full'} min-w-0 w-full`}>
           {/* Sidebar Navigation */}
           <div className="w-full md:w-64 shrink-0">
           <nav className="flex flex-row md:flex-col gap-3 overflow-x-auto pb-4 md:pb-0 scrollbar-hide">
