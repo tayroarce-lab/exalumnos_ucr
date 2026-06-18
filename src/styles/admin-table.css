@@ -60,10 +60,10 @@
 .admin-table td {
   padding: 16px 20px;
   font-size: 14px;
-  color: #E2E8F0;
+  color: var(--admin-table-td-color, var(--admin-text-primary));
   border-bottom: 1px solid var(--admin-border-color);
   vertical-align: middle;
-  transition: background-color 0.15s ease;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .admin-table tr:last-child td {
@@ -84,7 +84,7 @@
   width: 34px;
   height: 34px;
   border-radius: 9999px;
-  background: linear-gradient(135deg, #002D54 0%, #001E35 100%);
+  background: linear-gradient(135deg, var(--admin-bg-hover) 0%, var(--admin-bg-card) 100%);
   color: var(--admin-accent-celeste);
   display: flex;
   align-items: center;

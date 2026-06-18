@@ -20,7 +20,7 @@ const mockPendingDonations: PendingDonation[] = [
     amount: '₡ 50,000',
     date: '10 May 2026',
     status: 'pendiente',
-    receiptUrl: '#',
+    receiptUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
   },
   {
     id: '2',
@@ -29,7 +29,7 @@ const mockPendingDonations: PendingDonation[] = [
     amount: '$ 120.00',
     date: '11 May 2026',
     status: 'procesando',
-    receiptUrl: '#',
+    receiptUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
   },
   {
     id: '3',
@@ -38,7 +38,7 @@ const mockPendingDonations: PendingDonation[] = [
     amount: '₡ 25,000',
     date: '12 May 2026',
     status: 'pendiente',
-    receiptUrl: '#',
+    receiptUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
   }
 ];
 
@@ -70,7 +70,7 @@ export const PendingDonationsTable: React.FC = () => {
                   <span style={{ fontWeight: 500 }}>{donation.donorName}</span>
                 </div>
               </td>
-              <td><span style={{ fontWeight: 600, color: '#0A2540' }}>{donation.amount}</span></td>
+              <td><span style={{ fontWeight: 600, color: 'var(--admin-text-primary)' }}>{donation.amount}</span></td>
               <td>{donation.date}</td>
               <td>
                 <span className={`admin-table-pill ${donation.status === 'pendiente' ? 'orange' : 'teal'}`}>
@@ -82,7 +82,7 @@ export const PendingDonationsTable: React.FC = () => {
                   href={donation.receiptUrl} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  style={{ color: '#3b82f6', textDecoration: 'none', fontWeight: 500 }}
+                  style={{ color: 'var(--admin-accent-celeste)', textDecoration: 'none', fontWeight: 500 }}
                 >
                   Ver PDF
                 </a>

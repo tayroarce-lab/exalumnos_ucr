@@ -155,9 +155,10 @@
   padding: 10px 14px;
   border-radius: 12px;
   font-size: 13px;
-  color: #E2E8F0;
+  color: var(--admin-table-td-color, var(--admin-text-primary));
   max-width: 320px;
   border: 1px solid var(--admin-border-color);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .denuncias-motivo-title {

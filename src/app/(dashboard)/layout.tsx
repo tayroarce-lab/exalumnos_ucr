@@ -5,6 +5,7 @@ import React from 'react'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Navbar from '@/components/layout/navbar'
+import DashboardFooter from '@/components/layout/DashboardFooter'
 import RealtimeApplicationStatus from '@/components/RealtimeApplicationStatus'
 
 export default async function DashboardLayout({
@@ -29,11 +30,11 @@ export default async function DashboardLayout({
       <div className="flex flex-1 relative">
         {/* Contenido Principal */}
         <main className="flex-1 w-full min-h-[calc(100vh-4rem)] p-4 sm:p-6 lg:p-8 overflow-y-auto">
-          <div className="max-w-7xl mx-auto">
-            {children}
-          </div>
+          {children}
         </main>
       </div>
+
+      <DashboardFooter />
 
       {/* WebSocket: Notificaciones de cambio de estado de aplicaciones en tiempo real.
           Montado UNA SOLA VEZ en el layout para mantener la suscripción activa

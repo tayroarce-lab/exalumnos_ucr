@@ -49,16 +49,16 @@ export function MatchActionDialog({ match, isOpen, onClose, onSave }: MatchActio
 
         {/* Información básica del match */}
         {match && (
-          <div style={{ background: '#f8fafc', borderRadius: '10px', padding: '16px', marginBottom: '24px', border: '1px solid #E2E8F0' }}>
-            <p style={{ margin: '0 0 6px 0', fontSize: '14px', color: '#334155' }}>
-              <strong style={{ color: '#0A2540' }}>Estudiante:</strong> {match.estudiante_nombre}
+          <div style={{ background: 'var(--admin-bg-hover)', borderRadius: '10px', padding: '16px', marginBottom: '24px', border: '1px solid var(--admin-border-color)' }}>
+            <p style={{ margin: '0 0 6px 0', fontSize: '14px', color: 'var(--admin-text-primary)' }}>
+              <strong style={{ color: 'var(--admin-accent-celeste)' }}>Estudiante:</strong> {match.estudiante_nombre}
             </p>
-            <p style={{ margin: '0 0 6px 0', fontSize: '14px', color: '#334155' }}>
-              <strong style={{ color: '#0A2540' }}>Exalumno:</strong> {match.exalumno_nombre}
+            <p style={{ margin: '0 0 6px 0', fontSize: '14px', color: 'var(--admin-text-primary)' }}>
+              <strong style={{ color: 'var(--admin-accent-celeste)' }}>Exalumno:</strong> {match.exalumno_nombre}
             </p>
-            <p style={{ margin: '0', fontSize: '14px', color: '#334155' }}>
-              <strong style={{ color: '#0A2540' }}>Carrera:</strong> {match.estudiante_carrera} &nbsp;|&nbsp;
-              <strong style={{ color: '#0A2540' }}>Score:</strong> {match.score_match}%
+            <p style={{ margin: '0', fontSize: '14px', color: 'var(--admin-text-primary)' }}>
+              <strong style={{ color: 'var(--admin-accent-celeste)' }}>Carrera:</strong> {match.estudiante_carrera} &nbsp;|&nbsp;
+              <strong style={{ color: 'var(--admin-accent-celeste)' }}>Score:</strong> {match.score_match}%
             </p>
           </div>
         )}

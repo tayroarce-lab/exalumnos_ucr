@@ -362,25 +362,25 @@
 /* ── Active states for cards ── */
 .admin-stat-card.active.todos {
   border-color: #64748B;
-  background-color: #F8FAFC;
+  background-color: var(--admin-bg-hover);
   box-shadow: 0 0 0 1px #64748B;
 }
 
 .admin-stat-card.active.exalumnos {
   border-color: #F34B26;
-  background-color: #FFF5F3;
+  background-color: var(--admin-bg-hover);
   box-shadow: 0 0 0 1px #F34B26;
 }
 
 .admin-stat-card.active.estudiantes {
   border-color: #54BCEB;
-  background-color: #F0FAFF;
+  background-color: var(--admin-bg-hover);
   box-shadow: 0 0 0 1px #54BCEB;
 }
 
 .admin-stat-card.active.admins {
   border-color: #0D4091;
-  background-color: #F0F4FF;
+  background-color: var(--admin-bg-hover);
   box-shadow: 0 0 0 1px #0D4091;
 }
 
