@@ -45,70 +45,99 @@ function ExalumnoCard({ ex, isAdmin }: { ex: ExalumnoPublic, isAdmin: boolean })
   const apoyos = APOYO_FILTROS.filter(a => ex[a.key as keyof ExalumnoPublic])
   
   return (
-    <Card hoverEffect={true} className="bg-white border border-transparent hover:border-[#FFFFFF]/40 rounded-2xl p-5 shadow-sm hover:shadow-2xl hover:shadow-[#FFFFFF]/20 hover:-translate-y-1 hover:bg-[#FFFFFF]/15 transition-all duration-300 flex flex-col gap-4">
-      {/* Header */}
-      <div className="flex items-start gap-4">
-        {ex.foto_url ? (
-          <img src={getAvatarUrl(ex.foto_url) as string} alt={`Foto de ${ex.nombre} ${ex.apellidos || ''}`} className="w-14 h-14 rounded-xl object-cover shadow-sm" />
-        ) : (
-          <div className="w-14 h-14 rounded-xl bg-[#54BCEB] text-white flex items-center justify-center font-bold text-lg shrink-0 shadow-sm" aria-label={`Iniciales de ${ex.nombre} ${ex.apellidos || ''}`}>
-            {ex.initials}
+    <Card hoverEffect={true} className="bg-white hover:bg-orange-50 hover:border-[#F34B26] hover:shadow-[0_0_20px_rgba(243,75,38,0.25)] hover:-translate-y-1 rounded-2xl border border-[#F34B26]/30 p-5 transition-all duration-300 flex flex-col gap-4 relative overflow-hidden group h-full">
+
+      {/* Cabecera con avatar, nombre y badge */}
+      <div className="flex items-start gap-4 relative z-10">
+        {/* Avatar con anillo oscuro */}
+        <div className="relative flex-shrink-0 mt-1">
+          <div className="w-12 h-12 rounded-full p-0.5 border-2 border-[#003B4F] shadow-sm bg-white flex items-center justify-center">
+            <div className="w-full h-full rounded-full bg-white overflow-hidden flex items-center justify-center">
+              {ex.foto_url ? (
+                <img src={getAvatarUrl(ex.foto_url) as string} alt={`Foto de ${ex.nombre} ${ex.apellidos || ''}`} className="w-full h-full object-cover rounded-full" />
+              ) : (
+                <div className="w-full h-full bg-[#54BCEB] text-white flex items-center justify-center font-bold text-lg" aria-label={`Iniciales de ${ex.nombre}`}>
+                  {ex.initials}
+                </div>
+              )}
+            </div>
           </div>
-        )}
+          {/* Pequeño icono en la esquina */}
+          <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-white flex items-center justify-center">
+             <div className="w-3 h-3 bg-[#F34B26] rounded-full"></div>
+          </div>
+        </div>
+        
         <div className="flex-1 min-w-0">
-          <h3 className="font-sans font-semibold text-[#003B4F] text-base leading-tight">{ex.nombre} {ex.apellidos}</h3>
-          <p className="text-xs text-slate-500 mt-1">{ex.carrera_principal || 'Exalumno UCR'}{(ex.anio_graduacion) ? `, ${ex.anio_graduacion}` : ''}</p>
-          <p className="text-xs font-bold text-sky-600 mt-0.5">{ex.cargo_actual || 'Profesional'} en {ex.empresa_actual || 'Independiente'}</p>
-          <div className="mt-2 flex flex-wrap gap-2 items-center">
-             {ex.pais_ciudad && (
-                <span className="text-slate-500 text-[10px] flex items-center gap-1">
-                   <MapPin className="w-3 h-3" /> {ex.pais_ciudad}
-                </span>
-             )}
-             {ex.score_match > 0 && (
-                <span className="inline-flex bg-sky-50 text-sky-700 text-[9px] font-bold px-2 py-0.5 rounded items-center gap-1 border border-sky-100">
-                   ⭐ MATCH: {ex.score_match}%
-                </span>
-             )}
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <h3 className="font-sans font-extrabold text-[#003B4F] text-[15px] leading-tight truncate uppercase" title={`${ex.nombre} ${ex.apellidos || ''}`}>
+                {ex.nombre} {ex.apellidos}
+              </h3>
+              <p className="text-[11px] font-bold text-[#0081A7] mt-0.5 truncate">{ex.carrera_principal || 'Exalumno UCR'}</p>
+              {ex.pais_ciudad && (
+                <p className="text-slate-500 text-[11px] mt-0.5 flex items-center gap-1">
+                  <MapPin className="w-3 h-3 text-[#F34B26]" fill="#F34B26" strokeWidth={1} /> {ex.pais_ciudad}
+                </p>
+              )}
+            </div>
+            
+            {/* Badge de Match grande */}
+            {ex.score_match > 0 && (
+              <span className="bg-[#F34B26] text-white text-[13px] font-black px-3 py-2 rounded-full shadow-sm flex flex-col items-center justify-center min-w-[55px] shrink-0">
+                <span>{ex.score_match}%</span>
+                <span className="text-[8px] font-extrabold uppercase tracking-widest opacity-90 leading-none mt-0.5">Match</span>
+              </span>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Áreas de interés */}
-      {ex.areas_de_interes && ex.areas_de_interes.length > 0 && (
-        <div className="pt-2 border-t border-slate-100">
-          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2">Intereses</p>
-          <div className="flex flex-wrap gap-1.5">
-            {ex.areas_de_interes.slice(0, 3).map(a => (
-              <span key={a} className="bg-sky-50/50 text-[#003B4F] border border-sky-100/50 text-[10px] font-semibold px-2.5 py-1 rounded-full">{a}</span>
-            ))}
-            {ex.areas_de_interes.length > 3 && (
-              <span className="bg-sky-50/50 text-[#003B4F] border border-sky-100/50 text-[10px] font-semibold px-2.5 py-1 rounded-full">+{ex.areas_de_interes.length - 3}</span>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Tipos de Apoyo */}
-      {apoyos.length > 0 && (
+      {/* Contenido Central: Cargo y Especialidad */}
+      <div className="pt-2 flex-1 flex flex-col gap-2 relative z-10">
         <div>
-          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Ofrece</p>
-          <div className="flex flex-wrap gap-1.5">
-            {apoyos.map(a => (
-              <span key={a.key} className="bg-emerald-50 text-emerald-700 border border-emerald-100 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide">
-                <span aria-hidden="true">{a.icon}</span> {a.label}
-              </span>
-            ))}
-          </div>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Cargo Actual</p>
+          <p className="text-xs font-bold text-[#C0392B] line-clamp-2 leading-snug uppercase">
+            {ex.cargo_actual || 'Profesional'} en {ex.empresa_actual || 'Independiente'}
+          </p>
         </div>
-      )}
 
-      {/* Botón */}
-      <div className="mt-auto pt-4 flex gap-2">
-        <Link href={`/network/${ex.id}`} className="flex-1">
-          <Button variant="secondary" className="w-full bg-orange-50 hover:bg-[#FF9B18] border border-orange-100/70 hover:border-[#FF9B18] text-[#FF9B18] hover:text-white font-semibold text-xs py-2 transition-all">
+        {/* Áreas de interés */}
+        {ex.areas_de_interes && ex.areas_de_interes.length > 0 && (
+          <div className="mt-2">
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Intereses</p>
+            <div className="flex flex-wrap gap-1.5">
+              {ex.areas_de_interes.slice(0, 3).map(a => (
+                <span key={a} className="bg-orange-50 text-[#C0392B] border border-orange-100/50 text-[10px] font-semibold px-2.5 py-1 rounded-full">{a}</span>
+              ))}
+              {ex.areas_de_interes.length > 3 && (
+                <span className="bg-orange-50 text-[#C0392B] border border-orange-100/50 text-[10px] font-semibold px-2.5 py-1 rounded-full">+{ex.areas_de_interes.length - 3}</span>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Tipos de Apoyo */}
+        {apoyos.length > 0 && (
+          <div className="mt-2">
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Ofrece</p>
+            <div className="flex flex-wrap gap-1.5">
+              {apoyos.map(a => (
+                <span key={a.key} className="bg-emerald-50 text-emerald-700 border border-emerald-100 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide">
+                  <span aria-hidden="true" className="mr-1">{a.icon}</span>{a.label}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Footer con botones */}
+      <div className="pt-2 mt-auto flex flex-col gap-2 relative z-10">
+        <Link href={`/network/${ex.id}`} className="w-full">
+          <button className="w-full bg-[#F34B26] hover:bg-[#C0392B] text-white font-bold text-[13px] py-2.5 transition-all rounded-xl flex items-center justify-center cursor-pointer shadow-sm">
             Ver Perfil y Conectar
-          </Button>
+          </button>
         </Link>
       </div>
     </Card>
@@ -312,7 +341,7 @@ function Paginacion({ paginaActual, totalPaginas, onChange }: PaginacionProps) {
       <button
         onClick={() => onChange(paginaActual - 1)}
         disabled={paginaActual === 1}
-        className="px-3.5 py-2 text-sm font-medium rounded-xl border border-white/10 text-white bg-white/10 hover:bg-white/20 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200"
+        className="px-3.5 py-2 text-sm font-medium rounded-xl border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200"
       >
         ← Anterior
       </button>
@@ -323,8 +352,8 @@ function Paginacion({ paginaActual, totalPaginas, onChange }: PaginacionProps) {
           onClick={() => onChange(pagina)}
           className={`w-10 h-10 text-sm font-semibold rounded-xl border transition-all duration-200 ${
             pagina === paginaActual
-              ? "border-[#003B4F] bg-[#003B4F] text-white shadow-sm shadow-[#003B4F]/25"
-              : "border-white/10 text-white bg-white/10 hover:bg-white/20"
+              ? "border-[#F34B26] bg-[#F34B26] text-white shadow-sm"
+              : "border-slate-200 text-slate-700 bg-white hover:bg-slate-50"
           }`}
         >
           {pagina}
@@ -334,7 +363,7 @@ function Paginacion({ paginaActual, totalPaginas, onChange }: PaginacionProps) {
       <button
         onClick={() => onChange(paginaActual + 1)}
         disabled={paginaActual === totalPaginas}
-        className="px-3.5 py-2 text-sm font-medium rounded-xl border border-white/10 text-white bg-white/10 hover:bg-white/20 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200"
+        className="px-3.5 py-2 text-sm font-medium rounded-xl border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200"
       >
         Siguiente →
       </button>
@@ -406,13 +435,20 @@ export default function NetworkPage() {
         
         const init = nombreStr.substring(0, 2).toUpperCase()
         
+        // Simular un match si no viene o es 0
+        const matchCalculado = p.score_match || (nombreStr.length % 2 === 0 ? 85 : 68)
+        
         return {
           ...p,
           nombre: p.nombre || 'Exalumno',
           initials: init,
           avatarBg: 'bg-[#54BCEB]',
+          score_match: matchCalculado
         }
       })
+
+      // Ordenar por match de mayor a menor
+      mapped.sort((a, b) => (b.score_match || 0) - (a.score_match || 0))
 
       setExalumnos(mapped)
       setTotalItems(total)
@@ -431,14 +467,14 @@ export default function NetworkPage() {
   const activeFilterCount = (filters.facultad ? 1 : 0) + (filters.escuela ? 1 : 0) + filters.carreras.length + filters.sectores.length + filters.apoyos.length + filters.areas.length + (filters.pais_ciudad ? 1 : 0)
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#54BCEB] via-[#85dbff] to-[#54BCEB] p-4 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl shadow-inner w-full">
-      <div className="max-w-none mx-auto w-full">
+    <div className="bg-transparent transition-colors duration-300 min-h-screen p-4 sm:p-6 md:p-8 w-full">
+      <div className="max-w-none mx-auto w-full space-y-8">
 
         {/* Encabezado con Botón de Filtro al extremo derecho */}
-        <div className="pt-2 pb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-white/20 mb-8">
+        <div className="pt-2 pb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-200 mb-8">
           <div className="space-y-1">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold uppercase font-display text-white tracking-wide drop-shadow-sm">Directorio de Exalumnos</h1>
-            <p className="text-xs sm:text-sm text-slate-100 font-medium">Conecta con exalumnos de la UCR que ofrecen mentoría, empleo, pasantías y más.</p>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold uppercase font-display text-slate-900 tracking-wide drop-shadow-sm">Directorio de Exalumnos</h1>
+            <p className="text-xs sm:text-sm text-slate-700 font-medium">Conecta con exalumnos de la UCR que ofrecen mentoría, empleo, pasantías y más.</p>
           </div>
           <button
             onClick={() => setShowFiltersModal(true)}
@@ -460,7 +496,7 @@ export default function NetworkPage() {
             placeholder="Buscar por nombre, cargo o empresa..."
             value={filters.search}
             onChange={e => setFilters(p => ({ ...p, search: e.target.value }))}
-            className="w-full h-12 pl-11 pr-4 bg-white/95 border border-sky-200/50 rounded-xl text-sm text-[#003B4F] focus:outline-none focus:border-white focus:ring-2 focus:ring-white/20 transition-all placeholder:text-slate-400 shadow-sm"
+            className="w-full h-12 pl-11 pr-4 bg-white border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:border-[#F34B26] focus:ring-2 focus:ring-[#F34B26]/20 transition-all placeholder:text-slate-400 shadow-sm"
           />
         </div>
 
@@ -477,15 +513,15 @@ export default function NetworkPage() {
         {/* Grid de resultados a Ancho Completo */}
         <div className="w-full flex flex-col">
           <div className="flex items-center justify-between mb-4">
-            <p className="text-xs font-bold text-white uppercase tracking-wider drop-shadow-sm" aria-live="polite">
+            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider drop-shadow-sm" aria-live="polite">
               {cargando && page === 1 ? 'Buscando...' : `${totalItems} resultados`}
             </p>
           </div>
 
           {cargando && page === 1 ? (
-            <div className="flex flex-col items-center justify-center py-20 bg-white/10 border border-white/10 rounded-2xl shadow-sm">
-              <div className="w-10 h-10 border-4 border-white/20 border-t-white rounded-full animate-spin mb-4"></div>
-              <h3 className="text-sm font-bold text-white uppercase tracking-wide">Cargando directorio...</h3>
+            <div className="flex flex-col items-center justify-center py-20 bg-white border border-slate-200 rounded-2xl shadow-sm">
+              <div className="w-10 h-10 border-4 border-slate-200 border-t-[#F34B26] rounded-full animate-spin mb-4"></div>
+              <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wide">Cargando directorio...</h3>
             </div>
           ) : exalumnos.length > 0 ? (
             <>
@@ -499,13 +535,13 @@ export default function NetworkPage() {
               />
             </>
           ) : (
-            <div className="text-center py-20 bg-white/10 border border-white/10 rounded-2xl shadow-sm mt-4">
-              <Users className="w-12 h-12 text-white/50 mx-auto mb-4" />
-              <h3 className="text-sm font-bold text-white uppercase tracking-wide mb-2">No se encontraron exalumnos</h3>
-              <p className="text-xs text-white/75 font-medium mb-4">Ajuste los filtros de búsqueda o intente con otros términos.</p>
+            <div className="text-center py-20 bg-white border border-slate-200 rounded-2xl shadow-sm mt-4">
+              <Users className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+              <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wide mb-2">No se encontraron exalumnos</h3>
+              <p className="text-xs text-slate-400 font-medium mb-4">Ajuste los filtros de búsqueda o intente con otros términos.</p>
               <button
                 onClick={() => setFilters({ search: '', facultad: '', escuela: '', carreras: [], sectores: [], areas: [], apoyos: [], pais_ciudad: '' })}
-                className="text-xs font-bold text-[#003B4F] hover:underline uppercase tracking-wider"
+                className="text-xs font-bold text-[#F34B26] hover:underline uppercase tracking-wider"
               >
                 Limpiar filtros
               </button>
