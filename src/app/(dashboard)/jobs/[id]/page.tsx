@@ -1,13 +1,12 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Card from '@/components/ui/card'
 import Button from '@/components/ui/button'
-import Modal from '@/components/ui/modal'
-import { Input, Textarea } from '@/components/ui/input'
-import { ArrowLeft, MapPin, Building, Briefcase, Calendar, CheckCircle2, Sparkles } from 'lucide-react'
+import { ArrowLeft, MapPin, Building, Briefcase, Calendar, CheckCircle2, Sparkles, AlertCircle } from 'lucide-react'
 import { obtenerPosicionPorId } from '@/actions/positions'
+import { createClient } from '@/lib/supabase/client'
 import ApplyModal from '@/components/applications/ApplyModal'
 
 interface JobDetailPageProps {
@@ -21,6 +20,8 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
   const [loading, setLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isApplied, setIsApplied] = useState(false)
+  const [hasCV, setHasCV] = useState<boolean | null>(null)
+  const [showNoCVNotice, setShowNoCVNotice] = useState(false)
 
   React.useEffect(() => {
     async function loadJob() {
@@ -36,7 +37,31 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
     loadJob()
   }, [id])
 
+  // Verificar si el usuario tiene CV en la base de datos
+  React.useEffect(() => {
+    async function checkCV() {
+      try {
+        const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+        const { data } = await supabase
+          .from('cv_profiles')
+          .select('id')
+          .eq('user_id', user.id)
+          .single()
+        setHasCV(!!data)
+      } catch {
+        setHasCV(false)
+      }
+    }
+    checkCV()
+  }, [])
+
   const handleApplyClick = () => {
+    if (hasCV === false) {
+      setShowNoCVNotice(true)
+      return
+    }
     setIsModalOpen(true)
   }
 
@@ -169,9 +194,39 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
 
       </div>
 
+      {/* Modal: Sin CV */}
+      {showNoCVNotice && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 space-y-5 text-center">
+            <div className="mx-auto w-14 h-14 bg-amber-100 rounded-full flex items-center justify-center">
+              <AlertCircle className="w-7 h-7 text-amber-500" />
+            </div>
+            <div className="space-y-1">
+              <h2 className="text-lg font-bold text-slate-900">Necesitas un CV para aplicar</h2>
+              <p className="text-sm text-slate-500">No tienes ningún currículum guardado. Créalo con IA en minutos y ¡empieza a postularte!</p>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Link
+                href="/dashboard/cv"
+                className="inline-flex items-center justify-center gap-2 w-full bg-[#001C29] hover:bg-[#004C63] text-white text-sm font-bold py-3 rounded-xl transition-colors"
+              >
+                <Sparkles className="w-4 h-4" />
+                Crear mi CV con IA
+              </Link>
+              <button
+                onClick={() => setShowNoCVNotice(false)}
+                className="w-full text-sm font-medium text-slate-500 hover:text-slate-800 py-2 transition-colors"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Modal Real de Aplicación */}
       {isModalOpen && (
-        <ApplyModal 
+        <ApplyModal
           position={{ id: job.id, title: job.titulo, alumni_name: job.exalumno?.nombre || 'Exalumno' }}
           onClose={() => setIsModalOpen(false)}
           onSuccess={handleSuccess}

@@ -1,12 +1,13 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Card from '@/components/ui/card'
 import Button from '@/components/ui/button'
-import { Search, Filter, Briefcase, MapPin, Building, Plus } from 'lucide-react'
+import { Search, Briefcase, MapPin, Building, Plus, Sparkles, X } from 'lucide-react'
 import { Select } from '@/components/ui/input'
 import { useProfile } from '@/contexts/ProfileContext'
+import { createClient } from '@/lib/supabase/client'
 
 import { listarPosicionesPublicas } from '@/actions/positions'
 
@@ -34,10 +35,33 @@ export default function JobsPage() {
 
   const [dbJobs, setDbJobs] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [hasCV, setHasCV] = useState<boolean | null>(null)
+  const [bannerDismissed, setBannerDismissed] = useState(false)
+
   const { user } = useProfile()
   const isAdmin = user?.user_metadata?.rol === 'admin' || user?.user_metadata?.tipo === 'admin'
+  const isStudent = user?.user_metadata?.rol === 'estudiante'
 
-  React.useEffect(() => {
+  // Verificar si el usuario tiene CV
+  useEffect(() => {
+    async function checkCV() {
+      if (!user) return
+      try {
+        const supabase = createClient()
+        const { data } = await supabase
+          .from('cv_profiles')
+          .select('id')
+          .eq('user_id', user.id)
+          .single()
+        setHasCV(!!data)
+      } catch {
+        setHasCV(false)
+      }
+    }
+    checkCV()
+  }, [user])
+
+  useEffect(() => {
     async function loadJobs() {
       setLoading(true)
       try {
@@ -63,12 +87,15 @@ export default function JobsPage() {
     const companyMatch = (job.empresa || '').toLowerCase().includes(searchTerm.toLowerCase())
     const matchesSearch = titleMatch || companyMatch
 
-    const matchesSkills = !skillsSearch.trim() || job.habilidades_requeridas?.some((h: string) => 
+    const matchesSkills = !skillsSearch.trim() || job.habilidades_requeridas?.some((h: string) =>
       h.toLowerCase().includes(skillsSearch.toLowerCase())
     )
 
     return matchesSearch && matchesSkills
   })
+
+  // Mostrar banner si: es estudiante, no tiene CV, y no lo ha cerrado
+  const showCVBanner = isStudent && hasCV === false && !bannerDismissed
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-100 to-white py-10 px-6 lg:px-10 relative overflow-hidden">
@@ -95,6 +122,44 @@ export default function JobsPage() {
             </Link>
           )}
         </div>
+
+        {/* Banner CV — solo si el estudiante no tiene CV */}
+        {showCVBanner && (
+          <div className="relative overflow-hidden rounded-2xl border border-[#54BCEB]/30 bg-gradient-to-r from-[#001C29] to-[#004C63] p-5 shadow-lg flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            {/* Fondo decorativo */}
+            <div className="absolute right-0 top-0 w-48 h-48 bg-[#54BCEB]/10 rounded-full blur-2xl pointer-events-none" />
+            <div className="absolute right-16 bottom-0 w-32 h-32 bg-[#F34B26]/10 rounded-full blur-xl pointer-events-none" />
+
+            <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-[#54BCEB]/20 border border-[#54BCEB]/30 shrink-0">
+              <Sparkles className="w-6 h-6 text-[#54BCEB]" />
+            </div>
+
+            <div className="flex-1 relative z-10">
+              <p className="text-white font-bold text-base leading-snug">
+                ¿Quieres postularte? Haz tu CV mejorado por IA
+              </p>
+              <p className="text-white/60 text-xs mt-0.5 font-medium">
+                Crea tu currículum optimizado para ATS y aplica a empleos y pasantías con un solo clic.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3 relative z-10 shrink-0">
+              <Link href="/dashboard/cv">
+                <button className="inline-flex items-center gap-2 bg-[#54BCEB] hover:bg-[#3DAAD8] text-[#001C29] text-xs font-bold px-4 py-2.5 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95 shadow-md">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  Crear mi CV con IA
+                </button>
+              </Link>
+              <button
+                onClick={() => setBannerDismissed(true)}
+                className="p-1.5 rounded-lg hover:bg-white/10 text-white/50 hover:text-white transition-colors"
+                aria-label="Cerrar aviso"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Buscador y Filtros Rápidos */}
         <div className="bg-white p-5 rounded-2xl border border-slate-200/60 shadow-sm space-y-4">
@@ -216,9 +281,9 @@ export default function JobsPage() {
             </div>
           ) : filteredJobs.length > 0 ? (
             filteredJobs.map((job) => (
-              <Card 
-                key={job.id} 
-                hoverEffect={true} 
+              <Card
+                key={job.id}
+                hoverEffect={true}
                 className="p-6 rounded-2xl border border-slate-200/60 bg-white transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5"
               >
                 <div className="flex flex-col sm:flex-row gap-5 items-start">

@@ -54,7 +54,7 @@ export function DonationsHistory({ donations, onFilterChange }: DonationsHistory
 
       {/* Filtros de Fecha */}
       <div className="donations-filters-bar">
-        <Filter size={18} style={{ color: '#94a3b8', marginBottom: '2px' }} />
+        <Filter size={18} style={{ color: 'var(--admin-text-secondary)', marginBottom: '2px' }} />
         <div className="donations-filter-group">
           <label className="donations-filter-label">Fecha Inicio</label>
           <input
@@ -107,14 +107,14 @@ export function DonationsHistory({ donations, onFilterChange }: DonationsHistory
           <tbody>
             {donations.length === 0 ? (
               <tr>
-                <td colSpan={6} style={{ textAlign: 'center', padding: '32px', color: '#94a3b8' }}>
+                <td colSpan={6} style={{ textAlign: 'center', padding: '32px', color: 'var(--admin-text-secondary)' }}>
                   No hay registros en el historial para este período.
                 </td>
               </tr>
             ) : (
               donations.map(donation => (
                 <tr key={donation.id}>
-                  <td style={{ color: '#64748b', fontSize: '13px' }}>
+                  <td style={{ color: 'var(--admin-text-secondary)', fontSize: '13px' }}>
                     {new Date(donation.updated_at).toLocaleString('es-CR')}
                   </td>
                   <td>
@@ -126,7 +126,7 @@ export function DonationsHistory({ donations, onFilterChange }: DonationsHistory
                     </div>
                   </td>
                   <td>
-                    <span style={{ fontWeight: 700, color: '#0A2540' }}>
+                    <span style={{ fontWeight: 700, color: 'var(--admin-text-primary)' }}>
                       {donation.moneda} {Number(donation.monto).toLocaleString()}
                     </span>
                   </td>
@@ -136,7 +136,7 @@ export function DonationsHistory({ donations, onFilterChange }: DonationsHistory
                     </span>
                   </td>
                   <td>
-                    <span style={{ fontSize: '13px', color: '#475569' }}>
+                    <span style={{ fontSize: '13px', color: 'var(--admin-text-secondary)' }}>
                       {donation.admin_name || 'Desconocido'}
                     </span>
                     {donation.estado === 'rechazada' && (
