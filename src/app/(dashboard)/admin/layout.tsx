@@ -4,6 +4,9 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { AdminFooter } from '@/components/admin/layout/AdminFooter'
+import { AdminThemeProvider } from '@/contexts/AdminThemeContext'
+import { AdminLayoutClient } from '@/components/admin/layout/AdminLayoutClient'
+import '../../../styles/admin-dashboard.css'
 
 export default async function AdminLayout({
   children,
@@ -35,12 +38,12 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="admin-layout">
-      <div className="admin-main-content">
+    <AdminThemeProvider>
+      <AdminLayoutClient>
         {children}
         <AdminFooter />
-      </div>
-    </div>
+      </AdminLayoutClient>
+    </AdminThemeProvider>
   )
 }
 

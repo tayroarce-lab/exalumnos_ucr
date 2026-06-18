@@ -1,108 +1,91 @@
-'use client';
-
-import React, { useState } from 'react';
-import { Download, Calendar, Loader2 } from 'lucide-react';
-import { format, subDays } from 'date-fns';
-import { DashboardMetrics } from '@/components/admin/reportes/DashboardMetrics';
-import { DashboardCharts } from '@/components/admin/reportes/DashboardCharts';
-import { PendingDonationsTable } from '@/components/admin/reportes/PendingDonationsTable';
-import { useDashboardMetrics } from '@/hooks/useDashboardMetrics';
-import { exportToPDF } from '@/lib/pdfExport';
+import { Metadata } from 'next';
+import { AlertTriangle, ShieldAlert, CheckCircle } from 'lucide-react';
+import { getPendingReports } from '@/actions/reports';
+import { DenunciasTable } from '../denuncias/_components/denuncias-table';
 import '../../../../styles/admin-dashboard.css';
+import '../../../../styles/admin-denuncias.css';
 
-export default function AdminReportesPage() {
-  const [dateRange, setDateRange] = useState<'all' | '7days' | '30days' | 'thisYear'>('30days');
-  
-  const getDates = () => {
-    const today = new Date();
-    switch (dateRange) {
-      case '7days':
-        return { startDate: format(subDays(today, 7), 'yyyy-MM-dd'), endDate: format(today, 'yyyy-MM-dd') };
-      case '30days':
-        return { startDate: format(subDays(today, 30), 'yyyy-MM-dd'), endDate: format(today, 'yyyy-MM-dd') };
-      case 'thisYear':
-        return { startDate: `${today.getFullYear()}-01-01`, endDate: format(today, 'yyyy-MM-dd') };
-      case 'all':
-      default:
-        return { startDate: undefined, endDate: undefined };
+export const metadata: Metadata = {
+  title: 'Reportes de Usuarios | Admin | Fundación Exalumnos UCR',
+  description: 'Panel de moderación para revisar reportes de usuarios hechos por la comunidad.',
+};
+
+export default async function AdminReportesPage() {
+  let reportes: any[] = [];
+  let errorMsg: string | null = null;
+
+  try {
+    const res = await getPendingReports();
+    if (res.success) {
+      reportes = res.data ?? [];
     }
-  };
+  } catch (err: any) {
+    errorMsg = err.message;
+  }
 
-  const { startDate, endDate } = getDates();
-  
-  const { data, isLoading, error } = useDashboardMetrics(startDate, endDate, 180000);
-
-  const handleExportPDF = async () => {
-    const btn = document.getElementById('btn-export');
-    if (btn) btn.innerHTML = '<span style="display:flex; align-items:center; gap:8px;"><svg class="lucide lucide-loader-2 animate-spin" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Exportando...</span>';
-    
-    await exportToPDF('dashboard-content', `Impact_Dashboard_${format(new Date(), 'yyyy-MM-dd')}.pdf`);
-    
-    if (btn) btn.innerHTML = '<span style="display:flex; align-items:center; gap:8px;"><svg class="lucide lucide-download" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg> Exportar PDF</span>';
-  };
+  // Estadísticas rápidas
+  const totalPendientes = reportes.length;
+  const perfilesEnRiesgo = new Set(
+    reportes
+      .filter(r => (r.reportado?.reportes_recibidos || 0) >= 2)
+      .map(r => r.perfil_reportado)
+  ).size;
 
   return (
     <div className="admin-page-container">
-      <div className="admin-header">
-        <div>
-          <h1>Dashboard de Impacto</h1>
-          <p>Métricas detalladas y seguimiento de donaciones y conexiones</p>
-        </div>
-        
-        <div className="admin-header-actions">
-          <div className="admin-date-picker-wrapper">
-            <Calendar size={16} className="admin-date-picker-icon" />
-            <select
-              value={dateRange}
-              onChange={(e) => setDateRange(e.target.value as any)}
-              className="admin-date-select"
-            >
-              <option value="7days">Últimos 7 días</option>
-              <option value="30days">Últimos 30 días</option>
-              <option value="thisYear">Este año</option>
-              <option value="all">Todo el tiempo</option>
-            </select>
-          </div>
-          
-          <button
-            id="btn-export"
-            onClick={handleExportPDF}
-            className="admin-export-btn"
-            disabled={isLoading || !data}
-          >
-            <Download size={16} />
-            Exportar PDF
-          </button>
+      {/* Encabezado */}
+      <div className="denuncias-header">
+        <div className="denuncias-header-titles">
+          <h1>Reportes de Usuarios</h1>
+          <p>Revisa y modera los reportes creados por la comunidad. Los perfiles con 3 reportes se suspenden automáticamente.</p>
         </div>
       </div>
 
-      {error ? (
-        <div className="admin-error-state">
-          <span>Ocurrió un error al cargar los datos: {error}</span>
-        </div>
-      ) : isLoading && !data ? (
-        <div className="admin-loading-state">
-          <Loader2 className="animate-spin" size={32} />
-          <p>Cargando métricas en tiempo real...</p>
-        </div>
-      ) : (
-        <div id="dashboard-content" className="admin-dashboard-content">
-          <DashboardMetrics data={data} />
-          
-          {data && (
-            <DashboardCharts 
-              graficosCarrera={data.graficosCarrera} 
-              graficosSede={data.graficosSede} 
-            />
-          )}
-
-          <PendingDonationsTable />
-          
-          <div className="admin-last-updated">
-            Última actualización automática. Optimizado por polling cada 3 minutos.
+      {/* Tarjetas de Resumen */}
+      <div className="denuncias-summary-grid">
+        <div className="denuncias-summary-card">
+          <div className="denuncias-summary-icon orange">
+            <AlertTriangle size={24} />
+          </div>
+          <div>
+            <p className="denuncias-summary-label">Reportes Pendientes</p>
+            <p className="denuncias-summary-value">{totalPendientes}</p>
           </div>
         </div>
-      )}
+
+        <div className="denuncias-summary-card">
+          <div className="denuncias-summary-icon red">
+            <ShieldAlert size={24} />
+          </div>
+          <div>
+            <p className="denuncias-summary-label">Perfiles en Riesgo (2+)</p>
+            <p className="denuncias-summary-value">{perfilesEnRiesgo}</p>
+          </div>
+        </div>
+
+        <div className="denuncias-summary-card">
+          <div className="denuncias-summary-icon green">
+            <CheckCircle size={24} />
+          </div>
+          <div>
+            <p className="denuncias-summary-label">Estado del Sistema</p>
+            <p className="denuncias-summary-value" style={{ fontSize: '20px', color: '#16a34a', marginTop: '4px' }}>
+              {totalPendientes > 10 ? 'Atención Requerida' : 'Moderado'}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Tabla de Reportes */}
+      <main>
+        {errorMsg ? (
+          <div style={{ background: 'var(--admin-bg-card)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '12px', padding: '20px', color: '#dc2626' }}>
+            Error al cargar reportes: {errorMsg}
+          </div>
+        ) : (
+          <DenunciasTable initialReportes={reportes} />
+        )}
+      </main>
     </div>
   );
 }
