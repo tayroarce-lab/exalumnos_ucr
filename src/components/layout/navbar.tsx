@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { Bell, ChevronDown, User, LogOut, Briefcase, Menu, X, Clock } from 'lucide-react'
+import { Bell, ChevronDown, User, LogOut, Briefcase, Menu, X, Clock, Sun, Moon } from 'lucide-react'
 import { useProfile } from '@/contexts/ProfileContext'
 import { createClient } from '@/lib/supabase/client'
 import logoUCR from '@/images/Logo_UCR.png'
@@ -19,8 +19,53 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [imgError, setImgError] = useState(false)
+  // Estado local del tema admin — sincronizado con localStorage y evento custom
+  const [adminIsDark, setAdminIsDark] = useState(true)
+  const [exalumnosIsDark, setExalumnosIsDark] = useState(false)
   const pathname = usePathname()
   const { user, profile } = useProfile()
+
+  // Sincronizar tema admin desde localStorage y escuchar cambios
+  useEffect(() => {
+    const saved = localStorage.getItem('admin-theme')
+    if (saved === 'light') setAdminIsDark(false)
+    else setAdminIsDark(true)
+
+    const handler = (e: Event) => {
+      const next = (e as CustomEvent<'dark' | 'light'>).detail
+      setAdminIsDark(next === 'dark')
+    }
+    window.addEventListener('admin-theme-change', handler)
+    return () => window.removeEventListener('admin-theme-change', handler)
+  }, [])
+
+  useEffect(() => {
+    // Sincronizar tema exalumnos
+    const savedExalumnos = localStorage.getItem('exalumnos-theme')
+    if (savedExalumnos === 'dark') setExalumnosIsDark(true)
+    else setExalumnosIsDark(false)
+
+    const handlerExalumnos = (e: Event) => {
+      const next = (e as CustomEvent<'dark' | 'light'>).detail
+      setExalumnosIsDark(next === 'dark')
+    }
+    window.addEventListener('exalumnos-theme-change', handlerExalumnos)
+    return () => window.removeEventListener('exalumnos-theme-change', handlerExalumnos)
+  }, [])
+
+  const handleAdminThemeToggle = () => {
+    const next = adminIsDark ? 'light' : 'dark'
+    localStorage.setItem('admin-theme', next)
+    setAdminIsDark(!adminIsDark)
+    window.dispatchEvent(new CustomEvent('admin-theme-change', { detail: next }))
+  }
+
+  const handleExalumnosThemeToggle = () => {
+    const next = exalumnosIsDark ? 'light' : 'dark'
+    localStorage.setItem('exalumnos-theme', next)
+    setExalumnosIsDark(!exalumnosIsDark)
+    window.dispatchEvent(new CustomEvent('exalumnos-theme-change', { detail: next }))
+  }
 
   // Cerrar menú móvil al cambiar de ruta
   useEffect(() => {
@@ -83,7 +128,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
   // Lógica de contexto: Admin, Estudiantes, Exalumnos
   const isAdmin = pathname?.startsWith('/admin') || user?.user_metadata?.rol === 'admin'
   const isStudentUser = user?.user_metadata?.rol === 'estudiante' || profile?.es_exalumno === false || user?.email?.endsWith('@ucr.ac.cr')
-  const isStudent = pathname?.startsWith('/student-dashboard') || pathname?.includes('/directorio/estudiantes') || (isStudentUser && user?.user_metadata?.rol !== 'exalumno')
+  const isStudent = pathname?.startsWith('/student-dashboard') || (isStudentUser && user?.user_metadata?.rol !== 'exalumno')
 
   // Dashboard de inicio según rol
   const dashboardHref = isAdmin ? '/admin' : isStudent ? '/student-dashboard' : '/dashboard'
@@ -92,9 +137,9 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
   let config = {
     bgClass: 'bg-[#F34B26] text-white shadow-md border-b border-white/10',
     linkHoverClass: 'hover:bg-white/10 hover:text-white',
-    linkActiveClass: 'bg-white/20 text-white font-semibold',
+    linkActiveClass: 'bg-[#54BCEB] text-white font-semibold shadow-sm',
     drawerBg: 'bg-[#F34B26]',
-    drawerItemActive: 'bg-white/20 text-white',
+    drawerItemActive: 'bg-[#54BCEB] text-white',
     drawerItemHover: 'hover:bg-white/10',
     logoFilter: 'brightness(0) invert(1)',
     badgeClass: 'bg-white text-[#F34B26]',
@@ -120,7 +165,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
       badgeClass: 'bg-[#54BCEB] text-[#001324]',
       userCircleBg: 'bg-white/20 text-white',
       menuItems: [
-        { name: 'Inicio', href: dashboardHref },
+        { name: 'Inicio', href: '/admin/dashboard' },
         { name: 'Reportes', href: '/admin/reportes' },
         { name: 'Usuarios', href: '/admin/usuarios' },
         { name: 'Matches', href: '/admin/matches' },
@@ -149,6 +194,22 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
     }
   }
 
+  // Si estamos en la sección del directorio (que es para exalumnos), forzar el estilo naranja (Exalumno)
+  if (!isAdmin && pathname?.startsWith('/directorio')) {
+    config = {
+      ...config,
+      bgClass: 'bg-[#F34B26] text-white shadow-md border-b border-white/10',
+      linkHoverClass: 'hover:bg-white/10 hover:text-white',
+      linkActiveClass: 'bg-[#54BCEB] text-white font-semibold shadow-sm',
+      drawerBg: 'bg-[#F34B26]',
+      drawerItemActive: 'bg-[#54BCEB] text-white',
+      drawerItemHover: 'hover:bg-white/10',
+      logoFilter: 'brightness(0) invert(1)',
+      badgeClass: 'bg-white text-[#F34B26]',
+      userCircleBg: 'bg-white/20 text-white',
+    }
+  }
+
   return (
     <>
       {/* ───────────────────── BARRA PRINCIPAL ───────────────────── */}
@@ -172,7 +233,10 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
         {/* Navegación desktop */}
         <nav className="hidden lg:flex items-center gap-2">
           {config.menuItems.map((item, idx) => {
-            const isActive = pathname === item.href || pathname?.startsWith(item.href + '/')
+            const isExactOnly = item.name === 'Inicio'
+            const isActive = isExactOnly
+              ? pathname === item.href
+              : pathname === item.href || pathname?.startsWith(item.href + '/')
             return (
               <Link
                 key={idx}
@@ -189,6 +253,22 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
 
         {/* Derecha: Notificaciones + Perfil (desktop) + Hamburguesa (mobile) */}
         <div className="flex items-center gap-2">
+
+          {/* Toggle Día/Noche — admin y exalumnos */}
+          {(isAdmin || (!isAdmin && !isStudent)) && (
+            <button
+              onClick={isAdmin ? handleAdminThemeToggle : handleExalumnosThemeToggle}
+              className="p-2 rounded-xl hover:bg-white/10 transition-colors relative group"
+              aria-label={(isAdmin ? adminIsDark : exalumnosIsDark) ? 'Cambiar a modo día' : 'Cambiar a modo noche'}
+              title={(isAdmin ? adminIsDark : exalumnosIsDark) ? 'Modo Día' : 'Modo Noche'}
+            >
+              {(isAdmin ? adminIsDark : exalumnosIsDark) ? (
+                <Sun className="w-5 h-5 text-amber-300 group-hover:text-amber-200 transition-colors" />
+              ) : (
+                <Moon className="w-5 h-5 text-blue-200 group-hover:text-blue-100 transition-colors" />
+              )}
+            </button>
+          )}
 
           {/* Notificaciones */}
           <div className="relative">

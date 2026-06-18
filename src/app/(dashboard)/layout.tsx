@@ -6,7 +6,9 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Navbar from '@/components/layout/navbar'
 import DashboardFooter from '@/components/layout/DashboardFooter'
+import '../../styles/exalumnos-dark-mode.css'
 import RealtimeApplicationStatus from '@/components/RealtimeApplicationStatus'
+import { ExalumnosLayoutClient } from '@/components/layout/ExalumnosLayoutClient'
 
 export default async function DashboardLayout({
   children,
@@ -23,16 +25,14 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-cream flex flex-col">
+    <ExalumnosLayoutClient>
       {/* Navbar Superior */}
       <Navbar />
 
       <div className="flex flex-1 relative">
         {/* Contenido Principal */}
         <main className="flex-1 w-full min-h-[calc(100vh-4rem)] p-4 sm:p-6 lg:p-8 overflow-y-auto">
-          <div className="max-w-7xl mx-auto">
-            {children}
-          </div>
+          {children}
         </main>
       </div>
 
@@ -42,6 +42,7 @@ export default async function DashboardLayout({
           Montado UNA SOLA VEZ en el layout para mantener la suscripción activa
           sin importar a qué página navegue el estudiante. */}
       <RealtimeApplicationStatus />
-    </div>
+
+    </ExalumnosLayoutClient>
   )
 }
