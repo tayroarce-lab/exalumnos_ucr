@@ -197,7 +197,7 @@ export default function AplicantesPage({ params }: AplicantesPageProps) {
     setActualizando(true)
     const result = await updateApplicationStatus({
       application_id: aplicacionId,
-      status: nuevoEstado,
+      status: nuevoEstado as any,
       close_position: cerrar
     })
 

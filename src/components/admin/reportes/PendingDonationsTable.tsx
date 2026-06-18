@@ -20,7 +20,7 @@ const mockPendingDonations: PendingDonation[] = [
     amount: '₡ 50,000',
     date: '10 May 2026',
     status: 'pendiente',
-    receiptUrl: '#',
+    receiptUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
   },
   {
     id: '2',
@@ -29,7 +29,7 @@ const mockPendingDonations: PendingDonation[] = [
     amount: '$ 120.00',
     date: '11 May 2026',
     status: 'procesando',
-    receiptUrl: '#',
+    receiptUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
   },
   {
     id: '3',
@@ -38,7 +38,7 @@ const mockPendingDonations: PendingDonation[] = [
     amount: '₡ 25,000',
     date: '12 May 2026',
     status: 'pendiente',
-    receiptUrl: '#',
+    receiptUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
   }
 ];
 
