@@ -5,6 +5,7 @@ import React from 'react'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Navbar from '@/components/layout/navbar'
+import Footer from '@/components/layout/footer'
 import RealtimeApplicationStatus from '@/components/RealtimeApplicationStatus'
 
 export default async function DashboardLayout({
@@ -34,6 +35,8 @@ export default async function DashboardLayout({
           </div>
         </main>
       </div>
+
+      <Footer />
 
       {/* WebSocket: Notificaciones de cambio de estado de aplicaciones en tiempo real.
           Montado UNA SOLA VEZ en el layout para mantener la suscripción activa
