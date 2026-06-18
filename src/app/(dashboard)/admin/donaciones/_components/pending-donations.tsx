@@ -59,14 +59,14 @@ export function PendingDonations({ donations, onRefresh, onProcess }: PendingDon
                         </div>
                       </td>
                       <td>
-                        <span style={{ fontWeight: 700, color: '#0A2540' }}>
+                        <span style={{ fontWeight: 700, color: 'var(--admin-text-primary)' }}>
                           {donation.moneda} {Number(donation.monto).toLocaleString()}
                         </span>
                       </td>
-                      <td style={{ fontFamily: 'monospace', fontSize: '13px', color: '#64748b' }}>
+                      <td style={{ fontFamily: 'monospace', fontSize: '13px', color: 'var(--admin-text-secondary)' }}>
                         {donation.numero_referencia}
                       </td>
-                      <td style={{ color: '#64748b', fontSize: '13px' }}>
+                      <td style={{ color: 'var(--admin-text-secondary)', fontSize: '13px' }}>
                         {new Date(donation.created_at).toLocaleString('es-CR')}
                       </td>
                       <td>

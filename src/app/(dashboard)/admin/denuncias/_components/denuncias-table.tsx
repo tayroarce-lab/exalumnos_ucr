@@ -54,8 +54,8 @@ export function DenunciasTable({ initialReportes }: DenunciasTableProps) {
       {reportes.length === 0 ? (
         <div className="denuncias-empty-state">
           <CheckCircle size={48} style={{ color: '#10B981', marginBottom: '16px' }} />
-          <p style={{ color: '#0A2540', fontWeight: 600, margin: '0 0 4px 0' }}>¡Todo al día!</p>
-          <p style={{ margin: 0 }}>No hay denuncias pendientes por revisar.</p>
+          <p style={{ color: 'var(--admin-text-primary)', fontWeight: 600, margin: '0 0 4px 0' }}>¡Todo al día!</p>
+          <p style={{ margin: 0, color: 'var(--admin-text-secondary)' }}>No hay denuncias pendientes por revisar.</p>
         </div>
       ) : (
         <div className="admin-table-container">
@@ -109,7 +109,7 @@ export function DenunciasTable({ initialReportes }: DenunciasTableProps) {
                     </td>
                     
                     {/* Fecha */}
-                    <td style={{ fontSize: '13px', color: '#64748b' }}>
+                    <td style={{ fontSize: '13px', color: 'var(--admin-text-secondary)' }}>
                       {new Date(reporte.created_at).toLocaleDateString('es-CR', {
                         year: 'numeric', month: 'short', day: 'numeric'
                       })}

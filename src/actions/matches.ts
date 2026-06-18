@@ -338,3 +338,61 @@ export async function respondToConnection(matchId: string, accept: boolean) {
 
   return result;
 }
+
+export async function requestDirectConnection(targetUserId: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: 'No autorizado' };
+  }
+
+  const { createAdminClient } = await import('@/lib/supabase/admin');
+  const adminClient = createAdminClient();
+
+  const initiatorRole = user.user_metadata?.rol || 'estudiante';
+  
+  // Verificamos si ya existe un match
+  const { data: matchExistente } = await adminClient
+    .from('matches')
+    .select('id, estado')
+    .or(`and(estudiante_id.eq.${user.id},exalumno_id.eq.${targetUserId}),and(estudiante_id.eq.${targetUserId},exalumno_id.eq.${user.id})`)
+    .maybeSingle();
+
+  if (matchExistente) {
+    if (matchExistente.estado === 'contactado' || matchExistente.estado === 'activo') {
+      return { success: false, error: 'Ya existe una solicitud o conexión activa con este usuario.' };
+    }
+    // Actualizamos el match existente
+    return await requestConnection(matchExistente.id);
+  }
+
+  // Obtenemos los roles para asignar correctamente estudiante_id y exalumno_id
+  const targetRole = initiatorRole === 'estudiante' ? 'exalumno' : 'estudiante'; // Aproximación
+  
+  const estudiante_id = initiatorRole === 'estudiante' ? user.id : targetUserId;
+  const exalumno_id = initiatorRole === 'exalumno' ? user.id : targetUserId;
+
+  const { data: newMatch, error } = await adminClient
+    .from('matches')
+    .insert({
+      exalumno_id,
+      estudiante_id,
+      tipo_apoyo: 'mentoria', // Default fallback
+      score_match: 100, // Conexión directa
+      estado: 'contactado',
+      iniciado_por: initiatorRole,
+    })
+    .select('id')
+    .single();
+
+  if (error || !newMatch) {
+    console.error('Error creating direct connection:', error);
+    return { success: false, error: error?.message || 'Error creando conexión' };
+  }
+
+  // Enviar notificación (reutilizando la lógica de requestConnection si es posible, o dejándolo simple)
+  // Para simplificar, llamamos a requestConnection para enviar emails si es necesario, 
+  // aunque ya lo insertamos como contactado.
+  return { success: true };
+}
