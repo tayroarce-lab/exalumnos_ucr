@@ -1,0 +1,26 @@
+
+/* --- TEMA MODO NOCHE EXALUMNOS --- */
+.exalumnos-theme-dark .text-slate-850,
+.exalumnos-theme-dark .text-slate-800,
+.exalumnos-theme-dark .text-slate-900 {
+  color: #FFFFFF !important;
+}
+
+.exalumnos-theme-dark .text-slate-700,
+.exalumnos-theme-dark .text-slate-600,
+.exalumnos-theme-dark .text-slate-500 {
+  color: #CBD5E1 !important; /* light gray for readability */
+}
+
+/* Fix some specific colors on elements that have a white background (like Cards) */
+.exalumnos-theme-dark .bg-white .text-slate-850,
+.exalumnos-theme-dark .bg-white .text-slate-800,
+.exalumnos-theme-dark .bg-white .text-slate-900 {
+  color: #1E293B !important; /* Keep dark inside white cards */
+}
+
+.exalumnos-theme-dark .bg-white .text-slate-700,
+.exalumnos-theme-dark .bg-white .text-slate-500,
+.exalumnos-theme-dark .bg-white .text-slate-600 {
+  color: #64748B !important;
+}

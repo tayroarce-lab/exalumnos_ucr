@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import CycleWisdomOption3 from '@/components/CycleWisdomOption3';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { useRouter, useSearchParams } from "next/navigation";
@@ -15,7 +15,7 @@ import logoUCR from "@/images/Logo_UCR.png";
 import '@/styles/loginStyles.css';
 import '@/styles/loadingSpinner.css';
 
-export default function LoginPage() {
+function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   // redirectTo del query param (guardado por el middleware para rutas protegidas)
@@ -247,5 +247,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginPageContent />
+    </Suspense>
   );
 }

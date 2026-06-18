@@ -98,7 +98,7 @@ export default function JobsPage() {
   const showCVBanner = isStudent && hasCV === false && !bannerDismissed
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-100 to-white py-10 px-6 lg:px-10 relative overflow-hidden">
+    <div className="bg-transparent min-h-screen py-10 px-6 lg:px-10 relative overflow-hidden transition-colors duration-300">
       <div className="absolute right-0 top-1/4 w-96 h-96 bg-[#F34B26]/8 rounded-full blur-3xl -z-10"></div>
       <div className="absolute left-10 bottom-10 w-72 h-72 bg-[#FF9B18]/8 rounded-full blur-2xl -z-10"></div>
 
