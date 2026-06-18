@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import {
   Handshake, GraduationCap, Briefcase, MessageCircle, Check,
-  X, Users, Clock, Star, BookOpen, ChevronDown, ChevronUp
+  X, Users, Clock, Star, BookOpen, ChevronDown, ChevronUp, User
 } from 'lucide-react'
 import Card from '@/components/ui/card'
 
@@ -132,10 +132,10 @@ function TarjetaMatch({ match, onAccion }: {
 
       {match.estado === 'contactado' && (
         <div className="px-5 pb-5">
-          <button type="button" disabled={pendiente} onClick={() => handleAccion('contactar')}
-            className="w-full flex items-center justify-center gap-2 py-2 rounded-xl bg-amber-50 border border-amber-200 text-amber-700 text-xs font-bold hover:bg-amber-100 transition-all disabled:opacity-50">
-            <MessageCircle className="w-4 h-4" /> Ver conversación
-          </button>
+          <Link href={`/network/${est?.id || ''}`}
+            className="w-full flex items-center justify-center gap-2 py-2 rounded-xl bg-amber-50 border border-amber-200 text-amber-700 text-xs font-bold hover:bg-amber-100 transition-all">
+            <User className="w-4 h-4" /> Ver información
+          </Link>
         </div>
       )}
     </article>

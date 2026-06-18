@@ -51,11 +51,11 @@ const MOCK_MENTORS = [
 ]
 
 interface MentorDetailPageProps {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 export default function MentorDetailPage({ params }: MentorDetailPageProps) {
-  const { id } = params
+  const { id } = React.use(params)
   const mentor = MOCK_MENTORS.find((m) => m.id === id) || MOCK_MENTORS[0]
 
   const [isModalOpen, setIsModalOpen] = useState(false)

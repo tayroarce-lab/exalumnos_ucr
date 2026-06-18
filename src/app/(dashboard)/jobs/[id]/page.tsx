@@ -11,11 +11,11 @@ import { obtenerPosicionPorId } from '@/actions/positions'
 import ApplyModal from '@/components/applications/ApplyModal'
 
 interface JobDetailPageProps {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 export default function JobDetailPage({ params }: JobDetailPageProps) {
-  const { id } = params
+  const { id } = React.use(params)
 
   const [job, setJob] = useState<any>(null)
   const [loading, setLoading] = useState(true)
