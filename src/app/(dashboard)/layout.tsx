@@ -24,8 +24,10 @@ export default async function DashboardLayout({
     redirect('/login')
   }
 
+  const rol = user.user_metadata?.rol || 'exalumno'
+
   return (
-    <ExalumnosLayoutClient>
+    <ExalumnosLayoutClient role={rol}>
       {/* Navbar Superior */}
       <Navbar />
 
