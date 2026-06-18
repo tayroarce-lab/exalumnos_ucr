@@ -83,7 +83,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
   // Lógica de contexto: Admin, Estudiantes, Exalumnos
   const isAdmin = pathname?.startsWith('/admin') || user?.user_metadata?.rol === 'admin'
   const isStudentUser = user?.user_metadata?.rol === 'estudiante' || profile?.es_exalumno === false || user?.email?.endsWith('@ucr.ac.cr')
-  const isStudent = pathname?.startsWith('/student-dashboard') || pathname?.includes('/directorio/estudiantes') || (isStudentUser && user?.user_metadata?.rol !== 'exalumno')
+  const isStudent = pathname?.startsWith('/student-dashboard') || (isStudentUser && user?.user_metadata?.rol !== 'exalumno')
 
   // Dashboard de inicio según rol
   const dashboardHref = isAdmin ? '/admin' : isStudent ? '/student-dashboard' : '/dashboard'
@@ -146,6 +146,22 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
         { name: 'Eventos', href: '/events' },
         { name: 'Empleos', href: '/jobs' }
       ]
+    }
+  }
+
+  // Si estamos en la sección del directorio (que es para exalumnos), forzar el estilo naranja (Exalumno)
+  if (!isAdmin && pathname?.startsWith('/directorio')) {
+    config = {
+      ...config,
+      bgClass: 'bg-[#F34B26] text-white shadow-md border-b border-white/10',
+      linkHoverClass: 'hover:bg-white/10 hover:text-white',
+      linkActiveClass: 'bg-white/20 text-white font-semibold',
+      drawerBg: 'bg-[#F34B26]',
+      drawerItemActive: 'bg-white/20 text-white',
+      drawerItemHover: 'hover:bg-white/10',
+      logoFilter: 'brightness(0) invert(1)',
+      badgeClass: 'bg-white text-[#F34B26]',
+      userCircleBg: 'bg-white/20 text-white',
     }
   }
 

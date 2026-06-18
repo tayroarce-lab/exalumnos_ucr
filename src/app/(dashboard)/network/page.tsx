@@ -279,6 +279,70 @@ function FilterPanel({
   )
 }
 // ============================================================
+// COMPONENTE DE PAGINACIÓN
+// ============================================================
+interface PaginacionProps {
+  paginaActual: number;
+  totalPaginas: number;
+  onChange: (pagina: number) => void;
+}
+
+function Paginacion({ paginaActual, totalPaginas, onChange }: PaginacionProps) {
+  if (totalPaginas <= 1) return null;
+
+  const getVisiblePages = () => {
+    const pages: number[] = [];
+    const maxVisible = 5;
+    
+    let start = Math.max(1, paginaActual - Math.floor(maxVisible / 2));
+    let end = Math.min(totalPaginas, start + maxVisible - 1);
+    
+    if (end - start + 1 < maxVisible) {
+      start = Math.max(1, end - maxVisible + 1);
+    }
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    return pages;
+  };
+
+  return (
+    <div className="flex items-center justify-center gap-1.5 mt-8 pb-8">
+      <button
+        onClick={() => onChange(paginaActual - 1)}
+        disabled={paginaActual === 1}
+        className="px-3.5 py-2 text-sm font-medium rounded-xl border border-slate-200 text-slate-600 bg-white hover:bg-slate-50 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200"
+      >
+        ← Anterior
+      </button>
+
+      {getVisiblePages().map((pagina) => (
+        <button
+          key={pagina}
+          onClick={() => onChange(pagina)}
+          className={`w-10 h-10 text-sm font-semibold rounded-xl border transition-all duration-200 ${
+            pagina === paginaActual
+              ? "border-[#F34B26] bg-[#F34B26] text-white shadow-sm shadow-[#F34B26]/25"
+              : "border-slate-200 text-slate-600 bg-white hover:bg-slate-50 hover:border-slate-300"
+          }`}
+        >
+          {pagina}
+        </button>
+      ))}
+
+      <button
+        onClick={() => onChange(paginaActual + 1)}
+        disabled={paginaActual === totalPaginas}
+        className="px-3.5 py-2 text-sm font-medium rounded-xl border border-slate-200 text-slate-600 bg-white hover:bg-slate-50 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200"
+      >
+        Siguiente →
+      </button>
+    </div>
+  );
+}
+
+// ============================================================
 // PÁGINA PRINCIPAL — DIRECTORIO
 // ============================================================
 export default function NetworkPage() {
@@ -293,9 +357,9 @@ export default function NetworkPage() {
   const [showMobileFilters, setShowMobileFilters] = useState(false)
   const [exalumnos, setExalumnos] = useState<ExalumnoPublic[]>([])
   const [cargando, setCargando] = useState(true)
-  const [page, setPage] = useState(0)
-  const [hasMore, setHasMore] = useState(true)
-  const limit = 20
+  const [page, setPage] = useState(1)
+  const [totalItems, setTotalItems] = useState(0)
+  const limit = 12
 
   useEffect(() => {
     // Validar sesión del lado del cliente como fallback (middleware hace el groso del trabajo)
@@ -317,7 +381,7 @@ export default function NetworkPage() {
       // Solo actualiza debounced filters si la búsqueda está vacía o tiene >= 2 caracteres
       if (filters.search.length === 0 || filters.search.length >= 2) {
          setDebouncedFilters(filters)
-         setPage(0) // reset page on filter change
+         setPage(1) // reset page on filter change
       }
     }, 400)
     return () => clearTimeout(timer)
@@ -330,7 +394,7 @@ export default function NetworkPage() {
       const { data, total, error } = await buscarExalumnosDirectorio({
         ...currentFilters,
         limit,
-        offset: currentPage * limit
+        offset: (currentPage - 1) * limit
       })
 
       if (error) throw new Error(error)
@@ -350,13 +414,8 @@ export default function NetworkPage() {
         }
       })
 
-      if (currentPage === 0) {
-        setExalumnos(mapped)
-      } else {
-        setExalumnos(prev => [...prev, ...mapped])
-      }
-      
-      setHasMore((currentPage + 1) * limit < total)
+      setExalumnos(mapped)
+      setTotalItems(total)
       
     } catch (err) {
       console.error("Error al cargar exalumnos:", err)
@@ -428,11 +487,11 @@ export default function NetworkPage() {
           <div className="flex-1 min-w-0 flex flex-col">
             <div className="flex items-center justify-between mb-4">
               <p className="text-xs font-bold text-slate-500 uppercase tracking-wider" aria-live="polite">
-                {cargando && page === 0 ? 'Buscando...' : `${exalumnos.length} resultados`}
+                {cargando && page === 1 ? 'Buscando...' : `${totalItems} resultados`}
               </p>
             </div>
 
-            {cargando && page === 0 ? (
+            {cargando && page === 1 ? (
               <div className="flex flex-col items-center justify-center py-20 bg-white border border-slate-200 rounded-2xl shadow-sm">
                 <div className="w-10 h-10 border-4 border-slate-200 border-t-[#F34B26] rounded-full animate-spin mb-4"></div>
                 <h3 className="text-sm font-bold text-slate-600 uppercase tracking-wide">Cargando directorio...</h3>
@@ -442,18 +501,11 @@ export default function NetworkPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
                   {exalumnos.map((ex, index) => <ExalumnoCard key={`${ex.id}-${index}`} ex={ex} isAdmin={isAdmin} />)}
                 </div>
-                {hasMore && (
-                  <div className="text-center pb-8 mt-auto">
-                    <Button 
-                      variant="secondary" 
-                      onClick={() => setPage(p => p + 1)}
-                      disabled={cargando}
-                      className="bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
-                    >
-                      {cargando ? 'Cargando más...' : 'Cargar más resultados'}
-                    </Button>
-                  </div>
-                )}
+                <Paginacion 
+                  paginaActual={page} 
+                  totalPaginas={Math.ceil(totalItems / limit)} 
+                  onChange={setPage} 
+                />
               </>
             ) : (
               <div className="text-center py-20 bg-white border border-slate-200 rounded-2xl shadow-sm mt-4">
