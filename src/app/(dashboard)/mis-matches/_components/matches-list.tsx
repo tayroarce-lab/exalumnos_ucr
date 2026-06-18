@@ -31,7 +31,7 @@ type MatchType = {
   estudiante: UserMatchInfo | UserMatchInfo[];
 };
 
-export function MatchesList({ initialMatches, currentUserId }: { initialMatches: MatchType[], currentUserId: string }) {
+export function MatchesList({ initialMatches, currentUserId, currentUserRole }: { initialMatches: MatchType[], currentUserId: string, currentUserRole: string }) {
   const [matches, setMatches] = useState<MatchType[]>(initialMatches);
   const { toast } = useToast();
   const [loadingId, setLoadingId] = useState<string | null>(null);
@@ -42,7 +42,7 @@ export function MatchesList({ initialMatches, currentUserId }: { initialMatches:
       const res = await requestConnection(matchId);
       if (res.success) {
         toast({ title: 'Conexión solicitada', description: 'Se ha notificado a la otra parte.' });
-        setMatches(matches.map(m => m.id === matchId ? { ...m, estado: 'contactado', iniciado_por: currentUserId } : m));
+        setMatches(matches.map(m => m.id === matchId ? { ...m, estado: 'contactado', iniciado_por: currentUserRole } : m));
       } else {
         toast({ title: 'Error', description: res.error || 'No se pudo solicitar la conexión.', variant: 'destructive' });
       }
@@ -100,8 +100,9 @@ export function MatchesList({ initialMatches, currentUserId }: { initialMatches:
 
         const isContactado = match.estado === 'contactado';
         const isActivo = match.estado === 'activo';
-        const isMiTurnoDeResponder = isContactado && match.iniciado_por !== currentUserId;
-        const yaSolicite = isContactado && match.iniciado_por === currentUserId;
+        // En DB, iniciado_por guarda el rol ('estudiante' o 'exalumno'), no el ID
+        const yaSolicite = isContactado && match.iniciado_por === currentUserRole;
+        const isMiTurnoDeResponder = isContactado && match.iniciado_por !== currentUserRole;
 
         return (
           <Card key={match.id} className="p-6 flex flex-col justify-between">

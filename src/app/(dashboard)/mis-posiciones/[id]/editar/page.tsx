@@ -1,8 +1,8 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect, use } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import Card from '@/components/ui/card'
 import Button from '@/components/ui/button'
 import { Input, Textarea, Select } from '@/components/ui/input'
@@ -10,15 +10,10 @@ import {
   ArrowLeft, ChevronLeft, ChevronRight, CheckCircle2, Save,
   AlertCircle, Plus, Trash2, GripVertical
 } from 'lucide-react'
-import { crearPosicion } from '@/actions/positions'
-import type { CrearPosicionInput } from '@/actions/positions'
+import { obtenerPosicionPorId, actualizarPosicion, type CrearPosicionInput } from '@/actions/positions'
 import type { PosicionFormValues } from '@/lib/validations/posiciones'
 import { useProfile } from '@/contexts/ProfileContext'
-import { createClient } from '@/lib/supabase/client'
 
-// ──────────────────────────────────────────────
-// Catálogo de sectores disponibles
-// ──────────────────────────────────────────────
 const SECTORES_CATALOGO = [
   'Tecnología',
   'Finanzas',
@@ -36,85 +31,106 @@ const MAX_CONTEXTO = 300
 const MIN_RESP = 3
 const MAX_RESP = 10
 
-export default function PublishJobPage() {
+export default function EditJobPage() {
   const router = useRouter()
+  const params = useParams()
+  const id = params.id as string
   const { user } = useProfile()
+
   const [step, setStep] = useState(1)
-  const [isPublishing, setIsPublishing] = useState(false)
-  const [isPublished, setIsPublished] = useState(false)
-  const [serverError, setServerError] = useState<string | null>(null)
-  
-  const [isProfileComplete, setIsProfileComplete] = useState<boolean | null>(null)
-  const [isLoadingProfile, setIsLoadingProfile] = useState(true)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isUpdating, setIsUpdating] = useState(false)
+  const [isUpdated, setIsUpdated] = useState(false)
+  const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
-  const isStudent = user?.user_metadata?.rol === 'estudiante'
-
-  React.useEffect(() => {
-    const isAdmin = user?.user_metadata?.rol === 'admin' || user?.user_metadata?.tipo === 'admin'
-    if (isAdmin) {
-      router.replace('/jobs')
-      return
-    }
-
-    if (!user) return
-    if (isStudent) {
-      setIsLoadingProfile(false)
-      return
-    }
-
-    async function checkProfile() {
-      try {
-        const supabase = createClient()
-        const { data, error } = await supabase
-          .from('exalumnos')
-          .select('perfil_completo')
-          .eq('user_id', user.id)
-          .single()
-
-        if (error || !data) {
-          setIsProfileComplete(false)
-        } else {
-          setIsProfileComplete(data.perfil_completo)
-        }
-      } catch (err) {
-        console.error('Error checking profile completeness:', err)
-        setIsProfileComplete(false)
-      } finally {
-        setIsLoadingProfile(false)
-      }
-    }
-
-    checkProfile()
-  }, [user, isStudent, router])
-
-  // Datos del formulario alineados con PosicionFormValues (Zod Schema)
+  // Datos del formulario
   const [formData, setFormData] = useState<PosicionFormValues>({
     titulo: '',
     tipo: 'Empleo',
     modalidad: 'Híbrido',
     jornada: 'Tiempo completo',
-    lugar: 'San José, Costa Rica',
-    empresa: user?.user_metadata?.empresa || 'Tech Costa Rica', // Prepopulate if available
+    lugar: '',
+    empresa: '',
     sector: [],
-    fecha_limite: new Date(new Date().setMonth(new Date().getMonth() + 1))
-      .toISOString()
-      .split('T')[0],
+    fecha_limite: '',
     habilidades_requeridas: [],
     descripcion_general: '',
     responsabilidades: [],
     contexto_equipo: '',
   })
 
-  // Lista dinámica de responsabilidades (mínimo 3, máximo 10)
-  const [responsabilidades, setResponsabilidades] = useState<string[]>(['', '', ''])
-
-  // Habilidades separadas por coma
+  const [responsabilidades, setResponsabilidades] = useState<string[]>([])
   const [tempHab, setTempHab] = useState('')
-
-  // Errores de validación
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  // ─── Handlers generales ─────────────────────
+  // Cargar datos originales de la posición
+  useEffect(() => {
+    if (!id || !user) return
+
+    async function loadPosition() {
+      try {
+        const data = await obtenerPosicionPorId(id)
+        if (!data) {
+          setErrorMsg('Posición no encontrada')
+          setIsLoading(false)
+          return
+        }
+
+        // Seguridad: verificar dueño
+        if (data.exalumno_id !== user.id) {
+          setErrorMsg('Acceso denegado: No eres el autor de esta publicación')
+          setIsLoading(false)
+          return
+        }
+
+        // Requisito: Solo editar si está activa
+        if (data.estado !== 'activa') {
+          setErrorMsg('El exalumno puede editar una posición únicamente mientras está activa.')
+          setIsLoading(false)
+          return
+        }
+
+        // Mapear campos de base de datos a formato de formulario
+        const mappedTipo = data.tipo === 'pasantia' ? 'Pasantía' : 'Empleo'
+        const mappedModalidad = data.modalidad === 'remoto' 
+          ? 'Remoto' 
+          : data.modalidad === 'presencial' 
+          ? 'Presencial' 
+          : 'Híbrido'
+        const mappedJornada = data.jornada === 'medio_tiempo'
+          ? 'Medio tiempo'
+          : data.jornada === 'por_proyecto'
+          ? 'Por proyecto'
+          : 'Tiempo completo'
+
+        setFormData({
+          titulo: data.titulo || '',
+          tipo: mappedTipo as 'Empleo' | 'Pasantía',
+          modalidad: mappedModalidad as 'Presencial' | 'Remoto' | 'Híbrido',
+          jornada: mappedJornada as 'Tiempo completo' | 'Medio tiempo' | 'Por proyecto',
+          lugar: data.lugar || '',
+          empresa: data.empresa || '',
+          sector: data.sector || [],
+          fecha_limite: data.fecha_limite || '',
+          habilidades_requeridas: data.habilidades_requeridas || [],
+          descripcion_general: data.descripcion_general || '',
+          responsabilidades: data.responsabilidades || [],
+          contexto_equipo: data.contexto_equipo || '',
+        })
+
+        setResponsabilidades(data.responsabilidades || ['', '', ''])
+        setTempHab((data.habilidades_requeridas || []).join(', '))
+      } catch (err: any) {
+        console.error(err)
+        setErrorMsg(err.message || 'Error al cargar la vacante')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadPosition()
+  }, [id, user])
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
@@ -123,7 +139,6 @@ export default function PublishJobPage() {
     if (errors[name]) setErrors((prev) => { const c = { ...prev }; delete c[name]; return c })
   }
 
-  // ─── Sector (múltiple) ───────────────────────
   const toggleSector = (sector: string) => {
     setFormData((prev) => {
       const already = prev.sector.includes(sector)
@@ -135,7 +150,6 @@ export default function PublishJobPage() {
     if (errors.sector) setErrors((p) => { const c = { ...p }; delete c.sector; return c })
   }
 
-  // ─── Responsabilidades dinámicas ─────────────
   const addResp = () => {
     if (responsabilidades.length < MAX_RESP) {
       setResponsabilidades((prev) => [...prev, ''])
@@ -153,7 +167,6 @@ export default function PublishJobPage() {
     if (errors.responsabilidades) setErrors((p) => { const c = { ...p }; delete c.responsabilidades; return c })
   }
 
-  // ─── Validación por paso ─────────────────────
   const validateStep = (currentStep: number) => {
     const newErrors: Record<string, string> = {}
 
@@ -212,12 +225,19 @@ export default function PublishJobPage() {
 
   const handlePrev = () => setStep((prev) => prev - 1)
 
-  const handlePublish = async () => {
-    setServerError(null)
-    setIsPublishing(true)
+  const handleSave = async () => {
+    setErrorMsg(null)
+    setIsUpdating(true)
 
-    const mappedData: CrearPosicionInput = {
+    const mappedData: Partial<CrearPosicionInput> = {
       titulo: formData.titulo,
+      lugar: formData.lugar,
+      sector: formData.sector,
+      fecha_limite: formData.fecha_limite ?? undefined,
+      habilidades_requeridas: formData.habilidades_requeridas,
+      descripcion_general: formData.descripcion_general,
+      responsabilidades: formData.responsabilidades,
+      contexto_equipo: formData.contexto_equipo || undefined,
       tipo: (formData.tipo === 'Empleo' ? 'empleo' : 'pasantia') as 'empleo' | 'pasantia',
       modalidad: (formData.modalidad === 'Híbrido'
         ? 'hibrido'
@@ -229,40 +249,45 @@ export default function PublishJobPage() {
         : formData.jornada === 'Medio tiempo'
         ? 'medio_tiempo'
         : 'por_proyecto') as 'tiempo_completo' | 'medio_tiempo' | 'por_proyecto',
-      lugar: formData.lugar,
-      empresa: formData.empresa,
-      sector: formData.sector,
-      fecha_limite: formData.fecha_limite,
-      habilidades_requeridas: formData.habilidades_requeridas,
-      descripcion_general: formData.descripcion_general,
-      responsabilidades: formData.responsabilidades,
-      contexto_equipo: formData.contexto_equipo || undefined,
     }
 
     try {
-      const result = await crearPosicion(mappedData)
-      setIsPublishing(false)
+      const result = await actualizarPosicion(id, mappedData)
+      setIsUpdating(false)
       if (result.success) {
-        setIsPublished(true)
-        setTimeout(() => router.push('/jobs'), 1500)
+        setIsUpdated(true)
+        setTimeout(() => router.push('/mis-posiciones'), 1500)
       }
     } catch (err: any) {
-      setIsPublishing(false)
-      setServerError(err.message || 'Error desconocido')
+      setIsUpdating(false)
+      setErrorMsg(err.message || 'Error desconocido')
       setStep(1)
     }
   }
 
-  const contextoLen = formData.contexto_equipo?.length ?? 0
-
-  if (isLoadingProfile) {
+  if (isLoading) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center py-24">
         <div className="w-10 h-10 border-4 border-slate-200 border-t-brand-blue rounded-full animate-spin mb-4" />
-        <p className="text-sm font-bold text-slate-500 uppercase tracking-wide">Cargando información del perfil...</p>
+        <p className="text-sm font-bold text-slate-500 uppercase tracking-wide">Cargando publicación...</p>
       </div>
     )
   }
+
+  if (errorMsg && step === 1 && !formData.titulo) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center py-20 px-6 text-center">
+        <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+        <h2 className="text-2xl font-bold text-slate-800 mb-2">Error de Edición</h2>
+        <p className="text-slate-600 mb-6 max-w-md">{errorMsg}</p>
+        <Link href="/mis-posiciones">
+          <Button variant="primary">Volver a mis publicaciones</Button>
+        </Link>
+      </div>
+    )
+  }
+
+  const contextoLen = formData.contexto_equipo?.length ?? 0
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-100 to-white py-8 px-6 lg:px-10 relative overflow-hidden">
@@ -270,56 +295,32 @@ export default function PublishJobPage() {
       <div className="absolute left-10 bottom-10 w-72 h-72 bg-sky-400/10 rounded-full blur-2xl -z-10" />
 
       <div className="max-w-2xl mx-auto space-y-6 relative z-10">
-        {isStudent ? (
-          <div className="text-center py-20">
-            <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-slate-800 mb-2">Acceso Denegado</h2>
-            <p className="text-slate-600 mb-6">Los estudiantes no tienen permiso para crear vacantes o pasantías.</p>
-            <Link href="/dashboard">
-              <Button variant="primary">Volver al inicio</Button>
-            </Link>
-          </div>
-        ) : isProfileComplete === false ? (
-          <div className="text-center py-20 bg-white border border-slate-200 rounded-3xl p-8 shadow-lg max-w-md mx-auto space-y-6">
-            <AlertCircle className="w-16 h-16 text-amber-500 mx-auto mb-2" />
-            <h2 className="text-2xl font-bold text-slate-800">Perfil Incompleto</h2>
-            <p className="text-slate-600 text-sm leading-relaxed">
-              Debes completar tu perfil de exalumno antes de poder publicar una oferta de empleo o pasantía.
-            </p>
-            <Link href="/profile" className="block">
-              <Button variant="primary" className="w-full bg-brand-blue hover:bg-brand-blue/90 font-bold uppercase text-xs tracking-wider h-11">
-                Completar mi perfil
-              </Button>
-            </Link>
-          </div>
-        ) : (
-          <>
-            {/* Botón Volver */}
+        {/* Botón Volver */}
         <Link
-          href="/jobs"
+          href="/mis-posiciones"
           className="inline-flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-blue-700 transition-colors uppercase tracking-wider"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Volver a vacantes</span>
+          <span>Volver a mis publicaciones</span>
         </Link>
 
         {/* Encabezado */}
         <div className="space-y-2">
           <h1 className="text-4xl font-extrabold uppercase font-display text-slate-900 tracking-wider">
-            Publicar Oportunidad
+            Editar Oportunidad
           </h1>
           <p className="text-sm text-slate-700 font-medium max-w-xl leading-relaxed">
-            Crea una vacante de empleo o pasantía exclusiva para graduados y estudiantes de la UCR.
+            Actualiza los datos de tu publicación de empleo o pasantía activa.
           </p>
         </div>
 
         {/* Alerta de Error General */}
-        {serverError && (
+        {errorMsg && (
           <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
             <div className="text-sm text-red-800">
-              <strong className="block font-bold">No se pudo publicar la vacante</strong>
-              {serverError}
+              <strong className="block font-bold">No se pudo actualizar la vacante</strong>
+              {errorMsg}
             </div>
           </div>
         )}
@@ -354,9 +355,7 @@ export default function PublishJobPage() {
         {/* Tarjeta de Formulario */}
         <Card hoverEffect={false} className="space-y-6 p-6 rounded-2xl border border-slate-200/60 bg-white shadow-lg">
 
-          {/* ══════════════════════════════
-              PASO 1: DATOS BÁSICOS
-          ══════════════════════════════ */}
+          {/* PASO 1: DATOS BÁSICOS */}
           {step === 1 && (
             <div className="space-y-5">
               <h3 className="font-display font-extrabold text-base text-slate-700 uppercase tracking-wider pb-2 border-b border-slate-100">
@@ -377,7 +376,7 @@ export default function PublishJobPage() {
                 name="empresa"
                 value={formData.empresa}
                 disabled
-                className="h-11 border-slate-200 bg-slate-100"
+                className="h-11 border-slate-200 bg-slate-100 font-semibold"
               />
               <Input
                 label="Ubicación"
@@ -428,7 +427,7 @@ export default function PublishJobPage() {
                 className="h-11 border-slate-200 focus:border-brand-blue bg-slate-50/50"
               />
 
-              {/* ── Selector múltiple de Sectores ─────────────────── */}
+              {/* Selector múltiple de Sectores */}
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
                   Sector(es) de la Vacante
@@ -464,7 +463,7 @@ export default function PublishJobPage() {
                 label="Fecha Límite de Aplicación"
                 name="fecha_limite"
                 type="date"
-                value={formData.fecha_limite ?? ''}
+                value={formData.fecha_limite ? formData.fecha_limite.split('T')[0] : ''}
                 onChange={handleChange}
                 error={errors.fecha_limite}
                 className="h-11 border-slate-200 focus:border-brand-blue bg-slate-50/50"
@@ -472,9 +471,7 @@ export default function PublishJobPage() {
             </div>
           )}
 
-          {/* ══════════════════════════════
-              PASO 2: DESCRIPCIÓN Y REQUISITOS
-          ══════════════════════════════ */}
+          {/* PASO 2: DESCRIPCIÓN Y REQUISITOS */}
           {step === 2 && (
             <div className="space-y-5">
               <h3 className="font-display font-extrabold text-base text-slate-700 uppercase tracking-wider pb-2 border-b border-slate-100">
@@ -491,7 +488,7 @@ export default function PublishJobPage() {
                 className="border-slate-200 focus:border-brand-blue bg-slate-50/50 min-h-[120px]"
               />
 
-              {/* ── Responsabilidades dinámicas ──────────────────── */}
+              {/* Responsabilidades dinámicas */}
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <label className="text-xs font-bold uppercase tracking-wider text-slate-500">
@@ -565,7 +562,7 @@ export default function PublishJobPage() {
                 className="h-11 border-slate-200 focus:border-brand-blue bg-slate-50/50"
               />
 
-              {/* ── Contexto del equipo (opcional, max 300) ────────── */}
+              {/* Contexto del equipo */}
               <div>
                 <div className="flex items-center justify-between mb-1">
                   <label className="text-xs font-bold uppercase tracking-wider text-slate-500">
@@ -604,13 +601,11 @@ export default function PublishJobPage() {
             </div>
           )}
 
-          {/* ══════════════════════════════
-              PASO 3: CONFIRMACIÓN Y PREVIEW
-          ══════════════════════════════ */}
+          {/* PASO 3: CONFIRMACIÓN Y PREVIEW */}
           {step === 3 && (
             <div className="space-y-6">
               <h3 className="font-display font-extrabold text-base text-slate-700 uppercase tracking-wider pb-2 border-b border-slate-100">
-                Revisar y Publicar
+                Revisar y Guardar Cambios
               </h3>
               <div className="bg-slate-50 p-6 border border-slate-200/60 rounded-2xl space-y-5">
                 <h4 className="font-display font-extrabold text-lg text-slate-800 uppercase tracking-wide">
@@ -622,7 +617,7 @@ export default function PublishJobPage() {
                   <p><span className="text-slate-400">Modalidad:</span> {formData.modalidad}</p>
                   <p><span className="text-slate-400">Jornada:</span> {formData.jornada}</p>
                   <p><span className="text-slate-400">Tipo:</span> {formData.tipo}</p>
-                  <p><span className="text-slate-400">Fecha límite:</span> {formData.fecha_limite}</p>
+                  <p><span className="text-slate-400">Fecha límite:</span> {formData.fecha_limite ? formData.fecha_limite.split('T')[0] : 'Sin definir'}</p>
                 </div>
 
                 {/* Sectores seleccionados */}
@@ -672,9 +667,6 @@ export default function PublishJobPage() {
                   </div>
                 )}
               </div>
-              <p className="text-xs text-slate-400 font-semibold leading-relaxed">
-                Al hacer clic en publicar, la vacante estará disponible de inmediato en la bolsa de empleo para todos los estudiantes y egresados autenticados en el sistema.
-              </p>
             </div>
           )}
 
@@ -684,7 +676,7 @@ export default function PublishJobPage() {
               <Button
                 variant="secondary"
                 onClick={handlePrev}
-                disabled={isPublishing || isPublished}
+                disabled={isUpdating || isUpdated}
                 className="flex items-center gap-2 font-bold uppercase text-xs"
               >
                 <ChevronLeft className="w-4 h-4" />
@@ -706,22 +698,22 @@ export default function PublishJobPage() {
             ) : (
               <Button
                 variant="primary"
-                onClick={handlePublish}
-                isLoading={isPublishing}
-                disabled={isPublishing || isPublished}
+                onClick={handleSave}
+                isLoading={isUpdating}
+                disabled={isUpdating || isUpdated}
                 className={`flex items-center gap-2 font-bold uppercase text-xs px-5 shadow-md text-white ${
-                  isPublished ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-brand-blue hover:bg-brand-blue/90'
+                  isUpdated ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-brand-blue hover:bg-brand-blue/90'
                 }`}
               >
-                {isPublished ? (
+                {isUpdated ? (
                   <>
                     <CheckCircle2 className="w-4 h-4" />
-                    <span>¡Publicado!</span>
+                    <span>¡Guardado!</span>
                   </>
                 ) : (
                   <>
                     <Save className="w-4 h-4" />
-                    <span>{isPublishing ? 'Publicando...' : 'Publicar Vacante'}</span>
+                    <span>{isUpdating ? 'Guardando...' : 'Guardar Cambios'}</span>
                   </>
                 )}
               </Button>
@@ -729,8 +721,6 @@ export default function PublishJobPage() {
           </div>
 
         </Card>
-        </>
-        )}
       </div>
     </div>
   )
