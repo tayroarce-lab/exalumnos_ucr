@@ -138,6 +138,15 @@ function TarjetaMatch({ match, onAccion }: {
           </Link>
         </div>
       )}
+
+      {match.estado === 'activo' && (
+        <div className="px-5 pb-5">
+          <Link href={`/network/${est?.id || ''}`}
+            className="w-full flex items-center justify-center gap-2 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold hover:bg-emerald-100 transition-all">
+            <User className="w-4 h-4" /> Ver información
+          </Link>
+        </div>
+      )}
     </article>
   )
 }
