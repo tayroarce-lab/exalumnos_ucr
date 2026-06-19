@@ -14,15 +14,42 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
   const { data: { user } } = await supabase.auth.getUser();
   const isAdmin = user?.user_metadata?.rol === 'admin';
 
-  const { data: profile, error } = await supabase
-    .from('profiles')
-    .select('*')
+  const { data: userRecord, error } = await supabase
+    .from('users')
+    .select(`
+      *,
+      exalumnos (*),
+      curriculums (sobre_mi, habilidades_tecnicas, habilidades_blandas, url_linkedin)
+    `)
     .eq('id', resolvedParams.id)
     .single();
 
-  if (error || !profile) {
+  if (error || !userRecord) {
     notFound();
   }
+
+  const exalumnoData = Array.isArray(userRecord.exalumnos) ? userRecord.exalumnos[0] : userRecord.exalumnos;
+  const curriculumData = Array.isArray(userRecord.curriculums) ? userRecord.curriculums[0] : userRecord.curriculums;
+  
+  const profile = {
+    id: userRecord.id,
+    full_name: `${userRecord.nombre || ''} ${userRecord.apellidos || ''}`.trim() || 'Exalumno',
+    foto_url: userRecord.foto_url,
+    es_exalumno: userRecord.rol === 'exalumno',
+    email: userRecord.email,
+    linkedin_url: exalumnoData?.linkedin_url || curriculumData?.url_linkedin,
+    twitter_url: userRecord.twitter_url,
+    instagram_url: userRecord.instagram_url,
+    cargo_actual: exalumnoData?.cargo_actual,
+    empresa_actual: exalumnoData?.empresa_actual,
+    pais_ciudad: exalumnoData?.pais_ciudad,
+    ofrece_mentoria: exalumnoData?.ofrece_mentoria,
+    ofrece_empleo: exalumnoData?.ofrece_empleo,
+    ofrece_pasantia: exalumnoData?.ofrece_pasantia,
+    bio: exalumnoData?.bio || curriculumData?.sobre_mi,
+    skills: [...(exalumnoData?.habilidades || []), ...(curriculumData?.habilidades_tecnicas ? (Array.isArray(curriculumData.habilidades_tecnicas) ? curriculumData.habilidades_tecnicas : Object.keys(curriculumData.habilidades_tecnicas)) : [])],
+    areas_de_interes: exalumnoData?.areas_de_interes || [],
+  };
 
   // Comprobar estado de conexión
   let connectionStatus: 'none' | 'contactado' | 'activo' = 'none';
@@ -42,7 +69,7 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
     }
   }
 
-  const displayName = profile.full_name || [profile.nombre, profile.apellidos].filter(Boolean).join(' ') || 'Exalumno';
+  const displayName = profile.full_name;
   const initials = displayName.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase() || 'EX';
 
   const showContactInfo = isAdmin || connectionStatus === 'activo' || user?.id === profile.id;

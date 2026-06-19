@@ -169,7 +169,8 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
     menuItems: [
       { name: 'Inicio', href: dashboardHref },
       { name: 'Directorios', href: '/directorio' },
-      { name: 'Mis Matches', href: '/mis-matches' },
+      { name: 'Mentorías', href: '/mentorships' },
+      { name: 'Matches', href: '/mis-matches' },
       { name: 'Eventos', href: '/events' },
       { name: 'Empleos', href: '/jobs' }
     ]
@@ -208,8 +209,9 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
       userCircleBg: 'bg-[#004C63]/10 text-slate-800',
       menuItems: [
         { name: 'Inicio', href: dashboardHref },
-        { name: 'Directorios', href: '/directorio' },
-        { name: 'Mis Matches', href: '/mis-matches' },
+        { name: 'Directorios', href: '/network' },
+        { name: 'Mentorías', href: '/mentorships' },
+        { name: 'Matches', href: '/mis-matches' },
         { name: 'Eventos', href: '/events' },
         { name: 'Empleos', href: '/jobs' }
       ]
