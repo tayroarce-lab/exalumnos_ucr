@@ -13,6 +13,8 @@ export default async function PerfilEstudiantePage({ params }: { params: { id: s
     notFound();
   }
 
+
+
   // Estudiantes relacionados por carrera (único campo confiable disponible en la BD)
   const estudiantesRelacionados = await getEstudiantesRelacionados(
     estudiante.user_id,

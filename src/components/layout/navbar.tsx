@@ -170,6 +170,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
       { name: 'Inicio', href: dashboardHref },
       { name: 'Directorios', href: '/directorio' },
       { name: 'Mentorías', href: '/mentorships' },
+      { name: 'Matches', href: '/mis-matches' },
       { name: 'Eventos', href: '/events' },
       { name: 'Empleos', href: '/jobs' }
     ]
@@ -210,6 +211,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
         { name: 'Inicio', href: dashboardHref },
         { name: 'Directorios', href: '/network' },
         { name: 'Mentorías', href: '/mentorships' },
+        { name: 'Matches', href: '/mis-matches' },
         { name: 'Eventos', href: '/events' },
         { name: 'Empleos', href: '/jobs' }
       ]
@@ -245,9 +247,8 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
               alt="Logo UCR"
               width={180}
               height={64}
-              style={{ objectFit: 'contain', height: '100px', width: 'auto', filter: config.logoFilter }}
-              className="transition-all duration-300"
-              priority
+              style={{ objectFit: 'contain', filter: config.logoFilter }}
+              className="h-12 w-auto transition-all duration-300"
             />
           </Link>
         </div>
@@ -368,7 +369,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
                 </Link>
                 <Link href="/mis-posiciones" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-600 hover:bg-slate-50 hover:text-brand-blue transition-colors">
                   <Briefcase className="w-4 h-4 text-slate-400" />
-                  <span>Mis Posiciones</span>
+                  <span>{isStudent ? 'Mis Postulaciones' : 'Mis Posiciones'}</span>
                 </Link>
                 {!isAdmin && (
                   <Link href="/historial" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-600 hover:bg-slate-50 hover:text-brand-blue transition-colors">
