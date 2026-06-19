@@ -170,6 +170,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
       { name: 'Inicio', href: dashboardHref },
       { name: 'Directorios', href: '/directorio' },
       { name: 'Mentorías', href: '/mentorships' },
+      { name: 'Matches', href: '/mis-matches' },
       { name: 'Eventos', href: '/events' },
       { name: 'Empleos', href: '/jobs' }
     ]
@@ -210,6 +211,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
         { name: 'Inicio', href: dashboardHref },
         { name: 'Directorios', href: '/network' },
         { name: 'Mentorías', href: '/mentorships' },
+        { name: 'Matches', href: '/mis-matches' },
         { name: 'Eventos', href: '/events' },
         { name: 'Empleos', href: '/jobs' }
       ]
