@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { User, GraduationCap, HandHeart, Network } from 'lucide-react';
 import logoUCR from '@/images/Logo_UCR.png';
 import fondoUCR from '@/images/UCRbackground.png';
+import LogoAnimado from '@/components/ui/LogoAnimado';
 
 import Footer from '@/components/layout/footer';
 
@@ -272,20 +273,8 @@ function SeccionHeroSplit() {
         />
 
         {/* Logo UCR sobre la imagen del campus */}
-        <div className="logo-alumni-ucr">
-          <Image
-            src={logoUCR}
-            alt="Logo UCR"
-            width={2000}
-            height={2040}
-            style={{
-              width: '85%',
-              height: 'auto',
-              objectFit: 'contain',
-              filter: 'brightness(0) invert(1) drop-shadow(0 4px 20px rgba(0,0,0,0.8))',
-            }}
-            priority
-          />
+        <div className="logo-alumni-ucr" style={{ width: '100%', height: '100%' }}>
+          <LogoAnimado src={logoUCR} />
         </div>
       </div>
     </section>
