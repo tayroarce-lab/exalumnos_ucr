@@ -17,7 +17,7 @@ export async function GET(request: Request) {
     // Para simplificar, haremos múltiples queries filtrados por fecha
     
     let donationsQuery = adminClient.from('donations').select('monto, moneda, estado, created_at, user_id');
-    let matchesQuery = adminClient.from('matches').select('estado, resultado, estudiante_carrera, created_at');
+    let matchesQuery = adminClient.from('matches').select('estado, resultado, created_at');
     // Asumiendo tabla 'users' o 'usuarios' o 'perfiles' (vamos a usar 'users' como mock si no existe la tabla real expuesta)
     // Para usuarios, usaremos 'auth.users' u otra tabla pública si existe. 
     // Usaremos 'perfiles' (común en Supabase) o 'usuarios'
@@ -59,12 +59,12 @@ export async function GET(request: Request) {
       .reduce((acc, d) => acc + (Number(d.monto) || 0), 0);
 
     const matchesActivos = (matches || []).filter(m => m.estado === 'activo').length;
-    const matchesCerradosExitosamente = (matches || []).filter(m => m.estado === 'cerrado' && m.resultado === 'exitoso').length;
+    const matchesCerradosExitosamente = (matches || []).filter(m => m.estado === 'cerrado' && (m as any).resultado === 'exitoso').length;
 
     // Distribución por carrera (tomada de matches como proxy o de los usuarios estudiantes)
     const distribucionCarrera: Record<string, number> = {};
     (matches || []).forEach(m => {
-      const carrera = m.estudiante_carrera || 'No especificada';
+      const carrera = (m as any).estudiante_carrera || 'No especificada';
       distribucionCarrera[carrera] = (distribucionCarrera[carrera] || 0) + 1;
     });
 
