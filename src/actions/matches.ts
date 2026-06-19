@@ -339,6 +339,45 @@ export async function respondToConnection(matchId: string, accept: boolean) {
   return result;
 }
 
+export async function upsertManualMatch(estudianteId: string, tipoApoyo: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) return { success: false, error: 'No autorizado' };
+
+  const { createAdminClient } = await import('@/lib/supabase/admin');
+  const adminClient = createAdminClient();
+
+  const { data: existing } = await adminClient
+    .from('matches')
+    .select('id, estado')
+    .eq('exalumno_id', user.id)
+    .eq('estudiante_id', estudianteId)
+    .is('deleted_at', null)
+    .single();
+
+  if (existing) {
+    if (existing.estado !== 'cerrado') {
+      const { error } = await adminClient
+        .from('matches')
+        .update({ tipo_apoyo: tipoApoyo, updated_at: new Date().toISOString() })
+        .eq('id', existing.id);
+      if (error) console.error('Error actualizando match manual:', error);
+    }
+  } else {
+    const { error } = await adminClient.from('matches').insert({
+      exalumno_id: user.id,
+      estudiante_id: estudianteId,
+      tipo_apoyo: tipoApoyo,
+      score_match: 100,
+      estado: 'sugerido',
+      iniciado_por: 'plataforma'
+    });
+    if (error) console.error('Error insertando match manual:', error);
+  }
+  return { success: true };
+}
+
 export async function requestDirectConnection(targetUserId: string) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -347,52 +386,51 @@ export async function requestDirectConnection(targetUserId: string) {
     return { success: false, error: 'No autorizado' };
   }
 
+  if (user.user_metadata?.rol === 'admin' || user.user_metadata?.tipo === 'admin') {
+    return { success: false, error: 'Acceso denegado: Los administradores no pueden solicitar conexiones' };
+  }
+
   const { createAdminClient } = await import('@/lib/supabase/admin');
   const adminClient = createAdminClient();
 
   const initiatorRole = user.user_metadata?.rol || 'estudiante';
+  let estudianteId = user.id;
+  let exalumnoId = targetUserId;
   
-  // Verificamos si ya existe un match
-  const { data: matchExistente } = await adminClient
+  if (initiatorRole === 'exalumno') {
+    exalumnoId = user.id;
+    estudianteId = targetUserId;
+  }
+
+  // Buscar si ya existe un match
+  const { data: existingMatch } = await adminClient
     .from('matches')
-    .select('id, estado')
+    .select('id')
     .or(`and(estudiante_id.eq.${user.id},exalumno_id.eq.${targetUserId}),and(estudiante_id.eq.${targetUserId},exalumno_id.eq.${user.id})`)
     .maybeSingle();
 
-  if (matchExistente) {
-    if (matchExistente.estado === 'contactado' || matchExistente.estado === 'activo') {
-      return { success: false, error: 'Ya existe una solicitud o conexión activa con este usuario.' };
+  let matchId = existingMatch?.id;
+
+  if (!matchId) {
+    const { data: newMatch, error: createError } = await adminClient
+      .from('matches')
+      .insert({
+        exalumno_id: exalumnoId,
+        estudiante_id: estudianteId,
+        tipo_apoyo: 'mentoría',
+        score_match: 100,
+        estado: 'sugerido',
+        iniciado_por: initiatorRole
+      })
+      .select('id')
+      .single();
+
+    if (createError) {
+      console.error('Error creando match directo:', createError);
+      return { success: false, error: createError.message };
     }
-    // Actualizamos el match existente
-    return await requestConnection(matchExistente.id);
+    matchId = newMatch.id;
   }
 
-  // Obtenemos los roles para asignar correctamente estudiante_id y exalumno_id
-  const targetRole = initiatorRole === 'estudiante' ? 'exalumno' : 'estudiante'; // Aproximación
-  
-  const estudiante_id = initiatorRole === 'estudiante' ? user.id : targetUserId;
-  const exalumno_id = initiatorRole === 'exalumno' ? user.id : targetUserId;
-
-  const { data: newMatch, error } = await adminClient
-    .from('matches')
-    .insert({
-      exalumno_id,
-      estudiante_id,
-      tipo_apoyo: 'mentoria', // Default fallback
-      score_match: 100, // Conexión directa
-      estado: 'contactado',
-      iniciado_por: initiatorRole,
-    })
-    .select('id')
-    .single();
-
-  if (error || !newMatch) {
-    console.error('Error creating direct connection:', error);
-    return { success: false, error: error?.message || 'Error creando conexión' };
-  }
-
-  // Enviar notificación (reutilizando la lógica de requestConnection si es posible, o dejándolo simple)
-  // Para simplificar, llamamos a requestConnection para enviar emails si es necesario, 
-  // aunque ya lo insertamos como contactado.
-  return { success: true };
+  return await requestConnection(matchId);
 }

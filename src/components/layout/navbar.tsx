@@ -22,6 +22,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
   // Estado local del tema admin — sincronizado con localStorage y evento custom
   const [adminIsDark, setAdminIsDark] = useState(true)
   const [exalumnosIsDark, setExalumnosIsDark] = useState(false)
+  const [studentIsDark, setStudentIsDark] = useState(false)
   const pathname = usePathname()
   const { user, profile } = useProfile()
 
@@ -53,6 +54,20 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
     return () => window.removeEventListener('exalumnos-theme-change', handlerExalumnos)
   }, [])
 
+  useEffect(() => {
+    // Sincronizar tema student
+    const savedStudent = localStorage.getItem('student-theme')
+    if (savedStudent === 'dark') setStudentIsDark(true)
+    else setStudentIsDark(false)
+
+    const handlerStudent = (e: Event) => {
+      const next = (e as CustomEvent<'dark' | 'light'>).detail
+      setStudentIsDark(next === 'dark')
+    }
+    window.addEventListener('student-theme-change', handlerStudent)
+    return () => window.removeEventListener('student-theme-change', handlerStudent)
+  }, [])
+
   const handleAdminThemeToggle = () => {
     const next = adminIsDark ? 'light' : 'dark'
     localStorage.setItem('admin-theme', next)
@@ -65,6 +80,13 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
     localStorage.setItem('exalumnos-theme', next)
     setExalumnosIsDark(!exalumnosIsDark)
     window.dispatchEvent(new CustomEvent('exalumnos-theme-change', { detail: next }))
+  }
+
+  const handleStudentThemeToggle = () => {
+    const next = studentIsDark ? 'light' : 'dark'
+    localStorage.setItem('student-theme', next)
+    setStudentIsDark(!studentIsDark)
+    window.dispatchEvent(new CustomEvent('student-theme-change', { detail: next }))
   }
 
   // Cerrar menú móvil al cambiar de ruta
@@ -148,6 +170,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
       { name: 'Inicio', href: dashboardHref },
       { name: 'Directorios', href: '/directorio' },
       { name: 'Mentorías', href: '/mentorships' },
+      { name: 'Matches', href: '/mis-matches' },
       { name: 'Eventos', href: '/events' },
       { name: 'Empleos', href: '/jobs' }
     ]
@@ -186,8 +209,9 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
       userCircleBg: 'bg-[#004C63]/10 text-slate-800',
       menuItems: [
         { name: 'Inicio', href: dashboardHref },
-        { name: 'Directorios', href: '/directorio' },
+        { name: 'Directorios', href: '/network' },
         { name: 'Mentorías', href: '/mentorships' },
+        { name: 'Matches', href: '/mis-matches' },
         { name: 'Eventos', href: '/events' },
         { name: 'Empleos', href: '/jobs' }
       ]
@@ -223,9 +247,8 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
               alt="Logo UCR"
               width={180}
               height={64}
-              style={{ objectFit: 'contain', height: '100px', width: 'auto', filter: config.logoFilter }}
-              className="transition-all duration-300"
-              priority
+              style={{ objectFit: 'contain', filter: config.logoFilter }}
+              className="h-12 w-auto transition-all duration-300"
             />
           </Link>
         </div>
@@ -254,21 +277,19 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
         {/* Derecha: Notificaciones + Perfil (desktop) + Hamburguesa (mobile) */}
         <div className="flex items-center gap-2">
 
-          {/* Toggle Día/Noche — admin y exalumnos */}
-          {(isAdmin || (!isAdmin && !isStudent)) && (
-            <button
-              onClick={isAdmin ? handleAdminThemeToggle : handleExalumnosThemeToggle}
-              className="p-2 rounded-xl hover:bg-white/10 transition-colors relative group"
-              aria-label={(isAdmin ? adminIsDark : exalumnosIsDark) ? 'Cambiar a modo día' : 'Cambiar a modo noche'}
-              title={(isAdmin ? adminIsDark : exalumnosIsDark) ? 'Modo Día' : 'Modo Noche'}
-            >
-              {(isAdmin ? adminIsDark : exalumnosIsDark) ? (
-                <Sun className="w-5 h-5 text-amber-300 group-hover:text-amber-200 transition-colors" />
-              ) : (
-                <Moon className="w-5 h-5 text-blue-200 group-hover:text-blue-100 transition-colors" />
-              )}
-            </button>
-          )}
+          {/* Toggle Día/Noche */}
+          <button
+            onClick={isAdmin ? handleAdminThemeToggle : isStudent ? handleStudentThemeToggle : handleExalumnosThemeToggle}
+            className="p-2 rounded-xl hover:bg-white/10 transition-colors relative group"
+            aria-label={(isAdmin ? adminIsDark : isStudent ? studentIsDark : exalumnosIsDark) ? 'Cambiar a modo día' : 'Cambiar a modo noche'}
+            title={(isAdmin ? adminIsDark : isStudent ? studentIsDark : exalumnosIsDark) ? 'Modo Día' : 'Modo Noche'}
+          >
+            {(isAdmin ? adminIsDark : isStudent ? studentIsDark : exalumnosIsDark) ? (
+              <Sun className="w-5 h-5 text-amber-300 group-hover:text-amber-200 transition-colors" />
+            ) : (
+              <Moon className="w-5 h-5 text-blue-200 group-hover:text-blue-100 transition-colors" />
+            )}
+          </button>
 
           {/* Notificaciones */}
           <div className="relative">
@@ -348,7 +369,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
                 </Link>
                 <Link href="/mis-posiciones" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-600 hover:bg-slate-50 hover:text-brand-blue transition-colors">
                   <Briefcase className="w-4 h-4 text-slate-400" />
-                  <span>Mis Posiciones</span>
+                  <span>{isStudent ? 'Mis Postulaciones' : 'Mis Posiciones'}</span>
                 </Link>
                 {!isAdmin && (
                   <Link href="/historial" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-600 hover:bg-slate-50 hover:text-brand-blue transition-colors">

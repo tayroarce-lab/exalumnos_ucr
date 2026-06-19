@@ -10,6 +10,7 @@ import { obtenerMisPosiciones, actualizarEstadoPosicion, eliminarPosicionLogica 
 import { useProfile } from '@/contexts/ProfileContext'
 import Card from '@/components/ui/card'
 import Button from '@/components/ui/button'
+import MisAplicacionesPage from '../mis-aplicaciones/page'
 
 type Posicion = Awaited<ReturnType<typeof obtenerMisPosiciones>>[number]
 
@@ -34,6 +35,10 @@ export default function MisPosicionesPage() {
   const [error, setError] = useState<string | null>(null)
   const { user } = useProfile()
   const isStudent = user?.user_metadata?.rol === 'estudiante'
+
+  if (isStudent) {
+    return <MisAplicacionesPage />
+  }
 
   const cargarPosiciones = useCallback(async () => {
     setCargando(true)

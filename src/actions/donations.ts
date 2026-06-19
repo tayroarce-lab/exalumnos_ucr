@@ -340,3 +340,30 @@ export async function obtenerMisDonaciones() {
     throw new Error(error.message || 'Error al obtener el historial de donaciones');
   }
 }
+
+export async function obtenerMisDonacionesRecibidas() {
+  const supabase = await createClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    throw new Error('No autenticado');
+  }
+
+  try {
+    const supabaseAdmin = createAdminClient();
+    // Buscamos donde el proyecto_id es igual al ID del estudiante
+    const { data, error } = await supabaseAdmin
+      .from(DB_TABLE)
+      .select('*')
+      .eq('proyecto_id', user.id)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    
+    const formattedData = await enrichDonationsWithUsers(supabaseAdmin, data || []);
+    return { success: true, data: formattedData };
+  } catch (error: any) {
+    console.error('Error al obtener donaciones recibidas:', error);
+    throw new Error(error.message || 'Error al obtener el historial de donaciones recibidas');
+  }
+}
