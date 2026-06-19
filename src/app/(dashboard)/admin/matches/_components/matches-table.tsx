@@ -129,14 +129,14 @@ export function MatchesTable() {
                         </td>
                         <td>
                           <div className="admin-table-user">
-                            <div className="admin-table-avatar" style={{ background: '#ecfdf5', color: '#059669' }}>
+                            <div className="admin-table-avatar" style={{ background: 'var(--admin-bg-hover)', color: 'var(--admin-accent-celeste)' }}>
                               {match.estudiante_nombre.charAt(0).toUpperCase()}
                             </div>
                             <span>{match.estudiante_nombre}</span>
                           </div>
                         </td>
-                        <td style={{ color: '#64748b', fontSize: '13px' }}>{match.estudiante_carrera}</td>
-                        <td style={{ color: '#64748b', fontSize: '13px' }}>{match.tipo_apoyo}</td>
+                        <td style={{ color: 'var(--admin-text-secondary)', fontSize: '13px' }}>{match.estudiante_carrera}</td>
+                        <td style={{ color: 'var(--admin-text-secondary)', fontSize: '13px' }}>{match.tipo_apoyo}</td>
                         <td>
                           <span className="matches-score-badge">{match.score_match}%</span>
                         </td>
@@ -150,7 +150,7 @@ export function MatchesTable() {
                             )}
                           </div>
                         </td>
-                        <td style={{ color: '#64748b', fontSize: '13px' }}>
+                        <td style={{ color: 'var(--admin-text-secondary)', fontSize: '13px' }}>
                           {new Date(match.created_at).toLocaleDateString('es-CR')}
                         </td>
                         <td>

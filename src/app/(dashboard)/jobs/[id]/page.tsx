@@ -1,34 +1,44 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Card from '@/components/ui/card'
 import Button from '@/components/ui/button'
-import Modal from '@/components/ui/modal'
-import { Input, Textarea } from '@/components/ui/input'
-import { ArrowLeft, MapPin, Building, Briefcase, Calendar, CheckCircle2, Sparkles } from 'lucide-react'
+import { ArrowLeft, MapPin, Building, Briefcase, Calendar, CheckCircle2, Sparkles, AlertCircle } from 'lucide-react'
 import { obtenerPosicionPorId } from '@/actions/positions'
+import { checkApplicationStatus } from '@/actions/applications'
+import { createClient } from '@/lib/supabase/client'
 import ApplyModal from '@/components/applications/ApplyModal'
+import { getAvatarUrl } from '@/lib/utils'
 
 interface JobDetailPageProps {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 export default function JobDetailPage({ params }: JobDetailPageProps) {
-  const { id } = params
+  const { id } = React.use(params)
 
   const [job, setJob] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isApplied, setIsApplied] = useState(false)
+  const [hasCV, setHasCV] = useState<boolean | null>(null)
+  const [showNoCVNotice, setShowNoCVNotice] = useState(false)
+  const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
   React.useEffect(() => {
     async function loadJob() {
       try {
         const position = await obtenerPosicionPorId(id)
         setJob(position)
-      } catch (err) {
+        
+        const status = await checkApplicationStatus(id)
+        if (status.applied) {
+          setIsApplied(true)
+        }
+      } catch (err: any) {
         console.error("Error loading position:", err)
+        setErrorMsg(err.message || 'Error desconocido')
       } finally {
         setLoading(false)
       }
@@ -36,7 +46,31 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
     loadJob()
   }, [id])
 
+  // Verificar si el usuario tiene CV en la base de datos
+  React.useEffect(() => {
+    async function checkCV() {
+      try {
+        const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+        const { data } = await supabase
+          .from('cv_profiles')
+          .select('id')
+          .eq('user_id', user.id)
+          .single()
+        setHasCV(!!data)
+      } catch {
+        setHasCV(false)
+      }
+    }
+    checkCV()
+  }, [])
+
   const handleApplyClick = () => {
+    if (hasCV === false) {
+      setShowNoCVNotice(true)
+      return
+    }
     setIsModalOpen(true)
   }
 
@@ -50,7 +84,12 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
   }
 
   if (!job) {
-    return <div className="text-center py-20 text-red-500 font-bold uppercase">Posición no encontrada</div>
+    return (
+      <div className="text-center py-20">
+        <div className="text-red-500 font-bold uppercase mb-2">Posición no encontrada</div>
+        {errorMsg && <div className="text-slate-500 text-sm">Detalle: {errorMsg}</div>}
+      </div>
+    )
   }
 
   return (
@@ -129,6 +168,26 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
         {/* Columna Derecha: Tarjeta de Acción */}
         <div className="space-y-6">
           <Card hoverEffect={false} className="space-y-6 text-center">
+            {job.exalumno && (
+              <div className="flex flex-col items-center gap-2 mb-4 border-b border-slate-100 pb-6">
+                <div className="w-16 h-16 rounded-full bg-slate-200 overflow-hidden shrink-0 border-2 border-white shadow-sm">
+                  {job.exalumno.foto_url ? (
+                    <img src={getAvatarUrl(job.exalumno.foto_url) as string} alt={job.exalumno.nombre} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-500 font-bold text-xl">
+                      {job.exalumno.nombre?.charAt(0)}
+                    </div>
+                  )}
+                </div>
+                <div className="space-y-0.5">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Publicado por</span>
+                  <Link href={`/network/${job.exalumno_id}`} className="text-sm font-bold text-brand-emerald hover:text-emerald-700 transition-colors block">
+                    {job.exalumno.nombre}
+                  </Link>
+                </div>
+              </div>
+            )}
+
             <div className="space-y-1">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Compensación</span>
               <span className="text-xl font-bold text-brand-emerald block">Competitivo</span>
@@ -140,6 +199,11 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
                 <div className="bg-emerald-50 text-emerald-800 p-4 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 border border-emerald-100">
                   <CheckCircle2 className="w-5 h-5 text-emerald-600" />
                   <span>¡Aplicación enviada con éxito!</span>
+                </div>
+              ) : job.estado !== 'activa' ? (
+                <div className="bg-slate-50 text-slate-500 p-4 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 border border-slate-200">
+                  <AlertCircle className="w-5 h-5 text-slate-400" />
+                  <span>Esta vacante ya no está activa</span>
                 </div>
               ) : (
                 <>
@@ -169,9 +233,39 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
 
       </div>
 
+      {/* Modal: Sin CV */}
+      {showNoCVNotice && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 space-y-5 text-center">
+            <div className="mx-auto w-14 h-14 bg-amber-100 rounded-full flex items-center justify-center">
+              <AlertCircle className="w-7 h-7 text-amber-500" />
+            </div>
+            <div className="space-y-1">
+              <h2 className="text-lg font-bold text-slate-900">Necesitas un CV para aplicar</h2>
+              <p className="text-sm text-slate-500">No tienes ningún currículum guardado. Créalo con IA en minutos y ¡empieza a postularte!</p>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Link
+                href="/dashboard/cv"
+                className="inline-flex items-center justify-center gap-2 w-full bg-[#001C29] hover:bg-[#004C63] text-white text-sm font-bold py-3 rounded-xl transition-colors"
+              >
+                <Sparkles className="w-4 h-4" />
+                Crear mi CV con IA
+              </Link>
+              <button
+                onClick={() => setShowNoCVNotice(false)}
+                className="w-full text-sm font-medium text-slate-500 hover:text-slate-800 py-2 transition-colors"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Modal Real de Aplicación */}
       {isModalOpen && (
-        <ApplyModal 
+        <ApplyModal
           position={{ id: job.id, title: job.titulo, alumni_name: job.exalumno?.nombre || 'Exalumno' }}
           onClose={() => setIsModalOpen(false)}
           onSuccess={handleSuccess}

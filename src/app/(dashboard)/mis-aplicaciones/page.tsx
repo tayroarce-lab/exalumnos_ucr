@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import Link from 'next/link'
 import { useProfile } from '@/contexts/ProfileContext'
 import { Briefcase, Clock, CheckCircle, XCircle, Eye, AlertCircle, RefreshCw, Sparkles } from 'lucide-react'
 import { getMyApplications } from '@/actions/applications'
@@ -154,7 +155,9 @@ export default function MisAplicacionesPage() {
                       <Icon className="w-3 h-3" /> {badge.label}
                     </span>
                   </div>
-                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">{app.position.alumni_name}</p>
+                  <Link href={`/network/${app.alumni_id}`} className="text-xs font-semibold text-brand-emerald hover:text-emerald-700 uppercase tracking-wide transition-colors">
+                    {app.position.alumni_name}
+                  </Link>
                   {app.message && (
                     <div className="mt-2.5 p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs text-slate-600 font-medium italic relative">
                       "{app.message}"

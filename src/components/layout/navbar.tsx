@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { Bell, ChevronDown, User, LogOut, Briefcase, Menu, X, Clock } from 'lucide-react'
+import { Bell, ChevronDown, User, LogOut, Briefcase, Menu, X, Clock, Sun, Moon } from 'lucide-react'
 import { useProfile } from '@/contexts/ProfileContext'
 import { createClient } from '@/lib/supabase/client'
 import logoUCR from '@/images/Logo_UCR.png'
@@ -19,8 +19,75 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [imgError, setImgError] = useState(false)
+  // Estado local del tema admin — sincronizado con localStorage y evento custom
+  const [adminIsDark, setAdminIsDark] = useState(true)
+  const [exalumnosIsDark, setExalumnosIsDark] = useState(false)
+  const [studentIsDark, setStudentIsDark] = useState(false)
   const pathname = usePathname()
   const { user, profile } = useProfile()
+
+  // Sincronizar tema admin desde localStorage y escuchar cambios
+  useEffect(() => {
+    const saved = localStorage.getItem('admin-theme')
+    if (saved === 'light') setAdminIsDark(false)
+    else setAdminIsDark(true)
+
+    const handler = (e: Event) => {
+      const next = (e as CustomEvent<'dark' | 'light'>).detail
+      setAdminIsDark(next === 'dark')
+    }
+    window.addEventListener('admin-theme-change', handler)
+    return () => window.removeEventListener('admin-theme-change', handler)
+  }, [])
+
+  useEffect(() => {
+    // Sincronizar tema exalumnos
+    const savedExalumnos = localStorage.getItem('exalumnos-theme')
+    if (savedExalumnos === 'dark') setExalumnosIsDark(true)
+    else setExalumnosIsDark(false)
+
+    const handlerExalumnos = (e: Event) => {
+      const next = (e as CustomEvent<'dark' | 'light'>).detail
+      setExalumnosIsDark(next === 'dark')
+    }
+    window.addEventListener('exalumnos-theme-change', handlerExalumnos)
+    return () => window.removeEventListener('exalumnos-theme-change', handlerExalumnos)
+  }, [])
+
+  useEffect(() => {
+    // Sincronizar tema student
+    const savedStudent = localStorage.getItem('student-theme')
+    if (savedStudent === 'dark') setStudentIsDark(true)
+    else setStudentIsDark(false)
+
+    const handlerStudent = (e: Event) => {
+      const next = (e as CustomEvent<'dark' | 'light'>).detail
+      setStudentIsDark(next === 'dark')
+    }
+    window.addEventListener('student-theme-change', handlerStudent)
+    return () => window.removeEventListener('student-theme-change', handlerStudent)
+  }, [])
+
+  const handleAdminThemeToggle = () => {
+    const next = adminIsDark ? 'light' : 'dark'
+    localStorage.setItem('admin-theme', next)
+    setAdminIsDark(!adminIsDark)
+    window.dispatchEvent(new CustomEvent('admin-theme-change', { detail: next }))
+  }
+
+  const handleExalumnosThemeToggle = () => {
+    const next = exalumnosIsDark ? 'light' : 'dark'
+    localStorage.setItem('exalumnos-theme', next)
+    setExalumnosIsDark(!exalumnosIsDark)
+    window.dispatchEvent(new CustomEvent('exalumnos-theme-change', { detail: next }))
+  }
+
+  const handleStudentThemeToggle = () => {
+    const next = studentIsDark ? 'light' : 'dark'
+    localStorage.setItem('student-theme', next)
+    setStudentIsDark(!studentIsDark)
+    window.dispatchEvent(new CustomEvent('student-theme-change', { detail: next }))
+  }
 
   // Cerrar menú móvil al cambiar de ruta
   useEffect(() => {
@@ -83,7 +150,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
   // Lógica de contexto: Admin, Estudiantes, Exalumnos
   const isAdmin = pathname?.startsWith('/admin') || user?.user_metadata?.rol === 'admin'
   const isStudentUser = user?.user_metadata?.rol === 'estudiante' || profile?.es_exalumno === false || user?.email?.endsWith('@ucr.ac.cr')
-  const isStudent = pathname?.startsWith('/student-dashboard') || pathname?.includes('/directorio/estudiantes') || (isStudentUser && user?.user_metadata?.rol !== 'exalumno')
+  const isStudent = pathname?.startsWith('/student-dashboard') || (isStudentUser && user?.user_metadata?.rol !== 'exalumno')
 
   // Dashboard de inicio según rol
   const dashboardHref = isAdmin ? '/admin' : isStudent ? '/student-dashboard' : '/dashboard'
@@ -92,9 +159,9 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
   let config = {
     bgClass: 'bg-[#F34B26] text-white shadow-md border-b border-white/10',
     linkHoverClass: 'hover:bg-white/10 hover:text-white',
-    linkActiveClass: 'bg-white/20 text-white font-semibold',
+    linkActiveClass: 'bg-[#54BCEB] text-white font-semibold shadow-sm',
     drawerBg: 'bg-[#F34B26]',
-    drawerItemActive: 'bg-white/20 text-white',
+    drawerItemActive: 'bg-[#54BCEB] text-white',
     drawerItemHover: 'hover:bg-white/10',
     logoFilter: 'brightness(0) invert(1)',
     badgeClass: 'bg-white text-[#F34B26]',
@@ -103,6 +170,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
       { name: 'Inicio', href: dashboardHref },
       { name: 'Directorios', href: '/directorio' },
       { name: 'Mentorías', href: '/mentorships' },
+      { name: 'Matches', href: '/mis-matches' },
       { name: 'Eventos', href: '/events' },
       { name: 'Empleos', href: '/jobs' }
     ]
@@ -120,7 +188,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
       badgeClass: 'bg-[#54BCEB] text-[#001324]',
       userCircleBg: 'bg-white/20 text-white',
       menuItems: [
-        { name: 'Inicio', href: dashboardHref },
+        { name: 'Inicio', href: '/admin/dashboard' },
         { name: 'Reportes', href: '/admin/reportes' },
         { name: 'Usuarios', href: '/admin/usuarios' },
         { name: 'Matches', href: '/admin/matches' },
@@ -141,11 +209,28 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
       userCircleBg: 'bg-[#004C63]/10 text-slate-800',
       menuItems: [
         { name: 'Inicio', href: dashboardHref },
-        { name: 'Directorios', href: '/directorio' },
+        { name: 'Directorios', href: '/network' },
         { name: 'Mentorías', href: '/mentorships' },
+        { name: 'Matches', href: '/mis-matches' },
         { name: 'Eventos', href: '/events' },
         { name: 'Empleos', href: '/jobs' }
       ]
+    }
+  }
+
+  // Si estamos en la sección del directorio (que es para exalumnos), forzar el estilo naranja (Exalumno)
+  if (!isAdmin && pathname?.startsWith('/directorio')) {
+    config = {
+      ...config,
+      bgClass: 'bg-[#F34B26] text-white shadow-md border-b border-white/10',
+      linkHoverClass: 'hover:bg-white/10 hover:text-white',
+      linkActiveClass: 'bg-[#54BCEB] text-white font-semibold shadow-sm',
+      drawerBg: 'bg-[#F34B26]',
+      drawerItemActive: 'bg-[#54BCEB] text-white',
+      drawerItemHover: 'hover:bg-white/10',
+      logoFilter: 'brightness(0) invert(1)',
+      badgeClass: 'bg-white text-[#F34B26]',
+      userCircleBg: 'bg-white/20 text-white',
     }
   }
 
@@ -162,9 +247,8 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
               alt="Logo UCR"
               width={180}
               height={64}
-              style={{ objectFit: 'contain', height: '100px', width: 'auto', filter: config.logoFilter }}
-              className="transition-all duration-300"
-              priority
+              style={{ objectFit: 'contain', filter: config.logoFilter }}
+              className="h-12 w-auto transition-all duration-300"
             />
           </Link>
         </div>
@@ -172,7 +256,10 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
         {/* Navegación desktop */}
         <nav className="hidden lg:flex items-center gap-2">
           {config.menuItems.map((item, idx) => {
-            const isActive = pathname === item.href || pathname?.startsWith(item.href + '/')
+            const isExactOnly = item.name === 'Inicio'
+            const isActive = isExactOnly
+              ? pathname === item.href
+              : pathname === item.href || pathname?.startsWith(item.href + '/')
             return (
               <Link
                 key={idx}
@@ -189,6 +276,20 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
 
         {/* Derecha: Notificaciones + Perfil (desktop) + Hamburguesa (mobile) */}
         <div className="flex items-center gap-2">
+
+          {/* Toggle Día/Noche */}
+          <button
+            onClick={isAdmin ? handleAdminThemeToggle : isStudent ? handleStudentThemeToggle : handleExalumnosThemeToggle}
+            className="p-2 rounded-xl hover:bg-white/10 transition-colors relative group"
+            aria-label={(isAdmin ? adminIsDark : isStudent ? studentIsDark : exalumnosIsDark) ? 'Cambiar a modo día' : 'Cambiar a modo noche'}
+            title={(isAdmin ? adminIsDark : isStudent ? studentIsDark : exalumnosIsDark) ? 'Modo Día' : 'Modo Noche'}
+          >
+            {(isAdmin ? adminIsDark : isStudent ? studentIsDark : exalumnosIsDark) ? (
+              <Sun className="w-5 h-5 text-amber-300 group-hover:text-amber-200 transition-colors" />
+            ) : (
+              <Moon className="w-5 h-5 text-blue-200 group-hover:text-blue-100 transition-colors" />
+            )}
+          </button>
 
           {/* Notificaciones */}
           <div className="relative">
@@ -268,7 +369,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
                 </Link>
                 <Link href="/mis-posiciones" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-600 hover:bg-slate-50 hover:text-brand-blue transition-colors">
                   <Briefcase className="w-4 h-4 text-slate-400" />
-                  <span>Mis Posiciones</span>
+                  <span>{isStudent ? 'Mis Postulaciones' : 'Mis Posiciones'}</span>
                 </Link>
                 {!isAdmin && (
                   <Link href="/historial" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-600 hover:bg-slate-50 hover:text-brand-blue transition-colors">

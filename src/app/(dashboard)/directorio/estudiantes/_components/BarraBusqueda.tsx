@@ -15,7 +15,7 @@ export default function BarraBusqueda({ valor, onChange }: BarraBusquedaProps) {
       </div>
       <input
         type="text"
-        className="block w-full p-2.5 pl-10 pr-4 text-sm text-slate-900 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-esmeralda/30 focus:border-esmeralda focus:outline-none shadow-sm transition-all duration-200 placeholder:text-slate-400"
+        className="block w-full p-2.5 pl-10 pr-4 bg-white/95 border border-orange-200/50 rounded-xl text-sm text-[#003B4F] focus:outline-none focus:border-white focus:ring-2 focus:ring-white/20 transition-all placeholder:text-slate-400 shadow-sm"
         placeholder="Buscar por nombre..."
         value={valor}
         onChange={(e) => onChange(e.target.value)}

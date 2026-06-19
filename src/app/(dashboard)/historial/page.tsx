@@ -5,7 +5,8 @@ import Link from 'next/link'
 import { CheckCircle2, Clock, XCircle, Heart, FileText, ChevronDown, ChevronUp } from 'lucide-react'
 import Card from '@/components/ui/card'
 import Button from '@/components/ui/button'
-import { obtenerMisDonaciones } from '@/actions/donations'
+import { obtenerMisDonaciones, obtenerMisDonacionesRecibidas } from '@/actions/donations'
+import { useProfile } from '@/contexts/ProfileContext'
 
 type EstadoDonacion = 'pendiente' | 'confirmada' | 'rechazada'
 
@@ -21,6 +22,7 @@ interface Donacion {
   estado: EstadoDonacion
   motivo_rechazo?: string
   created_at: string
+  donor_name?: string
 }
 
 // Removemos mapFondoIdToName ya que viene pre-formateado del Server Action
@@ -50,7 +52,7 @@ function EstadoBadge({ estado }: { estado: EstadoDonacion }) {
   )
 }
 
-function DonacionCard({ d }: { d: Donacion }) {
+function DonacionCard({ d, isStudent }: { d: Donacion, isStudent?: boolean }) {
   const [open, setOpen] = useState(false)
   const metodoLabel = d.metodo === 'sinpe' ? '📱 SINPE Móvil' : '🏦 Transferencia Bancaria'
 
@@ -66,7 +68,9 @@ function DonacionCard({ d }: { d: Donacion }) {
             <Heart className="w-5 h-5" />
           </div>
           <div className="space-y-0.5">
-            <p className="text-sm font-bold text-slate-900 uppercase tracking-wide leading-tight">{d.fondo}</p>
+            <p className="text-sm font-bold text-slate-900 uppercase tracking-wide leading-tight">
+              {isStudent ? (d.donor_name || 'Donante Anónimo') : d.fondo}
+            </p>
             <p className="text-xs text-slate-500 font-medium">{formatDate(d.created_at)}</p>
           </div>
         </div>
@@ -110,11 +114,13 @@ function DonacionCard({ d }: { d: Donacion }) {
             <div className="bg-rose-50 border border-rose-200 rounded-xl p-3 space-y-1">
               <p className="text-[10px] font-bold text-rose-700 uppercase tracking-wider">Motivo de rechazo</p>
               <p className="text-xs text-rose-700 font-medium">{d.motivo_rechazo}</p>
-              <Link href="/donations">
-                <Button variant="primary" className="mt-2 bg-rose-600 hover:bg-rose-700 text-xs font-bold uppercase tracking-wider px-4 py-2">
-                  Reintentar donación →
-                </Button>
-              </Link>
+              {!isStudent && (
+                <Link href="/donations">
+                  <Button variant="primary" className="mt-2 bg-rose-600 hover:bg-rose-700 text-xs font-bold uppercase tracking-wider px-4 py-2">
+                    Reintentar donación →
+                  </Button>
+                </Link>
+              )}
             </div>
           )}
 
@@ -122,7 +128,11 @@ function DonacionCard({ d }: { d: Donacion }) {
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-start gap-2">
               <Clock className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
               <p className="text-xs text-amber-700 font-medium">
-                Tu donación está siendo revisada. El equipo la confirmará en un máximo de <strong>48 horas hábiles</strong>.
+                {isStudent ? (
+                  <>Esta donación está siendo revisada y confirmada por el equipo administrativo.</>
+                ) : (
+                  <>Tu donación está siendo revisada. El equipo la confirmará en un máximo de <strong>48 horas hábiles</strong>.</>
+                )}
               </p>
             </div>
           )}
@@ -133,13 +143,19 @@ function DonacionCard({ d }: { d: Donacion }) {
 }
 
 export default function HistorialPage() {
+  const { user, isLoading: isProfileLoading } = useProfile()
+  const isStudent = user?.user_metadata?.rol === 'estudiante'
+
   const [donaciones, setDonaciones] = useState<Donacion[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
+    if (isProfileLoading) return;
+
     const fetchDonaciones = async () => {
       try {
-        const { data, success } = await obtenerMisDonaciones()
+        const action = isStudent ? obtenerMisDonacionesRecibidas : obtenerMisDonaciones
+        const { data, success } = await action()
 
         if (success && data) {
           const mapped: Donacion[] = data.map((d: any) => ({
@@ -153,7 +169,8 @@ export default function HistorialPage() {
             mensaje: d.mensaje_estudiante,
             estado: d.estado || 'pendiente',
             motivo_rechazo: d.motivo_rechazo,
-            created_at: d.created_at
+            created_at: d.created_at,
+            donor_name: d.donor_name
           }))
           setDonaciones(mapped)
         }
@@ -163,7 +180,7 @@ export default function HistorialPage() {
       setIsLoading(false)
     }
     fetchDonaciones()
-  }, [])
+  }, [isProfileLoading, isStudent])
 
   return (
     <div className="py-8 px-6 lg:px-10">
@@ -179,7 +196,9 @@ export default function HistorialPage() {
         <div className="space-y-4">
           <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
             <Heart className="w-5 h-5 text-rose-500" />
-            <h2 className="text-xl font-bold text-slate-800 uppercase tracking-wide">Donaciones Realizadas</h2>
+            <h2 className="text-xl font-bold text-slate-800 uppercase tracking-wide">
+              {isStudent ? 'Donaciones Recibidas' : 'Donaciones Realizadas'}
+            </h2>
           </div>
 
           <div className="space-y-3">
@@ -194,11 +213,13 @@ export default function HistorialPage() {
                 </p>
               </div>
             ) : donaciones.length > 0 ? (
-              donaciones.map(d => <DonacionCard key={d.id} d={d} />)
+              donaciones.map(d => <DonacionCard key={d.id} d={d} isStudent={isStudent} />)
             ) : (
               <div className="text-center py-12 bg-white border border-slate-200 rounded-2xl">
                 <FileText className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-                <p className="text-sm font-bold text-slate-500 uppercase tracking-wide">No has realizado ninguna donación aún</p>
+                <p className="text-sm font-bold text-slate-500 uppercase tracking-wide">
+                  {isStudent ? 'Aún no has recibido ninguna donación' : 'No has realizado ninguna donación aún'}
+                </p>
               </div>
             )}
           </div>
