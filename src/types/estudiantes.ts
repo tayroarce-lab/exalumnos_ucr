@@ -14,6 +14,10 @@ export interface EstudianteDirectorio {
   proyecto_area_tematica?: string | null;
   proyecto_tipo?: string | null;
   proyecto_porcentaje_avance?: number | null;
+  proyecto_valor_monto?: number | null;
+  proyecto_valor_moneda?: string | null;
+  proyecto_video_url?: string | null;
+  proyecto_documento_url?: string | null;
   // Currículum
   sobre_mi?: string | null;
   url_linkedin?: string | null;
