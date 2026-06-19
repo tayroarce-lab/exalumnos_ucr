@@ -5,7 +5,8 @@ import { requestConnection, respondToConnection } from '@/actions/matches';
 import Card from '@/components/ui/card';
 import Button from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
-import { Heart, Users, Briefcase, GraduationCap } from 'lucide-react';
+import { Heart, Users, Briefcase, GraduationCap, User } from 'lucide-react';
+import Link from 'next/link';
 
 // Tipos básicos basados en la consulta de getMyMatches
 type UserMatchInfo = {
@@ -173,10 +174,19 @@ export function MatchesList({ initialMatches, currentUserId, currentUserRole }: 
               )}
 
               {isActivo && (
-                <div className="bg-green-50 border border-green-200 text-green-800 rounded p-3 text-center text-sm">
-                  <p className="font-medium">¡Conexión Activa!</p>
-                  <p className="text-xs mt-1">Revisa tu correo para ver los datos de contacto.</p>
-                </div>
+                <>
+                  <div className="bg-green-50 border border-green-200 text-green-800 rounded p-3 text-center text-sm mb-2">
+                    <p className="font-medium">¡Conexión Activa!</p>
+                    <p className="text-xs mt-1">Revisa tu correo para ver los datos de contacto.</p>
+                  </div>
+                  <Link
+                    href={`/network/${isEstudiante ? match.exalumno_id : match.estudiante_id}`}
+                    className="w-full flex items-center justify-center gap-2 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-emerald-600 text-sm font-medium hover:bg-emerald-500/20 active:scale-[0.98] transition-all duration-150"
+                  >
+                    <User className="w-4 h-4" />
+                    Ver información
+                  </Link>
+                </>
               )}
             </div>
           </Card>

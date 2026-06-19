@@ -10,7 +10,8 @@ import {
   ArrowLeft, ChevronLeft, ChevronRight, CheckCircle2, Save,
   AlertCircle, Plus, Trash2, GripVertical
 } from 'lucide-react'
-import { crearPosicion, type CrearPosicionInput } from '@/actions/positions'
+import { crearPosicion } from '@/actions/positions'
+import type { CrearPosicionInput } from '@/actions/positions'
 import type { PosicionFormValues } from '@/lib/validations/posiciones'
 import { useProfile } from '@/contexts/ProfileContext'
 import { createClient } from '@/lib/supabase/client'
@@ -217,14 +218,6 @@ export default function PublishJobPage() {
 
     const mappedData: CrearPosicionInput = {
       titulo: formData.titulo,
-      empresa: formData.empresa,
-      lugar: formData.lugar,
-      sector: formData.sector,
-      fecha_limite: formData.fecha_limite ?? undefined,
-      habilidades_requeridas: formData.habilidades_requeridas,
-      descripcion_general: formData.descripcion_general,
-      responsabilidades: formData.responsabilidades,
-      contexto_equipo: formData.contexto_equipo || undefined,
       tipo: (formData.tipo === 'Empleo' ? 'empleo' : 'pasantia') as 'empleo' | 'pasantia',
       modalidad: (formData.modalidad === 'Híbrido'
         ? 'hibrido'
@@ -236,6 +229,14 @@ export default function PublishJobPage() {
         : formData.jornada === 'Medio tiempo'
         ? 'medio_tiempo'
         : 'por_proyecto') as 'tiempo_completo' | 'medio_tiempo' | 'por_proyecto',
+      lugar: formData.lugar,
+      empresa: formData.empresa,
+      sector: formData.sector,
+      fecha_limite: formData.fecha_limite,
+      habilidades_requeridas: formData.habilidades_requeridas,
+      descripcion_general: formData.descripcion_general,
+      responsabilidades: formData.responsabilidades,
+      contexto_equipo: formData.contexto_equipo || undefined,
     }
 
     try {
@@ -264,7 +265,7 @@ export default function PublishJobPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-100 to-white py-8 px-6 lg:px-10 relative overflow-hidden">
+    <div className="bg-transparent min-h-screen py-8 px-6 lg:px-10 relative overflow-hidden transition-colors duration-300">
       <div className="absolute right-0 top-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl -z-10" />
       <div className="absolute left-10 bottom-10 w-72 h-72 bg-sky-400/10 rounded-full blur-2xl -z-10" />
 

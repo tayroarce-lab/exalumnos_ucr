@@ -11,9 +11,11 @@ import Modal from '@/components/ui/modal'
 import Button from '@/components/ui/button'
 
 type Aplicacion = Awaited<ReturnType<typeof getPositionApplications>>[number]
+type EstadoAplicacion = 'enviada' | 'en_revision' | 'seleccionado' | 'descartado'
+type EstadoTransicion = Exclude<EstadoAplicacion, 'enviada'>
 
 const ESTADOS: Array<{
-  valor: 'enviada' | 'en_revision' | 'seleccionado' | 'descartado'
+  valor: EstadoAplicacion
   label: string
   bg: string
   text: string
@@ -31,7 +33,7 @@ function getEstadoConf(estado: string) {
 
 function TarjetaAplicante({ aplicacion, onCambiarEstado }: {
   aplicacion: Aplicacion
-  onCambiarEstado: (id: string, estado: 'enviada' | 'en_revision' | 'seleccionado' | 'descartado') => void
+  onCambiarEstado: (id: string, estado: EstadoTransicion) => void
 }) {
   const [menuAbierto, setMenuAbierto] = useState(false)
 
@@ -42,7 +44,7 @@ function TarjetaAplicante({ aplicacion, onCambiarEstado }: {
   const nombre = estudiante ? estudiante.nombre : 'Estudiante'
   const initials = nombre.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase()
 
-  const handleCambio = (nuevoEstado: typeof ESTADOS[number]['valor']) => {
+  const handleCambio = (nuevoEstado: EstadoTransicion) => {
     setMenuAbierto(false)
     onCambiarEstado(aplicacion.id, nuevoEstado)
   }
@@ -128,7 +130,7 @@ function TarjetaAplicante({ aplicacion, onCambiarEstado }: {
 
             {menuAbierto && (
               <div className="absolute right-0 top-full mt-1 w-44 bg-white border border-slate-200 rounded-xl shadow-lg py-1 z-20">
-                {ESTADOS.map(est => (
+                {ESTADOS.filter((est): est is typeof est & { valor: EstadoTransicion } => est.valor !== 'enviada').map(est => (
                   <button
                     key={est.valor}
                     type="button"
@@ -152,11 +154,11 @@ function TarjetaAplicante({ aplicacion, onCambiarEstado }: {
 }
 
 interface AplicantesPageProps {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 export default function AplicantesPage({ params }: AplicantesPageProps) {
-  const { id } = params
+  const { id } = React.use(params)
   const [posicion, setPosicion] = useState<any>(null)
   const [aplicantes, setAplicantes] = useState<Aplicacion[]>([])
   const [cargando, setCargando] = useState(true)
@@ -185,7 +187,7 @@ export default function AplicantesPage({ params }: AplicantesPageProps) {
 
   useEffect(() => { cargar() }, [cargar])
 
-  const handleIntentarCambiarEstado = (aplicacionId: string, nuevoEstado: 'enviada' | 'en_revision' | 'seleccionado' | 'descartado') => {
+  const handleIntentarCambiarEstado = (aplicacionId: string, nuevoEstado: EstadoTransicion) => {
     if (nuevoEstado === 'seleccionado') {
       setModalSeleccion({ id: aplicacionId, open: true })
     } else {
@@ -193,7 +195,7 @@ export default function AplicantesPage({ params }: AplicantesPageProps) {
     }
   }
 
-  const ejecutarCambioEstado = async (aplicacionId: string, nuevoEstado: 'enviada' | 'en_revision' | 'seleccionado' | 'descartado', cerrar: boolean) => {
+  const ejecutarCambioEstado = async (aplicacionId: string, nuevoEstado: EstadoTransicion, cerrar: boolean) => {
     setActualizando(true)
     const result = await updateApplicationStatus({
       application_id: aplicacionId,

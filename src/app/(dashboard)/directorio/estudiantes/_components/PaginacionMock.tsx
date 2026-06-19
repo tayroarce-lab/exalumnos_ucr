@@ -30,11 +30,11 @@ export default function PaginacionMock({ paginaActual, totalPaginas, onChange }:
   };
 
   return (
-    <div className="flex items-center justify-center gap-1.5 mt-8">
+    <div className="flex items-center justify-center gap-1.5 mt-8 pb-8">
       <button
         onClick={() => onChange(paginaActual - 1)}
         disabled={paginaActual === 1}
-        className="px-3.5 py-2 text-sm font-medium rounded-xl border border-slate-200 text-slate-600 bg-white hover:bg-slate-50 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200"
+        className="px-3.5 py-2 text-sm font-medium rounded-xl border border-white/10 text-white bg-white/10 hover:bg-white/20 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200"
       >
         ← Anterior
       </button>
@@ -46,7 +46,7 @@ export default function PaginacionMock({ paginaActual, totalPaginas, onChange }:
           className={`w-10 h-10 text-sm font-semibold rounded-xl border transition-all duration-200 ${
             pagina === paginaActual
               ? "border-[#003B4F] bg-[#003B4F] text-white shadow-sm shadow-[#003B4F]/25"
-              : "border-slate-200 text-slate-600 bg-white hover:bg-slate-50 hover:border-slate-300"
+              : "border-white/10 text-white bg-white/10 hover:bg-white/20"
           }`}
         >
           {pagina}
@@ -56,7 +56,7 @@ export default function PaginacionMock({ paginaActual, totalPaginas, onChange }:
       <button
         onClick={() => onChange(paginaActual + 1)}
         disabled={paginaActual === totalPaginas}
-        className="px-3.5 py-2 text-sm font-medium rounded-xl border border-slate-200 text-slate-600 bg-white hover:bg-slate-50 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200"
+        className="px-3.5 py-2 text-sm font-medium rounded-xl border border-white/10 text-white bg-white/10 hover:bg-white/20 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200"
       >
         Siguiente →
       </button>

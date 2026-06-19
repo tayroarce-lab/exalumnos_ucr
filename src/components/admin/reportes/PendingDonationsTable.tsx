@@ -70,7 +70,7 @@ export const PendingDonationsTable: React.FC = () => {
                   <span style={{ fontWeight: 500 }}>{donation.donorName}</span>
                 </div>
               </td>
-              <td><span style={{ fontWeight: 600, color: '#0A2540' }}>{donation.amount}</span></td>
+              <td><span style={{ fontWeight: 600, color: 'var(--admin-text-primary)' }}>{donation.amount}</span></td>
               <td>{donation.date}</td>
               <td>
                 <span className={`admin-table-pill ${donation.status === 'pendiente' ? 'orange' : 'teal'}`}>
@@ -82,7 +82,7 @@ export const PendingDonationsTable: React.FC = () => {
                   href={donation.receiptUrl} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  style={{ color: '#3b82f6', textDecoration: 'none', fontWeight: 500 }}
+                  style={{ color: 'var(--admin-accent-celeste)', textDecoration: 'none', fontWeight: 500 }}
                 >
                   Ver PDF
                 </a>
