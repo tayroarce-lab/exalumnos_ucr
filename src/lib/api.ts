@@ -82,9 +82,9 @@ export async function getEstudiantes(
     // Ordenar de mayor a menor compatibilidad
     estudiantes.sort((a, b) => (b.match_score || 0) - (a.match_score || 0));
   } else {
-    // Si no hay perfil, simular match score aleatorio para la UI
+    // Si no hay perfil, dejar match score en 0
     estudiantes.forEach(e => {
-      e.match_score = e.nombre.length % 2 === 0 ? 85 : 68;
+      e.match_score = 0;
     });
   }
 

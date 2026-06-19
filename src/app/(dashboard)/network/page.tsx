@@ -435,20 +435,14 @@ export default function NetworkPage() {
         
         const init = nombreStr.substring(0, 2).toUpperCase()
         
-        // Simular un match si no viene o es 0
-        const matchCalculado = p.score_match || (nombreStr.length % 2 === 0 ? 85 : 68)
-        
         return {
           ...p,
           nombre: p.nombre || 'Exalumno',
           initials: init,
           avatarBg: 'bg-[#54BCEB]',
-          score_match: matchCalculado
+          score_match: p.score_match
         }
       })
-
-      // Ordenar por match de mayor a menor
-      mapped.sort((a, b) => (b.score_match || 0) - (a.score_match || 0))
 
       setExalumnos(mapped)
       setTotalItems(total)

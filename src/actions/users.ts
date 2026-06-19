@@ -14,11 +14,43 @@ export async function obtenerMiPerfil() {
 
   const { data: perfil, error: dbError } = await supabase
     .from('users')
-    .select('*').is('deleted_at', null)
+    .select(`
+      *,
+      estudiantes (*),
+      exalumnos (*),
+      curriculums (*),
+      carrera_principal:carrera_campus!users_carrera_principal_id_fkey(
+        carreras(nombre)
+      ),
+      users_areas_interes(
+        catalogo_areas_interes(nombre)
+      )
+    `)
+    .is('deleted_at', null)
     .eq('id', user.id)
     .maybeSingle()
 
   if (dbError) throw new Error(dbError.message)
+
+  if (perfil) {
+    const est = Array.isArray(perfil.estudiantes) ? perfil.estudiantes[0] : perfil.estudiantes;
+    const exa = Array.isArray(perfil.exalumnos) ? perfil.exalumnos[0] : perfil.exalumnos;
+    const curr = Array.isArray(perfil.curriculums) ? perfil.curriculums[0] : perfil.curriculums;
+    
+    // Mapear áreas de interés desde la tabla relacional V2 si existe, de lo contrario fallback
+    const mappedAreas = perfil.users_areas_interes 
+      ? perfil.users_areas_interes.map((ua: any) => ua.catalogo_areas_interes?.nombre).filter(Boolean)
+      : [];
+
+    return {
+      ...perfil,
+      ...(est || {}),
+      ...(exa || {}),
+      ...(curr || {}),
+      carrera: perfil.carrera_principal?.carreras?.nombre || est?.carrera || exa?.carrera_ucr || null,
+      areas_de_interes: mappedAreas.length > 0 ? mappedAreas : (est?.areas_de_interes || exa?.areas_de_interes || perfil.areas_de_interes || []),
+    }
+  }
 
   return perfil
 }
