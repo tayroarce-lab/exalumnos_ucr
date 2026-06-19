@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { X, Heart, Users, Briefcase, GraduationCap } from 'lucide-react';
+import { X, Heart, Users, Briefcase, GraduationCap, Lock } from 'lucide-react';
 
 // ============================================================
 // Tipos de apoyo disponibles en el modal
@@ -92,10 +92,6 @@ export default function ModalOfrecerApoyo({
     },
   ];
 
-  // Filtrar solo las opciones disponibles; si no hay ninguna, mostrar todas
-  const opcionesVisibles = OPCIONES.filter(o => o.disponible);
-  const opcionesRender = opcionesVisibles.length > 0 ? opcionesVisibles : OPCIONES;
-
   const handleSeleccion = (tipoId: string) => {
     onClose();
 
@@ -154,29 +150,59 @@ export default function ModalOfrecerApoyo({
             Selecciona cómo deseas apoyar
           </p>
 
-          {opcionesRender.map((opcion) => (
-            <button
-              key={opcion.id}
-              type="button"
-              onClick={() => handleSeleccion(opcion.id)}
-              className={`w-full text-left flex items-start gap-4 p-4 rounded-2xl border-2 transition-all duration-200 group ${opcion.borderColor} bg-white hover:shadow-md active:scale-[0.98]`}
-            >
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${opcion.bgColor} ${opcion.color} group-hover:scale-110 transition-transform duration-200`}>
-                {opcion.icono}
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className={`font-bold text-sm text-slate-800 leading-tight`}>
-                  {opcion.titulo}
-                </h3>
-                <p className="text-xs text-slate-500 font-medium mt-0.5 leading-relaxed">
-                  {opcion.descripcion}
-                </p>
-              </div>
-              <svg className="w-4 h-4 text-slate-300 flex-shrink-0 mt-1 group-hover:text-slate-500 transition-colors" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="m9 18 6-6-6-6" />
-              </svg>
-            </button>
-          ))}
+          {OPCIONES.map((opcion) => {
+            const isDisabled = !opcion.disponible;
+
+            return (
+              <button
+                key={opcion.id}
+                type="button"
+                disabled={isDisabled}
+                onClick={() => !isDisabled && handleSeleccion(opcion.id)}
+                className={`w-full text-left flex items-start gap-4 p-4 rounded-2xl border-2 transition-all duration-200 ${
+                  isDisabled
+                    ? 'cursor-not-allowed bg-slate-50 border-slate-200 opacity-60'
+                    : `group ${opcion.borderColor} bg-white hover:shadow-md active:scale-[0.98]`
+                }`}
+              >
+                <div
+                  className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform duration-200 ${
+                    isDisabled
+                      ? 'bg-slate-100 text-slate-400'
+                      : `${opcion.bgColor} ${opcion.color} group-hover:scale-110`
+                  }`}
+                >
+                  {opcion.icono}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className={`font-bold text-sm leading-tight ${isDisabled ? 'text-slate-500' : 'text-slate-800'}`}>
+                    {opcion.titulo}
+                  </h3>
+                  <p className="text-xs text-slate-500 font-medium mt-0.5 leading-relaxed">
+                    {opcion.descripcion}
+                  </p>
+                  {isDisabled && (
+                    <span className="inline-block mt-1 text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded">
+                      No solicitado actualmente
+                    </span>
+                  )}
+                </div>
+                {isDisabled ? (
+                  <Lock className="w-4 h-4 text-slate-400 flex-shrink-0 mt-1" />
+                ) : (
+                  <svg
+                    className="w-4 h-4 text-slate-300 flex-shrink-0 mt-1 group-hover:text-slate-500 transition-colors"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="m9 18 6-6-6-6" />
+                  </svg>
+                )}
+              </button>
+            );
+          })}
         </div>
 
         {/* Footer */}
