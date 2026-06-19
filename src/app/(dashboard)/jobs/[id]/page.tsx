@@ -10,6 +10,7 @@ import { checkApplicationStatus } from '@/actions/applications'
 import { createClient } from '@/lib/supabase/client'
 import ApplyModal from '@/components/applications/ApplyModal'
 import { getAvatarUrl } from '@/lib/utils'
+import { useProfile } from '@/contexts/ProfileContext'
 
 interface JobDetailPageProps {
   params: Promise<{ id: string }>
@@ -17,12 +18,16 @@ interface JobDetailPageProps {
 
 export default function JobDetailPage({ params }: JobDetailPageProps) {
   const { id } = React.use(params)
+  const { user } = useProfile()
 
   const [job, setJob] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isApplied, setIsApplied] = useState(false)
   const [hasCV, setHasCV] = useState<boolean | null>(null)
+
+  const isStudent = user?.user_metadata?.rol === 'estudiante'
+  const isExalumno = user?.user_metadata?.rol === 'exalumno'
   const [showNoCVNotice, setShowNoCVNotice] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
@@ -204,6 +209,11 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
                 <div className="bg-slate-50 text-slate-500 p-4 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 border border-slate-200">
                   <AlertCircle className="w-5 h-5 text-slate-400" />
                   <span>Esta vacante ya no está activa</span>
+                </div>
+              ) : isExalumno ? (
+                <div className="bg-slate-50 text-slate-500 p-4 rounded-xl text-xs font-semibold flex flex-col items-center justify-center gap-2 border border-slate-200">
+                  <AlertCircle className="w-5 h-5 text-slate-400" />
+                  <span className="text-center">Las aplicaciones a empleos son exclusivas para estudiantes.</span>
                 </div>
               ) : (
                 <>
