@@ -37,10 +37,17 @@ function aplanarEstudiante(registroBD: any): EstudianteDirectorio {
     proyecto_area_tematica:     est?.proyecto_area_tematica || null,
     proyecto_tipo:              est?.proyecto_tipo || null,
     proyecto_porcentaje_avance: est?.proyecto_porcentaje_avance || null,
+    proyecto_valor_monto:       est?.proyecto_valor_monto || null,
+    proyecto_valor_moneda:      est?.proyecto_valor_moneda || null,
+    proyecto_video_url:         est?.proyecto_video_url || null,
+    proyecto_documento_url:     est?.proyecto_documento_url || null,
+    proyecto_activo:            est?.proyecto_activo || null,
+    proyecto_necesidades:       est?.proyecto_necesidades || [],
     // Currículum
     sobre_mi:                   curr?.sobre_mi || null,
     url_linkedin:               curr?.url_linkedin || null,
     url_portfolio:              curr?.url_portfolio || null,
+    habilidades:                extraerHabilidades(curr),
     habilidades_tecnicas:       extraerHabilidades(curr),
     habilidades_blandas:        Array.isArray(curr?.habilidades_blandas) ? curr.habilidades_blandas : [],
     // Búsquedas de apoyo (vienen directo de users)
@@ -82,9 +89,9 @@ export async function getEstudiantes(
     // Ordenar de mayor a menor compatibilidad
     estudiantes.sort((a, b) => (b.match_score || 0) - (a.match_score || 0));
   } else {
-    // Si no hay perfil, simular match score aleatorio para la UI
+    // Si no hay perfil, dejar match score en 0
     estudiantes.forEach(e => {
-      e.match_score = e.nombre.length % 2 === 0 ? 85 : 68;
+      e.match_score = 0;
     });
   }
 

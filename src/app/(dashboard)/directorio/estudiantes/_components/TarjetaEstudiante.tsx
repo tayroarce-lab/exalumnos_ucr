@@ -8,8 +8,8 @@ import { MapPin } from "lucide-react";
 export default function TarjetaEstudiante({ estudiante }: { estudiante: EstudianteDirectorio }) {
   const [modalAbierto, setModalAbierto] = useState(false);
 
-  // Usar el match calculado real, o el fallback si por alguna razón no viene (ej. SSR inicial)
-  const avance = estudiante.match_score ?? (estudiante.nombre.length % 2 === 0 ? 85 : 68);
+  const matchScore = estudiante.match_score ?? 0;
+  const avanceProyecto = estudiante.proyecto_porcentaje_avance ?? 0;
 
   // Título de proyecto simulado dinámicamente con el primer nombre si no existe
   const primerNombre = estudiante.nombre.split(' ')[0].toUpperCase();
@@ -56,10 +56,12 @@ export default function TarjetaEstudiante({ estudiante }: { estudiante: Estudian
               </div>
               
               {/* Badge de Match */}
-              <span className="bg-[#003B4F] text-white text-[13px] font-black px-3 py-2 rounded-full shadow-sm flex flex-col items-center justify-center min-w-[55px] shrink-0">
-                <span>{avance}%</span>
-                <span className="text-[8px] font-extrabold uppercase tracking-widest opacity-90 leading-none mt-0.5">Match</span>
-              </span>
+              {matchScore > 0 && (
+                <span className="bg-[#003B4F] text-white text-[13px] font-black px-3 py-2 rounded-full shadow-sm flex flex-col items-center justify-center min-w-[55px] shrink-0">
+                  <span>{matchScore}%</span>
+                  <span className="text-[8px] font-extrabold uppercase tracking-widest opacity-90 leading-none mt-0.5">Match</span>
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -76,12 +78,12 @@ export default function TarjetaEstudiante({ estudiante }: { estudiante: Estudian
           <div className="mt-3">
             <div className="flex justify-between items-center mb-1">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Progreso del Proyecto</span>
-              <span className="text-[11px] font-extrabold text-[#003B4F]">{avance}%</span>
+              <span className="text-[11px] font-extrabold text-[#003B4F]">{avanceProyecto}%</span>
             </div>
             <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden relative">
               <style>{`
                 #progress-${estudiante.user_id} {
-                  width: ${avance}%;
+                  width: ${avanceProyecto}%;
                 }
               `}</style>
               <div 
