@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { MatchAdminView, MatchFilters } from '@/types/matches';
 import { sendMatchStatusUpdateEmail } from '@/services/email-service';
+import { logError } from '@/lib/logger';
 
 export async function getMatches(filters?: MatchFilters): Promise<{ data: MatchAdminView[] | null; error: string | null }> {
   const supabase = await createClient();
@@ -17,7 +18,7 @@ export async function getMatches(filters?: MatchFilters): Promise<{ data: MatchA
   const { data: userProfile } = await adminClient.from('users').select('rol').eq('id', authData.user.id).single();
 
   if (userProfile?.rol !== 'admin') {
-    console.error('Acceso denegado a getMatches para usuario:', authData.user.email);
+    logError('matches.ts/getMatches', new Error('Acceso denegado'), { userId: authData.user.id, userEmail: authData.user.email });
     return { data: [], error: null }; // Retorna vacío si no es admin
   }
 
@@ -58,8 +59,8 @@ export async function getMatches(filters?: MatchFilters): Promise<{ data: MatchA
   const { data, error } = await query;
 
   if (error) {
-    console.error('Error fetching matches:', error);
-    return { data: null, error: error.message };
+    logError('matches.ts/getMatches', error, { userId: authData.user.id });
+    return { data: null, error: 'Error interno del servidor' };
   }
 
   // Extraer las carreras en una segunda consulta ya que no hay foreign key directa desde matches hacia estudiantes
@@ -127,8 +128,8 @@ export async function updateMatch(
     .eq('id', id);
 
   if (error) {
-    console.error('Error updating match:', error);
-    return { success: false, error: error.message };
+    logError('matches.ts/updateMatch', error, { matchId: id });
+    return { success: false, error: 'Error interno del servidor' };
   }
 
   // Si el estado pasa a "activo" o "cerrado", enviamos notificaciones
@@ -198,8 +199,8 @@ export async function getMyMatches() {
     .limit(5);
 
   if (error) {
-    console.error('Error fetching user matches:', error);
-    return { data: null, error: error.message };
+    logError('matches.ts/getMyMatches', error, { userId: user.id });
+    return { data: null, error: 'Error interno del servidor' };
   }
 
   let finalData = data || [];
@@ -284,8 +285,8 @@ export async function requestConnection(matchId: string) {
     .or(`estudiante_id.eq.${user.id},exalumno_id.eq.${user.id}`);
 
   if (error) {
-    console.error('Error requesting connection:', error);
-    return { success: false, error: error.message };
+    logError('matches.ts/requestConnection', error, { userId: user.id, matchId });
+    return { success: false, error: 'Error interno del servidor' };
   }
 
   // Enviar el correo de notificación de solicitud al otro usuario
@@ -362,7 +363,7 @@ export async function upsertManualMatch(estudianteId: string, tipoApoyo: string)
         .from('matches')
         .update({ tipo_apoyo: tipoApoyo, updated_at: new Date().toISOString() })
         .eq('id', existing.id);
-      if (error) console.error('Error actualizando match manual:', error);
+      if (error) logError('matches.ts/upsertManualMatch', error, { userId: user.id, estudianteId });
     }
   } else {
     const { error } = await adminClient.from('matches').insert({
@@ -373,7 +374,7 @@ export async function upsertManualMatch(estudianteId: string, tipoApoyo: string)
       estado: 'sugerido',
       iniciado_por: 'plataforma'
     });
-    if (error) console.error('Error insertando match manual:', error);
+    if (error) logError('matches.ts/upsertManualMatch', error, { userId: user.id, estudianteId });
   }
   return { success: true };
 }
@@ -426,8 +427,8 @@ export async function requestDirectConnection(targetUserId: string) {
       .single();
 
     if (createError) {
-      console.error('Error creando match directo:', createError);
-      return { success: false, error: createError.message };
+      logError('matches.ts/requestDirectConnection', createError, { userId: user.id, targetUserId });
+      return { success: false, error: 'Error interno del servidor' };
     }
     matchId = newMatch.id;
   }

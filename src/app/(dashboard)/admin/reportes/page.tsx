@@ -1,14 +1,11 @@
-import { Metadata } from 'next';
+
 import { AlertTriangle, ShieldAlert, CheckCircle } from 'lucide-react';
 import { getPendingReports } from '@/actions/reports';
 import { DenunciasTable } from '../denuncias/_components/denuncias-table';
 import '../../../../styles/admin-dashboard.css';
 import '../../../../styles/admin-denuncias.css';
 
-export const metadata: Metadata = {
-  title: 'Reportes de Usuarios | Admin | Fundación Exalumnos UCR',
-  description: 'Panel de moderación para revisar reportes de usuarios hechos por la comunidad.',
-};
+
 
 export default async function AdminReportesPage() {
   let reportes: any[] = [];

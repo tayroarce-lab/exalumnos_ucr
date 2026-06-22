@@ -2,6 +2,7 @@ import { createServerClient } from '@supabase/ssr'
 import { NextRequest, NextResponse } from 'next/server'
 import { verificarLimite, configLoginEstricto, configVacantesEstandar } from './middlewares/rateLimiter'
 import { registrarEventoSeguridad } from './src/services/securityLogger'
+import { logError } from '@/lib/logger'
 
 // =============================================================================
 // ARCHIVO: middleware.ts (raíz del proyecto)
@@ -242,7 +243,15 @@ export async function middleware(req: NextRequest) {
 
   // SEGURIDAD CRÍTICA: getUser() valida el JWT contra el servidor de Supabase.
   // NO usar getSession() — solo lee la cookie local y puede ser manipulada.
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  let user = null;
+  let authError = null;
+  try {
+    const authResult = await supabase.auth.getUser()
+    user = authResult.data?.user;
+    authError = authResult.error;
+  } catch (err) {
+    logError('middleware.ts/getUser', err);
+  }
   const hayUsuario = !!user && !authError
 
   if (esRutaProtegida && !hayUsuario) {
@@ -265,11 +274,18 @@ export async function middleware(req: NextRequest) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
       { cookies: { getAll: () => [], setAll: () => {} } }
     )
-    const { data: userDataAuth } = await supabaseAdmin
-      .from('users')
-      .select('rol')
-      .eq('id', user!.id)
-      .single()
+    let userDataAuth = null;
+    try {
+      const { data, error } = await supabaseAdmin
+        .from('users')
+        .select('rol')
+        .eq('id', user!.id)
+        .single()
+      if (error) throw error;
+      userDataAuth = data;
+    } catch (err) {
+      logError('middleware.ts/getUserRole', err, { userId: user!.id });
+    }
 
     const rolActual = userDataAuth?.rol ?? 'estudiante'
     const redirectToParam = req.nextUrl.searchParams.get('redirectTo')
@@ -304,11 +320,18 @@ export async function middleware(req: NextRequest) {
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
     { cookies: { getAll: () => [], setAll: () => {} } }
   )
-  const { data: userData } = await supabaseAdmin
-    .from('users')
-    .select('activo, rol, suspension_reason')
-    .eq('id', user!.id)
-    .single()
+  let userData = null;
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('users')
+      .select('activo, rol, suspension_reason')
+      .eq('id', user!.id)
+      .single()
+    if (error) throw error;
+    userData = data;
+  } catch (err) {
+    logError('middleware.ts/getUserSuspensionData', err, { userId: user!.id });
+  }
 
   // Cuenta suspendida → redirigir a página informativa
   if (userData?.activo === false) {

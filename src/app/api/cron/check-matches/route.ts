@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createAdminClient } from '../../../../lib/supabase/admin';
 import { notificarMatchAntiguoAdmin } from '../../../../lib/email';
+import { logError } from '@/lib/logger';
 
 export async function GET(request: Request) {
   const authHeader = request.headers.get('authorization');
@@ -62,7 +63,7 @@ export async function GET(request: Request) {
       message: `Se enviaron alertas para ${matches?.length || 0} matches antiguos.` 
     });
   } catch (error: any) {
-    console.error('Error en cron check-matches:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    logError('check-matches/route.ts/GET', error);
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
   }
 }

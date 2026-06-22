@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 // @ts-ignore
 import type { User } from '@supabase/supabase-js';
 import { Database } from '@/types/database.types';
+import { logError } from '@/lib/logger';
 
 type ProfileRow = Database['public']['Tables']['profiles']['Row'];
 
@@ -64,12 +65,12 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
           .single();
           
         if (insertError) {
-          console.error('Error creating profile:', insertError);
+          logError('ProfileContext.tsx/fetchUserAndProfile', insertError, { userId: authUser.id });
         } else {
           profileDataResult = newProfile;
         }
       } else if (profileError) {
-        console.error('Error fetching profile:', profileError);
+        logError('ProfileContext.tsx/fetchUserAndProfile', profileError, { userId: authUser.id });
       }
       
       // Auto-reparar perfiles que quedaron con "Nuevo Usuario" debido a que la metadata estaba en "nombre"
@@ -77,14 +78,15 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
         const emailName = authUser.email ? authUser.email.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()) : 'Nuevo Usuario';
         const correctName = authUser.user_metadata?.nombre || authUser.user_metadata?.full_name || emailName;
         if (correctName && correctName !== 'Nuevo Usuario') {
-          await supabase.from('profiles').update({ full_name: correctName }).eq('id', authUser.id);
+          const { error: updateError } = await supabase.from('profiles').update({ full_name: correctName }).eq('id', authUser.id);
+          if (updateError) logError('ProfileContext.tsx/fetchUserAndProfile', updateError, { userId: authUser.id });
           profileDataResult.full_name = correctName;
         }
       }
 
       setProfile(profileDataResult || null);
     } catch (err) {
-      console.error('Unexpected error fetching profile:', err);
+      logError('ProfileContext.tsx/fetchUserAndProfile', err);
     } finally {
       setIsLoading(false);
     }
