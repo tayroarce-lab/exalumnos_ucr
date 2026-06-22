@@ -43,11 +43,11 @@ const MOCK_EVENTS = [
 ]
 
 interface EventDetailPageProps {
-  params: Promise<{ id: string }>
+  params: { id: string }
 }
 
 export default function EventDetailPage({ params }: EventDetailPageProps) {
-  const { id } = React.use(params)
+  const { id } = params
   const event = MOCK_EVENTS.find((e) => e.id === id) || MOCK_EVENTS[0]
 
   const [isRegistering, setIsRegistering] = useState(false)

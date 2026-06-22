@@ -12,11 +12,11 @@ import ApplyModal from '@/components/applications/ApplyModal'
 import { getAvatarUrl } from '@/lib/utils'
 
 interface JobDetailPageProps {
-  params: Promise<{ id: string }>
+  params: { id: string }
 }
 
 export default function JobDetailPage({ params }: JobDetailPageProps) {
-  const { id } = React.use(params)
+  const { id } = params
 
   const [job, setJob] = useState<any>(null)
   const [loading, setLoading] = useState(true)
