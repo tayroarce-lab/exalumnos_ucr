@@ -1,0 +1,142 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@600;700;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&family=Work+Sans:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap');
+
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+@layer base {
+  :root {
+    --font-sans: 'DM Sans', 'Work Sans', system-ui, sans-serif;
+    --font-display: 'Barlow Semi Condensed', sans-serif;
+    --background: #f8fafc;
+    --foreground: #0f172a;
+    --border: #e2e8f0;
+  }
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+}
+
+/* Micro-animaciones y efectos sutiles */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out;
+}
+
+.animate-spin-slow {
+  animation: spin 3s linear infinite;
+}
+
+/* Animación para el toast de notificaciones Realtime (slide desde abajo) */
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Estilo premium de scroll */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+/* -------------------------------------------------------
+   Gradiente estático del banner decorativo del Dashboard
+   Se usa como clase para evitar estilos inline en JSX.
+   ------------------------------------------------------- */
+.dashboard-banner-overlay {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.2) 0%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.dashboard-card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.dashboard-card-hover:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 12px 30px -10px rgba(243, 75, 38, 0.15);
+  border-color: rgba(243, 75, 38, 0.25);
+}
+
+/* --------- GLOBAL A11Y CLASSES --------- */
+
+/* Large Text */
+html.a11y-large-text {
+  font-size: 110% !important; /* Increment root font size safely */
+}
+
+/* High Contrast mode */
+html.a11y-high-contrast {
+  filter: contrast(135%) saturate(110%) brightness(90%) !important;
+}
+
+/* Grayscale Mode */
+html.a11y-grayscale {
+  filter: grayscale(100%) !important;
+}
+
+/* Highlight Links */
+body.a11y-highlight-links a {
+  text-decoration: underline !important;
+  text-decoration-thickness: 3px !important;
+  color: #FFEB3B !important;
+  background-color: rgba(0,0,0,0.8) !important;
+  font-weight: 900 !important;
+  padding: 2px !important;
+}
+
+@keyframes rayBurst{0%{opacity:0;transform:scale(.2) rotate(0deg)}30%{opacity:.7}100%{opacity:0;transform:scale(1.8) rotate(38deg)}}
+@keyframes logoSnap{0%{opacity:0;transform:scale(.35) rotate(-6deg)}45%{opacity:1}60%{transform:scale(1.1) rotate(2deg)}74%{transform:scale(.97) rotate(-1deg)}88%{transform:scale(1.02) rotate(0deg)}100%{opacity:1;transform:scale(1) rotate(0deg)}}
+@keyframes particleConverge{0%{transform:translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(.35);opacity:0}16%{opacity:1}52%{transform:translate(-50%,-50%) scale(1.15);opacity:1}100%{transform:translate(calc(-50% + var(--ox)), calc(-50% + var(--oy))) scale(.12);opacity:0}}
+@keyframes streakConverge{0%{transform:translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) rotate(var(--rot)) scaleX(.5);opacity:0}20%{opacity:.95}52%{transform:translate(-50%,-50%) rotate(var(--rot)) scaleX(1);opacity:.95}100%{transform:translate(calc(-50% + var(--ox)), calc(-50% + var(--oy))) rotate(var(--rot)) scaleX(.35);opacity:0}}
+@keyframes shockwave{0%{opacity:0;transform:scale(.25)}22%{opacity:.9}100%{opacity:0;transform:scale(2.8)}}
+@keyframes impactFlash{0%{opacity:0;transform:scale(.2)}38%{opacity:.95}100%{opacity:0;transform:scale(1.7)}}

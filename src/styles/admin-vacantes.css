@@ -1,0 +1,288 @@
+/* src/styles/admin-vacantes.css */
+
+/* ── Encabezado ── */
+.vacantes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.vacantes-header-titles h1 {
+  font-size: 30px;
+  font-weight: 800;
+  color: var(--admin-text-primary);
+  margin: 0 0 6px 0;
+  letter-spacing: -0.02em;
+}
+
+.vacantes-header-titles p {
+  color: var(--admin-text-secondary);
+  font-size: 15px;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* ── Tarjetas de resumen ── */
+.vacantes-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 24px;
+  margin-bottom: 36px;
+}
+
+@media (min-width: 640px) {
+  .vacantes-summary-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .vacantes-summary-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.vacantes-summary-card {
+  background: var(--admin-bg-card);
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid var(--admin-border-color);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02), 0 4px 12px rgba(0, 0, 0, 0.03);
+  transition: all 0.25s ease;
+}
+
+.vacantes-summary-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--admin-border-hover);
+  box-shadow: 0 8px 18px rgba(84, 188, 235, 0.1);
+}
+
+.vacantes-summary-icon {
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: inset 0 -2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.vacantes-summary-icon.blue  { background: rgba(59, 130, 246, 0.15); color: #60A5FA; }
+.vacantes-summary-icon.green { background: rgba(16, 185, 129, 0.15); color: #10B981; }
+.vacantes-summary-icon.amber { background: rgba(245, 158, 11, 0.15); color: #F59E0B; }
+.vacantes-summary-icon.slate { background: var(--admin-bg-hover); color: var(--admin-text-secondary); }
+
+.vacantes-summary-label {
+  margin: 0 0 2px 0;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--admin-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.vacantes-summary-value {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--admin-text-primary);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+/* ── Barra de filtros ── */
+.vacantes-filters-bar {
+  background: var(--admin-bg-card);
+  padding: 24px;
+  border-radius: 16px;
+  border: 1px solid var(--admin-border-color);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: flex-end;
+  gap: 18px;
+  flex-wrap: wrap;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.01), 0 4px 12px rgba(0, 0, 0, 0.02);
+}
+
+.vacantes-search-wrapper {
+  position: relative;
+  flex: 1;
+  min-width: 260px;
+}
+
+.vacantes-search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--admin-text-secondary);
+  pointer-events: none;
+}
+
+.vacantes-search-input {
+  width: 100%;
+  padding: 11px 12px 11px 40px;
+  border: 1px solid var(--admin-border-color);
+  border-radius: 12px;
+  font-size: 14px;
+  color: var(--admin-text-primary);
+  background: var(--admin-bg-hover);
+  outline: none;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.vacantes-search-input:focus {
+  border-color: var(--admin-accent-celeste);
+  background: var(--admin-bg-card);
+  box-shadow: 0 0 0 3px rgba(84, 188, 235, 0.15);
+}
+
+.vacantes-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vacantes-filter-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--admin-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.vacantes-filter-select {
+  padding: 10px 14px;
+  border: 1px solid var(--admin-border-color);
+  border-radius: 12px;
+  font-size: 14px;
+  color: var(--admin-text-primary);
+  background: var(--admin-bg-hover);
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 600;
+}
+
+.vacantes-filter-select:focus {
+  border-color: var(--admin-accent-celeste);
+  background: var(--admin-bg-card);
+  box-shadow: 0 0 0 3px rgba(84, 188, 235, 0.15);
+}
+
+/* ── Status pills de vacante ── */
+.vacantes-status-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.vacantes-status-pill.activa   { background: rgba(16, 185, 129, 0.15); color: #10B981; border: 1px solid rgba(16, 185, 129, 0.3); }
+.vacantes-status-pill.pausada  { background: rgba(245, 158, 11, 0.15); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.3); }
+.vacantes-status-pill.cerrada  { background: rgba(239, 68, 68, 0.15); color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+.vacantes-status-pill.cubierta { background: var(--admin-bg-hover); color: var(--admin-text-secondary); border: 1px solid var(--admin-border-color); }
+
+/* ── Tipo pill ── */
+.vacantes-tipo-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.vacantes-tipo-pill.empleo   { background: rgba(59, 130, 246, 0.15); color: #60A5FA; }
+.vacantes-tipo-pill.pasantia { background: rgba(139, 92, 246, 0.15); color: #C084FC; }
+
+/* ── Modalidad badge ── */
+.vacantes-modalidad-badge {
+  font-size: 12px;
+  color: var(--admin-text-secondary);
+  font-weight: 600;
+}
+
+/* ── Conteo de registros ── */
+.vacantes-record-count {
+  font-size: 13px;
+  color: var(--admin-text-secondary);
+  margin-bottom: 16px;
+  font-weight: 500;
+}
+
+/* ── Loading / empty ── */
+.vacantes-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: var(--admin-text-secondary);
+  gap: 12px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.vacantes-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  background: var(--admin-bg-card);
+  border-radius: 16px;
+  border: 2px dashed var(--admin-border-color);
+  color: var(--admin-text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* ── Botones de acción en la tabla ── */
+.vacantes-action-select {
+  padding: 6px 12px;
+  border: 1px solid var(--admin-border-color);
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--admin-text-primary);
+  background: var(--admin-bg-card);
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+}
+
+.vacantes-action-select:hover {
+  border-color: var(--admin-border-hover);
+  background-color: var(--admin-bg-hover);
+}
+
+.vacantes-action-select:focus {
+  border-color: var(--admin-accent-celeste);
+  box-shadow: 0 0 0 2px rgba(84, 188, 235, 0.15);
+}
+
+/* ── Fecha límite expirada ── */
+.vacantes-deadline-expired {
+  color: #EF4444;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.vacantes-deadline-ok {
+  color: var(--admin-text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+}
+

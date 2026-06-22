@@ -1,0 +1,50 @@
+// Server Component — NO añadir 'use client'
+// El middleware ya garantiza que el usuario está autenticado al llegar aquí,
+// pero hacemos una segunda verificación para obtener el user y pasarlo al contexto.
+import React from 'react'
+import { redirect } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
+import Navbar from '@/components/layout/navbar'
+import DashboardFooter from '@/components/layout/DashboardFooter'
+import '../../styles/exalumnos-dark-mode.css'
+import RealtimeApplicationStatus from '@/components/RealtimeApplicationStatus'
+import { ExalumnosLayoutClient } from '@/components/layout/ExalumnosLayoutClient'
+
+export default async function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  // Segunda capa de protección: verifica sesión en el servidor
+  // Esto cubre el caso en que el middleware sea bypasseado (RSC directs, etc.)
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    redirect('/login')
+  }
+
+  const rol = user.user_metadata?.rol || 'exalumno'
+
+  return (
+    <ExalumnosLayoutClient role={rol}>
+      {/* Navbar Superior */}
+      <Navbar />
+
+      <div className="flex flex-1 relative">
+        {/* Contenido Principal */}
+        <main className="flex-1 w-full min-h-[calc(100vh-4rem)] p-4 sm:p-6 lg:p-8 overflow-y-auto">
+          {children}
+        </main>
+      </div>
+
+      <DashboardFooter />
+
+      {/* WebSocket: Notificaciones de cambio de estado de aplicaciones en tiempo real.
+          Montado UNA SOLA VEZ en el layout para mantener la suscripción activa
+          sin importar a qué página navegue el estudiante. */}
+      <RealtimeApplicationStatus />
+
+    </ExalumnosLayoutClient>
+  )
+}
