@@ -409,24 +409,14 @@ export default function StudentProfileEdit() {
 
             <div>
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Área Temática Principal <span className="text-rose-500">*</span></label>
-              <div className="flex flex-wrap gap-2">
-                {AREAS_INTERES.map(area => {
-                  const isSelected = formData.proyecto_area_tematica === area;
-                  return (
-                    <button
-                      key={area}
-                      type="button"
-                      onClick={() => update('proyecto_area_tematica', isSelected ? '' : area)}
-                      className={`px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wide transition-all border ${
-                        isSelected
-                          ? 'bg-institutional text-white border-institutional shadow-sm'
-                          : 'bg-white text-slate-600 border-slate-200 hover:border-institutional/50 hover:text-institutional'
-                      }`}
-                    >
-                      {isSelected && '✓ '}{area}
-                    </button>
-                  );
-                })}
+              <div className="relative">
+                <select value={formData.proyecto_area_tematica} onChange={e => update('proyecto_area_tematica', e.target.value)} className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-institutional focus:ring-1 focus:ring-institutional outline-none bg-white appearance-none">
+                  <option value="">Seleccione un área...</option>
+                  {AREAS_INTERES.map(area => (
+                    <option key={area} value={area}>{area}</option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
               </div>
             </div>
 
@@ -485,32 +475,20 @@ export default function StudentProfileEdit() {
 
         {step === 4 && (
           <div className="space-y-6">
-            <h3 className="font-bold text-slate-800 text-base uppercase tracking-wide border-b border-slate-100 pb-2">Áreas de Interés</h3>
-            <p className="text-xs text-slate-500">Selecciona las áreas temáticas con las que se relaciona tu perfil y tu proyecto.</p>
-            <div className="flex flex-wrap gap-2">
-              {AREAS_INTERES.map(area => {
-                const isSelected = formData.areas_de_interes.includes(area);
-                return (
-                  <button
-                    key={area}
-                    type="button"
-                    onClick={() => {
-                      if (isSelected) {
-                        update('areas_de_interes', formData.areas_de_interes.filter(a => a !== area))
-                      } else {
-                        update('areas_de_interes', [...formData.areas_de_interes, area])
-                      }
-                    }}
-                    className={`px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wide transition-all border ${
-                      isSelected
-                        ? 'bg-institutional text-white border-institutional shadow-sm'
-                        : 'bg-white text-slate-600 border-slate-200 hover:border-institutional/50 hover:text-institutional'
-                    }`}
-                  >
-                    {isSelected && '✓ '}{area}
-                  </button>
-                )
-              })}
+            <h3 className="font-bold text-slate-800 text-base uppercase tracking-wide border-b border-slate-100 pb-2">Área de Interés</h3>
+            <p className="text-xs text-slate-500">Selecciona el área temática principal con la que se relaciona tu perfil y tu proyecto.</p>
+            <div className="relative mt-4">
+              <select 
+                value={formData.areas_de_interes[0] || ''} 
+                onChange={e => update('areas_de_interes', e.target.value ? [e.target.value] : [])} 
+                className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-institutional focus:ring-1 focus:ring-institutional outline-none bg-white appearance-none"
+              >
+                <option value="">Seleccione un área...</option>
+                {AREAS_INTERES.map(area => (
+                  <option key={area} value={area}>{area}</option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
             </div>
           </div>
         )}
