@@ -239,6 +239,39 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
         <p className="text-sm text-slate-600 leading-relaxed font-medium mb-5">
           {descripcionProyecto}
         </p>
+
+        {estudiante.proyecto_valor_monto != null && (
+          <div className="mb-4 inline-flex items-center gap-2 bg-emerald-50 border border-emerald-100 px-3 py-1.5 rounded-xl">
+            <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Valor Monetario:</span>
+            <span className="text-sm font-black text-emerald-700">
+              {estudiante.proyecto_valor_moneda === 'USD' ? '$' : '₡'}
+              {estudiante.proyecto_valor_monto.toLocaleString('es-CR')}
+            </span>
+          </div>
+        )}
+
+        <div className="flex flex-col sm:flex-row gap-2 mb-5">
+          {estudiante.proyecto_documento_url && (
+            <a 
+              href={estudiante.proyecto_documento_url.startsWith('http') ? estudiante.proyecto_documento_url : `https://${estudiante.proyecto_documento_url}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 flex items-center justify-center text-[11px] bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 px-3 py-2 rounded-xl font-bold transition-colors"
+            >
+              📄 Ver Documento
+            </a>
+          )}
+          {estudiante.proyecto_video_url && (
+            <a 
+              href={estudiante.proyecto_video_url.startsWith('http') ? estudiante.proyecto_video_url : `https://${estudiante.proyecto_video_url}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 flex items-center justify-center text-[11px] bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 px-3 py-2 rounded-xl font-bold transition-colors"
+            >
+              ▶️ Ver Video
+            </a>
+          )}
+        </div>
         
         <div className="pt-4 border-t border-slate-100">
           <div className="flex justify-between items-center mb-2">
@@ -637,6 +670,7 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
             </p>
 
             <div className="border-t border-slate-100 pt-5 mb-6">
+              <p className="text-[10px] font-black text-[#003B4F] uppercase tracking-wider mb-3">Redes de Contacto</p>
               {estudiante.url_linkedin || estudiante.url_portfolio ? (
                 <div className="flex gap-3">
                   {estudiante.url_linkedin && (
@@ -655,6 +689,24 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
                   <span className="text-xs text-slate-400 italic">La información de contacto será habilitada por la administración.</span>
                 </div>
               )}
+            </div>
+
+            <div className="border-t border-slate-100 pt-5 mb-6">
+              <p className="text-[10px] font-black text-[#003B4F] uppercase tracking-wider mb-3">Apoyo Financiero</p>
+              <div className="bg-orange-50 border border-orange-100 rounded-xl p-4 space-y-3">
+                <p className="text-xs text-slate-600 font-medium">
+                  Puedes realizar una donación directa para apoyar la trayectoria de este estudiante a través de la pasarela de pagos.
+                </p>
+                <Link 
+                  href={`/donations?metodo=sinpe`}
+                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-[#F34B26] hover:bg-[#C82A08] text-white text-sm font-bold shadow-sm transition-all active:scale-95"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line>
+                  </svg>
+                  Donar por SINPE Móvil
+                </Link>
+              </div>
             </div>
 
             <div className="flex justify-end pt-4 border-t border-slate-100">

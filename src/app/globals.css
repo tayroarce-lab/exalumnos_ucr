@@ -133,3 +133,10 @@ body.a11y-highlight-links a {
   font-weight: 900 !important;
   padding: 2px !important;
 }
+
+@keyframes rayBurst{0%{opacity:0;transform:scale(.2) rotate(0deg)}30%{opacity:.7}100%{opacity:0;transform:scale(1.8) rotate(38deg)}}
+@keyframes logoSnap{0%{opacity:0;transform:scale(.35) rotate(-6deg)}45%{opacity:1}60%{transform:scale(1.1) rotate(2deg)}74%{transform:scale(.97) rotate(-1deg)}88%{transform:scale(1.02) rotate(0deg)}100%{opacity:1;transform:scale(1) rotate(0deg)}}
+@keyframes particleConverge{0%{transform:translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(.35);opacity:0}16%{opacity:1}52%{transform:translate(-50%,-50%) scale(1.15);opacity:1}100%{transform:translate(calc(-50% + var(--ox)), calc(-50% + var(--oy))) scale(.12);opacity:0}}
+@keyframes streakConverge{0%{transform:translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) rotate(var(--rot)) scaleX(.5);opacity:0}20%{opacity:.95}52%{transform:translate(-50%,-50%) rotate(var(--rot)) scaleX(1);opacity:.95}100%{transform:translate(calc(-50% + var(--ox)), calc(-50% + var(--oy))) rotate(var(--rot)) scaleX(.35);opacity:0}}
+@keyframes shockwave{0%{opacity:0;transform:scale(.25)}22%{opacity:.9}100%{opacity:0;transform:scale(2.8)}}
+@keyframes impactFlash{0%{opacity:0;transform:scale(.2)}38%{opacity:.95}100%{opacity:0;transform:scale(1.7)}}

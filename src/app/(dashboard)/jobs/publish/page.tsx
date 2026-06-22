@@ -14,7 +14,7 @@ import { crearPosicion } from '@/actions/positions'
 import type { CrearPosicionInput } from '@/actions/positions'
 import type { PosicionFormValues } from '@/lib/validations/posiciones'
 import { useProfile } from '@/contexts/ProfileContext'
-import { createClient } from '@/lib/supabase/client'
+import { obtenerMiPerfil } from '@/actions/users'
 
 // ──────────────────────────────────────────────
 // Catálogo de sectores disponibles
@@ -64,17 +64,19 @@ export default function PublishJobPage() {
 
     async function checkProfile() {
       try {
-        const supabase = createClient()
-        const { data, error } = await supabase
-          .from('exalumnos')
-          .select('perfil_completo')
-          .eq('user_id', user.id)
-          .single()
+        const perfil = await obtenerMiPerfil()
 
-        if (error || !data) {
+        if (!perfil) {
           setIsProfileComplete(false)
         } else {
-          setIsProfileComplete(data.perfil_completo)
+          // Si tiene el flag perfil_completo explícito en true, lo tomamos
+          if (perfil.perfil_completo === true) {
+            setIsProfileComplete(true)
+          } else {
+            // Si no, verificamos manualmente que tenga carrera o título
+            const hasCarrera = Boolean(perfil.carrera || perfil.carrera_principal)
+            setIsProfileComplete(hasCarrera)
+          }
         }
       } catch (err) {
         console.error('Error checking profile completeness:', err)
