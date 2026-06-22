@@ -49,8 +49,7 @@ export async function actualizarPerfilEstudiante(datos: PerfilEstudianteInput) {
   // Actualizar estudiantes
   const { error: estError } = await supabase
     .from('estudiantes')
-    .update({ ...restDatos, areas_de_interes })
-    .eq('user_id', user.id)
+    .upsert({ user_id: user.id, ...restDatos, areas_de_interes }, { onConflict: 'user_id' })
 
   if (estError) throw new Error(estError.message)
 
@@ -59,73 +58,77 @@ export async function actualizarPerfilEstudiante(datos: PerfilEstudianteInput) {
 }
 
 export async function actualizarPerfilCompletoEstudiante(datos: any) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('No autenticado')
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: 'No autenticado. Por favor, inicia sesión nuevamente.' }
 
-  const adminClient = createAdminClient()
+    const adminClient = createAdminClient()
 
-  // 1. Actualizar tabla profiles
-  const profilePayload = {
-    id: user.id,
-    full_name: datos.full_name,
-    foto_url: datos.foto_url,
-    pais_ciudad: datos.pais_ciudad,
-    linkedin_url: datos.linkedin_url,
-    bio: datos.bio,
-    es_exalumno: false // Siempre forzamos a false porque es un estudiante
+    // 1. Actualizar tabla profiles
+    const profilePayload = {
+      id: user.id,
+      full_name: datos.full_name,
+      foto_url: datos.foto_url,
+      pais_ciudad: datos.pais_ciudad,
+      linkedin_url: datos.linkedin_url,
+      bio: datos.bio,
+      es_exalumno: false // Siempre forzamos a false porque es un estudiante
+    }
+
+    const { error: profileError } = await adminClient
+      .from('profiles')
+      .upsert(profilePayload)
+
+    if (profileError) return { success: false, error: 'Error al actualizar perfiles: ' + profileError.message }
+
+    // 2. Actualizar tabla users
+    const userPayload = {
+      busca_mentoria: datos.busca_mentoria,
+      busca_empleo: datos.busca_empleo,
+      busca_pasantia: datos.busca_pasantia,
+    }
+
+    const { error: usersError } = await supabase
+      .from('users')
+      .update(userPayload)
+      .eq('id', user.id)
+      .eq('rol', 'estudiante')
+
+    if (usersError) return { success: false, error: 'Error al actualizar usuario: ' + usersError.message }
+
+    const estudiantePayload = {
+      user_id: user.id,
+      carrera: datos.carrera,
+      escuela_facultad: datos.escuela_facultad,
+      sede: datos.sede,
+      anio_ingreso: datos.anio_ingreso,
+      proyecto_titulo: datos.proyecto_titulo,
+      proyecto_descripcion: datos.proyecto_descripcion,
+      proyecto_area_tematica: datos.proyecto_area_tematica,
+      proyecto_tipo: datos.proyecto_tipo,
+      proyecto_porcentaje_avance: datos.proyecto_porcentaje_avance,
+      proyecto_valor_monto: datos.proyecto_valor_monto,
+      proyecto_valor_moneda: datos.proyecto_valor_moneda,
+      proyecto_video_url: datos.proyecto_video_url,
+      proyecto_documento_url: datos.proyecto_documento_url,
+      proyecto_necesidades: datos.proyecto_necesidades,
+      areas_de_interes: datos.areas_de_interes,
+      busca_financiamiento: datos.busca_financiamiento,
+    }
+
+    const { error: estError } = await supabase
+      .from('estudiantes')
+      .update(estudiantePayload)
+      .eq('user_id', user.id)
+
+    if (estError) return { success: false, error: 'Error al actualizar datos de estudiante: ' + estError.message }
+
+    revalidatePath('/profile')
+    return { success: true }
+  } catch (err: any) {
+    return { success: false, error: err.message || 'Error interno del servidor.' }
   }
-
-  const { error: profileError } = await adminClient
-    .from('profiles')
-    .upsert(profilePayload)
-
-  if (profileError) throw new Error('Error al actualizar perfiles: ' + profileError.message)
-
-  // 2. Actualizar tabla users
-  const userPayload = {
-    busca_mentoria: datos.busca_mentoria,
-    busca_empleo: datos.busca_empleo,
-    busca_pasantia: datos.busca_pasantia,
-  }
-
-  const { error: usersError } = await supabase
-    .from('users')
-    .update(userPayload)
-    .eq('id', user.id)
-    .eq('rol', 'estudiante')
-
-  if (usersError) throw new Error('Error al actualizar usuario: ' + usersError.message)
-
-  // 3. Actualizar tabla estudiantes
-  const estudiantePayload = {
-    carrera: datos.carrera,
-    escuela_facultad: datos.escuela_facultad,
-    sede: datos.sede,
-    anio_ingreso: datos.anio_ingreso,
-    proyecto_titulo: datos.proyecto_titulo,
-    proyecto_descripcion: datos.proyecto_descripcion,
-    proyecto_area_tematica: datos.proyecto_area_tematica,
-    proyecto_tipo: datos.proyecto_tipo,
-    proyecto_porcentaje_avance: datos.proyecto_porcentaje_avance,
-    proyecto_valor_monto: datos.proyecto_valor_monto,
-    proyecto_valor_moneda: datos.proyecto_valor_moneda,
-    proyecto_video_url: datos.proyecto_video_url,
-    proyecto_documento_url: datos.proyecto_documento_url,
-    proyecto_necesidades: datos.proyecto_necesidades,
-    areas_de_interes: datos.areas_de_interes,
-    busca_financiamiento: datos.busca_financiamiento,
-  }
-
-  const { error: estError } = await supabase
-    .from('estudiantes')
-    .update(estudiantePayload)
-    .eq('user_id', user.id)
-
-  if (estError) throw new Error('Error al actualizar datos de estudiante: ' + estError.message)
-
-  revalidatePath('/profile')
-  return { success: true }
 }
 
 export async function obtenerMiPerfilEstudiante() {

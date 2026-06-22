@@ -241,7 +241,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
 
         {/* Logo */}
         <div className="flex items-center">
-          <Link href="/" className="flex items-center gap-3 active:scale-95 transition-transform">
+          <Link href={user ? dashboardHref : '/'} className="flex items-center gap-3 active:scale-95 transition-transform">
             <Image
               src={logoUCR}
               alt="Logo UCR"

@@ -129,7 +129,7 @@ export function AcademicInfoForm({ initialData, onSaveStateChange, flushSignal }
             <input 
               type="number"
               step="0.01"
-              {...register('gpa', { valueAsNumber: true })}
+              {...register('gpa', { setValueAs: v => (v === '' || v === null || v === undefined) ? undefined : Number(v) })}
               className="flex min-h-[44px] w-full rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm text-negro-base shadow-sm transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-celeste/50 focus-visible:border-celeste placeholder:text-slate-400"
               placeholder="Ej. 9.5"
             />

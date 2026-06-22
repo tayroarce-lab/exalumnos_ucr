@@ -758,8 +758,8 @@ export default function ProfileEditPage() {
     try {
       const response = await actualizarPerfil(data)
       
-      if (!response.success) {
-        setErrors(['Error al guardar el perfil.'])
+      if (!response || !response.success) {
+        setErrors([response?.error || 'Error al guardar el perfil.'])
         setIsSaving(false)
         return
       }
