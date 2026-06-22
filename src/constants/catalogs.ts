@@ -182,3 +182,185 @@ export const TIPOS_APOYO = [
   { key: 'ofrece_proyecto', label: 'Colaboración en Proyecto', icon: '🤝' },
   { key: 'ofrece_donacion_dinero', label: 'Donación Económica', icon: '💰' },
 ] as const
+
+
+export const CARRERA_TO_SEDES: Record<string, string[]> = {
+  "Administración de Negocios": [
+    "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "RECINTO DE SAN RAMON",
+    "RECINTO DE GRECIA",
+    "RECINTO DE PARAISO",
+    "RECINTO DE GUAPILES",
+    "RECINTO DE LIBERIA",
+    "RECINTO DE SANTA CRUZ",
+    "RECINTO DE LIMON",
+    "RECINTO DE PUNTARENAS"
+  ],
+  "Agronomía": [
+    "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "RECINTO DE TURRIALBA",
+    "RECINTO DE GUAPILES",
+    "RECINTO DE LIBERIA",
+    "RECINTO DE SANTA CRUZ"
+  ],
+  "Arquitectura": [
+    "CIUDAD UNIVERSITARIA RODRIGO FACIO"
+  ],
+  "Artes": [
+    "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "RECINTO DE SAN RAMON"
+  ],
+  "Biología": [
+    "CIUDAD UNIVERSITARIA RODRIGO FACIO"
+  ],
+  "Ciencias de la Computación e Informática": [
+    "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "RECINTO DE SAN RAMON",
+    "RECINTO DE GRECIA",
+    "RECINTO DE TURRIALBA",
+    "RECINTO DE PARAISO",
+    "RECINTO DE GUAPILES",
+    "RECINTO DE LIBERIA",
+    "RECINTO DE LIMON",
+    "RECINTO SIQUIRRES",
+    "RECINTO DE PUNTARENAS",
+    "RECINTO DE GOLFITO"
+  ],
+  "Ciencias Políticas": [
+    "CIUDAD UNIVERSITARIA RODRIGO FACIO"
+  ],
+  "Comunicación Colectiva": [
+    "CIUDAD UNIVERSITARIA RODRIGO FACIO"
+  ],
+  "Contaduría Pública": [
+    "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "RECINTO DE TURRIALBA",
+    "RECINTO DE GUAPILES",
+    "RECINTO DE LIMON"
+  ],
+  "Derecho": [
+    "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "RECINTO DE SAN RAMON",
+    "RECINTO DE LIBERIA"
+  ],
+  "Diseño Gráfico": [
+    "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "RECINTO DE SAN RAMON",
+    "RECINTO DE TURRIALBA",
+    "RECINTO ALAJUELA"
+  ],
+  "Economía": [
+    "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "RECINTO DE GUAPILES",
+    "RECINTO DE SANTA CRUZ"
+  ],
+  "Educación": [
+    "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "RECINTO DE SAN RAMON",
+    "RECINTO DE GRECIA",
+    "RECINTO DE TURRIALBA",
+    "RECINTO DE PARAISO",
+    "RECINTO DE GUAPILES",
+    "RECINTO DE LIBERIA",
+    "RECINTO DE LIMON",
+    "RECINTO DE PUNTARENAS",
+    "RECINTO DE GOLFITO"
+  ],
+  "Enfermería": [
+    "CIUDAD UNIVERSITARIA RODRIGO FACIO"
+  ],
+  "Farmacia": [
+    "CIUDAD UNIVERSITARIA RODRIGO FACIO"
+  ],
+  "Filosofía": [
+    "CIUDAD UNIVERSITARIA RODRIGO FACIO"
+  ],
+  "Física": [
+    "CIUDAD UNIVERSITARIA RODRIGO FACIO"
+  ],
+  "Geografía": [
+    "CIUDAD UNIVERSITARIA RODRIGO FACIO"
+  ],
+  "Historia": [
+    "CIUDAD UNIVERSITARIA RODRIGO FACIO"
+  ],
+  "Ingeniería Civil": [
+    "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "RECINTO DE LIBERIA"
+  ],
+  "Ingeniería Eléctrica": [
+    "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "RECINTO DE LIBERIA",
+    "RECINTO DE PUNTARENAS"
+  ],
+  "Ingeniería Industrial": [
+    "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "RECINTO DE SAN RAMON",
+    "RECINTO DE PUNTARENAS",
+    "RECINTO ALAJUELA"
+  ],
+  "Ingeniería Mecánica": [
+    "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "RECINTO DE PUNTARENAS",
+    "RECINTO ALAJUELA"
+  ],
+  "Ingeniería Química": [
+    "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "RECINTO DE LIBERIA",
+    "RECINTO DE LIMON"
+  ],
+  "Letras": [
+    "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "RECINTO DE SAN RAMON",
+    "RECINTO DE TURRIALBA",
+    "RECINTO DE PARAISO",
+    "RECINTO DE GUAPILES",
+    "RECINTO DE LIBERIA",
+    "RECINTO DE LIMON",
+    "RECINTO DE PUNTARENAS",
+    "RECINTO DE GOLFITO"
+  ],
+  "Matemáticas": [
+    "CIUDAD UNIVERSITARIA RODRIGO FACIO"
+  ],
+  "Medicina": [
+    "CIUDAD UNIVERSITARIA RODRIGO FACIO"
+  ],
+  "Microbiología": [
+    "CIUDAD UNIVERSITARIA RODRIGO FACIO"
+  ],
+  "Música": [
+    "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "RECINTO DE TURRIALBA"
+  ],
+  "Nutrición": [
+    "CIUDAD UNIVERSITARIA RODRIGO FACIO"
+  ],
+  "Odontología": [
+    "CIUDAD UNIVERSITARIA RODRIGO FACIO"
+  ],
+  "Psicología": [
+    "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "RECINTO DE SAN RAMON",
+    "RECINTO DE LIBERIA"
+  ],
+  "Química": [
+    "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "RECINTO DE LIMON"
+  ],
+  "Salud Pública": [
+    "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "RECINTO DE LIBERIA"
+  ],
+  "Sociología": [
+    "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "RECINTO DE SAN RAMON"
+  ],
+  "Trabajo Social": [
+    "CIUDAD UNIVERSITARIA RODRIGO FACIO",
+    "RECINTO DE SAN RAMON"
+  ],
+  "Zootecnia": [
+    "CIUDAD UNIVERSITARIA RODRIGO FACIO"
+  ]
+};

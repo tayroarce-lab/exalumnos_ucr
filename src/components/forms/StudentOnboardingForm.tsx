@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/client';
 import { AlertCircle, ArrowLeft, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { CARRERAS_UCR, CARRERA_TO_ESCUELA, CARRERA_TO_SEDES } from '@/constants/catalogs';
 
 const studentSchema = z.object({
   carnet_ucr: z.string().min(5, "Formato inválido"),
@@ -40,7 +41,7 @@ const initialData: StudentFormData = {
   carnet_ucr: '',
   carrera: '',
   escuela_facultad: '',
-  sede: 'Sede Rodrigo Facio',
+  sede: '',
   anio_ingreso: new Date().getFullYear(),
   nivel_academico: 'bachillerato',
   promedio_ponderado: 0,
@@ -59,7 +60,6 @@ const initialData: StudentFormData = {
   habilidadesText: ''
 };
 
-const sedes = ['Sede Rodrigo Facio', 'Sede de Occidente', 'Sede del Atlántico', 'Sede de Guanacaste', 'Sede del Pacífico', 'Sede Interuniversitaria de Alajuela', 'Sede del Sur'];
 const areasTematicas = ['Tecnología', 'Salud', 'Ciencias Básicas', 'Ingeniería', 'Ciencias Sociales', 'Artes y Letras', 'Economía y Negocios', 'Medio Ambiente', 'Educación', 'Derecho', 'Arquitectura y Diseño', 'Agroalimentarias'];
 const necesidadesOpciones = ['Financiamiento', 'Mentoría técnica', 'Acceso a datos', 'Infraestructura', 'Validación empresarial', 'Empleo paralelo'];
 
@@ -85,6 +85,12 @@ export default function StudentOnboardingForm() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
     
+    if (name === 'carrera') {
+      const autoEscuela = CARRERA_TO_ESCUELA[value] || '';
+      setFormData(prev => ({ ...prev, carrera: value, escuela_facultad: autoEscuela, sede: '' }));
+      return;
+    }
+
     if (type === 'checkbox') {
       const checked = (e.target as HTMLInputElement).checked;
       setFormData(prev => ({ ...prev, [name]: checked }));
@@ -228,23 +234,26 @@ export default function StudentOnboardingForm() {
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Carrera *</label>
-                <input type="text" name="carrera" value={formData.carrera} onChange={handleChange} required
-                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-shadow"
-                  placeholder="Ej: Computación" />
+                <select name="carrera" value={formData.carrera} onChange={handleChange} required
+                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+                  <option value="" disabled>Seleccione una carrera</option>
+                  {CARRERAS_UCR.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Escuela / Facultad *</label>
-                <input type="text" name="escuela_facultad" value={formData.escuela_facultad} onChange={handleChange} required
-                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-shadow"
-                  placeholder="Ej: ECCI" />
+                <input type="text" name="escuela_facultad" value={formData.escuela_facultad} required
+                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-shadow bg-slate-100 opacity-70 cursor-not-allowed"
+                  placeholder="Se asigna automáticamente" readOnly />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Sede UCR *</label>
                 <select name="sede" value={formData.sede} onChange={handleChange} required
                   className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white">
-                  {sedes.map(s => <option key={s} value={s}>{s}</option>)}
+                  <option value="" disabled>Seleccione una sede</option>
+                  {(CARRERA_TO_SEDES[formData.carrera] || []).map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
               </div>
 
