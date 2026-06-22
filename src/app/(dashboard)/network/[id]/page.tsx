@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, Briefcase, MapPin, Linkedin, Mail, Twitter, Instagram, GraduationCap, CheckCircle2, ChevronLeft, Lock } from 'lucide-react';
 import ConnectButton from './ConnectButton';
+import ReportButton from './ReportButton';
 
 // El servidor inyectará params por ser App Router
 export default async function NetworkProfilePage({ params }: { params: { id: string } | Promise<{ id: string }> }) {
@@ -364,6 +365,13 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
                 </div>
               )}
             </div>
+
+            {/* Botón de Reporte */}
+            {user && user.id !== profile.id && (
+              <div className="flex justify-center mt-2">
+                <ReportButton targetUserId={profile.id} />
+              </div>
+            )}
 
           </div>
         </div>
