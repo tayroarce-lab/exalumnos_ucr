@@ -19,6 +19,7 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
     .select(`
       *,
       exalumnos (*),
+      estudiantes (*),
       curriculums (sobre_mi, habilidades_tecnicas, habilidades_blandas, url_linkedin)
     `)
     .eq('id', resolvedParams.id)
@@ -29,13 +30,15 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
   }
 
   const exalumnoData = Array.isArray(userRecord.exalumnos) ? userRecord.exalumnos[0] : userRecord.exalumnos;
+  const estudianteData = Array.isArray(userRecord.estudiantes) ? userRecord.estudiantes[0] : userRecord.estudiantes;
   const curriculumData = Array.isArray(userRecord.curriculums) ? userRecord.curriculums[0] : userRecord.curriculums;
   
   const profile = {
     id: userRecord.id,
-    full_name: `${userRecord.nombre || ''} ${userRecord.apellidos || ''}`.trim() || 'Exalumno',
+    full_name: `${userRecord.nombre || ''} ${userRecord.apellidos || ''}`.trim() || 'Usuario',
     foto_url: userRecord.foto_url,
     es_exalumno: userRecord.rol === 'exalumno',
+    rol: userRecord.rol,
     email: userRecord.email,
     linkedin_url: exalumnoData?.linkedin_url || curriculumData?.url_linkedin,
     twitter_url: userRecord.twitter_url,
@@ -48,7 +51,15 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
     ofrece_pasantia: exalumnoData?.ofrece_pasantia,
     bio: exalumnoData?.bio || curriculumData?.sobre_mi,
     skills: [...(exalumnoData?.habilidades || []), ...(curriculumData?.habilidades_tecnicas ? (Array.isArray(curriculumData.habilidades_tecnicas) ? curriculumData.habilidades_tecnicas : Object.keys(curriculumData.habilidades_tecnicas)) : [])],
-    areas_de_interes: exalumnoData?.areas_de_interes || [],
+    areas_de_interes: exalumnoData?.areas_de_interes || estudianteData?.areas_de_interes || [],
+    
+    // Proyecto Estudiante
+    proyecto_titulo: estudianteData?.proyecto_titulo,
+    proyecto_descripcion: estudianteData?.proyecto_descripcion,
+    proyecto_valor_monto: estudianteData?.proyecto_valor_monto,
+    proyecto_valor_moneda: estudianteData?.proyecto_valor_moneda,
+    proyecto_video_url: estudianteData?.proyecto_video_url,
+    proyecto_documento_url: estudianteData?.proyecto_documento_url,
   };
 
   // Comprobar estado de conexión
@@ -65,7 +76,8 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
       
     if (matchData) {
       if (matchData.estado === 'activo') connectionStatus = 'activo';
-      else if (matchData.estado === 'contactado' || matchData.estado === 'sugerido') connectionStatus = 'contactado';
+      else if (matchData.estado === 'contactado') connectionStatus = 'contactado';
+      else if (matchData.estado === 'sugerido') connectionStatus = 'none';
     }
   }
 
@@ -75,13 +87,13 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
   const showContactInfo = isAdmin || connectionStatus === 'activo' || user?.id === profile.id;
 
   return (
-    <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-10">
+    <div className="min-h-screen bg-[#54BCEB] py-10 px-4 sm:px-6 lg:px-10">
       <div className="max-w-4xl mx-auto space-y-6">
         
         {/* Back navigation */}
         <Link 
           href="/network" 
-          className="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-[#F34B26] transition-colors uppercase tracking-wider"
+          className="inline-flex items-center gap-2 text-xs font-bold text-[#1B2A4A] hover:text-white transition-colors uppercase tracking-wider"
         >
           <ChevronLeft className="w-4 h-4" />
           Volver al Directorio
@@ -198,6 +210,58 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
                 <p className="text-slate-600 whitespace-pre-wrap leading-relaxed">
                   {profile.bio}
                 </p>
+              </div>
+            )}
+
+            {/* Proyecto Estudiantil */}
+            {profile.rol === 'estudiante' && profile.proyecto_titulo && (
+              <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6 relative overflow-hidden">
+                {/* Banner decorativo */}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-institutional/10 to-transparent rounded-bl-full pointer-events-none" />
+                
+                <div>
+                  <h2 className="text-lg font-bold text-slate-900 mb-1 flex items-center gap-2 font-display relative z-10">
+                    <GraduationCap className="w-5 h-5 text-institutional" /> Proyecto
+                  </h2>
+                  <h3 className="text-xl font-black text-institutional relative z-10">{profile.proyecto_titulo}</h3>
+                </div>
+
+                <p className="text-slate-600 whitespace-pre-wrap leading-relaxed relative z-10">
+                  {profile.proyecto_descripcion}
+                </p>
+
+                {profile.proyecto_valor_monto != null && (
+                  <div className="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-100 px-4 py-2 rounded-xl relative z-10">
+                    <span className="text-xs font-bold text-emerald-600 uppercase tracking-wider">Valor Monetario / Presupuesto:</span>
+                    <span className="text-lg font-black text-emerald-700">
+                      {profile.proyecto_valor_moneda === 'USD' ? '$' : '₡'}
+                      {profile.proyecto_valor_monto.toLocaleString('es-CR')}
+                    </span>
+                  </div>
+                )}
+
+                <div className="flex flex-col sm:flex-row gap-4 pt-2 relative z-10">
+                  {profile.proyecto_documento_url && (
+                    <a 
+                      href={profile.proyecto_documento_url.startsWith('http') ? profile.proyecto_documento_url : `https://${profile.proyecto_documento_url}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 flex items-center justify-center gap-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 px-4 py-3 rounded-xl font-bold transition-colors"
+                    >
+                      Descargar Documento
+                    </a>
+                  )}
+                  {profile.proyecto_video_url && (
+                    <a 
+                      href={profile.proyecto_video_url.startsWith('http') ? profile.proyecto_video_url : `https://${profile.proyecto_video_url}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 flex items-center justify-center gap-2 bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 px-4 py-3 rounded-xl font-bold transition-colors"
+                    >
+                      Ver Video Explicativo
+                    </a>
+                  )}
+                </div>
               </div>
             )}
 

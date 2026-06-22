@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { requestDirectConnection } from '@/actions/matches';
-import { UserPlus, Clock, Check } from 'lucide-react';
+import { requestDirectConnection, cancelDirectConnection } from '@/actions/matches';
+import { UserPlus, Clock, Check, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function ConnectButton({ targetUserId, initialStatus }: { targetUserId: string, initialStatus: 'none' | 'contactado' | 'activo' }) {
@@ -22,6 +22,18 @@ export default function ConnectButton({ targetUserId, initialStatus }: { targetU
     setLoading(false);
   };
 
+  const handleCancel = async () => {
+    setLoading(true);
+    const result = await cancelDirectConnection(targetUserId);
+    if (result.success) {
+      setStatus('none');
+      router.refresh();
+    } else {
+      alert(result.error || 'Error al cancelar la solicitud');
+    }
+    setLoading(false);
+  };
+
   if (status === 'activo') {
     return (
       <div className="flex items-center gap-2 bg-emerald-100 text-emerald-700 px-4 py-2 rounded-xl text-sm font-bold shadow-sm">
@@ -33,9 +45,19 @@ export default function ConnectButton({ targetUserId, initialStatus }: { targetU
 
   if (status === 'contactado') {
     return (
-      <div className="flex items-center gap-2 bg-amber-100 text-amber-700 px-4 py-2 rounded-xl text-sm font-bold shadow-sm">
-        <Clock className="w-4 h-4" />
-        Solicitud Pendiente
+      <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 bg-amber-100 text-amber-700 px-4 py-2 rounded-xl text-sm font-bold shadow-sm">
+          <Clock className="w-4 h-4" />
+          Solicitud Pendiente
+        </div>
+        <button
+          onClick={handleCancel}
+          disabled={loading}
+          className="flex items-center gap-1.5 px-3 py-2 text-sm font-bold text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors disabled:opacity-50"
+        >
+          <X className="w-4 h-4" />
+          {loading ? 'Cancelando...' : 'Cancelar'}
+        </button>
       </div>
     );
   }

@@ -47,6 +47,10 @@ export type CombinedStudentFormData = {
   proyecto_area_tematica: string
   proyecto_tipo: string
   proyecto_porcentaje_avance: number
+  proyecto_valor_monto: number | null
+  proyecto_valor_moneda: string | null
+  proyecto_video_url: string | null
+  proyecto_documento_url: string | null
   proyecto_necesidades: string[]
   
   // Intereses (estudiantes)
@@ -109,6 +113,10 @@ export default function StudentProfileEdit() {
           proyecto_area_tematica: estData.proyecto_area_tematica || '',
           proyecto_tipo: estData.proyecto_tipo || 'tfg',
           proyecto_porcentaje_avance: estData.proyecto_porcentaje_avance || 0,
+          proyecto_valor_monto: estData.proyecto_valor_monto || null,
+          proyecto_valor_moneda: estData.proyecto_valor_moneda || 'CRC',
+          proyecto_video_url: estData.proyecto_video_url || '',
+          proyecto_documento_url: estData.proyecto_documento_url || '',
           proyecto_necesidades: estData.proyecto_necesidades || [],
           
           areas_de_interes: estData.areas_de_interes || [],
@@ -392,6 +400,32 @@ export default function StudentProfileEdit() {
             <div>
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Descripción del Proyecto <span className="text-rose-500">*</span></label>
               <textarea value={formData.proyecto_descripcion} onChange={e => update('proyecto_descripcion', e.target.value)} maxLength={1000} rows={4} className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:border-institutional focus:ring-1 focus:ring-institutional outline-none resize-none" placeholder="Describe brevemente de qué trata tu proyecto..." />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Valor Monetario / Costo</label>
+                <div className="flex gap-2">
+                  <select value={formData.proyecto_valor_moneda || 'CRC'} onChange={e => update('proyecto_valor_moneda', e.target.value)} className="w-24 h-11 px-4 border border-slate-200 rounded-xl focus:border-institutional focus:ring-1 focus:ring-institutional outline-none bg-white">
+                    <option value="CRC">CRC</option>
+                    <option value="USD">USD</option>
+                  </select>
+                  <input type="number" value={formData.proyecto_valor_monto || ''} onChange={e => update('proyecto_valor_monto', e.target.value ? Number(e.target.value) : null)} placeholder="Ej: 150000" className="flex-1 h-11 px-4 border border-slate-200 rounded-xl focus:border-institutional focus:ring-1 focus:ring-institutional outline-none" />
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Enlace del Video Explicativo</label>
+                <input type="url" value={formData.proyecto_video_url || ''} onChange={e => update('proyecto_video_url', e.target.value)} placeholder="Ej: https://youtube.com/watch?v=..." className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-institutional focus:ring-1 focus:ring-institutional outline-none" />
+                <p className="text-[10px] text-slate-500 mt-1">Pega un enlace de YouTube o Vimeo para mostrarlo en tu perfil.</p>
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Enlace al Documento (PDF/Drive)</label>
+                <input type="url" value={formData.proyecto_documento_url || ''} onChange={e => update('proyecto_documento_url', e.target.value)} placeholder="Ej: https://drive.google.com/file/d/..." className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-institutional focus:ring-1 focus:ring-institutional outline-none" />
+                <p className="text-[10px] text-slate-500 mt-1">Enlace para descargar tu presentación o reporte.</p>
+              </div>
             </div>
 
             <div>

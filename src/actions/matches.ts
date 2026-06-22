@@ -434,3 +434,33 @@ export async function requestDirectConnection(targetUserId: string) {
 
   return await requestConnection(matchId);
 }
+
+
+export async function cancelDirectConnection(targetUserId: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) return { success: false, error: 'No autorizado' };
+
+  const { createAdminClient } = await import('@/lib/supabase/admin');
+  const adminClient = createAdminClient();
+
+  const { data: match } = await adminClient
+    .from('matches')
+    .select('id')
+    .or(`and(estudiante_id.eq.${user.id},exalumno_id.eq.${targetUserId}),and(estudiante_id.eq.${targetUserId},exalumno_id.eq.${user.id})`)
+    .eq('estado', 'contactado')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (!match) return { success: false, error: 'No se encontró una solicitud pendiente' };
+
+  const { error } = await adminClient
+    .from('matches')
+    .update({ estado: 'sugerido', iniciado_por: 'plataforma', updated_at: new Date().toISOString() })
+    .eq('id', match.id);
+
+  if (error) return { success: false, error: error.message };
+  return { success: true };
+}
