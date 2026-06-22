@@ -26,6 +26,7 @@ export interface ExalumnoDirectorio {
   score_match: number;
   created_at: string;
   total_count: number;
+  banner_url?: string | null;
 }
 
 interface BuscarParams {
@@ -64,7 +65,10 @@ export async function buscarExalumnosDirectorio(params: BuscarParams): Promise<{
     if (params.pais_ciudad) query = query.ilike('exalumnos.pais_ciudad', `%${params.pais_ciudad}%`)
 
     if (params.search) {
-      query = query.or(`nombre.ilike.%${params.search}%,apellidos.ilike.%${params.search}%,exalumnos.cargo_actual.ilike.%${params.search}%,exalumnos.empresa_actual.ilike.%${params.search}%`)
+      const terminos = params.search.trim().split(/\s+/);
+      terminos.forEach(termino => {
+        query = query.or(`nombre.ilike.%${termino}%,apellidos.ilike.%${termino}%`);
+      });
     }
 
     if (params.carreras && params.carreras.length > 0) {
@@ -94,16 +98,34 @@ export async function buscarExalumnosDirectorio(params: BuscarParams): Promise<{
       return { data: [], total: 0, error: `Error DB: ${dbError.message}` }
     }
 
+    // Cargar foto_url y banner_url personalizados desde profiles
+    const userIds = dbData?.map(d => d.id) || [];
+    let profilesData: any[] = [];
+    if (userIds.length > 0) {
+      try {
+        const { data: profs } = await supabase
+          .from('profiles')
+          .select('id, foto_url, banner_url')
+          .in('id', userIds);
+        if (profs) profilesData = profs;
+      } catch (err) {
+        console.error('Error fetching batch profiles:', err);
+      }
+    }
+
     const perfilActual = await obtenerMiPerfil().catch(() => null);
 
     // Mapear para que cumpla con el tipo ExalumnoDirectorio esperado por la UI
     let mapped = (dbData || []).map((item: any) => {
       const ex = Array.isArray(item.exalumnos) ? item.exalumnos[0] : item.exalumnos;
+      const prof = profilesData.find(p => p.id === item.id);
+      
       const mappedExalumno = {
         id: item.id,
         nombre: item.nombre || 'Exalumno',
         apellidos: item.apellidos || null,
-        foto_url: item.foto_url || null,
+        foto_url: prof?.foto_url || item.foto_url || null,
+        banner_url: prof?.banner_url || null,
         pais_ciudad: ex?.pais_ciudad || null,
         carrera_principal: ex?.carrera_ucr || null,
         escuela_principal: ex?.escuela_facultad || null,

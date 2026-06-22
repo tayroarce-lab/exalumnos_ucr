@@ -219,8 +219,7 @@ export async function getMyMatches() {
     `)
     .is('deleted_at', null)
     .or(`estudiante_id.eq.${user.id},exalumno_id.eq.${user.id}`)
-    .order('score_match', { ascending: false })
-    .limit(5);
+    .order('score_match', { ascending: false });
 
   if (error) {
     logError('matches.ts/getMyMatches', error, { userId: user.id });
@@ -257,8 +256,7 @@ export async function getMyMatches() {
       `)
       .is('deleted_at', null)
       .or(`estudiante_id.eq.${user.id},exalumno_id.eq.${user.id}`)
-      .order('score_match', { ascending: false })
-      .limit(5);
+      .order('score_match', { ascending: false });
 
       if (newData) {
         finalData = newData;

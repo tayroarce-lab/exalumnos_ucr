@@ -3,6 +3,7 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { X, Heart, Users, Briefcase, GraduationCap, Lock } from 'lucide-react';
+import { useLockBodyScroll } from '@/hooks/useLockBodyScroll';
 
 // ============================================================
 // Tipos de apoyo disponibles en el modal
@@ -47,6 +48,8 @@ export default function ModalOfrecerApoyo({
   onClose,
 }: PropModalOfrecerApoyo) {
   const router = useRouter();
+
+  useLockBodyScroll(true);
 
   // Construir opciones dinámicas según lo que el estudiante busca
   const OPCIONES: TipoApoyoOpcion[] = [
@@ -115,12 +118,16 @@ export default function ModalOfrecerApoyo({
 
   return (
     // Overlay
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
-    >
-      {/* Panel del modal */}
-      <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 overflow-y-auto">
+      <div 
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" 
+        onClick={onClose} 
+      />
+      
+      {/* Wrapper centrado */}
+      <div className="flex min-h-screen items-center justify-center p-4">
+        {/* Panel del modal */}
+        <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 z-10">
 
         {/* Header */}
         <div className="bg-gradient-to-r from-[#003B4F] to-[#1A5B75] px-6 py-5">
@@ -214,6 +221,7 @@ export default function ModalOfrecerApoyo({
             </a>{' '}
             de la Fundación Exalumnos UCR.
           </p>
+        </div>
         </div>
       </div>
     </div>
