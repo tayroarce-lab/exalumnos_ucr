@@ -14,6 +14,7 @@ import {
   TIPOS_APOYO,
   CARRERA_TO_ESCUELA,
 } from '@/constants/catalogs'
+import { logError } from '@/lib/logger'
 
 const sedes = ['Sede Rodrigo Facio', 'Sede de Occidente', 'Sede del Atlántico', 'Sede de Guanacaste', 'Sede del Pacífico', 'Sede Interuniversitaria de Alajuela', 'Sede del Sur']
 const necesidadesOpciones = ['Financiamiento', 'Mentoría técnica', 'Acceso a datos', 'Infraestructura', 'Validación empresarial', 'Empleo paralelo']
@@ -126,7 +127,7 @@ export default function StudentProfileEdit() {
           busca_pasantia: usersData.busca_pasantia || false,
         })
       } catch (err) {
-        console.error(err)
+        logError('StudentProfileEdit.tsx/loadData', err);
       } finally {
         setIsLoading(false)
       }

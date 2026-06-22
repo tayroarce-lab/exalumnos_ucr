@@ -12,15 +12,35 @@
   color: #CBD5E1 !important; /* light gray for readability */
 }
 
-/* Fix some specific colors on elements that have a white background (like Cards) */
+
+/* Change white cards to Turquoise (#004C63) in Exalumnos Dark Mode */
+.exalumnos-theme-dark .bg-white {
+  background-color: #004C63 !important;
+  border-color: #003B4C !important;
+}
+
+/* Ensure text is legible on the Turquoise background */
+.exalumnos-theme-dark .bg-white,
+.exalumnos-theme-dark .bg-white .text-slate-900,
 .exalumnos-theme-dark .bg-white .text-slate-850,
 .exalumnos-theme-dark .bg-white .text-slate-800,
-.exalumnos-theme-dark .bg-white .text-slate-900 {
-  color: #1E293B !important; /* Keep dark inside white cards */
+.exalumnos-theme-dark .bg-white h1,
+.exalumnos-theme-dark .bg-white h2,
+.exalumnos-theme-dark .bg-white h3 {
+  color: #FFFFFF !important;
+}
+
+/* Make nested cards inside the turquoise background look good */
+.exalumnos-theme-dark .bg-white .bg-slate-50,
+.exalumnos-theme-dark .bg-white .bg-slate-100,
+.exalumnos-theme-dark .bg-white .bg-slate-200 {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 .exalumnos-theme-dark .bg-white .text-slate-700,
+.exalumnos-theme-dark .bg-white .text-slate-600,
 .exalumnos-theme-dark .bg-white .text-slate-500,
-.exalumnos-theme-dark .bg-white .text-slate-600 {
-  color: #64748B !important;
+.exalumnos-theme-dark .bg-white p {
+  color: #E2E8F0 !important; /* light gray/blue for readability */
 }

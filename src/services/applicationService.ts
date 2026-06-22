@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/client';
 import { generarPdfAtsFriendly, DatosPerfilUCR } from './pdfService';
+import { logError } from '@/lib/logger';
 
 // =============================================================================
 // SERVICIO: applicationService
@@ -30,6 +31,7 @@ export async function enviarAplicacion(datos: DatosAplicacion): Promise<Respuest
 
   const { data: { user }, error: userError } = await supabase.auth.getUser();
   if (userError || !user) {
+    if (userError) logError('applicationService.ts/enviarAplicacion', userError);
     return { exito: false, mensaje: 'Usuario no autenticado' };
   }
 
@@ -38,11 +40,16 @@ export async function enviarAplicacion(datos: DatosAplicacion): Promise<Respuest
   // 1. Lógica de CV: Autogenerado vs Subido Manualmente
   if (datos.usar_perfil_ucr) {
     // Modo Autogenerado ATS-Friendly: Obtener datos de las tablas modulares
-    const { data: estudianteData } = await supabase.from('users').select('*').eq('id', user.id).single();
-    const { data: educacion } = await supabase.from('cv_educacion').select('*').eq('estudiante_id', user.id);
-    const { data: experiencia } = await supabase.from('cv_experiencia').select('*').eq('estudiante_id', user.id);
-    const { data: proyectos } = await supabase.from('cv_proyectos').select('*').eq('estudiante_id', user.id);
-    const { data: habilidades } = await supabase.from('cv_habilidades').select('*').eq('estudiante_id', user.id).single();
+    const { data: estudianteData, error: e1 } = await supabase.from('users').select('*').eq('id', user.id).single();
+    const { data: educacion, error: e2 } = await supabase.from('cv_educacion').select('*').eq('estudiante_id', user.id);
+    const { data: experiencia, error: e3 } = await supabase.from('cv_experiencia').select('*').eq('estudiante_id', user.id);
+    const { data: proyectos, error: e4 } = await supabase.from('cv_proyectos').select('*').eq('estudiante_id', user.id);
+    const { data: habilidades, error: e5 } = await supabase.from('cv_habilidades').select('*').eq('estudiante_id', user.id).single();
+    if (e1) logError('applicationService.ts/enviarAplicacion', e1, { userId: user.id });
+    if (e2) logError('applicationService.ts/enviarAplicacion', e2, { userId: user.id });
+    if (e3) logError('applicationService.ts/enviarAplicacion', e3, { userId: user.id });
+    if (e4) logError('applicationService.ts/enviarAplicacion', e4, { userId: user.id });
+    if (e5 && e5.code !== 'PGRST116') logError('applicationService.ts/enviarAplicacion', e5, { userId: user.id });
 
     const perfil: DatosPerfilUCR = {
       nombre: estudianteData?.nombre || user.user_metadata?.nombre || 'Estudiante UCR',
@@ -67,6 +74,7 @@ export async function enviarAplicacion(datos: DatosAplicacion): Promise<Respuest
       if (uploadError) throw uploadError;
       cvUrl = filePath;
     } catch (err: any) {
+      logError('applicationService.ts/enviarAplicacion', err, { userId: user.id });
       return { exito: false, mensaje: `Error autogenerando PDF: ${err.message}` };
     }
 
@@ -80,6 +88,7 @@ export async function enviarAplicacion(datos: DatosAplicacion): Promise<Respuest
       .upload(filePath, datos.cv_file);
 
     if (uploadError) {
+      logError('applicationService.ts/enviarAplicacion', uploadError, { userId: user.id });
       return { exito: false, mensaje: `Error subiendo CV: ${uploadError.message}` };
     }
     cvUrl = filePath;
@@ -99,7 +108,7 @@ export async function enviarAplicacion(datos: DatosAplicacion): Promise<Respuest
     .single();
 
   if (error) {
-    // Si hay duplicado, saltará el error del constraint UNIQUE
+    logError('applicationService.ts/enviarAplicacion', error, { userId: user.id, positionId: datos.position_id });
     return { exito: false, mensaje: `No se pudo enviar la aplicación: ${error.message}` };
   }
 
@@ -125,6 +134,7 @@ export async function cambiarEstadoAplicacion(
     .eq('id', aplicacionId);
 
   if (error) {
+    logError('applicationService.ts/cambiarEstadoAplicacion', error, { aplicacionId });
     return { exito: false, mensaje: `Error al actualizar estado: ${error.message}` };
   }
 
@@ -161,6 +171,7 @@ export async function retirarAplicacion(aplicacionId: string): Promise<Respuesta
     .eq('id', aplicacionId);
 
   if (error) {
+    logError('applicationService.ts/retirarAplicacion', error, { aplicacionId });
     return { exito: false, mensaje: `No se puede retirar la aplicación: ${error.message}` };
   }
 
