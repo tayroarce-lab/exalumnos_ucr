@@ -56,8 +56,7 @@ export async function actualizarPerfilEstudiante(datos: PerfilEstudianteInput) {
   // Actualizar estudiantes
   const { error: estError } = await supabase
     .from('estudiantes')
-    .update({ ...restDatos, areas_de_interes })
-    .eq('user_id', user.id)
+    .upsert({ user_id: user.id, ...restDatos, areas_de_interes }, { onConflict: 'user_id' })
 
   if (estError) {
     logError('students.ts/actualizarPerfilEstudiante', estError, { userId: user.id });
@@ -68,86 +67,190 @@ export async function actualizarPerfilEstudiante(datos: PerfilEstudianteInput) {
   return { success: true }
 }
 
+/**
+ * Server Action para completar el onboarding inicial del estudiante.
+ * Usa adminClient para bypassear la RLS y poder actualizar la tabla users
+ * (perfil_completo, busca_*). Sin esto, el sistema sigue pidiendo llenar el
+ * formulario aunque ya fue llenado.
+ */
+export async function completarOnboardingEstudiante(datos: {
+  carnet_ucr: string
+  carrera: string
+  escuela_facultad: string
+  sede: string
+  anio_ingreso: number
+  nivel_academico: string
+  promedio_ponderado?: number | null
+  beca_socioeconomica: string
+  proyecto_titulo: string
+  proyecto_descripcion: string
+  proyecto_area_tematica: string
+  proyecto_tipo: string
+  proyecto_porcentaje_avance: number
+  proyecto_necesidades: string[]
+  areas_de_interes: string[]
+  busca_financiamiento: boolean
+  busca_mentoria: boolean
+  busca_empleo: boolean
+  busca_pasantia: boolean
+  habilidades: string[]
+}) {
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      return { success: false, error: 'No autenticado. Por favor, inicia sesión nuevamente.' }
+    }
+
+    // Usar adminClient para saltarse la RLS en users
+    const adminClient = createAdminClient()
+
+    // 1. Guardar datos académicos del estudiante usando adminClient
+    const { error: estError } = await adminClient.from('estudiantes').upsert({
+      user_id: user.id,
+      carnet_ucr: datos.carnet_ucr,
+      carrera: datos.carrera,
+      escuela_facultad: datos.escuela_facultad,
+      sede: datos.sede,
+      anio_ingreso: datos.anio_ingreso,
+      nivel_academico: datos.nivel_academico,
+      promedio_ponderado: datos.promedio_ponderado === 0 ? null : datos.promedio_ponderado,
+      beca_socioeconomica: datos.beca_socioeconomica,
+      proyecto_titulo: datos.proyecto_titulo,
+      proyecto_descripcion: datos.proyecto_descripcion,
+      proyecto_area_tematica: datos.proyecto_area_tematica,
+      proyecto_tipo: datos.proyecto_tipo,
+      proyecto_porcentaje_avance: datos.proyecto_porcentaje_avance,
+      proyecto_necesidades: datos.proyecto_necesidades,
+      areas_de_interes: datos.areas_de_interes,
+      busca_financiamiento: datos.busca_financiamiento,
+      busca_mentoria: datos.busca_mentoria,
+      busca_empleo: datos.busca_empleo,
+      busca_pasantia: datos.busca_pasantia,
+      habilidades: datos.habilidades,
+      perfil_completo: true,
+    }, { onConflict: 'user_id' })
+
+    if (estError) {
+      logError('students.ts/completarOnboardingEstudiante', estError, { userId: user.id })
+      return { success: false, error: 'Error al guardar datos académicos: ' + estError.message }
+    }
+
+    // 2. Marcar perfil_completo en profiles usando adminClient
+    const { error: profilesError } = await adminClient.from('profiles').update({
+      perfil_completo: 1 as any,
+    }).eq('id', user.id)
+
+    if (profilesError) {
+      logError('students.ts/completarOnboardingEstudiante', profilesError, { userId: user.id })
+      console.error('Warning: No se pudo actualizar perfil_completo en profiles:', profilesError.message)
+    }
+
+    // 3. Actualizar flags de búsqueda en users
+    const { error: usersError } = await adminClient.from('users').update({
+      busca_mentoria: datos.busca_mentoria,
+      busca_empleo: datos.busca_empleo,
+      busca_pasantia: datos.busca_pasantia,
+    }).eq('id', user.id)
+
+    if (usersError) {
+      logError('students.ts/completarOnboardingEstudiante', usersError, { userId: user.id })
+      console.error('Warning: No se pudo actualizar flags en users:', usersError.message)
+    }
+
+    revalidatePath('/completar-perfil')
+    revalidatePath('/student-dashboard')
+    return { success: true }
+  } catch (err: any) {
+    logError('students.ts/completarOnboardingEstudiante', err)
+    return { success: false, error: err.message || 'Error interno del servidor.' }
+  }
+}
+
 export async function actualizarPerfilCompletoEstudiante(datos: any) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    logError('students.ts/actualizarPerfilCompletoEstudiante', new Error('No autenticado'));
-    return { success: false, error: 'No autenticado' };
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      logError('students.ts/actualizarPerfilCompletoEstudiante', new Error('No autenticado'));
+      return { success: false, error: 'No autenticado. Por favor, inicia sesión nuevamente.' }
+    }
+
+    const adminClient = createAdminClient()
+
+    // 1. Actualizar tabla profiles
+    const profilePayload = {
+      id: user.id,
+      full_name: datos.full_name,
+      foto_url: datos.foto_url,
+      pais_ciudad: datos.pais_ciudad,
+      linkedin_url: datos.linkedin_url,
+      bio: datos.bio,
+      es_exalumno: false // Siempre forzamos a false porque es un estudiante
+    }
+
+    const { error: profileError } = await adminClient
+      .from('profiles')
+      .upsert(profilePayload)
+
+    if (profileError) {
+      logError('students.ts/actualizarPerfilCompletoEstudiante', profileError, { userId: user.id });
+      return { success: false, error: 'Error al actualizar perfiles: ' + profileError.message }
+    }
+
+    // 2. Actualizar tabla users
+    const userPayload = {
+      busca_mentoria: datos.busca_mentoria,
+      busca_empleo: datos.busca_empleo,
+      busca_pasantia: datos.busca_pasantia,
+    }
+
+    const { error: usersError } = await supabase
+      .from('users')
+      .update(userPayload)
+      .eq('id', user.id)
+      .eq('rol', 'estudiante')
+
+    if (usersError) {
+      logError('students.ts/actualizarPerfilCompletoEstudiante', usersError, { userId: user.id });
+      return { success: false, error: 'Error al actualizar usuario: ' + usersError.message }
+    }
+
+    // 3. Actualizar tabla estudiantes
+    const estudiantePayload = {
+      carrera: datos.carrera,
+      escuela_facultad: datos.escuela_facultad,
+      sede: datos.sede,
+      anio_ingreso: datos.anio_ingreso,
+      proyecto_titulo: datos.proyecto_titulo,
+      proyecto_descripcion: datos.proyecto_descripcion,
+      proyecto_area_tematica: datos.proyecto_area_tematica,
+      proyecto_tipo: datos.proyecto_tipo,
+      proyecto_porcentaje_avance: datos.proyecto_porcentaje_avance,
+      proyecto_valor_monto: datos.proyecto_valor_monto,
+      proyecto_valor_moneda: datos.proyecto_valor_moneda,
+      proyecto_video_url: datos.proyecto_video_url,
+      proyecto_documento_url: datos.proyecto_documento_url,
+      proyecto_necesidades: datos.proyecto_necesidades,
+      areas_de_interes: datos.areas_de_interes,
+      busca_financiamiento: datos.busca_financiamiento,
+    }
+
+    const { error: estError } = await supabase
+      .from('estudiantes')
+      .update(estudiantePayload)
+      .eq('user_id', user.id)
+
+    if (estError) {
+      logError('students.ts/actualizarPerfilCompletoEstudiante', estError, { userId: user.id });
+      return { success: false, error: 'Error al actualizar datos de estudiante: ' + estError.message }
+    }
+
+    revalidatePath('/profile')
+    return { success: true }
+  } catch (err: any) {
+    return { success: false, error: err.message || 'Error interno del servidor.' }
   }
-
-  const adminClient = createAdminClient()
-
-  // 1. Actualizar tabla profiles
-  const profilePayload = {
-    id: user.id,
-    full_name: datos.full_name,
-    foto_url: datos.foto_url,
-    pais_ciudad: datos.pais_ciudad,
-    linkedin_url: datos.linkedin_url,
-    bio: datos.bio,
-    es_exalumno: false // Siempre forzamos a false porque es un estudiante
-  }
-
-  const { error: profileError } = await adminClient
-    .from('profiles')
-    .upsert(profilePayload)
-
-  if (profileError) {
-    logError('students.ts/actualizarPerfilCompletoEstudiante', profileError, { userId: user.id });
-    return { success: false, error: 'Error al actualizar perfiles' };
-  }
-
-  // 2. Actualizar tabla users
-  const userPayload = {
-    busca_mentoria: datos.busca_mentoria,
-    busca_empleo: datos.busca_empleo,
-    busca_pasantia: datos.busca_pasantia,
-  }
-
-  const { error: usersError } = await supabase
-    .from('users')
-    .update(userPayload)
-    .eq('id', user.id)
-    .eq('rol', 'estudiante')
-
-  if (usersError) {
-    logError('students.ts/actualizarPerfilCompletoEstudiante', usersError, { userId: user.id });
-    return { success: false, error: 'Error al actualizar usuario' };
-  }
-
-  // 3. Actualizar tabla estudiantes
-  const estudiantePayload = {
-    carrera: datos.carrera,
-    escuela_facultad: datos.escuela_facultad,
-    sede: datos.sede,
-    anio_ingreso: datos.anio_ingreso,
-    proyecto_titulo: datos.proyecto_titulo,
-    proyecto_descripcion: datos.proyecto_descripcion,
-    proyecto_area_tematica: datos.proyecto_area_tematica,
-    proyecto_tipo: datos.proyecto_tipo,
-    proyecto_porcentaje_avance: datos.proyecto_porcentaje_avance,
-    proyecto_valor_monto: datos.proyecto_valor_monto,
-    proyecto_valor_moneda: datos.proyecto_valor_moneda,
-    proyecto_video_url: datos.proyecto_video_url,
-    proyecto_documento_url: datos.proyecto_documento_url,
-    proyecto_necesidades: datos.proyecto_necesidades,
-    areas_de_interes: datos.areas_de_interes,
-    busca_financiamiento: datos.busca_financiamiento,
-  }
-
-  const { error: estError } = await supabase
-    .from('estudiantes')
-    .update(estudiantePayload)
-    .eq('user_id', user.id)
-
-  if (estError) {
-    logError('students.ts/actualizarPerfilCompletoEstudiante', estError, { userId: user.id });
-    return { success: false, error: 'Error al actualizar datos de estudiante' };
-  }
-
-  revalidatePath('/profile')
-  return { success: true }
 }
 
 export async function obtenerMiPerfilEstudiante() {

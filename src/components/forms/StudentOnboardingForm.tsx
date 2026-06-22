@@ -3,9 +3,9 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { z } from 'zod';
-import { createClient } from '@/lib/supabase/client';
-import { AlertCircle, ArrowLeft, ArrowRight, CheckCircle2 } from 'lucide-react';
-import { CARRERAS_UCR, CARRERA_TO_ESCUELA, CARRERA_TO_SEDES } from '@/constants/catalogs';
+import { completarOnboardingEstudiante } from '@/actions/students';
+import { AlertCircle, ArrowLeft, ArrowRight, CheckCircle2, ChevronDown } from 'lucide-react';
+import { AREAS_INTERES, CARRERAS_UCR, CARRERA_TO_ESCUELA, CARRERA_TO_SEDES } from '@/constants/catalogs';
 
 const studentSchema = z.object({
   carnet_ucr: z.string().min(5, "Formato inválido"),
@@ -60,7 +60,7 @@ const initialData: StudentFormData = {
   habilidadesText: ''
 };
 
-const areasTematicas = ['Tecnología', 'Salud', 'Ciencias Básicas', 'Ingeniería', 'Ciencias Sociales', 'Artes y Letras', 'Economía y Negocios', 'Medio Ambiente', 'Educación', 'Derecho', 'Arquitectura y Diseño', 'Agroalimentarias'];
+const sedes = ['Sede Rodrigo Facio', 'Sede de Occidente', 'Sede del Atlántico', 'Sede de Guanacaste', 'Sede del Pacífico', 'Sede Interuniversitaria de Alajuela', 'Sede del Sur'];
 const necesidadesOpciones = ['Financiamiento', 'Mentoría técnica', 'Acceso a datos', 'Infraestructura', 'Validación empresarial', 'Empleo paralelo'];
 
 export default function StudentOnboardingForm() {
@@ -120,21 +120,14 @@ export default function StudentOnboardingForm() {
     try {
       // Validate
       const validData = studentSchema.parse(formData);
-      
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        throw new Error("No hay usuario autenticado.");
-      }
 
       // Convert habilidadesText to array
       const habilidadesArray = validData.habilidadesText
         ? validData.habilidadesText.split(',').map(h => h.trim()).filter(h => h.length > 0)
         : [];
 
-      // Update in DB
-      const { error } = await supabase.from('estudiantes').update({
+      // Usar Server Action con adminClient para guardar todo y marcar perfil_completo=true
+      const result = await completarOnboardingEstudiante({
         carnet_ucr: validData.carnet_ucr,
         carrera: validData.carrera,
         escuela_facultad: validData.escuela_facultad,
@@ -155,12 +148,13 @@ export default function StudentOnboardingForm() {
         busca_empleo: validData.busca_empleo,
         busca_pasantia: validData.busca_pasantia,
         habilidades: habilidadesArray,
-        perfil_completo: true
-      }).eq('user_id', user.id);
+      });
 
-      if (error) throw error;
+      if (!result.success) {
+        throw new Error(result.error || 'Error al guardar el perfil');
+      }
 
-      router.push('/dashboard');
+      router.push('/student-dashboard');
     } catch (err: any) {
       if (err instanceof z.ZodError) {
         const newErrors: Record<string, string> = {};
@@ -249,12 +243,15 @@ export default function StudentOnboardingForm() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Sede UCR *</label>
-                <select name="sede" value={formData.sede} onChange={handleChange} required
-                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white">
-                  <option value="" disabled>Seleccione una sede</option>
-                  {(CARRERA_TO_SEDES[formData.carrera] || []).map(s => <option key={s} value={s}>{s}</option>)}
-                </select>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Sede UCR <span className="text-rose-500">*</span></label>
+                <div className="relative">
+                  <select name="sede" value={formData.sede} onChange={handleChange} required
+                    className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none bg-white appearance-none">
+                    <option value="" disabled>Seleccione una sede</option>
+                    {(CARRERA_TO_SEDES[formData.carrera] || sedes).map(s => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                </div>
               </div>
 
               <div>
@@ -264,14 +261,17 @@ export default function StudentOnboardingForm() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Nivel Académico *</label>
-                <select name="nivel_academico" value={formData.nivel_academico} onChange={handleChange} required
-                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white">
-                  <option value="bachillerato">Bachillerato</option>
-                  <option value="licenciatura">Licenciatura</option>
-                  <option value="maestria">Maestría</option>
-                  <option value="doctorado">Doctorado</option>
-                </select>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Nivel Académico <span className="text-rose-500">*</span></label>
+                <div className="relative">
+                  <select name="nivel_academico" value={formData.nivel_academico} onChange={handleChange} required
+                    className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none bg-white appearance-none">
+                    <option value="bachillerato">Bachillerato</option>
+                    <option value="licenciatura">Licenciatura</option>
+                    <option value="maestria">Maestría</option>
+                    <option value="doctorado">Doctorado</option>
+                  </select>
+                  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                </div>
               </div>
 
               <div>
@@ -298,16 +298,19 @@ export default function StudentOnboardingForm() {
             </div>
 
             <div className="max-w-md">
-              <label className="block text-sm font-medium text-slate-700 mb-2">Nivel de beca socioeconómica *</label>
-              <select name="beca_socioeconomica" value={formData.beca_socioeconomica} onChange={handleChange} required
-                className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white text-base">
-                <option value="ninguna">Sin beca</option>
-                <option value="nivel1">Nivel 1</option>
-                <option value="nivel2">Nivel 2</option>
-                <option value="nivel3">Nivel 3</option>
-                <option value="nivel4">Nivel 4</option>
-                <option value="nivel5">Nivel 5</option>
-              </select>
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Nivel de beca socioeconómica <span className="text-rose-500">*</span></label>
+              <div className="relative">
+                <select name="beca_socioeconomica" value={formData.beca_socioeconomica} onChange={handleChange} required
+                  className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none bg-white appearance-none text-base">
+                  <option value="ninguna">Sin beca</option>
+                  <option value="nivel1">Nivel 1</option>
+                  <option value="nivel2">Nivel 2</option>
+                  <option value="nivel3">Nivel 3</option>
+                  <option value="nivel4">Nivel 4</option>
+                  <option value="nivel5">Nivel 5</option>
+                </select>
+                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+              </div>
             </div>
           </div>
         )}
@@ -332,26 +335,36 @@ export default function StudentOnboardingForm() {
                 <p className="text-xs text-slate-500 mt-1 text-right">{formData.proyecto_descripcion.length}/1000</p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Área temática principal *</label>
-                  <select name="proyecto_area_tematica" value={formData.proyecto_area_tematica} onChange={handleChange} required
-                    className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white">
-                    <option value="" disabled>Seleccione un área</option>
-                    {areasTematicas.map(a => <option key={a} value={a}>{a}</option>)}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Tipo de proyecto *</label>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Tipo de proyecto *</label>
+                <div className="relative">
                   <select name="proyecto_tipo" value={formData.proyecto_tipo} onChange={handleChange} required
-                    className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+                    className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white appearance-none">
                     <option value="tfg">TFG</option>
                     <option value="tesis">Tesis</option>
                     <option value="practica_dirigida">Práctica Dirigida</option>
                     <option value="seminario">Seminario</option>
                   </select>
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-3">Área temática principal *</label>
+                <div className="relative">
+                  <select
+                    value={formData.proyecto_area_tematica}
+                    onChange={e => setFormData(prev => ({ ...prev, proyecto_area_tematica: e.target.value }))}
+                    className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none bg-white appearance-none"
+                  >
+                    <option value="">Seleccione un área...</option>
+                    {AREAS_INTERES.map(area => (
+                      <option key={area} value={area}>{area}</option>
+                    ))}
+                  </select>
+                  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                </div>
+                {errors.proyecto_area_tematica && <p className="text-red-500 text-xs mt-2">{errors.proyecto_area_tematica}</p>}
               </div>
 
               <div>
@@ -390,22 +403,19 @@ export default function StudentOnboardingForm() {
             </p>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-3">Áreas de interés (Mínimo 1) *</label>
-              <div className="flex flex-wrap gap-2">
-                {areasTematicas.map(area => (
-                  <button
-                    key={area}
-                    type="button"
-                    onClick={() => handleCheckboxArray('areas_de_interes', area)}
-                    className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
-                      formData.areas_de_interes.includes(area)
-                        ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-                        : 'bg-white text-slate-700 border-slate-300 hover:border-blue-400 hover:bg-blue-50'
-                    }`}
-                  >
-                    {area}
-                  </button>
-                ))}
+              <label className="block text-sm font-medium text-slate-700 mb-3">Área de interés principal *</label>
+              <div className="relative">
+                <select 
+                  value={formData.areas_de_interes[0] || ''} 
+                  onChange={e => setFormData(prev => ({ ...prev, areas_de_interes: e.target.value ? [e.target.value] : [] }))}
+                  className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-blue-900 focus:ring-1 focus:ring-blue-900 outline-none bg-white appearance-none"
+                >
+                  <option value="">Seleccione un área...</option>
+                  {AREAS_INTERES.map(area => (
+                    <option key={area} value={area}>{area}</option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
               </div>
               {errors.areas_de_interes && <p className="text-red-500 text-xs mt-2">{errors.areas_de_interes}</p>}
             </div>
@@ -478,14 +488,14 @@ export default function StudentOnboardingForm() {
         {/* --- Navigation --- */}
         <div className="mt-8 flex justify-between items-center pt-6 border-t border-slate-100">
           <button type="button" onClick={handlePrev} disabled={step === 1}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-colors ${step === 1 ? 'text-slate-400 cursor-not-allowed' : 'text-slate-600 hover:bg-slate-100'}`}>
-            <ArrowLeft size={18} /> Atrás
+            className={`flex items-center gap-2 px-5 py-2.5 font-bold uppercase text-xs transition-colors ${step === 1 ? 'invisible' : 'text-slate-600 hover:text-slate-900'}`}>
+            <ArrowLeft size={16} /> Anterior
           </button>
           
           <button type="submit" disabled={isSubmitting}
-            className={`flex items-center gap-2 px-6 py-2.5 rounded-lg font-semibold text-white transition-all shadow-sm ${isSubmitting ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 hover:shadow'}`}>
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold uppercase text-xs text-white transition-all shadow-sm ${isSubmitting ? 'bg-blue-900/50 cursor-not-allowed' : 'bg-blue-900 hover:bg-blue-950 hover:shadow'}`}>
             {isSubmitting ? 'Guardando...' : (step === 6 ? 'Completar Perfil' : 'Siguiente')}
-            {step < 6 && <ArrowRight size={18} />}
+            {step < 6 && <ArrowRight size={16} />}
           </button>
         </div>
       </form>
