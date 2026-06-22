@@ -18,6 +18,7 @@ import {
   AREAS_INTERES,
   TIPOS_APOYO,
   CARRERA_TO_ESCUELA,
+  CARRERA_TO_SEDES,
 } from '@/constants/catalogs'
 import { useProfile } from '@/contexts/ProfileContext'
 import StudentProfileEdit from '@/components/forms/StudentProfileEdit'
@@ -39,6 +40,7 @@ function ProgressFill({ value, colorClass = 'bg-institutional' }: { value: numbe
 interface AcademicEntry {
   carrera: string
   escuela: string
+  sede: string
   anio: string
 }
 
@@ -77,7 +79,7 @@ const INITIAL: ProfileFormData = {
   pais_ciudad: '',
   linkedin_url: '',
   bio: '',
-  academic: [{ carrera: '', escuela: '', anio: '' }],
+  academic: [{ carrera: '', escuela: '', sede: '', anio: '' }],
   empresa_actual: '',
   cargo_actual: '',
   sector_industria: [],
@@ -158,9 +160,9 @@ function TextAreaInput({ label, required, value, onChange, placeholder, max }: {
   )
 }
 
-function SelectInput({ label, required, value, onChange, options, placeholder }: {
+function SelectInput({ label, required, value, onChange, options, placeholder, disabled }: {
   label: string; required?: boolean; value: string
-  onChange: (v: string) => void; options: string[]; placeholder?: string
+  onChange: (v: string) => void; options: string[]; placeholder?: string; disabled?: boolean
 }) {
   const id = label.toLowerCase().replace(/\s+/g, '-')
   return (
@@ -172,7 +174,8 @@ function SelectInput({ label, required, value, onChange, options, placeholder }:
         id={id}
         value={value}
         onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onChange(e.target.value)}
-        className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10 transition-all appearance-none"
+        disabled={disabled}
+        className={`w-full h-11 px-4 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10 transition-all appearance-none ${disabled ? 'bg-slate-100 opacity-70 cursor-not-allowed' : 'bg-slate-50'}`}
       >
         <option value="">{placeholder || 'Seleccionar…'}</option>
         {options.map(o => <option key={o} value={o}>{o}</option>)}
@@ -408,11 +411,16 @@ function AcademicEntryRow({ entry, index, updateEntryFields, removeEntry, facult
   const years = Array.from({ length: currentYear - 1970 + 1 }, (_, i) => String(currentYear - i))
   
   const handleCareerChange = (value: string) => {
-    updateEntryFields(index, { carrera: value })
+    const autoEscuela = CARRERA_TO_ESCUELA[value] || ''
+    updateEntryFields(index, { carrera: value, escuela: autoEscuela, sede: '' })
   }
 
   const handleEscuelaChange = (value: string) => {
     updateEntryFields(index, { escuela: value })
+  }
+
+  const handleSedeChange = (value: string) => {
+    updateEntryFields(index, { sede: value })
   }
 
   const handleAnioChange = (value: string) => {
@@ -431,11 +439,19 @@ function AcademicEntryRow({ entry, index, updateEntryFields, removeEntry, facult
             placeholder="Seleccionar carrera..."
           />
           <SelectInput
+            label="Sede de la Carrera" required
+            value={entry.sede || ''}
+            onChange={handleSedeChange}
+            options={CARRERA_TO_SEDES[entry.carrera] || []}
+            placeholder="Seleccionar sede..."
+          />
+          <SelectInput
             label="Escuela / Facultad" required
             value={entry.escuela}
             onChange={handleEscuelaChange}
             options={facultadesOptions}
-            placeholder="Seleccionar escuela/facultad..."
+            placeholder="Se asigna automáticamente"
+            disabled={true}
           />
           <SelectInput
             label="Año de Graduación" required
@@ -468,7 +484,7 @@ function SeccionAcademica({ data, update }: { data: ProfileFormData; update: (k:
     update('academic', newAcademic)
   }
   const addEntry = () => {
-    update('academic', [...data.academic, { carrera: '', escuela: '', anio: '' }])
+    update('academic', [...data.academic, { carrera: '', escuela: '', sede: '', anio: '' }])
   }
   const removeEntry = (idx: number) => {
     update('academic', data.academic.filter((_, i) => i !== idx))
@@ -651,6 +667,7 @@ function validateStep(step: number, data: ProfileFormData, isStudent: boolean = 
   if (step === 2) {
     if (data.academic.length === 0 || !data.academic[0]?.carrera) errs.push('Selecciona al menos una carrera UCR.')
     if (!data.academic[0]?.escuela) errs.push('La escuela / facultad es obligatoria.')
+    if (!data.academic[0]?.sede) errs.push('La sede es obligatoria.')
     if (!data.academic[0]?.anio) errs.push('El año de graduación es obligatorio.')
   }
   if (step === 3 && !isStudent) {
@@ -693,7 +710,7 @@ export default function ProfileEditPage() {
         pais_ciudad: profile.pais_ciudad || '',
         linkedin_url: profile.linkedin_url || '',
         bio: profile.bio || '',
-        academic: (profile.academic as unknown as AcademicEntry[]) || [{ carrera: '', escuela: '', anio: '' }],
+        academic: (profile.academic as unknown as AcademicEntry[]) || [{ carrera: '', escuela: '', sede: '', anio: '' }],
         empresa_actual: profile.empresa_actual || '',
         cargo_actual: profile.cargo_actual || '',
         sector_industria: profile.sector_industria || [],

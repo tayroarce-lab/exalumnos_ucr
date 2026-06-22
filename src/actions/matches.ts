@@ -138,6 +138,8 @@ export async function updateMatch(
     const { data } = await adminClient
       .from('matches')
       .select(`
+        exalumno_id,
+        estudiante_id,
         exalumno:users!matches_exalumno_id_fkey(nombre, email),
         estudiante:users!matches_estudiante_id_fkey(nombre, email)
       `)
@@ -156,6 +158,28 @@ export async function updateMatch(
       if (estEmail && estNombre) await sendMatchStatusUpdateEmail(estEmail, estNombre, estado, resultado, exNombre, exEmail);
       
       console.log('Finished sending active status emails');
+
+      const { createNotification } = await import('@/actions/notifications');
+      const titulo = estado === 'activo' ? 'Conexión aceptada' : 'Conexión declinada';
+      
+      // Notify Exalumno
+      await createNotification({
+        user_id: matchDetails.exalumno_id,
+        titulo,
+        mensaje: `La conexión con el estudiante ${estNombre} ha sido ${estado === 'activo' ? 'aceptada' : 'declinada'}.`,
+        tipo: 'mentoria',
+        link: '/mis-matches'
+      });
+
+      // Notify Estudiante
+      await createNotification({
+        user_id: matchDetails.estudiante_id,
+        titulo,
+        mensaje: `La conexión con el exalumno ${exNombre} ha sido ${estado === 'activo' ? 'aceptada' : 'declinada'}.`,
+        tipo: 'mentoria',
+        link: '/mis-matches'
+      });
+
     } else {
       console.error('Failed to retrieve matchDetails for email');
     }
@@ -293,6 +317,8 @@ export async function requestConnection(matchId: string) {
   const { data: matchData } = await supabase
     .from('matches')
     .select(`
+      exalumno_id,
+      estudiante_id,
       score_match,
       tipo_apoyo,
       exalumno:users!matches_exalumno_id_fkey(nombre, email),
@@ -315,6 +341,18 @@ export async function requestConnection(matchId: string) {
       const { sendMatchNotificationEmails } = await import('@/services/email-service');
       await sendMatchNotificationEmails(exEmail, exNombre, estEmail || '', estNombre, matchDetails.tipo_apoyo, matchDetails.score_match);
       console.log('Finished sendMatchNotificationEmails');
+
+      const { createNotification } = await import('@/actions/notifications');
+      const targetUserId = initiatorRole === 'estudiante' ? matchDetails.exalumno_id : matchDetails.estudiante_id; 
+      const initiatorName = initiatorRole === 'estudiante' ? estNombre : exNombre;
+      
+      await createNotification({
+        user_id: targetUserId,
+        titulo: 'Nueva solicitud de mentoría',
+        mensaje: `Has recibido una solicitud de conexión de ${initiatorName}.`,
+        tipo: 'mentoria',
+        link: '/mis-matches'
+      });
     } else {
       console.error('Missing data for email:', { exEmail, exNombre, estNombre });
     }
