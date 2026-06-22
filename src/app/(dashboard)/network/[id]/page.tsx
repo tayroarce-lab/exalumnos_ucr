@@ -76,7 +76,8 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
       
     if (matchData) {
       if (matchData.estado === 'activo') connectionStatus = 'activo';
-      else if (matchData.estado === 'contactado' || matchData.estado === 'sugerido') connectionStatus = 'contactado';
+      else if (matchData.estado === 'contactado') connectionStatus = 'contactado';
+      else if (matchData.estado === 'sugerido') connectionStatus = 'none';
     }
   }
 
@@ -86,13 +87,13 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
   const showContactInfo = isAdmin || connectionStatus === 'activo' || user?.id === profile.id;
 
   return (
-    <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-10">
+    <div className="min-h-screen bg-[#54BCEB] py-10 px-4 sm:px-6 lg:px-10">
       <div className="max-w-4xl mx-auto space-y-6">
         
         {/* Back navigation */}
         <Link 
           href="/network" 
-          className="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-[#F34B26] transition-colors uppercase tracking-wider"
+          className="inline-flex items-center gap-2 text-xs font-bold text-[#1B2A4A] hover:text-white transition-colors uppercase tracking-wider"
         >
           <ChevronLeft className="w-4 h-4" />
           Volver al Directorio
