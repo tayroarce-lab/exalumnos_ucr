@@ -289,7 +289,7 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-5 gap-x-4 relative z-10">
           <div>
             <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Carné</p>
-            <p className="text-sm font-extrabold text-white">{estudiante.anio_ingreso ? `B${estudiante.anio_ingreso}${Math.floor(1000 + Math.random() * 9000)}` : 'B55241'}</p>
+            <p className="text-sm font-extrabold text-white">{estudiante.anio_ingreso ? `B${estudiante.anio_ingreso}${String(estudiante.nombre.length * 123 + 4567).substring(0,4)}` : 'B55241'}</p>
           </div>
           <div>
             <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Sede</p>
