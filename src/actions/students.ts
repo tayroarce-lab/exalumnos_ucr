@@ -287,7 +287,10 @@ export async function listarEstudiantes(
   }
 
   if (opciones?.busqueda) {
-    query = query.or(`nombre.ilike.%${opciones.busqueda}%,apellidos.ilike.%${opciones.busqueda}%,estudiantes.proyecto_titulo.ilike.%${opciones.busqueda}%`)
+    const terminos = opciones.busqueda.trim().split(/\s+/);
+    terminos.forEach(termino => {
+      query = query.or(`nombre.ilike.%${termino}%,apellidos.ilike.%${termino}%`);
+    });
   }
 
   if (opciones?.page && opciones?.limit) {
@@ -303,13 +306,33 @@ export async function listarEstudiantes(
     logError('students.ts/listarEstudiantes', error);
     return { data: [], count: 0 };
   }
+
+  // Cargar foto_url y banner_url personalizados desde la tabla profiles para evitar inconsistencias
+  const userIds = data?.map(d => d.id) || [];
+  let profilesData: any[] = [];
+  if (userIds.length > 0) {
+    try {
+      const { data: profs } = await supabase
+        .from('profiles')
+        .select('id, foto_url, banner_url')
+        .in('id', userIds);
+      if (profs) {
+        profilesData = profs;
+      }
+    } catch (err) {
+      console.error('Error fetching batch profiles in listarEstudiantes:', err);
+    }
+  }
   
   const mappedData = data?.map(d => {
     const est = Array.isArray(d.estudiantes) ? d.estudiantes[0] : d.estudiantes;
+    const prof = profilesData.find(p => p.id === d.id);
     return {
       ...d,
       estudiantes: est,
-      areas_de_interes: est?.areas_de_interes || []
+      areas_de_interes: est?.areas_de_interes || [],
+      foto_url: prof?.foto_url || d.foto_url,
+      banner_url: prof?.banner_url || null
     }
   })
 
@@ -341,12 +364,30 @@ export async function obtenerEstudiantePorId(id: string) {
     return null;
   }
 
+  let banner_url: string | null = null;
+  let custom_foto_url: string | null = null;
+  try {
+    const { data: profData } = await supabase
+      .from('profiles')
+      .select('banner_url, foto_url')
+      .eq('id', id)
+      .maybeSingle();
+    if (profData) {
+      banner_url = profData.banner_url;
+      custom_foto_url = profData.foto_url;
+    }
+  } catch (err) {
+    console.error('Error fetching banner_url and foto_url from profiles:', err);
+  }
+
   if (data) {
     const est = Array.isArray(data.estudiantes) ? data.estudiantes[0] : data.estudiantes;
     return { 
       ...data, 
       estudiantes: est,
-      areas_de_interes: est?.areas_de_interes || [] 
+      areas_de_interes: est?.areas_de_interes || [],
+      banner_url,
+      foto_url: custom_foto_url || data.foto_url
     }
   }
 
