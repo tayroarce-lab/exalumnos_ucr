@@ -191,7 +191,7 @@ export async function enviarEnlaceMagico(email: string, role: "estudiante" | "ex
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/auth/callback`,
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/auth/callback?next=/completar-perfil`,
     },
   })
 
