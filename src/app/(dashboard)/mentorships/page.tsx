@@ -187,7 +187,7 @@ export default function MentoriasPage() {
           )
         `)
         .or(`exalumno_id.eq.${user.id},estudiante_id.eq.${user.id}`)
-        .in('tipo_apoyo', ['mentoria', 'empleo', 'pasantia'])
+        .in('tipo_apoyo', ['mentoria', 'mentoría'])
         .neq('estado', 'cerrado')
         .order('score_match', { ascending: false })
 
@@ -259,10 +259,10 @@ export default function MentoriasPage() {
           <div>
             <h1 className="text-3xl font-extrabold uppercase font-display text-slate-900 tracking-wide flex items-center gap-3">
               <Handshake className="w-8 h-8 text-[#F34B26]" />
-              Mis Conexiones
+              Mis Mentorías
             </h1>
             <p className="text-sm text-slate-500 font-medium mt-1">
-              Tus matches activos de mentoría, empleo y pasantía con estudiantes y exalumnos UCR.
+              Tus matches y conexiones activas de mentoría con estudiantes y exalumnos UCR.
             </p>
           </div>
           <Link href="/network" className="text-xs font-bold text-[#F34B26] hover:text-[#C82A08] hover:underline uppercase tracking-wider">
