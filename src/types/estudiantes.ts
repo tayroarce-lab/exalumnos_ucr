@@ -14,10 +14,17 @@ export interface EstudianteDirectorio {
   proyecto_area_tematica?: string | null;
   proyecto_tipo?: string | null;
   proyecto_porcentaje_avance?: number | null;
+  proyecto_valor_monto?: number | null;
+  proyecto_valor_moneda?: string | null;
+  proyecto_video_url?: string | null;
+  proyecto_documento_url?: string | null;
+  proyecto_activo?: boolean | null;
+  proyecto_necesidades?: string[] | null;
   // Currículum
   sobre_mi?: string | null;
   url_linkedin?: string | null;
   url_portfolio?: string | null;
+  habilidades?: string[] | null;
   habilidades_tecnicas?: string[];
   habilidades_blandas?: string[];
   // Apoyo: busca_mentoria y busca_empleo existen en users

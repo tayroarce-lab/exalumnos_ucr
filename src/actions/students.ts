@@ -13,6 +13,10 @@ export type PerfilEstudianteInput = {
   proyecto_area_tematica?: string
   proyecto_tipo?: string
   proyecto_porcentaje_avance?: number
+  proyecto_valor_monto?: number | null
+  proyecto_valor_moneda?: string | null
+  proyecto_video_url?: string | null
+  proyecto_documento_url?: string | null
   areas_de_interes?: string[]
   busca_financiamiento?: boolean
   busca_mentoria?: boolean
@@ -104,6 +108,10 @@ export async function actualizarPerfilCompletoEstudiante(datos: any) {
     proyecto_area_tematica: datos.proyecto_area_tematica,
     proyecto_tipo: datos.proyecto_tipo,
     proyecto_porcentaje_avance: datos.proyecto_porcentaje_avance,
+    proyecto_valor_monto: datos.proyecto_valor_monto,
+    proyecto_valor_moneda: datos.proyecto_valor_moneda,
+    proyecto_video_url: datos.proyecto_video_url,
+    proyecto_documento_url: datos.proyecto_documento_url,
     proyecto_necesidades: datos.proyecto_necesidades,
     areas_de_interes: datos.areas_de_interes,
     busca_financiamiento: datos.busca_financiamiento,

@@ -407,7 +407,20 @@ body {
   align-items: center;
   justify-content: center;
   width: 80%;
+  animation: logo-zoom-in 5s ease-in-out forwards;
 }
+
+@keyframes logo-zoom-in {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.1);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.35);
+  }
+}
+
 
 /* ── ANIMACIONES ── */
 @keyframes anim-slide-down {
