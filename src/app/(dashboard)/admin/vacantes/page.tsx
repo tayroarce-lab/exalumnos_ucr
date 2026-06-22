@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import { Briefcase, CheckCircle, Clock, XCircle } from 'lucide-react';
-import { listarTodasLasVacantes } from '@/actions/admin';
-import { VacantesTable } from './_components/vacantes-table';
+import { listarVacantesConFiltrosRF10 } from '@/actions/rf10-vacantes-octavio';
+import { RF10VacantesTable } from './_components/rf10-vacantes-table-octavio';
 import '../../../../styles/admin-dashboard.css';
 import '../../../../styles/admin-vacantes.css';
 
@@ -16,7 +16,7 @@ export default async function AdminVacantesPage() {
   let errorMsg: string | null = null;
 
   try {
-    const data = await listarTodasLasVacantes();
+    const data = await listarVacantesConFiltrosRF10();
     vacantes = data ?? [];
   } catch (err: any) {
     errorMsg = err.message;
@@ -94,7 +94,7 @@ export default async function AdminVacantesPage() {
             Error al cargar vacantes: {errorMsg}
           </div>
         ) : (
-          <VacantesTable initialVacantes={vacantes} />
+          <RF10VacantesTable initialVacantes={vacantes} />
         )}
       </main>
     </div>
