@@ -12,7 +12,7 @@ export type NotificacionInsert = {
 };
 
 export async function createNotification(data: NotificacionInsert) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { error } = await supabase.from('notificaciones').insert([data])
   if (error) {
     console.error('Error creating notification:', error)
@@ -20,7 +20,7 @@ export async function createNotification(data: NotificacionInsert) {
 }
 
 export async function getNotifications() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { data: [], error: 'No user' }
 
@@ -35,7 +35,7 @@ export async function getNotifications() {
 }
 
 export async function getUnreadNotificationsCount() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { count: 0 }
 
@@ -49,7 +49,7 @@ export async function getUnreadNotificationsCount() {
 }
 
 export async function markNotificationAsRead(id: string) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { error } = await supabase
     .from('notificaciones')
     .update({ leida: true })
@@ -62,7 +62,7 @@ export async function markNotificationAsRead(id: string) {
 }
 
 export async function markAllNotificationsAsRead() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'No user' }
 
@@ -79,7 +79,7 @@ export async function markAllNotificationsAsRead() {
 }
 
 export async function deleteNotification(id: string) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { error } = await supabase
     .from('notificaciones')
     .delete()

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { Resend } from 'resend'
+import { logError } from '@/lib/logger'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -85,7 +86,7 @@ export async function POST(request: Request) {
     })
 
     if (resendError) {
-      console.error('Error enviando correos por Resend:', resendError)
+      logError('posiciones-cubiertas/route.ts/POST', resendError, { posicionId });
       return NextResponse.json({ error: 'Fallo al enviar correos' }, { status: 500 })
     }
 
@@ -99,7 +100,7 @@ export async function POST(request: Request) {
     })
 
   } catch (error: any) {
-    console.error('Excepción en webhook de posiciones cubiertas:', error)
+    logError('posiciones-cubiertas/route.ts/POST', error);
     return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }
 }

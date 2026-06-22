@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
+import { logError } from '@/lib/logger'
 
 export type PerfilEstudianteInput = {
   carrera?: string
@@ -28,7 +29,10 @@ export type PerfilEstudianteInput = {
 export async function actualizarPerfilEstudiante(datos: PerfilEstudianteInput) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('No autenticado')
+  if (!user) {
+    logError('students.ts/actualizarPerfilEstudiante', new Error('No autenticado'));
+    return { success: false, error: 'No autenticado' };
+  }
 
   const { areas_de_interes, busca_mentoria, busca_empleo, busca_pasantia, visible_en_directorio, ...restDatos } = datos
 
@@ -44,7 +48,10 @@ export async function actualizarPerfilEstudiante(datos: PerfilEstudianteInput) {
     .eq('id', user.id)
     .eq('rol', 'estudiante')
 
-  if (usersError) throw new Error(usersError.message)
+  if (usersError) {
+    logError('students.ts/actualizarPerfilEstudiante', usersError, { userId: user.id });
+    return { success: false, error: 'Error al actualizar usuario' };
+  }
 
   // Actualizar estudiantes
   const { error: estError } = await supabase
@@ -52,7 +59,10 @@ export async function actualizarPerfilEstudiante(datos: PerfilEstudianteInput) {
     .update({ ...restDatos, areas_de_interes })
     .eq('user_id', user.id)
 
-  if (estError) throw new Error(estError.message)
+  if (estError) {
+    logError('students.ts/actualizarPerfilEstudiante', estError, { userId: user.id });
+    return { success: false, error: 'Error interno del servidor' };
+  }
 
   revalidatePath('/mi-perfil')
   return { success: true }
@@ -61,7 +71,10 @@ export async function actualizarPerfilEstudiante(datos: PerfilEstudianteInput) {
 export async function actualizarPerfilCompletoEstudiante(datos: any) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('No autenticado')
+  if (!user) {
+    logError('students.ts/actualizarPerfilCompletoEstudiante', new Error('No autenticado'));
+    return { success: false, error: 'No autenticado' };
+  }
 
   const adminClient = createAdminClient()
 
@@ -80,7 +93,10 @@ export async function actualizarPerfilCompletoEstudiante(datos: any) {
     .from('profiles')
     .upsert(profilePayload)
 
-  if (profileError) throw new Error('Error al actualizar perfiles: ' + profileError.message)
+  if (profileError) {
+    logError('students.ts/actualizarPerfilCompletoEstudiante', profileError, { userId: user.id });
+    return { success: false, error: 'Error al actualizar perfiles' };
+  }
 
   // 2. Actualizar tabla users
   const userPayload = {
@@ -95,7 +111,10 @@ export async function actualizarPerfilCompletoEstudiante(datos: any) {
     .eq('id', user.id)
     .eq('rol', 'estudiante')
 
-  if (usersError) throw new Error('Error al actualizar usuario: ' + usersError.message)
+  if (usersError) {
+    logError('students.ts/actualizarPerfilCompletoEstudiante', usersError, { userId: user.id });
+    return { success: false, error: 'Error al actualizar usuario' };
+  }
 
   // 3. Actualizar tabla estudiantes
   const estudiantePayload = {
@@ -122,7 +141,10 @@ export async function actualizarPerfilCompletoEstudiante(datos: any) {
     .update(estudiantePayload)
     .eq('user_id', user.id)
 
-  if (estError) throw new Error('Error al actualizar datos de estudiante: ' + estError.message)
+  if (estError) {
+    logError('students.ts/actualizarPerfilCompletoEstudiante', estError, { userId: user.id });
+    return { success: false, error: 'Error al actualizar datos de estudiante' };
+  }
 
   revalidatePath('/profile')
   return { success: true }
@@ -131,7 +153,10 @@ export async function actualizarPerfilCompletoEstudiante(datos: any) {
 export async function obtenerMiPerfilEstudiante() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('No autenticado')
+  if (!user) {
+    logError('students.ts/obtenerMiPerfilEstudiante', new Error('No autenticado'));
+    return null;
+  }
 
   const { data, error } = await supabase
     .from('users')
@@ -143,7 +168,10 @@ export async function obtenerMiPerfilEstudiante() {
     .eq('rol', 'estudiante')
     .single()
 
-  if (error && error.code !== 'PGRST116') throw new Error(error.message)
+  if (error && error.code !== 'PGRST116') {
+    logError('students.ts/obtenerMiPerfilEstudiante', error, { userId: user.id });
+    return null;
+  }
   
   if (data) {
     const est = Array.isArray(data.estudiantes) ? data.estudiantes[0] : data.estudiantes;
@@ -165,7 +193,10 @@ export async function verificarPerfilCompleto(userId: string) {
     .eq('rol', 'estudiante')
     .single()
 
-  if (error || !userRecord) return false
+  if (error || !userRecord) {
+    if (error) logError('students.ts/verificarPerfilCompleto', error, { userId });
+    return false;
+  }
 
   const est = Array.isArray(userRecord.estudiantes) ? userRecord.estudiantes[0] : userRecord.estudiantes;
   if (!est) return false;
@@ -268,7 +299,10 @@ export async function listarEstudiantes(
   }
 
   const { data, count, error } = await query
-  if (error) throw new Error(error.message)
+  if (error) {
+    logError('students.ts/listarEstudiantes', error);
+    return { data: [], count: 0 };
+  }
   
   const mappedData = data?.map(d => {
     const est = Array.isArray(d.estudiantes) ? d.estudiantes[0] : d.estudiantes;
@@ -302,7 +336,10 @@ export async function obtenerEstudiantePorId(id: string) {
     .eq('rol', 'estudiante')
     .single()
 
-  if (error) throw new Error(error.message)
+  if (error) {
+    logError('students.ts/obtenerEstudiantePorId', error);
+    return null;
+  }
 
   if (data) {
     const est = Array.isArray(data.estudiantes) ? data.estudiantes[0] : data.estudiantes;
@@ -319,7 +356,10 @@ export async function obtenerEstudiantePorId(id: string) {
 export async function pausarPerfilEstudiante(pausar: boolean = true) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('No autenticado')
+  if (!user) {
+    logError('students.ts/pausarPerfilEstudiante', new Error('No autenticado'));
+    return { success: false, error: 'No autenticado' };
+  }
 
   const { error } = await supabase
     .from('users')
@@ -327,7 +367,10 @@ export async function pausarPerfilEstudiante(pausar: boolean = true) {
     .eq('id', user.id)
     .eq('rol', 'estudiante')
 
-  if (error) throw new Error(error.message)
+  if (error) {
+    logError('students.ts/pausarPerfilEstudiante', error, { userId: user.id });
+    return { success: false, error: 'Error interno del servidor' };
+  }
   revalidatePath('/mi-perfil')
   return { success: true }
 }

@@ -3,13 +3,15 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
+import { logError } from '@/lib/logger'
 
 export async function obtenerMiPerfil() {
   const supabase = await createClient()
   const { data: { user }, error: authError } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    throw new Error('No autenticado')
+    logError('users.ts/obtenerMiPerfil', authError || new Error('No autenticado'));
+    return null;
   }
 
   const { data: perfil, error: dbError } = await supabase
@@ -30,7 +32,10 @@ export async function obtenerMiPerfil() {
     .eq('id', user.id)
     .maybeSingle()
 
-  if (dbError) throw new Error(dbError.message)
+  if (dbError) {
+    logError('users.ts/obtenerMiPerfil', dbError, { userId: user.id });
+    return null;
+  }
 
   if (perfil) {
     const est = Array.isArray(perfil.estudiantes) ? perfil.estudiantes[0] : perfil.estudiantes;
@@ -58,14 +63,20 @@ export async function obtenerMiPerfil() {
 export async function subirFotoPerfil(url: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('No autenticado')
+  if (!user) {
+    logError('users.ts/subirFotoPerfil', new Error('No autenticado'));
+    return { success: false, error: 'No autenticado' };
+  }
 
   const { error } = await supabase
     .from('users')
     .update({ foto_url: url })
     .eq('id', user.id)
 
-  if (error) throw new Error(error.message)
+  if (error) {
+    logError('users.ts/subirFotoPerfil', error, { userId: user.id });
+    return { success: false, error: 'Error interno del servidor' };
+  }
   revalidatePath('/mi-perfil')
   return { success: true }
 }
@@ -73,14 +84,20 @@ export async function subirFotoPerfil(url: string) {
 export async function desactivarCuenta() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('No autenticado')
+  if (!user) {
+    logError('users.ts/desactivarCuenta', new Error('No autenticado'));
+    return { success: false, error: 'No autenticado' };
+  }
 
   const { error } = await supabase
     .from('users')
     .update({ activo: false })
     .eq('id', user.id)
 
-  if (error) throw new Error(error.message)
+  if (error) {
+    logError('users.ts/desactivarCuenta', error, { userId: user.id });
+    return { success: false, error: 'Error interno del servidor' };
+  }
   return { success: true }
 }
 
@@ -112,7 +129,10 @@ export async function suspenderUsuario(userId: string) {
     .update({ activo: false })
     .eq('id', userId)
 
-  if (error) throw new Error(error.message)
+  if (error) {
+    logError('users.ts/suspenderUsuario', error, { targetUserId: userId });
+    return { success: false, error: 'Error interno del servidor' };
+  }
   revalidatePath('/admin/usuarios')
   return { success: true }
 }
@@ -126,7 +146,10 @@ export async function reactivarUsuario(userId: string) {
     .update({ activo: true })
     .eq('id', userId)
 
-  if (error) throw new Error(error.message)
+  if (error) {
+    logError('users.ts/reactivarUsuario', error, { targetUserId: userId });
+    return { success: false, error: 'Error interno del servidor' };
+  }
   revalidatePath('/admin/usuarios')
   return { success: true }
 }
@@ -145,7 +168,10 @@ export async function listarUsuarios(filtros?: { rol?: string; activo?: boolean 
   }
 
   const { data, error } = await query
-  if (error) throw new Error(error.message)
+  if (error) {
+    logError('users.ts/listarUsuarios', error);
+    return [];
+  }
 
   return data
 }
@@ -155,7 +181,8 @@ export async function actualizarPerfil(data: any) {
   const { data: { user }, error: authError } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    throw new Error('No autenticado')
+    logError('users.ts/actualizarPerfil', authError || new Error('No autenticado'));
+    return { success: false, error: 'No autenticado' };
   }
 
   // Verificar rol del usuario en la tabla users para seguridad
@@ -167,7 +194,8 @@ export async function actualizarPerfil(data: any) {
     .single()
 
   if (userError) {
-    throw new Error('Error al verificar el rol del usuario')
+    logError('users.ts/actualizarPerfil', userError, { userId: user.id });
+    return { success: false, error: 'Error al verificar el rol' };
   }
 
   const isAdmin = userData?.rol === 'admin'
@@ -245,7 +273,8 @@ export async function actualizarPerfil(data: any) {
     .upsert(payloadToUpdate)
 
   if (error) {
-    throw new Error('Error al guardar el perfil: ' + error.message)
+    logError('users.ts/actualizarPerfil', error, { userId: user.id });
+    return { success: false, error: 'Error al guardar el perfil' };
   }
 
   return { success: true, isAdmin }
