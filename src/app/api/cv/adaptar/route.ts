@@ -3,6 +3,7 @@ import { streamObject } from 'ai';
 import { openai } from '@ai-sdk/openai';
 import { z } from 'zod';
 import { NextResponse } from 'next/server';
+import { logError } from '@/lib/logger';
 
 export async function POST(req: Request) {
   try {
@@ -51,7 +52,7 @@ ${JSON.stringify(cvBase, null, 2)}`
 
     return result.toTextStreamResponse();
   } catch (error) {
-    console.error('Error in CV adaptation:', error);
+    logError('adaptar/route.ts/POST', error);
     return new NextResponse('Internal Server Error', { status: 500 });
   }
 }

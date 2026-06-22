@@ -8,6 +8,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { logError } from '@/lib/logger';
 
 // -----------------------------------------------------------------------------
 // Tipos del Servicio
@@ -62,6 +63,7 @@ export async function buscarPerfilesActivos(
 
   const { data, error } = await query;
   if (error) {
+    logError('profileService.ts/buscarPerfilesActivos', error);
     return { exito: false, mensaje: `Error al listar perfiles: ${error.message}` };
   }
 
@@ -84,6 +86,7 @@ export async function obtenerPerfilPorId(userId: string): Promise<RespuestaPerfi
     .single();
 
   if (error) {
+    logError('profileService.ts/obtenerPerfilPorId', error, { targetUserId: userId });
     return { exito: false, mensaje: `Perfil no encontrado: ${error.message}`, datos: null };
   }
 
@@ -104,6 +107,7 @@ export async function actualizarPerfil(
   // Verificar autenticación: el usuario solo puede editar su propio perfil
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user || user.id !== userId) {
+    if (authError) logError('profileService.ts/actualizarPerfil', authError);
     return { exito: false, mensaje: 'No autorizado para modificar este perfil' };
   }
 
@@ -116,6 +120,7 @@ export async function actualizarPerfil(
     .single();
 
   if (error) {
+    logError('profileService.ts/actualizarPerfil', error, { targetUserId: userId });
     return { exito: false, mensaje: `Error al actualizar perfil: ${error.message}` };
   }
 
@@ -135,6 +140,7 @@ export async function eliminarPerfilLogico(userId: string): Promise<RespuestaPer
   // Verificar que sea el propio usuario quien solicita el borrado
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user || user.id !== userId) {
+    if (authError) logError('profileService.ts/eliminarPerfilLogico', authError);
     return { exito: false, mensaje: 'No autorizado para eliminar este perfil' };
   }
 
@@ -144,6 +150,7 @@ export async function eliminarPerfilLogico(userId: string): Promise<RespuestaPer
   });
 
   if (error) {
+    logError('profileService.ts/eliminarPerfilLogico', error, { targetUserId: userId });
     return { exito: false, mensaje: `Error al eliminar perfil: ${error.message}` };
   }
 
@@ -173,6 +180,7 @@ export async function eliminarPerfilLogicoAdmin(
     .single();
 
   if (verificacionError || !perfilExistente) {
+    if (verificacionError) logError('profileService.ts/eliminarPerfilLogicoAdmin', verificacionError, { targetUserId });
     return { exito: false, mensaje: 'Usuario objetivo no encontrado o ya fue eliminado' };
   }
 
@@ -186,6 +194,7 @@ export async function eliminarPerfilLogicoAdmin(
   });
 
   if (error) {
+    logError('profileService.ts/eliminarPerfilLogicoAdmin', error, { targetUserId });
     return { exito: false, mensaje: `Error en eliminación administrativa: ${error.message}` };
   }
 
@@ -209,6 +218,7 @@ export async function restaurarPerfilAdmin(userId: string): Promise<RespuestaPer
   });
 
   if (error) {
+    logError('profileService.ts/restaurarPerfilAdmin', error, { targetUserId: userId });
     return { exito: false, mensaje: `Error al restaurar perfil: ${error.message}` };
   }
 
