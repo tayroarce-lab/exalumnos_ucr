@@ -107,29 +107,52 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
   }, [isMobileMenuOpen])
 
   // Estado para notificaciones
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      title: 'Nueva vacante publicada',
-      desc: 'Se publicó "Desarrollador React" en tu área.',
-      time: 'Hace 10 min',
-      link: '/jobs'
-    },
-    {
-      id: 2,
-      title: 'Solicitud de mentoría',
-      desc: 'Gabriel Brenes solicitó una sesión contigo.',
-      time: 'Hace 2 horas',
-      link: '/mentorships'
-    },
-    {
-      id: 3,
-      title: 'Donación recibida',
-      desc: 'Tu donación al Fondo de Becas ha sido procesada.',
-      time: 'Ayer',
-      link: '/donations'
+  const [notifications, setNotifications] = useState<any[]>([])
+
+  useEffect(() => {
+    if (!user?.id) return
+
+    const supabase = createClient()
+
+    const fetchNotifs = async () => {
+      const { data } = await supabase
+        .from('notificaciones')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(20)
+      if (data) setNotifications(data)
     }
-  ])
+    fetchNotifs()
+
+    const channel = supabase
+      .channel('notificaciones_navbar')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notificaciones', filter: `user_id=eq.${user.id}` }, (payload) => {
+        setNotifications((prev) => [payload.new, ...prev])
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'notificaciones', filter: `user_id=eq.${user.id}` }, (payload) => {
+        setNotifications((prev) => prev.map(n => n.id === payload.new.id ? payload.new : n))
+      })
+      .subscribe()
+
+    return () => { supabase.removeChannel(channel) }
+  }, [user?.id])
+
+  const unreadCount = notifications.filter(n => !n.leida).length
+
+  const handleMarkAsRead = async (id: string) => {
+    const supabase = createClient()
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, leida: true } : n))
+    await supabase.from('notificaciones').update({ leida: true }).eq('id', id)
+    setIsNotificationsOpen(false)
+  }
+
+  const markAllAsRead = async () => {
+    if (!user?.id) return
+    const supabase = createClient()
+    setNotifications(prev => prev.map(n => ({ ...n, leida: true })))
+    await supabase.from('notificaciones').update({ leida: true }).eq('user_id', user.id).eq('leida', false)
+  }
 
   const name = profile?.full_name || user?.user_metadata?.nombre || user?.user_metadata?.full_name || 'Usuario'
   const initials = name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase()
@@ -299,35 +322,45 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
               aria-label="Notificaciones"
             >
               <Bell className="w-5 h-5" />
-              {notifications.length > 0 && (
+              {unreadCount > 0 && (
                 <span className={`absolute top-1 right-1 w-4 h-4 ${config.badgeClass} text-[9px] font-bold rounded-full flex items-center justify-center animate-pulse`}>
-                  {notifications.length}
+                  {unreadCount}
                 </span>
               )}
             </button>
 
             {isNotificationsOpen && (
               <div className="absolute right-0 mt-2 w-80 bg-white border border-slate-200 rounded-2xl shadow-xl py-2 z-50 text-slate-800 animate-in fade-in slide-in-from-top-2 duration-200">
-                <div className="px-4 py-2 border-b border-slate-100 font-semibold text-slate-800 uppercase tracking-wide text-xs">
-                  Notificaciones
+                <div className="px-4 py-2 border-b border-slate-100 flex justify-between items-center">
+                  <span className="font-semibold text-slate-800 uppercase tracking-wide text-xs">Notificaciones</span>
+                  {unreadCount > 0 && (
+                    <button onClick={markAllAsRead} className="text-[10px] text-blue-600 hover:text-blue-800 font-medium">
+                      Marcar todas como leídas
+                    </button>
+                  )}
                 </div>
                 <div className="max-h-60 overflow-y-auto">
                   {notifications.length > 0 ? (
-                    notifications.map((notif) => (
-                      <Link
-                        key={notif.id}
-                        href={notif.link}
-                        onClick={() => {
-                          setIsNotificationsOpen(false)
-                          setNotifications(prev => prev.filter(n => n.id !== notif.id))
-                        }}
-                        className="block px-4 py-3 border-b border-slate-50 hover:bg-slate-50 transition-colors cursor-pointer"
-                      >
-                        <p className="text-xs font-semibold text-slate-800">{notif.title}</p>
-                        <p className="text-xs text-slate-500 mt-0.5">{notif.desc}</p>
-                        <span className="text-[10px] text-slate-400 mt-1 block">{notif.time}</span>
-                      </Link>
-                    ))
+                    notifications.map((notif) => {
+                      const timeStr = new Date(notif.created_at).toLocaleDateString('es-CR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+                      return (
+                        <div key={notif.id} className={`block px-4 py-3 border-b border-slate-50 transition-colors ${notif.leida ? 'opacity-70 bg-white' : 'bg-blue-50/50 hover:bg-slate-50'}`}>
+                          {notif.link ? (
+                            <Link href={notif.link} onClick={() => handleMarkAsRead(notif.id)} className="block cursor-pointer">
+                              <p className={`text-xs text-slate-800 ${notif.leida ? 'font-medium' : 'font-bold'}`}>{notif.titulo}</p>
+                              <p className="text-xs text-slate-500 mt-0.5">{notif.mensaje}</p>
+                              <span className="text-[10px] text-slate-400 mt-1 block">{timeStr}</span>
+                            </Link>
+                          ) : (
+                            <div onClick={() => handleMarkAsRead(notif.id)} className="block cursor-pointer">
+                              <p className={`text-xs text-slate-800 ${notif.leida ? 'font-medium' : 'font-bold'}`}>{notif.titulo}</p>
+                              <p className="text-xs text-slate-500 mt-0.5">{notif.mensaje}</p>
+                              <span className="text-[10px] text-slate-400 mt-1 block">{timeStr}</span>
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })
                   ) : (
                     <div className="px-4 py-6 text-center text-xs text-slate-500 font-medium">
                       No tienes notificaciones nuevas

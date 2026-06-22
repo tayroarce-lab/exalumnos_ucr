@@ -192,8 +192,37 @@ export async function processDonation(
       donation.monto, donation.moneda,
       studentEmail, studentName
     );
+
+    const { createNotification } = await import('@/actions/notifications');
+    await createNotification({
+      user_id: donation.user_id,
+      titulo: 'Donación confirmada',
+      mensaje: `¡Gracias! Tu donación de ${donation.moneda} ${donation.monto} para ${projectName} ha sido confirmada.`,
+      tipo: 'donacion',
+      link: '/dashboard'
+    });
+
+    if (targetStudentId) {
+      await createNotification({
+        user_id: targetStudentId,
+        titulo: 'Donación recibida',
+        mensaje: `Has recibido apoyo financiero de ${donation.moneda} ${donation.monto} para tu proyecto.`,
+        tipo: 'donacion',
+        link: '/dashboard'
+      });
+    }
+
   } else if (action === 'reject' && donorEmail && rejectionReason) {
     await sendDonationRejectionEmail(donorEmail, donorName, rejectionReason);
+
+    const { createNotification } = await import('@/actions/notifications');
+    await createNotification({
+      user_id: donation.user_id,
+      titulo: 'Revisión de donación',
+      mensaje: `Hubo un inconveniente con tu donación. Por favor revisa tu correo electrónico para más detalles.`,
+      tipo: 'donacion',
+      link: '/dashboard'
+    });
   }
 
   return { success: true };
