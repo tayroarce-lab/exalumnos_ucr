@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -850,10 +850,6 @@ export type Database = {
             proyecto_valor_moneda: string | null
             proyecto_video_url: string | null
             proyecto_documento_url: string | null
-            proyecto_valor_monto: number | null
-            proyecto_valor_moneda: string | null
-            proyecto_video_url: string | null
-            proyecto_documento_url: string | null
           proyecto_porcentaje_avance: number | null
           proyecto_tipo: string
           proyecto_titulo: string
@@ -885,10 +881,6 @@ export type Database = {
             proyecto_valor_moneda?: string | null
             proyecto_video_url?: string | null
             proyecto_documento_url?: string | null
-            proyecto_valor_monto?: number | null
-            proyecto_valor_moneda?: string | null
-            proyecto_video_url?: string | null
-            proyecto_documento_url?: string | null
           proyecto_porcentaje_avance?: number | null
           proyecto_tipo: string
           proyecto_titulo: string
@@ -916,10 +908,6 @@ export type Database = {
           proyecto_area_tematica?: string
           proyecto_descripcion?: string
           proyecto_necesidades?: string[] | null
-            proyecto_valor_monto?: number | null
-            proyecto_valor_moneda?: string | null
-            proyecto_video_url?: string | null
-            proyecto_documento_url?: string | null
             proyecto_valor_monto?: number | null
             proyecto_valor_moneda?: string | null
             proyecto_video_url?: string | null
