@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { obtenerMiPerfil } from './users'
 import { calcularMatchExalumno } from '@/lib/match'
+import { unstable_noStore as noStore } from 'next/cache'
 
 export interface ExalumnoDirectorio {
   id: string;
@@ -47,6 +48,7 @@ export async function buscarExalumnosDirectorio(params: BuscarParams): Promise<{
   total: number
   error: string | null
 }> {
+  noStore();
   try {
     const supabase = await createClient()
 
@@ -67,7 +69,9 @@ export async function buscarExalumnosDirectorio(params: BuscarParams): Promise<{
     if (params.search) {
       const terminos = params.search.trim().split(/\s+/);
       terminos.forEach(termino => {
-        query = query.or(`nombre.ilike.%${termino}%,apellidos.ilike.%${termino}%`);
+        // Reemplazar vocales con el comodín '_' para ignorar tildes en Postgres ilike
+        const wildcardTerm = termino.replace(/[aeiouáéíóúAEIOUÁÉÍÓÚ]/g, '_');
+        query = query.or(`nombre.ilike.%${wildcardTerm}%,apellidos.ilike.%${wildcardTerm}%`);
       });
     }
 

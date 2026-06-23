@@ -1,10 +1,14 @@
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import StitchProfileClient from './StitchProfileClient';
-import { ArrowLeft, Briefcase, MapPin, Linkedin, Mail, Twitter, Instagram, GraduationCap, CheckCircle2, ChevronLeft, Lock } from 'lucide-react';
+import { ArrowLeft, Briefcase, MapPin, Linkedin, Mail, Twitter, Instagram, GraduationCap, CheckCircle2, ChevronLeft, Lock, Users } from 'lucide-react';
 import ConnectButton from './ConnectButton';
 import ReportButton from './ReportButton';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default async function NetworkProfilePage({ params }: { params: { id: string } | Promise<{ id: string }> }) {
   const resolvedParams = await Promise.resolve(params);
@@ -70,6 +74,12 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
     bio: exalumnoData?.bio || curriculumData?.sobre_mi || null,
     skills: [...(exalumnoData?.habilidades || []), ...(curriculumData?.habilidades_tecnicas ? (Array.isArray(curriculumData.habilidades_tecnicas) ? curriculumData.habilidades_tecnicas : Object.keys(curriculumData.habilidades_tecnicas)) : [])],
     areas_de_interes: exalumnoData?.areas_de_interes || estudianteData?.areas_de_interes || [],
+    proyecto_titulo: estudianteData?.proyecto_titulo,
+    proyecto_descripcion: estudianteData?.proyecto_descripcion,
+    proyecto_valor_monto: estudianteData?.proyecto_valor_monto,
+    proyecto_valor_moneda: estudianteData?.proyecto_valor_moneda,
+    proyecto_documento_url: estudianteData?.proyecto_documento_url,
+    proyecto_video_url: estudianteData?.proyecto_video_url,
   };
 
   // Comprobar estado de conexión
@@ -121,6 +131,16 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
       rol: u.rol
     };
   });
+
+  const displayName = profile.full_name;
+  const initials = displayName.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase();
+  const showContactInfo = isAdmin || connectionStatus === 'activo' || (user && profile.id === user.id);
+
+  const getAvatarUrl = (path: string | null) => {
+    if (!path) return null;
+    if (path.startsWith('http')) return path;
+    return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/${path}`;
+  };
 
   return (
     <div className="min-h-screen bg-[#54BCEB] py-10 px-4 sm:px-6 lg:px-10">
@@ -418,6 +438,43 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
 
           </div>
         </div>
+
+        {/* Perfiles Recomendados */}
+        {recommendedProfiles.length > 0 && (
+          <div className="mt-12">
+            <h2 className="text-xl font-bold text-slate-900 mb-6 font-display flex items-center gap-2">
+              <Users className="w-5 h-5 text-[#F34B26]" />
+              Otros exalumnos que podrías conocer
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {recommendedProfiles.map((rec: any) => {
+                const init = rec.full_name.substring(0, 2).toUpperCase();
+                return (
+                  <Link href={`/network/${rec.id}`} key={rec.id} className="block group">
+                    <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm hover:shadow-md hover:border-[#54BCEB] transition-all flex items-center gap-4">
+                      {rec.foto_url ? (
+                        <img 
+                          src={getAvatarUrl(rec.foto_url) as string} 
+                          alt={rec.full_name} 
+                          className="w-12 h-12 rounded-full object-cover shrink-0"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-500 font-bold flex items-center justify-center shrink-0">
+                          {init}
+                        </div>
+                      )}
+                      <div className="min-w-0">
+                        <p className="font-bold text-slate-900 text-sm truncate group-hover:text-[#F34B26] transition-colors">{rec.full_name}</p>
+                        <p className="text-xs text-slate-500 truncate">{rec.headline}</p>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   )

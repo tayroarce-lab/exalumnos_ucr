@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { requestDirectConnection, cancelDirectConnection } from '@/actions/matches';
+import { requestDirectConnection, cancelDirectConnection, removeDirectConnection } from '@/actions/matches';
 import { UserPlus, Clock, Check, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -34,11 +34,35 @@ export default function ConnectButton({ targetUserId, initialStatus }: { targetU
     setLoading(false);
   };
 
+  const handleRemove = async () => {
+    if (!confirm('¿Seguro que deseas eliminar esta conexión?')) return;
+    setLoading(true);
+    const result = await removeDirectConnection(targetUserId);
+    if (result.success) {
+      setStatus('none');
+      router.refresh();
+    } else {
+      alert(result.error || 'Error al eliminar la conexión');
+    }
+    setLoading(false);
+  };
+
   if (status === 'activo') {
     return (
-      <div className="flex items-center gap-2 bg-emerald-100 text-emerald-700 px-4 py-2 rounded-xl text-sm font-bold shadow-sm">
-        <Check className="w-4 h-4" />
-        Conectado
+      <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 bg-emerald-100 text-emerald-700 px-4 py-2 rounded-xl text-sm font-bold shadow-sm">
+          <Check className="w-4 h-4" />
+          Conectado
+        </div>
+        <button
+          onClick={handleRemove}
+          disabled={loading}
+          className="flex items-center gap-1.5 px-3 py-2 text-sm font-bold text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors disabled:opacity-50"
+          title="Eliminar Conexión"
+        >
+          <X className="w-4 h-4" />
+          {loading ? 'Eliminando...' : 'Eliminar'}
+        </button>
       </div>
     );
   }
