@@ -1,5 +1,6 @@
 'use client'
 import { getAvatarUrl } from '@/lib/utils';
+import { useLockBodyScroll } from '@/hooks/useLockBodyScroll';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
@@ -386,6 +387,8 @@ export default function NetworkPage() {
   const [showFiltersModal, setShowFiltersModal] = useState(false)
   const [exalumnos, setExalumnos] = useState<ExalumnoPublic[]>([])
   const [cargando, setCargando] = useState(true)
+
+  useLockBodyScroll(showFiltersModal);
   const [page, setPage] = useState(1)
   const [totalItems, setTotalItems] = useState(0)
   const limit = 12
@@ -496,10 +499,12 @@ export default function NetworkPage() {
 
         {/* Modal de Filtros (Centro de la pantalla) */}
         {showFiltersModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setShowFiltersModal(false)} />
-            <div className="relative w-full max-w-md max-h-[85vh] bg-white rounded-2xl shadow-2xl p-6 overflow-y-auto z-10 border border-slate-100 flex flex-col gap-4">
-              <FilterPanel filters={filters} setFilters={setFilters} onClose={() => setShowFiltersModal(false)} />
+          <div className="fixed inset-0 z-50 overflow-y-auto">
+            <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" onClick={() => setShowFiltersModal(false)} />
+            <div className="flex min-h-screen items-center justify-center p-4">
+              <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 z-10 border border-slate-100 flex flex-col gap-4">
+                <FilterPanel filters={filters} setFilters={setFilters} onClose={() => setShowFiltersModal(false)} />
+              </div>
             </div>
           </div>
         )}

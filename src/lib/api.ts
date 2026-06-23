@@ -28,6 +28,7 @@ function aplanarEstudiante(registroBD: any): EstudianteDirectorio {
     user_id:                    registroBD.id,
     nombre:                     `${registroBD.nombre || ''} ${registroBD.apellidos || ''}`.trim() || 'Usuario Desconocido',
     foto_url:                   registroBD.foto_url || null,
+    banner_url:                 registroBD.banner_url || null,
     carrera:                    est?.carrera || '',
     sede:                       est?.sede || '',
     escuela_facultad:           est?.escuela_facultad || '',

@@ -72,9 +72,9 @@ export default function StudentDashboardPage() {
   ]
 
   const steps = [
-    { step: '01', title: 'Completa tu perfil', desc: 'Agrega tus habilidades y proyecto de graduación', link: '/completar-perfil' },
-    { step: '02', title: 'Explora vacantes', desc: 'Encuentra oportunidades según tu carrera', link: '/jobs' },
-    { step: '03', title: 'Solicita una mentoría', desc: 'Conéctate con un profesional UCR', link: '/mentorships' },
+    ...(!profile?.perfil_completo ? [{ step: '01', title: 'Completa tu perfil', desc: 'Agrega tus habilidades y proyecto de graduación', link: '/completar-perfil' }] : []),
+    { step: profile?.perfil_completo ? '01' : '02', title: 'Explora vacantes', desc: 'Encuentra oportunidades según tu carrera', link: '/jobs' },
+    { step: profile?.perfil_completo ? '02' : '03', title: 'Solicita una mentoría', desc: 'Conéctate con un profesional UCR', link: '/mentorships' },
   ]
 
   return (
