@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import StitchProfileClient from './StitchProfileClient';
 import { ArrowLeft, Briefcase, MapPin, Linkedin, Mail, Twitter, Instagram, GraduationCap, CheckCircle2, ChevronLeft, Lock } from 'lucide-react';
 import ConnectButton from './ConnectButton';
