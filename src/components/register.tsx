@@ -12,6 +12,7 @@ import Image from 'next/image';
 import logoUCR from '@/images/Logo_UCR.png';
 import { createClient } from '@/lib/supabase/client';
 import { registrarExalumno } from '@/actions/auth';
+import { CARRERAS_UCR, CARRERA_TO_ESCUELA } from '@/constants/catalogs';
 
 export default function Register() {
   const [tipoRegistro, setTipoRegistro] = useState<'estudiante' | 'exalumno'>('estudiante');
@@ -25,16 +26,11 @@ export default function Register() {
     nombre: '',
     correo: '',
     password: '',
-    facultadId: '',
-    carreras: [] as number[],
+    carreras: [] as string[],
     anioGraduacion: ''
   });
   const [exError, setExError] = useState('');
   const [terminosAceptados, setTerminosAceptados] = useState(false);
-
-  // ── Catálogos ──
-  const [facultadesOpts, setFacultadesOpts] = useState<{ id: number; nombre: string }[]>([]);
-  const [carrerasOpts, setCarrerasOpts] = useState<{ id: number; nombre: string; facultad_id: number | null }[]>([]);
 
   // ── Diálogo UCR ──
   const [showUcrDialog, setShowUcrDialog] = useState(false);
@@ -54,27 +50,6 @@ export default function Register() {
     return () => clearTimeout(timer);
   }, [resendTimer]);
 
-  // Cargar facultades y carreras
-  useEffect(() => {
-    const fetchCatalogos = async () => {
-      try {
-        const supabase = createClient();
-
-        const { data: fData } = await supabase.from('facultades').select('id, nombre').order('nombre');
-        if (fData && fData.length > 0) {
-          setFacultadesOpts(fData);
-        }
-
-        const { data: cData } = await supabase.from('carreras').select('id, nombre, facultad_id').order('nombre');
-        if (cData && cData.length > 0) {
-          setCarrerasOpts(cData);
-        }
-      } catch (err) {
-        console.error("Error fetching catálogos:", err);
-      }
-    };
-    fetchCatalogos();
-  }, []);
 
   // ── Detección correo @ucr.ac.cr para exalumno ──
   const handleExalumnoCorreoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -173,29 +148,23 @@ export default function Register() {
 
   // ── Helpers de carreras ──
   const handleAddCarrera = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedId = parseInt(e.target.value);
-    if (!selectedId) return;
-    if (!exalumnoData.carreras.includes(selectedId)) {
-      setExalumnoData({ ...exalumnoData, carreras: [...exalumnoData.carreras, selectedId] });
+    const selected = e.target.value;
+    if (!selected) return;
+    if (!exalumnoData.carreras.includes(selected)) {
+      setExalumnoData({ ...exalumnoData, carreras: [...exalumnoData.carreras, selected] });
     }
     e.target.value = "";
   };
 
-  const removeCarrera = (idToRemove: number) => {
+  const removeCarrera = (cToRemove: string) => {
     setExalumnoData({
       ...exalumnoData,
-      carreras: exalumnoData.carreras.filter(id => id !== idToRemove)
+      carreras: exalumnoData.carreras.filter(c => c !== cToRemove)
     });
   };
 
-  const getCarreraName = (id: number) => {
-    const option = carrerasOpts.find(c => c.id === id);
-    return option ? option.nombre : `Carrera ${id}`;
-  };
-
-  const filteredCarreras = exalumnoData.facultadId
-    ? carrerasOpts.filter(c => c.facultad_id === parseInt(exalumnoData.facultadId) || c.facultad_id === null)
-    : carrerasOpts;
+  // Extraer las facultades únicas basadas en las carreras seleccionadas
+  const derivedFaculties = Array.from(new Set(exalumnoData.carreras.map(c => CARRERA_TO_ESCUELA[c]).filter(Boolean)));
 
   // ── Reenviar enlace (solo estudiante) ──
   const handleResend = async () => {
@@ -443,37 +412,33 @@ export default function Register() {
               <div className="section-title mt-6">INFORMACIÓN ACADÉMICA</div>
 
               <div className="form-group">
-                <label>Facultad / Escuela</label>
-                <select className="select-input" value={exalumnoData.facultadId} onChange={e => setExalumnoData({ ...exalumnoData, facultadId: e.target.value })}>
-                  <option value="">Todas las facultades (Mostrar todo)</option>
-                  {facultadesOpts.length > 0 ? (
-                    facultadesOpts.map(f => (
-                      <option key={f.id} value={f.id}>{f.nombre}</option>
-                    ))
-                  ) : (
-                    <>
-                      <option value="1">Ingeniería (Demo)</option>
-                      <option value="2">Ciencias Sociales (Demo)</option>
-                    </>
-                  )}
-                </select>
-              </div>
-
-              <div className="form-group">
                 <label>Carrera(s)</label>
                 <select className="select-input" onChange={handleAddCarrera} defaultValue="">
                   <option value="" disabled>Seleccione una carrera para agregar...</option>
-                  {filteredCarreras.map(c => (
-                    <option key={c.id} value={c.id}>{c.nombre}</option>
+                  {CARRERAS_UCR.filter(c => !exalumnoData.carreras.includes(c)).map(c => (
+                    <option key={c} value={c}>{c}</option>
                   ))}
                 </select>
                 <div className="selected-carreras-container mt-2">
-                  {exalumnoData.carreras.map(cId => (
-                    <span key={cId} className="carrera-pill">
-                      {getCarreraName(cId)}
-                      <button type="button" onClick={() => removeCarrera(cId)} className="pill-remove-btn">&times;</button>
+                  {exalumnoData.carreras.map(c => (
+                    <span key={c} className="carrera-pill">
+                      {c}
+                      <button type="button" onClick={() => removeCarrera(c)} className="pill-remove-btn">&times;</button>
                     </span>
                   ))}
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>Facultad / Escuela (Asignado automáticamente)</label>
+                <div className="w-full p-2.5 border border-slate-300 rounded-lg bg-slate-100 min-h-[44px] flex flex-wrap gap-1 items-center">
+                  {derivedFaculties.length > 0 ? (
+                    derivedFaculties.map((f, i) => (
+                      <span key={i} className="text-sm text-slate-700 bg-slate-200 px-2 py-0.5 rounded-md">{f}</span>
+                    ))
+                  ) : (
+                    <span className="text-sm text-slate-400">Seleccione una carrera primero</span>
+                  )}
                 </div>
               </div>
 
