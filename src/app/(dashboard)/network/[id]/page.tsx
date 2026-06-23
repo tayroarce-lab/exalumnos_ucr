@@ -5,6 +5,8 @@ import StitchProfileClient from './StitchProfileClient';
 import { ArrowLeft, Briefcase, MapPin, Linkedin, Mail, Twitter, Instagram, GraduationCap, CheckCircle2, ChevronLeft, Lock } from 'lucide-react';
 import ConnectButton from './ConnectButton';
 import ReportButton from './ReportButton';
+import Link from 'next/link';
+import { getAvatarUrl } from '@/lib/utils';
 
 export default async function NetworkProfilePage({ params }: { params: { id: string } | Promise<{ id: string }> }) {
   const resolvedParams = await Promise.resolve(params);
@@ -121,6 +123,10 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
       rol: u.rol
     };
   });
+
+  const displayName = profile.full_name;
+  const initials = displayName.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase();
+  const showContactInfo = isAdmin || connectionStatus === 'activo';
 
   return (
     <StitchProfileClient 

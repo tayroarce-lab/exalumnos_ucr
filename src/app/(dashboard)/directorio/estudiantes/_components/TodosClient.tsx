@@ -5,7 +5,7 @@ import { SlidersHorizontal, X } from "lucide-react";
 import PanelFiltros from "./PanelFiltros";
 import GrillaEstudiantes from "./GrillaEstudiantes";
 import BarraBusqueda from "./BarraBusqueda";
-import PaginacionMock from "./PaginacionMock";
+import Paginacion from "./Paginacion";
 import { FiltrosDirectorio, EstudianteDirectorio } from "@/types/estudiantes";
 import { getEstudiantes } from "@/lib/api";
 import { buildQueryString } from "@/lib/url-utils";
@@ -138,7 +138,7 @@ export default function TodosClient({
         </div>
 
         {totalItems > 0 && (
-          <PaginacionMock 
+          <Paginacion 
             paginaActual={paginaActual} 
             totalPaginas={totalPaginas} 
             onChange={setPaginaActual} 

@@ -33,7 +33,7 @@ export default async function DashboardLayout({
 
       <div className="flex flex-1 relative">
         {/* Contenido Principal */}
-        <main className="flex-1 w-full min-h-[calc(100vh-4rem)] p-4 sm:p-6 lg:p-8 overflow-y-auto">
+        <main className="flex-1 w-full min-h-[calc(100vh-5rem)] p-4 sm:p-6 lg:p-8 overflow-y-auto">
           {children}
         </main>
       </div>

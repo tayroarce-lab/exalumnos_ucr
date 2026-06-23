@@ -26,7 +26,7 @@ function aplanarEstudiante(registroBD: any): EstudianteDirectorio {
 
   return {
     user_id:                    registroBD.id,
-    nombre:                     `${registroBD.nombre || ''} ${registroBD.apellidos || ''}`.trim() || 'Usuario Desconocido',
+    nombre:                     `${registroBD.nombre || ''} ${registroBD.apellidos || ''}`.trim() || 'Sin Nombre',
     foto_url:                   registroBD.foto_url || null,
     banner_url:                 registroBD.banner_url || null,
     carrera:                    est?.carrera || '',
@@ -51,6 +51,12 @@ function aplanarEstudiante(registroBD: any): EstudianteDirectorio {
     habilidades:                extraerHabilidades(curr),
     habilidades_tecnicas:       extraerHabilidades(curr),
     habilidades_blandas:        Array.isArray(curr?.habilidades_blandas) ? curr.habilidades_blandas : [],
+    // Datos adicionales del estudiante
+    carnet_ucr:                 est?.carnet_ucr || null,
+    nivel_academico:            est?.nivel_academico || null,
+    promedio_ponderado:         est?.promedio_ponderado || null,
+    beca_socioeconomica:        est?.beca_socioeconomica || null,
+    sobre_mi_personal:          registroBD.sobre_mi_personal || null,
     // Búsquedas de apoyo (vienen directo de users)
     busca_mentoria:             registroBD.busca_mentoria ?? false,
     busca_empleo:               registroBD.busca_empleo ?? false,
@@ -59,6 +65,10 @@ function aplanarEstudiante(registroBD: any): EstudianteDirectorio {
     // Otros flags
     areas_de_interes:           registroBD.areas_de_interes || [],
     activo:                     registroBD.activo ?? true,
+    // Intereses humanos
+    deportes:                   registroBD.deportes || [],
+    musica:                     registroBD.musica || [],
+    idiomas:                    registroBD.idiomas || [],
   } as EstudianteDirectorio;
 }
 

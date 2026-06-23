@@ -13,11 +13,11 @@ import { getAvatarUrl } from '@/lib/utils'
 import { useProfile } from '@/contexts/ProfileContext'
 
 interface JobDetailPageProps {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 export default function JobDetailPage({ params }: JobDetailPageProps) {
-  const { id } = params
+  const { id } = React.use(params)
   const { user } = useProfile()
 
   const [job, setJob] = useState<any>(null)

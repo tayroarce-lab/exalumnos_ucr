@@ -123,25 +123,19 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
     return tags;
   };
 
-  // Simulación del progreso de compatibilidad (85% por defecto si no está definido)
-  const avance = estudiante.proyecto_porcentaje_avance || 85;
+  const avance = estudiante.proyecto_porcentaje_avance || 0;
+  const progresoProyecto = estudiante.proyecto_porcentaje_avance || 0;
 
-  // Simulación del progreso del proyecto (68% por defecto si no está definido)
-  const progresoProyecto = estudiante.proyecto_porcentaje_avance || 68;
+  const tituloProyecto = estudiante.proyecto_titulo || 'Proyecto sin título';
+  const descripcionProyecto = estudiante.proyecto_descripcion || 'Sin descripción disponible del proyecto.';
+  const areaTematica = estudiante.proyecto_area_tematica || estudiante.proyecto_tipo || 'General';
+  const habilidadesTecnicasMock = tecnicas.length > 0 ? tecnicas : [];
 
-  // Título, descripción y habilidades simuladas
-  const tituloProyecto = estudiante.proyecto_titulo || 'PROYECTO TFG ANA';
-  const descripcionProyecto = estudiante.proyecto_descripcion || 'Desarrollo de un modelo de gestión estratégica para startups de base tecnológica en zonas rurales, enfocado en la sostenibilidad financiera y el impacto social.';
-  const areaTematica = estudiante.proyecto_area_tematica || estudiante.proyecto_tipo || 'Tecnología';
-  const habilidadesTecnicasMock = tecnicas.length > 0 ? tecnicas : ['Análisis de Datos', 'Gestión de Proyectos', 'Estrategia Digital'];
+  const deportesMock = estudiante.deportes || [];
+  const musicaMock = estudiante.musica || [];
+  const hobbiesMock = estudiante.hobbies || [];
+  const idiomasMock = estudiante.idiomas || [];
 
-  // Intereses humanos con fallback de ejemplo
-  const deportesMock = (estudiante.deportes && estudiante.deportes.length > 0) ? estudiante.deportes : ['Fútbol', 'Ciclismo'];
-  const musicaMock = (estudiante.musica && estudiante.musica.length > 0) ? estudiante.musica : ['Guitarra', 'Pop Latino'];
-  const hobbiesMock = (estudiante.hobbies && estudiante.hobbies.length > 0) ? estudiante.hobbies : ['Fotografía', 'Lectura', 'Viajes'];
-  const idiomasMock = (estudiante.idiomas && estudiante.idiomas.length > 0) ? estudiante.idiomas : ['Español (Nativo)', 'Inglés (B2)'];
-
-  // Pasión combinada para el match
   const pasionesMatch = [...deportesMock.slice(0,1), ...musicaMock.slice(0,1), ...hobbiesMock.slice(0,1)];
 
   return (
@@ -339,19 +333,19 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-5 gap-x-4 relative z-10">
           <div>
             <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Carné</p>
-            <p className="text-sm font-extrabold text-white">{estudiante.anio_ingreso ? `B${estudiante.anio_ingreso}${getDeterministicSuffix(estudiante.user_id || estudiante.nombre)}` : 'B55241'}</p>
+            <p className="text-sm font-extrabold text-white">{estudiante.carnet_ucr || (estudiante.anio_ingreso ? `B${estudiante.anio_ingreso}${getDeterministicSuffix(estudiante.user_id || estudiante.nombre)}` : 'No disponible')}</p>
           </div>
           <div>
             <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Sede</p>
-            <p className="text-sm font-extrabold text-white">{estudiante.sede || 'Occidente'}</p>
+            <p className="text-sm font-extrabold text-white">{estudiante.sede || 'No disponible'}</p>
           </div>
           <div>
             <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Nivel Actual</p>
-            <p className="text-sm font-extrabold text-white">Bachillerato</p>
+            <p className="text-sm font-extrabold text-white">{estudiante.nivel_academico || 'No disponible'}</p>
           </div>
           <div>
             <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Año de Ingreso</p>
-            <p className="text-sm font-extrabold text-white">{estudiante.anio_ingreso || 2022}</p>
+            <p className="text-sm font-extrabold text-white">{estudiante.anio_ingreso || 'No disponible'}</p>
           </div>
         </div>
       </div>
@@ -366,14 +360,16 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
         <p className="text-xs text-slate-400 font-medium mb-4">Lo que me apasiona fuera de los libros</p>
 
         {/* Descripción extendida del estudiante sobre intereses humanos */}
-        <div className="bg-white/80 rounded-xl p-4 border border-[#E84F26]/10 mb-5">
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">
-            ✍️ En mis propias palabras
-          </p>
-          <p className="text-sm text-slate-600 leading-relaxed font-medium italic">
-            {`Me defino como alguien que equilibra la vida académica con la física y la creatividad. Creo que los mejores profesionales son aquellos que también tienen intereses humanos sólidos: yo encuentro mi mejor versión en la cancha, en los libros y cuando exploro nuevos lugares. Eso me da perspectiva y resiliencia para enfrentar retos profesionales.`}
-          </p>
-        </div>
+        {estudiante.sobre_mi_personal && (
+          <div className="bg-white/80 rounded-xl p-4 border border-[#E84F26]/10 mb-5">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+              ✍️ En mis propias palabras
+            </p>
+            <p className="text-sm text-slate-600 leading-relaxed font-medium italic">
+              {estudiante.sobre_mi_personal}
+            </p>
+          </div>
+        )}
 
         <div className="space-y-4">
           {/* Deportes */}
@@ -441,7 +437,7 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
           </div>
           <p className="text-sm text-slate-600 leading-relaxed font-medium">
             {estudiante.sobre_mi ||
-              `Soy un estudiante apasionado por la tecnología y la innovación, con interés genuino en resolver problemas reales mediante el pensamiento analítico y el trabajo en equipo. A nivel educativo, me esmero en conectar la teoría académica con aplicaciones prácticas que generen impacto. Fuera del aula, me motivan el deporte, la música y aprender de culturas distintas. Busco oportunidades donde pueda aportar mis habilidades y seguir creciendo profesionalmente junto a personas y organizaciones que compartan mis valores.`
+              <span className="italic text-slate-400">El estudiante aún no ha redactado su presentación personal.</span>
             }
           </p>
         </div>
@@ -453,11 +449,15 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
           <span>💻</span> Habilidades Técnicas
         </h3>
         <div className="flex flex-wrap gap-2">
-          {habilidadesTecnicasMock.map((h, i) => (
-            <span key={i} className="px-3.5 py-2 rounded-xl bg-[#E0F2FE]/70 text-[#003B4F] text-xs font-bold border border-[#54BCEB]/30 shadow-sm">
-              {h}
-            </span>
-          ))}
+          {habilidadesTecnicasMock.length > 0 ? (
+            habilidadesTecnicasMock.map((h, i) => (
+              <span key={i} className="px-3.5 py-2 rounded-xl bg-[#E0F2FE]/70 text-[#003B4F] text-xs font-bold border border-[#54BCEB]/30 shadow-sm">
+                {h}
+              </span>
+            ))
+          ) : (
+            <span className="text-xs text-slate-400 italic">No ha registrado habilidades técnicas.</span>
+          )}
         </div>
       </div>
 
@@ -474,53 +474,41 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
           <div className="flex justify-between items-center py-2 border-t border-slate-100/60">
             <span className="text-xs text-slate-500 font-semibold">Nivel de Beca</span>
             <span className="text-xs font-bold text-[#003B4F] flex items-center gap-1.5">
-              Categoría 5 <IconLock color="#b0c4d8" size={12} />
+              {estudiante.beca_socioeconomica || 'Privado'} <IconLock color="#b0c4d8" size={12} />
             </span>
           </div>
           <div className="flex justify-between items-center py-2 border-t border-slate-100/60">
             <span className="text-xs text-slate-500 font-semibold">Promedio Ponderado</span>
             <span className="text-xs font-bold text-[#003B4F] flex items-center gap-1.5">
-              9.25 <IconLock color="#b0c4d8" size={12} />
+              {estudiante.promedio_ponderado || 'Privado'} <IconLock color="#b0c4d8" size={12} />
             </span>
           </div>
         </div>
       </div>
 
       {/* ── TRAYECTORIA ESTUDIANTIL ────────────────────────── */}
-      <div className="bg-white rounded-2xl p-6 border-l-4 border-l-[#1F8BB6] border border-slate-200/80 shadow-sm mb-6">
-        <h3 className="text-lg font-black text-[#003B4F] mb-4 flex items-center gap-2">
-          <span>🚌</span> Trayectoria Estudiantil
-        </h3>
-        <div className="space-y-4">
-          <div className="flex items-start gap-3">
-            <div className="p-2.5 rounded-xl bg-[#E0F2FE] text-[#1F8BB6] mt-0.5 flex-shrink-0">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
-                <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"/>
-              </svg>
-            </div>
-            <div>
-              <h4 className="text-xs font-bold text-[#003B4F]">Tutorías previas</h4>
-              <p className="text-xs text-slate-500 font-medium">Matemática General (2023)</p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <div className="p-2.5 rounded-xl bg-[#E0F2FE] text-[#1F8BB6] mt-0.5 flex-shrink-0">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                <circle cx="9" cy="7" r="4"/>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-              </svg>
-            </div>
-            <div>
-              <h4 className="text-xs font-bold text-[#003B4F]">Participación en asociaciones</h4>
-              <p className="text-xs text-slate-500 font-medium">Vocalía de Bienestar Estudiantil</p>
-            </div>
+      {estudiante.actividades_extracurriculares && estudiante.actividades_extracurriculares.length > 0 && (
+        <div className="bg-white rounded-2xl p-6 border-l-4 border-l-[#1F8BB6] border border-slate-200/80 shadow-sm mb-6">
+          <h3 className="text-lg font-black text-[#003B4F] mb-4 flex items-center gap-2">
+            <span>🚌</span> Trayectoria Estudiantil
+          </h3>
+          <div className="space-y-4">
+            {estudiante.actividades_extracurriculares.map((act, index) => (
+              <div key={index} className="flex items-start gap-3">
+                <div className="p-2.5 rounded-xl bg-[#E0F2FE] text-[#1F8BB6] mt-0.5 flex-shrink-0">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"/>
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-[#003B4F]">{act}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
-      </div>
+      )}
 
       {/* ── ACCIONES PARA MENTORES (DASHED GREEN) ───────────── */}
       {(estudiante.busca_mentoria || estudiante.busca_financiamiento) && (
