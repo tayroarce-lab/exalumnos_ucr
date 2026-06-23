@@ -6,7 +6,7 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { Mail, Lock, Eye, EyeOff, LogIn, GraduationCap, Users, ShieldCheck } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, LogIn, GraduationCap, Users, ShieldCheck, ArrowLeft } from "lucide-react";
 import AuthBackground from '@/components/ui/AuthBackground';
 import { iniciarSesion } from "@/actions/auth";
 import { obtenerMiPerfil } from "@/actions/users";
@@ -92,8 +92,13 @@ function LoginPageContent() {
       <AuthBackground />
       <div className="login-container">
         {/* Panel Izquierdo — Decorativo */}
-        <div className="login-left">
-          <div className="login-logo-container">
+        <div className="login-left relative">
+          {/* Botón Volver al Inicio */}
+          <Link href="/" className="absolute top-6 left-6 flex items-center gap-2 text-white/80 hover:text-white transition-colors text-sm font-semibold z-20 bg-black/10 hover:bg-black/20 px-4 py-2 rounded-full backdrop-blur-md border border-white/10">
+            <ArrowLeft size={16} /> Volver al inicio
+          </Link>
+          
+          <div className="login-logo-container mt-8">
             <Link href="/">
               <Image
                 src={logoUCR}
