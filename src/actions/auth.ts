@@ -113,6 +113,7 @@ export async function registrarExalumno(data: {
 }
 
 export async function iniciarSesion(data: { email: string; password: string }) {
+  const emailLimpio = data.email.trim().toLowerCase()
   const supabase = await createClient()
   // IMPORTANTE: usamos adminClient para consultar el rol ya que bypasea RLS.
   // El cliente anon/autenticado regular es bloqueado por las políticas RLS de
@@ -120,7 +121,7 @@ export async function iniciarSesion(data: { email: string; password: string }) {
   const adminClient = createAdminClient()
 
   const { data: authData, error } = await supabase.auth.signInWithPassword({
-    email: data.email,
+    email: emailLimpio,
     password: data.password,
   })
 
@@ -185,13 +186,15 @@ export async function solicitarRecuperacionContrasena(email: string) {
 }
 
 export async function enviarEnlaceMagico(email: string, role: "estudiante" | "exalumno") {
-  if (role === "estudiante" && !email.endsWith("@ucr.ac.cr")) {
+  const emailLimpio = email.trim().toLowerCase()
+  
+  if (role === "estudiante" && !emailLimpio.endsWith("@ucr.ac.cr")) {
     throw new Error("Los estudiantes deben usar su correo institucional (@ucr.ac.cr).");
   }
 
   const supabase = await createClient()
   const { error } = await supabase.auth.signInWithOtp({
-    email,
+    email: emailLimpio,
     options: {
       emailRedirectTo: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/auth/callback?next=/completar-perfil`,
     },
