@@ -5,7 +5,7 @@ import Link from "next/link";
 import { SlidersHorizontal, X, Search } from "lucide-react";
 import PanelFiltros from "./PanelFiltros";
 import GrillaEstudiantes from "./GrillaEstudiantes";
-import PaginacionMock from "./PaginacionMock";
+import Paginacion from "./Paginacion";
 import { FiltrosDirectorio, EstudianteDirectorio } from "@/types/estudiantes";
 import { getEstudiantes } from "@/lib/api";
 import { buildQueryString } from "@/lib/url-utils";
@@ -160,7 +160,7 @@ export default function DirectorioClient({
         </div>
 
         {/* Paginación */}
-        <PaginacionMock 
+        <Paginacion 
           paginaActual={pagina} 
           totalPaginas={totalPaginas} 
           onChange={setPagina} 
