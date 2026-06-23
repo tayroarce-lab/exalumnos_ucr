@@ -1,7 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { submitProfileReport, SubmitReportInput } from '@/actions/reports';
+import { reportarPerfil } from '@/actions/reports';
+
+type MotivoReporte = 'Spam' | 'Perfil Falso' | 'Comportamiento Inapropiado' | 'Otro';
 
 interface ReportProfileModalProps {
   reportedUserId: string;
@@ -10,7 +12,7 @@ interface ReportProfileModalProps {
 }
 
 export default function ReportProfileModal({ reportedUserId, isOpen, onClose }: ReportProfileModalProps) {
-  const [motivo, setMotivo] = useState<SubmitReportInput['motivo']>('Otro');
+  const [motivo, setMotivo] = useState<MotivoReporte>('Otro');
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -22,11 +24,8 @@ export default function ReportProfileModal({ reportedUserId, isOpen, onClose }: 
     setLoading(true);
     setMessage('');
 
-    const result = await submitProfileReport({
-      perfil_reportado: reportedUserId,
-      motivo,
-      descripcion: description
-    });
+    const motivoCompleto = description ? `${motivo}: ${description}` : motivo;
+    const result = await reportarPerfil(reportedUserId, motivoCompleto);
 
     setLoading(false);
 
