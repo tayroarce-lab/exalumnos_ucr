@@ -54,11 +54,13 @@ export async function registrarEstudiante(data: { email: string; password: strin
   return { success: true }
 }
 
+import { CARRERA_TO_ESCUELA } from '@/constants/catalogs'
+
 export async function registrarExalumno(data: {
   email: string;
   password: string;
   nombre: string;
-  carreras: number[];
+  carreras: string[];
   anio_graduacion: number;
 }) {
   const emailLimpio = data.email.trim().toLowerCase()
@@ -80,7 +82,7 @@ export async function registrarExalumno(data: {
       email: emailLimpio,
       nombre: data.nombre,
       rol: 'exalumno',
-      carrera_principal_id: data.carreras && data.carreras.length > 0 ? data.carreras[0] : null,
+      carrera_principal_id: null,
       email_verified: false,
       activo: true
     })
@@ -89,10 +91,10 @@ export async function registrarExalumno(data: {
       console.error('Error insertando en public.users:', dbError)
     }
 
-    // Preparar datos academicos para perfiles
-    const academic = data.carreras.map(cId => ({
-      carrera: cId.toString(), // Idealmente buscaríamos el nombre, pero guardamos el ID como string temporalmente
-      escuela: '',
+    // Preparar datos academicos para perfiles usando el catálogo
+    const academic = data.carreras.map(cNombre => ({
+      carrera: cNombre,
+      escuela: CARRERA_TO_ESCUELA[cNombre] || '',
       anio: data.anio_graduacion.toString()
     }))
 
