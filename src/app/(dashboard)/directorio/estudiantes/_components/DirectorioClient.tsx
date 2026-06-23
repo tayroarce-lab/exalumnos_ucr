@@ -2,30 +2,36 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { SlidersHorizontal, X } from "lucide-react";
+import { SlidersHorizontal, X, Search } from "lucide-react";
 import PanelFiltros from "./PanelFiltros";
 import GrillaEstudiantes from "./GrillaEstudiantes";
 import PaginacionMock from "./PaginacionMock";
 import { FiltrosDirectorio, EstudianteDirectorio } from "@/types/estudiantes";
 import { getEstudiantes } from "@/lib/api";
 import { buildQueryString } from "@/lib/url-utils";
+import { useLockBodyScroll } from "@/hooks/useLockBodyScroll";
 
 interface DirectorioClientProps {
   estudiantesIniciales: EstudianteDirectorio[];
   totalInicial: number;
   filtrosIniciales: FiltrosDirectorio;
   paginaInicial: number;
+  busquedaInicial: string;
 }
 
 export default function DirectorioClient({ 
   estudiantesIniciales, 
   totalInicial,
   filtrosIniciales,
-  paginaInicial
+  paginaInicial,
+  busquedaInicial
 }: DirectorioClientProps) {
   const [filtros, setFiltros] = useState<FiltrosDirectorio>(filtrosIniciales);
   const [pagina, setPagina] = useState(paginaInicial || 1);
+  const [busqueda, setBusqueda] = useState(busquedaInicial || "");
   const [showFiltersModal, setShowFiltersModal] = useState(false);
+
+  useLockBodyScroll(showFiltersModal);
 
   const [estudiantes, setEstudiantes] = useState<EstudianteDirectorio[]>(estudiantesIniciales);
   const [totalItems, setTotalItems] = useState(totalInicial);
@@ -49,11 +55,12 @@ export default function DirectorioClient({
       setIsPending(true);
 
       // Actualizar URL silenciosamente sin recargar Server Component
-      const newUrl = `${window.location.pathname}${buildQueryString(filtros, "", pagina)}`;
+      const newUrl = `${window.location.pathname}${buildQueryString(filtros, busqueda, pagina)}`;
       window.history.replaceState(null, '', newUrl);
 
       try {
         const { estudiantes: data, total } = await getEstudiantes(filtros, {
+          busqueda,
           page: pagina,
           limit: 12
         });
@@ -67,7 +74,7 @@ export default function DirectorioClient({
     }, 300);
 
     return () => clearTimeout(handler);
-  }, [filtros, pagina]);
+  }, [filtros, pagina, busqueda]);
 
   const totalPaginas = Math.ceil(totalItems / 12);
   const activeFilterCount = (filtros.carrera.length) + (filtros.proyecto_area_tematica.length) + (filtros.tipos_apoyo.length) + (filtros.proyecto_tipo ? 1 : 0) + (filtros.sede ? 1 : 0);
@@ -103,18 +110,35 @@ export default function DirectorioClient({
         </div>
       </div>
 
+      {/* Buscador a Ancho Completo */}
+      <div className="relative mb-8">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-200" />
+        <input
+          type="text"
+          placeholder="Buscar por nombre, apellidos o proyecto..."
+          value={busqueda}
+          onChange={e => {
+            setBusqueda(e.target.value);
+            setPagina(1);
+          }}
+          className="w-full h-12 pl-11 pr-4 bg-[#003B4F]/40 border border-white/20 rounded-xl text-sm text-white focus:outline-none focus:border-white focus:ring-2 focus:ring-white/20 transition-all placeholder:text-slate-200 shadow-sm"
+        />
+      </div>
+
       {/* Modal de Filtros (Centro de la pantalla) */}
       {showFiltersModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setShowFiltersModal(false)} />
-          <div className="relative w-full max-w-md max-h-[85vh] bg-white rounded-2xl shadow-2xl p-6 overflow-y-auto z-10 border border-slate-100 flex flex-col gap-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">FILTROS</h3>
-              <button type="button" aria-label="Cerrar filtros" onClick={() => setShowFiltersModal(false)} className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
-                <X className="w-4.5 h-4.5" />
-              </button>
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" onClick={() => setShowFiltersModal(false)} />
+          <div className="flex min-h-screen items-center justify-center p-4">
+            <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 z-10 border border-slate-100 flex flex-col gap-4">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">FILTROS</h3>
+                <button type="button" aria-label="Cerrar filtros" onClick={() => setShowFiltersModal(false)} className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
+                  <X className="w-4.5 h-4.5" />
+                </button>
+              </div>
+              <PanelFiltros filtros={filtros} onChange={handleFiltrosChange} />
             </div>
-            <PanelFiltros filtros={filtros} onChange={handleFiltrosChange} />
           </div>
         </div>
       )}

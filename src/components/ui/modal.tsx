@@ -2,6 +2,7 @@
 
 import React from 'react'
 import { X } from 'lucide-react'
+import { useLockBodyScroll } from '@/hooks/useLockBodyScroll'
 
 interface ModalProps {
   isOpen: boolean
@@ -18,6 +19,8 @@ export default function Modal({
   children,
   footer
 }: ModalProps) {
+  useLockBodyScroll(isOpen);
+
   if (!isOpen) return null
 
   return (

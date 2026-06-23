@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { z } from 'zod'
-import { AlertCircle, ArrowLeft, ArrowRight, CheckCircle2, User, GraduationCap, FileText, Heart, Handshake, Upload, X } from 'lucide-react'
+import { AlertCircle, ArrowLeft, ArrowRight, CheckCircle2, User, GraduationCap, FileText, Heart, Handshake, Upload, X, ChevronDown } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { actualizarPerfilCompletoEstudiante } from '@/actions/students'
 import { useProfile } from '@/contexts/ProfileContext'
@@ -17,7 +17,6 @@ import {
 import { logError } from '@/lib/logger'
 
 const sedes = ['Sede Rodrigo Facio', 'Sede de Occidente', 'Sede del Atlántico', 'Sede de Guanacaste', 'Sede del Pacífico', 'Sede Interuniversitaria de Alajuela', 'Sede del Sur']
-const areasTematicas = ['Tecnología', 'Salud', 'Ciencias Básicas', 'Ingeniería', 'Ciencias Sociales', 'Artes y Letras', 'Economía y Negocios', 'Medio Ambiente', 'Educación', 'Derecho', 'Arquitectura y Diseño', 'Agroalimentarias']
 const necesidadesOpciones = ['Financiamiento', 'Mentoría técnica', 'Acceso a datos', 'Infraestructura', 'Validación empresarial', 'Empleo paralelo']
 
 const STEPS = [
@@ -146,6 +145,17 @@ export default function StudentProfileEdit() {
       if (k === 'carrera' && CARRERA_TO_ESCUELA[v as string]) {
         next.escuela_facultad = CARRERA_TO_ESCUELA[v as string]
       }
+      if (k === 'busca_financiamiento' && v === true) {
+        next.busca_empleo = false
+        next.busca_pasantia = false
+      }
+      if ((k === 'busca_empleo' || k === 'busca_pasantia') && v === true) {
+        next.busca_financiamiento = false
+        next.proyecto_valor_monto = null
+      }
+      if (k === 'busca_financiamiento' && v === false) {
+        next.proyecto_valor_monto = null
+      }
       return next
     })
   }
@@ -199,7 +209,11 @@ export default function StudentProfileEdit() {
     setErrors([])
     setIsSubmitting(true)
     try {
-      await actualizarPerfilCompletoEstudiante(formData)
+      const res = await actualizarPerfilCompletoEstudiante(formData)
+      if (res && res.success === false) {
+        setErrors([res.error || 'Error al guardar el perfil'])
+        return
+      }
       await refreshProfile()
       router.push('/profile')
       router.refresh()
@@ -338,6 +352,10 @@ export default function StudentProfileEdit() {
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Carrera <span className="text-rose-500">*</span></label>
               <select value={formData.carrera} onChange={e => update('carrera', e.target.value)} className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-institutional focus:ring-1 focus:ring-institutional outline-none bg-white">
                 <option value="">Seleccione una carrera</option>
+                {/* Si el valor guardado no está en el catálogo, lo mostramos igual */}
+                {formData.carrera && !CARRERAS_UCR.includes(formData.carrera) && (
+                  <option value={formData.carrera}>{formData.carrera}</option>
+                )}
                 {CARRERAS_UCR.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
@@ -346,16 +364,27 @@ export default function StudentProfileEdit() {
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Facultad / Escuela <span className="text-rose-500">*</span></label>
               <select value={formData.escuela_facultad} onChange={e => update('escuela_facultad', e.target.value)} className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-institutional focus:ring-1 focus:ring-institutional outline-none bg-white">
                 <option value="">Seleccione una facultad</option>
+                {/* Si el valor guardado no está en el catálogo, lo mostramos igual */}
+                {formData.escuela_facultad && !ESCUELAS_UCR.includes(formData.escuela_facultad) && (
+                  <option value={formData.escuela_facultad}>{formData.escuela_facultad}</option>
+                )}
                 {ESCUELAS_UCR.map(e => <option key={e} value={e}>{e}</option>)}
               </select>
             </div>
 
             <div>
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Sede UCR <span className="text-rose-500">*</span></label>
-              <select value={formData.sede} onChange={e => update('sede', e.target.value)} className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-institutional focus:ring-1 focus:ring-institutional outline-none bg-white">
-                <option value="">Seleccione una sede</option>
-                {sedes.map(s => <option key={s} value={s}>{s}</option>)}
-              </select>
+              <div className="relative">
+                <select value={formData.sede} onChange={e => update('sede', e.target.value)} className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-institutional focus:ring-1 focus:ring-institutional outline-none bg-white appearance-none">
+                  <option value="">Seleccione una sede</option>
+                  {/* Si el valor guardado no está en el catálogo, lo mostramos igual */}
+                  {formData.sede && !sedes.includes(formData.sede) && (
+                    <option value={formData.sede}>{formData.sede}</option>
+                  )}
+                  {sedes.map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
+                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+              </div>
             </div>
             
             <div>
@@ -377,19 +406,28 @@ export default function StudentProfileEdit() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Tipo de Proyecto <span className="text-rose-500">*</span></label>
-                <select value={formData.proyecto_tipo} onChange={e => update('proyecto_tipo', e.target.value)} className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-institutional focus:ring-1 focus:ring-institutional outline-none bg-white">
-                  <option value="tfg">TFG</option>
-                  <option value="tesis">Tesis</option>
-                  <option value="practica_dirigida">Práctica Dirigida</option>
-                  <option value="seminario">Seminario</option>
-                </select>
+                <div className="relative">
+                  <select value={formData.proyecto_tipo} onChange={e => update('proyecto_tipo', e.target.value)} className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-institutional focus:ring-1 focus:ring-institutional outline-none bg-white appearance-none">
+                    <option value="tfg">TFG</option>
+                    <option value="tesis">Tesis</option>
+                    <option value="practica_dirigida">Práctica Dirigida</option>
+                    <option value="seminario">Seminario</option>
+                  </select>
+                  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                </div>
               </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Área Temática Principal <span className="text-rose-500">*</span></label>
-                <select value={formData.proyecto_area_tematica} onChange={e => update('proyecto_area_tematica', e.target.value)} className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-institutional focus:ring-1 focus:ring-institutional outline-none bg-white">
-                  <option value="">Seleccione un área</option>
-                  {areasTematicas.map(a => <option key={a} value={a}>{a}</option>)}
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Área Temática Principal <span className="text-rose-500">*</span></label>
+              <div className="relative">
+                <select value={formData.proyecto_area_tematica} onChange={e => update('proyecto_area_tematica', e.target.value)} className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-institutional focus:ring-1 focus:ring-institutional outline-none bg-white appearance-none">
+                  <option value="">Seleccione un área...</option>
+                  {AREAS_INTERES.map(area => (
+                    <option key={area} value={area}>{area}</option>
+                  ))}
                 </select>
+                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
               </div>
             </div>
 
@@ -403,18 +441,23 @@ export default function StudentProfileEdit() {
               <textarea value={formData.proyecto_descripcion} onChange={e => update('proyecto_descripcion', e.target.value)} maxLength={1000} rows={4} className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:border-institutional focus:ring-1 focus:ring-institutional outline-none resize-none" placeholder="Describe brevemente de qué trata tu proyecto..." />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Valor Monetario / Costo</label>
-                <div className="flex gap-2">
-                  <select value={formData.proyecto_valor_moneda || 'CRC'} onChange={e => update('proyecto_valor_moneda', e.target.value)} className="w-24 h-11 px-4 border border-slate-200 rounded-xl focus:border-institutional focus:ring-1 focus:ring-institutional outline-none bg-white">
-                    <option value="CRC">CRC</option>
-                    <option value="USD">USD</option>
-                  </select>
-                  <input type="number" value={formData.proyecto_valor_monto || ''} onChange={e => update('proyecto_valor_monto', e.target.value ? Number(e.target.value) : null)} placeholder="Ej: 150000" className="flex-1 h-11 px-4 border border-slate-200 rounded-xl focus:border-institutional focus:ring-1 focus:ring-institutional outline-none" />
+            {formData.busca_financiamiento && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in slide-in-from-top-1 duration-300">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Valor Monetario / Costo</label>
+                  <div className="flex gap-2">
+                    <div className="relative w-24 shrink-0">
+                      <select value={formData.proyecto_valor_moneda || 'CRC'} onChange={e => update('proyecto_valor_moneda', e.target.value)} className="w-full h-11 px-4 pr-8 border border-slate-200 rounded-xl focus:border-institutional focus:ring-1 focus:ring-institutional outline-none bg-white appearance-none">
+                        <option value="CRC">CRC</option>
+                        <option value="USD">USD</option>
+                      </select>
+                      <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                    </div>
+                    <input type="number" value={formData.proyecto_valor_monto || ''} onChange={e => update('proyecto_valor_monto', e.target.value ? Number(e.target.value) : null)} placeholder="Ej: 150000" className="flex-1 h-11 px-4 border border-slate-200 rounded-xl focus:border-institutional focus:ring-1 focus:ring-institutional outline-none" />
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -445,21 +488,20 @@ export default function StudentProfileEdit() {
 
         {step === 4 && (
           <div className="space-y-6">
-            <h3 className="font-bold text-slate-800 text-base uppercase tracking-wide border-b border-slate-100 pb-2">Áreas de Interés</h3>
-            <p className="text-xs text-slate-500">Selecciona las áreas temáticas con las que se relaciona tu perfil y tu proyecto.</p>
-            <div className="flex flex-wrap gap-2">
-              {AREAS_INTERES.map(area => (
-                <button
-                  key={area} type="button" onClick={() => handleCheckboxArray('areas_de_interes', area)}
-                  className={`px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-xl border transition-all ${
-                    formData.areas_de_interes.includes(area)
-                      ? 'bg-institutional border-institutional text-white shadow-sm'
-                      : 'bg-white border-slate-200 text-slate-600 hover:border-institutional/50 hover:bg-slate-50'
-                  }`}
-                >
-                  {area}
-                </button>
-              ))}
+            <h3 className="font-bold text-slate-800 text-base uppercase tracking-wide border-b border-slate-100 pb-2">Área de Interés</h3>
+            <p className="text-xs text-slate-500">Selecciona el área temática principal con la que se relaciona tu perfil y tu proyecto.</p>
+            <div className="relative mt-4">
+              <select 
+                value={formData.areas_de_interes[0] || ''} 
+                onChange={e => update('areas_de_interes', e.target.value ? [e.target.value] : [])} 
+                className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-institutional focus:ring-1 focus:ring-institutional outline-none bg-white appearance-none"
+              >
+                <option value="">Seleccione un área...</option>
+                {AREAS_INTERES.map(area => (
+                  <option key={area} value={area}>{area}</option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
             </div>
           </div>
         )}
@@ -469,15 +511,51 @@ export default function StudentProfileEdit() {
             <h3 className="font-bold text-slate-800 text-base uppercase tracking-wide border-b border-slate-100 pb-2">Apoyo Buscado</h3>
             <div className="space-y-3">
               {[
-                { name: 'busca_financiamiento', label: '¿Buscas financiamiento económico para tu proyecto?' },
-                { name: 'busca_mentoria', label: '¿Buscas mentoría técnica o profesional?' },
-                { name: 'busca_empleo', label: '¿Buscas empleo mientras estudias o al graduarte?' },
-                { name: 'busca_pasantia', label: '¿Buscas pasantía relacionada a tu carrera?' },
+                { 
+                  name: 'busca_financiamiento', 
+                  label: '¿Buscas financiamiento económico para tu proyecto?',
+                  isDisabled: formData.busca_empleo || formData.busca_pasantia,
+                  reason: 'No disponible al buscar empleo o pasantías'
+                },
+                { 
+                  name: 'busca_mentoria', 
+                  label: '¿Buscas mentoría técnica o profesional?',
+                  isDisabled: false,
+                  reason: ''
+                },
+                { 
+                  name: 'busca_empleo', 
+                  label: '¿Buscas empleo mientras estudias o al graduarte?',
+                  isDisabled: formData.busca_financiamiento,
+                  reason: 'No disponible al buscar financiamiento para el proyecto'
+                },
+                { 
+                  name: 'busca_pasantia', 
+                  label: '¿Buscas pasantía relacionada a tu carrera?',
+                  isDisabled: formData.busca_financiamiento,
+                  reason: 'No disponible al buscar financiamiento para el proyecto'
+                },
               ].map(item => (
-                <label key={item.name} className={`flex justify-between items-center p-4 border rounded-xl cursor-pointer transition-colors ${formData[item.name as keyof CombinedStudentFormData] ? 'border-institutional bg-institutional/5' : 'border-slate-200 hover:bg-slate-50'}`}>
-                  <span className="text-sm font-bold text-slate-700">{item.label}</span>
-                  <input type="checkbox" checked={formData[item.name as keyof CombinedStudentFormData] as boolean} onChange={e => update(item.name as keyof CombinedStudentFormData, e.target.checked)} className="w-5 h-5 accent-institutional" />
-                </label>
+                <div key={item.name} className="flex flex-col">
+                  <label className={`flex justify-between items-center p-4 border rounded-xl transition-colors ${
+                    item.isDisabled ? 'bg-slate-50 border-slate-200 opacity-60 cursor-not-allowed' :
+                    formData[item.name as keyof CombinedStudentFormData] ? 'border-institutional bg-institutional/5 cursor-pointer' : 'border-slate-200 hover:bg-slate-50 cursor-pointer'
+                  }`}>
+                    <span className={`text-sm font-bold ${item.isDisabled ? 'text-slate-400' : 'text-slate-700'}`}>{item.label}</span>
+                    <input 
+                      type="checkbox" 
+                      checked={formData[item.name as keyof CombinedStudentFormData] as boolean} 
+                      disabled={item.isDisabled}
+                      onChange={e => update(item.name as keyof CombinedStudentFormData, e.target.checked)} 
+                      className={`w-5 h-5 accent-institutional ${item.isDisabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                    />
+                  </label>
+                  {item.isDisabled && item.reason && (
+                    <span className="text-[11px] font-semibold text-rose-500 mt-1 ml-2">
+                      ⚠️ {item.reason}
+                    </span>
+                  )}
+                </div>
               ))}
             </div>
           </div>

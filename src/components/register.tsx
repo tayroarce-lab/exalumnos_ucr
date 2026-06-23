@@ -110,8 +110,8 @@ export default function Register() {
       const { error } = await supabase.auth.signInWithOtp({
         email: estudianteData.correo,
         options: {
-          emailRedirectTo: `${window.location.origin}/completar-perfil`,
-          data: { nombre: estudianteData.nombre, apellidos: estudianteData.apellidos }
+          emailRedirectTo: `${window.location.origin}/auth/callback?next=/completar-perfil`,
+          data: { nombre: estudianteData.nombre, apellidos: estudianteData.apellidos, rol: 'estudiante', tipo: 'estudiante' }
         }
       });
       if (error) throw error;
@@ -207,8 +207,8 @@ export default function Register() {
       const { error } = await supabase.auth.signInWithOtp({
         email: estudianteData.correo,
         options: {
-          emailRedirectTo: `${window.location.origin}/completar-perfil`,
-          data: { nombre: estudianteData.nombre, apellidos: estudianteData.apellidos }
+          emailRedirectTo: `${window.location.origin}/auth/callback?next=/completar-perfil`,
+          data: { nombre: estudianteData.nombre, apellidos: estudianteData.apellidos, rol: 'estudiante', tipo: 'estudiante' }
         }
       });
       if (error) throw error;

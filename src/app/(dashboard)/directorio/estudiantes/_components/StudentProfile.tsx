@@ -81,6 +81,14 @@ const IconCrossCircle = () => (
   </svg>
 );
 
+const getDeterministicSuffix = (str: string): number => {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return Math.abs(hash % 9000) + 1000;
+};
+
 export default function StudentProfile({ estudiante, estudiantesRelacionados }: Props) {
   const iniciales = estudiante.nombre.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
   const tecnicas = estudiante.habilidades_tecnicas ?? [];
@@ -139,38 +147,47 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
   return (
     <div className="font-sans text-[#003B4F] max-w-xl mx-auto pb-12">
 
-      {/* ── SECCIÓN CENTRALIZADA CON AVATAR ────────────────── */}
-      <div className="flex flex-col items-center text-center mb-6">
-        <div className="relative mb-4">
-          {/* Anillo de Gradiente Fino */}
-          <div className="w-32 h-32 rounded-full p-1 bg-gradient-to-tr from-[#54BCEB] via-[#003B4F] to-[#E84F26] shadow-md">
-            <div className="w-full h-full rounded-full bg-white p-1 overflow-hidden flex items-center justify-center border-4 border-white shadow-inner">
-              {estudiante.foto_url ? (
-                <img src={getAvatarUrl(estudiante.foto_url) as string} alt={estudiante.nombre} className="w-full h-full object-cover rounded-full" />
-              ) : (
-                <span className="text-[#003B4F] font-black text-4xl">{iniciales}</span>
+      {/* ── SECCIÓN DE CABECERA UNIFICADA (DISEÑO BANNER) ────────────────── */}
+      <div className="bg-white border border-slate-200 shadow-sm rounded-2xl relative mb-6 overflow-hidden">
+        {/* Banner: imagen personalizada o gradiente predeterminado */}
+        <div className="h-32 md:h-36 w-full relative overflow-hidden bg-gradient-to-r from-[#004C63] to-[#54BCEB]">
+          {estudiante.banner_url && (
+            <img 
+              src={estudiante.banner_url} 
+              alt="Banner de Perfil" 
+              className="w-full h-full object-cover"
+            />
+          )}
+        </div>
+
+
+        {/* Fila de Avatar e Información */}
+        <div className="px-6 pb-5 relative">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 relative z-10 text-center sm:text-left">
+            {/* Contenedor de Avatar con borde blanco y margen negativo */}
+            <div className="-mt-14 sm:-mt-16 w-28 h-28 rounded-full p-1 bg-white border border-[#B3DCEE]/40 shadow-md overflow-hidden flex items-center justify-center shrink-0">
+              <div className="w-full h-full rounded-full bg-slate-100 p-0.5 overflow-hidden flex items-center justify-center">
+                {estudiante.foto_url ? (
+                  <img src={getAvatarUrl(estudiante.foto_url) as string} alt={estudiante.nombre} className="w-full h-full object-cover rounded-full" />
+                ) : (
+                  <span className="text-[#003B4F] font-black text-3xl">{iniciales}</span>
+                )}
+              </div>
+            </div>
+
+            {/* Datos del estudiante */}
+            <div className="mt-4 sm:mt-3 flex-1 space-y-1 pb-1 sm:pb-2">
+              <h1 className="text-2xl font-black text-[#003B4F] tracking-tight">{estudiante.nombre}</h1>
+              {estudiante.carrera && <p className="text-xs font-extrabold text-[#1F8BB6]">{estudiante.carrera}</p>}
+              {estudiante.sede && (
+                <p className="text-xs text-slate-500 font-semibold flex items-center justify-center sm:justify-start gap-1">
+                  <span>📍</span> Sede de {estudiante.sede}
+                </p>
               )}
             </div>
           </div>
-          {/* Badge Circular bottom-right */}
-          <div className="absolute bottom-1 right-1 w-8 h-8 rounded-full bg-[#1A5B75] flex items-center justify-center border-2 border-white shadow-md">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-            </svg>
-          </div>
         </div>
-
-        {/* Nombres y Subtítulos */}
-        <h1 className="text-3xl font-black text-[#003B4F] tracking-tight">{estudiante.nombre}</h1>
-        {estudiante.carrera && <p className="text-sm font-bold text-[#1F8BB6] mt-1">{estudiante.carrera}</p>}
-        {estudiante.sede && (
-          <p className="text-xs text-slate-500 font-semibold mt-1">
-            📍 Sede de {estudiante.sede}
-          </p>
-        )}
-      </div>
-
-      {/* ── CARD DE COMPATIBILIDAD ─────────────────────────── */}
+      </div>      {/* ── CARD DE COMPATIBILIDAD ─────────────────────────── */}
       <div className="bg-[#EAF5FA]/90 backdrop-blur-sm rounded-2xl p-5 border border-[#B3DCEE] shadow-sm mb-6">
         <div className="flex justify-between items-center mb-3">
           <span className="text-xs font-bold text-[#1A5B75] uppercase tracking-wider">Compatibilidad</span>
@@ -240,7 +257,7 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
           {descripcionProyecto}
         </p>
 
-        {estudiante.proyecto_valor_monto != null && (
+        {estudiante.busca_financiamiento && estudiante.proyecto_valor_monto != null && (
           <div className="mb-4 inline-flex items-center gap-2 bg-emerald-50 border border-emerald-100 px-3 py-1.5 rounded-xl">
             <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Valor Monetario:</span>
             <span className="text-sm font-black text-emerald-700">
@@ -322,7 +339,7 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-5 gap-x-4 relative z-10">
           <div>
             <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Carné</p>
-            <p className="text-sm font-extrabold text-white">{estudiante.anio_ingreso ? `B${estudiante.anio_ingreso}${Math.floor(1000 + Math.random() * 9000)}` : 'B55241'}</p>
+            <p className="text-sm font-extrabold text-white">{estudiante.anio_ingreso ? `B${estudiante.anio_ingreso}${getDeterministicSuffix(estudiante.user_id || estudiante.nombre)}` : 'B55241'}</p>
           </div>
           <div>
             <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Sede</p>
@@ -506,29 +523,35 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
       </div>
 
       {/* ── ACCIONES PARA MENTORES (DASHED GREEN) ───────────── */}
-      <div className="rounded-2xl border-2 border-dashed border-[#8E9F7F]/40 bg-[#F4F9EE] p-5 mb-6">
-        <p className="text-[10px] font-black text-[#5C6E4F] text-center uppercase tracking-widest mb-4">Acciones para Mentores</p>
-        <div className="flex flex-col gap-3">
-          <button 
-            onClick={() => setShowMentoriaModal(true)}
-            className="w-full inline-flex justify-center items-center gap-2 rounded-xl text-sm font-bold bg-white text-[#1A5B75] hover:bg-slate-50 h-12 px-4 shadow transition-all duration-200 active:scale-95 cursor-pointer border border-[#1A5B75]/10"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/>
-            </svg>
-            Ofrecer Mentoría
-          </button>
-          <button 
-            onClick={() => setShowApoyarModal(true)}
-            className="w-full inline-flex justify-center items-center gap-2 rounded-xl text-sm font-bold bg-white text-[#B43B06] hover:bg-slate-50 h-12 px-4 shadow transition-all duration-200 active:scale-95 cursor-pointer border border-[#B43B06]/10"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4.5 16.5c-1.5 1.25-2.5 3.5-2.5 3.5s2.25-1 3.5-2.5M15 9l-9 9m9-9A6.5 6.5 0 1 0 5.8 4.2L15 9zm0 0l6-6"/>
-            </svg>
-            Apoyar Proyecto
-          </button>
+      {(estudiante.busca_mentoria || estudiante.busca_financiamiento) && (
+        <div className="rounded-2xl border-2 border-dashed border-[#8E9F7F]/40 bg-[#F4F9EE] p-5 mb-6">
+          <p className="text-[10px] font-black text-[#5C6E4F] text-center uppercase tracking-widest mb-4">Acciones para Mentores</p>
+          <div className="flex flex-col gap-3">
+            {estudiante.busca_mentoria && (
+              <button 
+                onClick={() => setShowMentoriaModal(true)}
+                className="w-full inline-flex justify-center items-center gap-2 rounded-xl text-sm font-bold bg-white text-[#1A5B75] hover:bg-slate-50 h-12 px-4 shadow transition-all duration-200 active:scale-95 cursor-pointer border border-[#1A5B75]/10"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/>
+                </svg>
+                Ofrecer Mentoría
+              </button>
+            )}
+            {estudiante.busca_financiamiento && (
+              <button 
+                onClick={() => setShowApoyarModal(true)}
+                className="w-full inline-flex justify-center items-center gap-2 rounded-xl text-sm font-bold bg-white text-[#B43B06] hover:bg-slate-50 h-12 px-4 shadow transition-all duration-200 active:scale-95 cursor-pointer border border-[#B43B06]/10"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4.5 16.5c-1.5 1.25-2.5 3.5-2.5 3.5s2.25-1 3.5-2.5M15 9l-9 9m9-9A6.5 6.5 0 1 0 5.8 4.2L15 9zm0 0l6-6"/>
+                </svg>
+                Apoyar Proyecto
+              </button>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* ── ESTUDIANTES RELACIONADOS ── */}
       {estudiantesRelacionados.length > 0 && (

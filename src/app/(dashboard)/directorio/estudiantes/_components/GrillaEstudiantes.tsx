@@ -16,7 +16,7 @@ export default function GrillaEstudiantes({ estudiantes }: { estudiantes: Estudi
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+    <div className="grid gap-6 mb-8 [grid-template-columns:repeat(auto-fill,minmax(280px,1fr))]">
       {estudiantes.map((estudiante) => (
         <TarjetaEstudiante key={estudiante.user_id} estudiante={estudiante} />
       ))}

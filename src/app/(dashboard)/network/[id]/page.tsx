@@ -25,6 +25,24 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
     notFound();
   }
 
+  // Cargar foto_url y banner_url personalizados desde profiles
+  let custom_foto_url: string | null = null;
+  let banner_url: string | null = null;
+  try {
+    const { data: profData } = await supabase
+      .from('profiles')
+      .select('foto_url, banner_url')
+      .eq('id', resolvedParams.id)
+      .maybeSingle();
+    
+    if (profData) {
+      custom_foto_url = profData.foto_url;
+      banner_url = profData.banner_url;
+    }
+  } catch (err) {
+    console.error('Error fetching profile banner/foto:', err);
+  }
+
   const exalumnoData = Array.isArray(userRecord.exalumnos) ? userRecord.exalumnos[0] : userRecord.exalumnos;
   const estudianteData = Array.isArray(userRecord.estudiantes) ? userRecord.estudiantes[0] : userRecord.estudiantes;
   const curriculumData = Array.isArray(userRecord.curriculums) ? userRecord.curriculums[0] : userRecord.curriculums;
@@ -32,7 +50,8 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
   const profile = {
     id: userRecord.id,
     full_name: `${userRecord.nombre || ''} ${userRecord.apellidos || ''}`.trim() || 'Usuario',
-    foto_url: userRecord.foto_url,
+    foto_url: custom_foto_url || userRecord.foto_url,
+    banner_url: banner_url,
     es_exalumno: userRecord.rol === 'exalumno',
     rol: userRecord.rol,
     email: userRecord.email,
