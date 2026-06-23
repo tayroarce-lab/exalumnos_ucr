@@ -6,7 +6,6 @@ import StitchProfileClient from './StitchProfileClient';
 import { ArrowLeft, Briefcase, MapPin, Linkedin, Mail, Twitter, Instagram, GraduationCap, CheckCircle2, ChevronLeft, Lock } from 'lucide-react';
 import ConnectButton from './ConnectButton';
 import ReportButton from './ReportButton';
-import Link from 'next/link';
 import { getAvatarUrl } from '@/lib/utils';
 
 export default async function NetworkProfilePage({ params }: { params: { id: string } | Promise<{ id: string }> }) {
@@ -73,6 +72,12 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
     bio: exalumnoData?.bio || curriculumData?.sobre_mi || null,
     skills: [...(exalumnoData?.habilidades || []), ...(curriculumData?.habilidades_tecnicas ? (Array.isArray(curriculumData.habilidades_tecnicas) ? curriculumData.habilidades_tecnicas : Object.keys(curriculumData.habilidades_tecnicas)) : [])],
     areas_de_interes: exalumnoData?.areas_de_interes || estudianteData?.areas_de_interes || [],
+    proyecto_titulo: estudianteData?.proyecto_titulo,
+    proyecto_descripcion: estudianteData?.proyecto_descripcion,
+    proyecto_valor_monto: estudianteData?.proyecto_valor_monto,
+    proyecto_valor_moneda: estudianteData?.proyecto_valor_moneda,
+    proyecto_documento_url: estudianteData?.proyecto_documento_url,
+    proyecto_video_url: estudianteData?.proyecto_video_url,
   };
 
   // Comprobar estado de conexión

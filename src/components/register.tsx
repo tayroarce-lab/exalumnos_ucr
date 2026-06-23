@@ -6,7 +6,7 @@ import '@/styles/loadingSpinner.css';
 import '@/styles/cycleWisdom.css';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import CycleWisdomOption3 from '@/components/CycleWisdomOption3';
-import { User, Mail, Lock, AlertCircle, ArrowRight, CheckCircle2, Clock, GraduationCap } from 'lucide-react';
+import { User, Mail, Lock, AlertCircle, ArrowRight, CheckCircle2, Clock, GraduationCap, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import logoUCR from '@/images/Logo_UCR.png';
@@ -247,8 +247,13 @@ export default function Register() {
   // ═══════════════════════════════════════════
   return (
     <div className={`register-container ${tipoRegistro}`}>
-      <div className="register-left">
-        <div className="register-logo-container">
+      <div className="register-left relative">
+        {/* Botón Volver al Inicio */}
+        <Link href="/" className="absolute top-6 left-6 flex items-center gap-2 text-white/80 hover:text-white transition-colors text-sm font-semibold z-20 bg-black/10 hover:bg-black/20 px-4 py-2 rounded-full backdrop-blur-md border border-white/10">
+          <ArrowLeft size={16} /> Volver al inicio
+        </Link>
+        
+        <div className="register-logo-container mt-8">
           <Link href="/">
             <Image src={logoUCR} alt="Logo Alumni UCR" width={320} height={105} className="register-brand-logo object-contain cursor-pointer" priority />
           </Link>
