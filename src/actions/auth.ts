@@ -4,6 +4,19 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 
+function translateSupabaseError(message: string): string {
+  if (!message) return 'Ha ocurrido un error inesperado.';
+  const msg = message.toLowerCase();
+  
+  if (msg.includes('invalid login credentials')) return 'Credenciales incorrectas. Verifica tu correo y contraseña.';
+  if (msg.includes('email not confirmed')) return 'Debes confirmar tu correo electrónico antes de iniciar sesión.';
+  if (msg.includes('user already registered')) return 'El correo electrónico ya está registrado.';
+  if (msg.includes('password should be at least')) return 'La contraseña debe tener al menos 6 caracteres.';
+  if (msg.includes('rate limit')) return 'Demasiados intentos. Por favor, espera un momento y vuelve a intentarlo.';
+  
+  return message; // fallback
+}
+
 export async function registrarEstudiante(data: { email: string; password: string; nombre: string }) {
   const emailLimpio = data.email.trim().toLowerCase()
   if (emailLimpio.endsWith('@gmail.com')) {
@@ -23,7 +36,7 @@ export async function registrarEstudiante(data: { email: string; password: strin
     user_metadata: { nombre: data.nombre, rol: 'estudiante', tipo: 'estudiante' }
   })
 
-  if (authError) throw new Error(authError.message)
+  if (authError) throw new Error(translateSupabaseError(authError.message))
 
   if (authData.user) {
     // Intentar insertar en users por compatibilidad, aunque hay un trigger, el trigger inserta lo básico
@@ -54,11 +67,13 @@ export async function registrarEstudiante(data: { email: string; password: strin
   return { success: true }
 }
 
+import { CARRERA_TO_ESCUELA } from '@/constants/catalogs'
+
 export async function registrarExalumno(data: {
   email: string;
   password: string;
   nombre: string;
-  carreras: number[];
+  carreras: string[];
   anio_graduacion: number;
 }) {
   const emailLimpio = data.email.trim().toLowerCase()
@@ -72,7 +87,7 @@ export async function registrarExalumno(data: {
     user_metadata: { nombre: data.nombre, rol: 'exalumno', tipo: 'exalumno' }
   })
 
-  if (authError) throw new Error(authError.message)
+  if (authError) throw new Error(translateSupabaseError(authError.message))
 
   if (authData.user) {
     const { error: dbError } = await adminClient.from('users').insert({
@@ -80,7 +95,7 @@ export async function registrarExalumno(data: {
       email: emailLimpio,
       nombre: data.nombre,
       rol: 'exalumno',
-      carrera_principal_id: data.carreras && data.carreras.length > 0 ? data.carreras[0] : null,
+      carrera_principal_id: null,
       email_verified: false,
       activo: true
     })
@@ -89,10 +104,10 @@ export async function registrarExalumno(data: {
       console.error('Error insertando en public.users:', dbError)
     }
 
-    // Preparar datos academicos para perfiles
-    const academic = data.carreras.map(cId => ({
-      carrera: cId.toString(), // Idealmente buscaríamos el nombre, pero guardamos el ID como string temporalmente
-      escuela: '',
+    // Preparar datos academicos para perfiles usando el catálogo
+    const academic = data.carreras.map(cNombre => ({
+      carrera: cNombre,
+      escuela: CARRERA_TO_ESCUELA[cNombre] || '',
       anio: data.anio_graduacion.toString()
     }))
 
@@ -111,6 +126,7 @@ export async function registrarExalumno(data: {
 }
 
 export async function iniciarSesion(data: { email: string; password: string }) {
+  const emailLimpio = data.email.trim().toLowerCase()
   const supabase = await createClient()
   // IMPORTANTE: usamos adminClient para consultar el rol ya que bypasea RLS.
   // El cliente anon/autenticado regular es bloqueado por las políticas RLS de
@@ -118,11 +134,11 @@ export async function iniciarSesion(data: { email: string; password: string }) {
   const adminClient = createAdminClient()
 
   const { data: authData, error } = await supabase.auth.signInWithPassword({
-    email: data.email,
+    email: emailLimpio,
     password: data.password,
   })
 
-  if (error) return { success: false, error: error.message }
+  if (error) return { success: false, error: translateSupabaseError(error.message) }
   if (!authData.user) return { success: false, error: 'No se pudo obtener el usuario' }
 
   // Consultar el rol usando adminClient (service_role) para bypasear RLS.
@@ -167,7 +183,7 @@ export async function cerrarSesion() {
   const supabase = await createClient()
   const { error } = await supabase.auth.signOut()
 
-  if (error) throw new Error(error.message)
+  if (error) throw new Error(translateSupabaseError(error.message))
 
   revalidatePath('/', 'layout')
   return { success: true }
@@ -177,21 +193,72 @@ export async function solicitarRecuperacionContrasena(email: string) {
   const supabase = await createClient()
   const { error } = await supabase.auth.resetPasswordForEmail(email)
 
-  if (error) throw new Error(error.message)
+  if (error) throw new Error(translateSupabaseError(error.message))
+
+  return { success: true }
+}
+
+export async function solicitarCodigoRecuperacion(email: string) {
+  const emailLimpio = email.trim().toLowerCase()
+  const adminClient = createAdminClient()
+
+  const { data: userData, error: userError } = await adminClient
+    .from('users')
+    .select('id, rol')
+    .eq('email', emailLimpio)
+    .single()
+
+  if (userError || !userData) {
+    return { success: false, error: 'No encontramos ninguna cuenta asociada a este correo electrónico.' }
+  }
+
+  const supabase = await createClient()
+  const { error } = await supabase.auth.resetPasswordForEmail(emailLimpio)
+
+  if (error) {
+    return { success: false, error: translateSupabaseError(error.message) }
+  }
+
+  return { success: true, tipo: userData.rol }
+}
+
+export async function restablecerPasswordConCodigo(email: string, codigo: string, nuevaPassword: string) {
+  const emailLimpio = email.trim().toLowerCase()
+  const supabase = await createClient()
+
+  const { error } = await supabase.auth.verifyOtp({
+    email: emailLimpio,
+    token: codigo,
+    type: 'recovery'
+  })
+
+  if (error) {
+    return { success: false, error: 'El código de seguridad es inválido o ha expirado. Por favor, solicita uno nuevo.' }
+  }
+
+  const { error: updateError } = await supabase.auth.updateUser({
+    password: nuevaPassword
+  })
+
+  if (updateError) {
+    return { success: false, error: translateSupabaseError(updateError.message) }
+  }
 
   return { success: true }
 }
 
 export async function enviarEnlaceMagico(email: string, role: "estudiante" | "exalumno") {
-  if (role === "estudiante" && !email.endsWith("@ucr.ac.cr")) {
+  const emailLimpio = email.trim().toLowerCase()
+  
+  if (role === "estudiante" && !emailLimpio.endsWith("@ucr.ac.cr")) {
     throw new Error("Los estudiantes deben usar su correo institucional (@ucr.ac.cr).");
   }
 
   const supabase = await createClient()
   const { error } = await supabase.auth.signInWithOtp({
-    email,
+    email: emailLimpio,
     options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/auth/callback`,
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/auth/callback?next=/completar-perfil`,
     },
   })
 

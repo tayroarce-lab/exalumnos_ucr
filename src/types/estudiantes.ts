@@ -3,6 +3,7 @@ export interface EstudianteDirectorio {
   user_id: string;
   nombre: string;
   foto_url: string | null;
+  banner_url?: string | null;
   // Carrera y sede vienen de users_carreras → carrera_campus → carreras/campus
   carrera: string;
   sede: string;

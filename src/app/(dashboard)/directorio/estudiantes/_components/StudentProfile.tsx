@@ -81,6 +81,14 @@ const IconCrossCircle = () => (
   </svg>
 );
 
+const getDeterministicSuffix = (str: string): number => {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return Math.abs(hash % 9000) + 1000;
+};
+
 export default function StudentProfile({ estudiante, estudiantesRelacionados }: Props) {
   const iniciales = estudiante.nombre.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
   const tecnicas = estudiante.habilidades_tecnicas ?? [];
@@ -139,38 +147,47 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
   return (
     <div className="font-sans text-[#003B4F] max-w-xl mx-auto pb-12">
 
-      {/* ── SECCIÓN CENTRALIZADA CON AVATAR ────────────────── */}
-      <div className="flex flex-col items-center text-center mb-6">
-        <div className="relative mb-4">
-          {/* Anillo de Gradiente Fino */}
-          <div className="w-32 h-32 rounded-full p-1 bg-gradient-to-tr from-[#54BCEB] via-[#003B4F] to-[#E84F26] shadow-md">
-            <div className="w-full h-full rounded-full bg-white p-1 overflow-hidden flex items-center justify-center border-4 border-white shadow-inner">
-              {estudiante.foto_url ? (
-                <img src={getAvatarUrl(estudiante.foto_url) as string} alt={estudiante.nombre} className="w-full h-full object-cover rounded-full" />
-              ) : (
-                <span className="text-[#003B4F] font-black text-4xl">{iniciales}</span>
+      {/* ── SECCIÓN DE CABECERA UNIFICADA (DISEÑO BANNER) ────────────────── */}
+      <div className="bg-white border border-slate-200 shadow-sm rounded-2xl relative mb-6 overflow-hidden">
+        {/* Banner: imagen personalizada o gradiente predeterminado */}
+        <div className="h-32 md:h-36 w-full relative overflow-hidden bg-gradient-to-r from-[#004C63] to-[#54BCEB]">
+          {estudiante.banner_url && (
+            <img 
+              src={estudiante.banner_url} 
+              alt="Banner de Perfil" 
+              className="w-full h-full object-cover"
+            />
+          )}
+        </div>
+
+
+        {/* Fila de Avatar e Información */}
+        <div className="px-6 pb-5 relative">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 relative z-10 text-center sm:text-left">
+            {/* Contenedor de Avatar con borde blanco y margen negativo */}
+            <div className="-mt-14 sm:-mt-16 w-28 h-28 rounded-full p-1 bg-white border border-[#B3DCEE]/40 shadow-md overflow-hidden flex items-center justify-center shrink-0">
+              <div className="w-full h-full rounded-full bg-slate-100 p-0.5 overflow-hidden flex items-center justify-center">
+                {estudiante.foto_url ? (
+                  <img src={getAvatarUrl(estudiante.foto_url) as string} alt={estudiante.nombre} className="w-full h-full object-cover rounded-full" />
+                ) : (
+                  <span className="text-[#003B4F] font-black text-3xl">{iniciales}</span>
+                )}
+              </div>
+            </div>
+
+            {/* Datos del estudiante */}
+            <div className="mt-4 sm:mt-3 flex-1 space-y-1 pb-1 sm:pb-2">
+              <h1 className="text-2xl font-black text-[#003B4F] tracking-tight">{estudiante.nombre}</h1>
+              {estudiante.carrera && <p className="text-xs font-extrabold text-[#1F8BB6]">{estudiante.carrera}</p>}
+              {estudiante.sede && (
+                <p className="text-xs text-slate-500 font-semibold flex items-center justify-center sm:justify-start gap-1">
+                  <span>📍</span> Sede de {estudiante.sede}
+                </p>
               )}
             </div>
           </div>
-          {/* Badge Circular bottom-right */}
-          <div className="absolute bottom-1 right-1 w-8 h-8 rounded-full bg-[#1A5B75] flex items-center justify-center border-2 border-white shadow-md">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-            </svg>
-          </div>
         </div>
-
-        {/* Nombres y Subtítulos */}
-        <h1 className="text-3xl font-black text-[#003B4F] tracking-tight">{estudiante.nombre}</h1>
-        {estudiante.carrera && <p className="text-sm font-bold text-[#1F8BB6] mt-1">{estudiante.carrera}</p>}
-        {estudiante.sede && (
-          <p className="text-xs text-slate-500 font-semibold mt-1">
-            📍 Sede de {estudiante.sede}
-          </p>
-        )}
-      </div>
-
-      {/* ── CARD DE COMPATIBILIDAD ─────────────────────────── */}
+      </div>      {/* ── CARD DE COMPATIBILIDAD ─────────────────────────── */}
       <div className="bg-[#EAF5FA]/90 backdrop-blur-sm rounded-2xl p-5 border border-[#B3DCEE] shadow-sm mb-6">
         <div className="flex justify-between items-center mb-3">
           <span className="text-xs font-bold text-[#1A5B75] uppercase tracking-wider">Compatibilidad</span>
@@ -322,7 +339,7 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-5 gap-x-4 relative z-10">
           <div>
             <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Carné</p>
-            <p className="text-sm font-extrabold text-white">{estudiante.anio_ingreso ? `B${estudiante.anio_ingreso}${String(estudiante.nombre.length * 123 + 4567).substring(0,4)}` : 'B55241'}</p>
+            <p className="text-sm font-extrabold text-white">{estudiante.anio_ingreso ? `B${estudiante.anio_ingreso}${getDeterministicSuffix(estudiante.user_id || estudiante.nombre)}` : 'B55241'}</p>
           </div>
           <div>
             <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Sede</p>
