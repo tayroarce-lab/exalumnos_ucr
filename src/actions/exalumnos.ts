@@ -23,7 +23,11 @@ export async function completarOnboardingExalumno(datos: {
   moneda_donacion?: string;
   bio?: string;
   habilidades: string[];
+  hobbies?: string[];
   foto_url?: string;
+  carrera_ucr?: string;
+  escuela_facultad?: string;
+  anio_graduacion?: number;
 }) {
   try {
     const supabase = await createClient()
@@ -54,6 +58,10 @@ export async function completarOnboardingExalumno(datos: {
       .eq('id', user.id)
       .maybeSingle()
 
+    const finalCarrera = datos.carrera_ucr || currentExalumno?.carrera_ucr || currentProfile?.academic?.[0]?.carrera || 'No especificada';
+    const finalEscuela = datos.escuela_facultad || currentExalumno?.escuela_facultad || currentProfile?.academic?.[0]?.escuela || 'No especificada';
+    const finalAnio = datos.anio_graduacion || currentExalumno?.anio_graduacion || currentProfile?.anio_graduacion || 2000;
+
     // 2. Upsert en tabla "profiles"
     const profilePayload = {
       id: user.id,
@@ -75,7 +83,14 @@ export async function completarOnboardingExalumno(datos: {
       bio: datos.bio || null,
       foto_url: datos.foto_url || null,
       perfil_completo: 1 as any,
-      es_exalumno: true
+      es_exalumno: true,
+      academic: [
+        {
+          carrera: finalCarrera,
+          escuela: finalEscuela,
+          anio: finalAnio.toString()
+        }
+      ]
     }
 
     const { error: profilesError } = await adminClient
@@ -91,9 +106,9 @@ export async function completarOnboardingExalumno(datos: {
     const exalumnoPayload = {
       id: user.id,
       user_id: user.id,
-      carrera_ucr: currentExalumno?.carrera_ucr || currentProfile?.academic?.[0]?.carrera || 'No especificada',
-      escuela_facultad: currentExalumno?.escuela_facultad || currentProfile?.academic?.[0]?.escuela || 'No especificada',
-      anio_graduacion: currentExalumno?.anio_graduacion || currentProfile?.anio_graduacion || 2000,
+      carrera_ucr: finalCarrera,
+      escuela_facultad: finalEscuela,
+      anio_graduacion: finalAnio,
       empresa_actual: datos.empresa_actual || 'No especificada',
       cargo_actual: datos.cargo_actual || 'No especificada',
       sector_industria: datos.sector_industria ? [datos.sector_industria] : [],
@@ -123,11 +138,12 @@ export async function completarOnboardingExalumno(datos: {
       // No lanzamos error para no bloquear, profile ya está
     }
 
-    // 4. Actualizar tabla "users" (no actualizar areas_de_interes ni perfil_completo ya que no existen)
+    // 4. Actualizar tabla "users" - guardar hobbies
     const { error: usersError } = await adminClient
       .from('users')
       .update({
-        ofrece_mentoria: datos.ofrece_mentoria
+        ofrece_mentoria: datos.ofrece_mentoria,
+        hobbies: datos.hobbies || []
       })
       .eq('id', user.id)
 

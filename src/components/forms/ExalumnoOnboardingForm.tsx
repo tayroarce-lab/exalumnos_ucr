@@ -5,9 +5,12 @@ import { useRouter } from 'next/navigation';
 import { z } from 'zod';
 import { completarOnboardingExalumno } from '@/actions/exalumnos';
 import { AlertCircle, ArrowLeft, ArrowRight, CheckCircle2, ChevronDown } from 'lucide-react';
-import { AREAS_INTERES, SECTORES_INDUSTRIA } from '@/constants/catalogs';
+import { AREAS_INTERES, SECTORES_INDUSTRIA, CARRERAS_UCR, CARRERA_TO_ESCUELA } from '@/constants/catalogs';
 
 const exalumnoSchema = z.object({
+  carrera_ucr: z.string().min(1, "Requerido"),
+  escuela_facultad: z.string().min(1, "Requerido"),
+  anio_graduacion: z.number().min(1940).max(new Date().getFullYear()),
   empresa_actual: z.string().optional(),
   cargo_actual: z.string().optional(),
   sector_industria: z.string().optional(),
@@ -28,12 +31,16 @@ const exalumnoSchema = z.object({
   
   bio: z.string().max(1000).optional(),
   habilidadesText: z.string().optional(),
+  hobbiesText: z.string().optional(),
   foto_url: z.string().optional()
 });
 
 type ExalumnoFormData = z.infer<typeof exalumnoSchema>;
 
 const defaultFormData: ExalumnoFormData = {
+  carrera_ucr: '',
+  escuela_facultad: '',
+  anio_graduacion: new Date().getFullYear() - 1,
   empresa_actual: '',
   cargo_actual: '',
   sector_industria: '',
@@ -51,6 +58,7 @@ const defaultFormData: ExalumnoFormData = {
   moneda_donacion: 'USD',
   bio: '',
   habilidadesText: '',
+  hobbiesText: '',
   foto_url: ''
 };
 
@@ -77,7 +85,12 @@ export default function ExalumnoOnboardingForm({
       setFormData(prev => ({
         ...prev,
         ...initialData,
-        habilidadesText: initialData.habilidades?.join(', ') || ''
+        carrera_ucr: initialData.carrera_ucr || initialData.carrera || '',
+        escuela_facultad: initialData.escuela_facultad || initialData.escuela || '',
+        anio_graduacion: initialData.anio_graduacion || (initialData.academic?.[0]?.anio ? parseInt(initialData.academic[0].anio) : new Date().getFullYear() - 1),
+        sector_industria: Array.isArray(initialData.sector_industria) ? (initialData.sector_industria[0] || '') : (initialData.sector_industria || ''),
+        habilidadesText: initialData.habilidades?.join(', ') || '',
+        hobbiesText: Array.isArray(initialData.hobbies) ? initialData.hobbies.join(', ') : (initialData.hobbiesText || '')
       }));
     }
   }, [isEditMode, initialData]);
@@ -105,9 +118,8 @@ export default function ExalumnoOnboardingForm({
     }
   };
 
-
   const handleNext = () => {
-    setStep((prev) => Math.min(prev + 1, 5));
+    setStep((prev) => Math.min(prev + 1, 6));
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -118,6 +130,12 @@ export default function ExalumnoOnboardingForm({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
+
+    if (name === 'carrera_ucr') {
+      const autoEscuela = CARRERA_TO_ESCUELA[value] || '';
+      setFormData(prev => ({ ...prev, carrera_ucr: value, escuela_facultad: autoEscuela }));
+      return;
+    }
 
     if (type === 'checkbox') {
       const checked = (e.target as HTMLInputElement).checked;
@@ -141,6 +159,10 @@ export default function ExalumnoOnboardingForm({
         ? validData.habilidadesText.split(',').map(h => h.trim()).filter(h => h.length > 0)
         : [];
 
+      const hobbiesArray = validData.hobbiesText
+        ? validData.hobbiesText.split(',').map(h => h.trim()).filter(h => h.length > 0)
+        : [];
+
       const result = await completarOnboardingExalumno({
         empresa_actual: validData.empresa_actual,
         cargo_actual: validData.cargo_actual,
@@ -159,7 +181,11 @@ export default function ExalumnoOnboardingForm({
         moneda_donacion: validData.moneda_donacion,
         bio: validData.bio,
         habilidades: habilidadesArray,
+        hobbies: hobbiesArray,
         foto_url: validData.foto_url,
+        carrera_ucr: validData.carrera_ucr,
+        escuela_facultad: validData.escuela_facultad,
+        anio_graduacion: validData.anio_graduacion,
       });
 
       if (!result.success) {
@@ -170,14 +196,15 @@ export default function ExalumnoOnboardingForm({
     } catch (err: any) {
       if (err instanceof z.ZodError) {
         const newErrors: Record<string, string> = {};
-        let firstErrorStep = 5;
+        let firstErrorStep = 6;
         
         const stepMapping: Record<string, number> = {
           foto_url: 1, bio: 1,
-          empresa_actual: 2, cargo_actual: 2, sector_industria: 2, anos_experiencia: 2, pais_ciudad: 2, linkedin_url: 2,
-          areas_de_interes: 3,
-          ofrece_mentoria: 4, horas_mes_mentoria: 4, ofrece_empleo: 4, ofrece_pasantia: 4, ofrece_proyecto: 4, ofrece_donacion_dinero: 4,
-          habilidadesText: 5
+          carrera_ucr: 2, escuela_facultad: 2, anio_graduacion: 2,
+          empresa_actual: 3, cargo_actual: 3, sector_industria: 3, anos_experiencia: 3, pais_ciudad: 3, linkedin_url: 3,
+          areas_de_interes: 4,
+          ofrece_mentoria: 5, horas_mes_mentoria: 5, ofrece_empleo: 5, ofrece_pasantia: 5, ofrece_proyecto: 5, ofrece_donacion_dinero: 5,
+          habilidadesText: 6
         };
 
         err.errors.forEach(e => {
@@ -206,15 +233,22 @@ export default function ExalumnoOnboardingForm({
       {/* Progress Bar */}
       <div className="bg-slate-50 border-b border-slate-200 p-4 sm:px-6">
         <div className="flex items-center justify-between text-sm font-medium text-slate-500 mb-2">
-          <span>Paso {step} de 5</span>
-          <span>{Math.round((step / 5) * 100)}% Completado</span>
+          <span>Paso {step} de 6</span>
+          <span>{Math.round((step / 6) * 100)}% Completado</span>
         </div>
         <div className="w-full bg-slate-200 rounded-full h-2">
-          <div className="bg-naranja h-2 rounded-full transition-all duration-300" style={{ width: `${(step / 5) * 100}%` }}></div>
+          <div className="bg-naranja h-2 rounded-full transition-all duration-300" style={{ width: `${(step / 6) * 100}%` }}></div>
         </div>
       </div>
 
-      <form onSubmit={step === 5 ? handleSubmit : (e) => { e.preventDefault(); handleNext(); }} className="p-6 sm:p-8">
+      <form onSubmit={step === 6 ? handleSubmit : (e) => { e.preventDefault(); handleNext(); }} className="p-6 sm:p-8">
+        
+        {globalError && (
+          <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 flex items-center gap-2 rounded-md">
+            <AlertCircle size={20} />
+            <p>{globalError}</p>
+          </div>
+        )}
         
         
         {/* --- STEP 1: Información Personal --- */}
@@ -263,17 +297,44 @@ export default function ExalumnoOnboardingForm({
           </div>
         )}
   
-        {globalError && (
-          <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 flex items-center gap-2 rounded-md">
-            <AlertCircle size={20} />
-            <p>{globalError}</p>
+        {/* --- STEP 2: Información Académica --- */}
+        {step === 2 && (
+          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <h2 className="text-xl font-display font-bold text-slate-900 border-b pb-2">Sección 2: Información Académica UCR</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Carrera UCR *</label>
+                <select name="carrera_ucr" value={formData.carrera_ucr} onChange={handleChange} required
+                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-naranja/50 outline-none bg-white">
+                  <option value="" disabled>Seleccione una carrera</option>
+                  {CARRERAS_UCR.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+                {errors.carrera_ucr && <p className="text-red-500 text-xs mt-1">{errors.carrera_ucr}</p>}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Escuela / Facultad *</label>
+                <input type="text" name="escuela_facultad" value={formData.escuela_facultad} required
+                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-naranja/50 outline-none bg-slate-100 opacity-70 cursor-not-allowed"
+                  placeholder="Se asigna automáticamente" readOnly />
+                {errors.escuela_facultad && <p className="text-red-500 text-xs mt-1">{errors.escuela_facultad}</p>}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Año de Graduación *</label>
+                <input type="number" name="anio_graduacion" value={formData.anio_graduacion || ''} onChange={handleChange} required min="1940" max={new Date().getFullYear()}
+                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-naranja/50 outline-none" />
+                {errors.anio_graduacion && <p className="text-red-500 text-xs mt-1">{errors.anio_graduacion}</p>}
+              </div>
+            </div>
           </div>
         )}
 
-        {/* --- STEP 1: Información Profesional --- */}
-        {step === 2 && (
+        {/* --- STEP 3: Información Profesional --- */}
+        {step === 3 && (
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <h2 className="text-xl font-display font-bold text-slate-900 border-b pb-2">Sección 1: Información Profesional</h2>
+            <h2 className="text-xl font-display font-bold text-slate-900 border-b pb-2">Sección 3: Información Profesional</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -326,10 +387,10 @@ export default function ExalumnoOnboardingForm({
           </div>
         )}
 
-        {/* --- STEP 2: Áreas de Interés --- */}
-        {step === 3 && (
+        {/* --- STEP 4: Áreas de Interés --- */}
+        {step === 4 && (
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <h2 className="text-xl font-display font-bold text-slate-900 border-b pb-2">Sección 2: Áreas de Interés</h2>
+            <h2 className="text-xl font-display font-bold text-slate-900 border-b pb-2">Sección 4: Áreas de Interés</h2>
             
             <p className="text-sm text-slate-600 bg-slate-50 p-4 rounded-lg border border-slate-100">
               <strong>Nota:</strong> Selecciona las áreas temáticas de tu interés. 
@@ -356,10 +417,10 @@ export default function ExalumnoOnboardingForm({
           </div>
         )}
 
-        {/* --- STEP 3: Tipos de Apoyo (Give Back) --- */}
-        {step === 4 && (
+        {/* --- STEP 5: Tipos de Apoyo (Give Back) --- */}
+        {step === 5 && (
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <h2 className="text-xl font-display font-bold text-slate-900 border-b pb-2">Sección 3: Formas de Apoyo a la Comunidad</h2>
+            <h2 className="text-xl font-display font-bold text-slate-900 border-b pb-2">Sección 5: Formas de Apoyo a la Comunidad</h2>
             
             <p className="text-sm text-slate-600 mb-4">
               ¿Cómo te gustaría involucrarte y apoyar a los estudiantes actuales de la UCR? Marca las opciones que apliquen.
@@ -422,19 +483,25 @@ export default function ExalumnoOnboardingForm({
           </div>
         )}
 
-        {/* --- STEP 4: Acerca de mí y Habilidades --- */}
-        {step === 5 && (
+        {/* --- STEP 6: Acerca de mí y Habilidades --- */}
+        {step === 6 && (
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <h2 className="text-xl font-display font-bold text-slate-900 border-b pb-2">Sección 4: Acerca de mí y Habilidades</h2>
+            <h2 className="text-xl font-display font-bold text-slate-900 border-b pb-2">Sección 6: Acerca de mí y Habilidades</h2>
             
-            
-
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Habilidades Profesionales y Técnicas</label>
               <p className="text-xs text-slate-500 mb-3">Escribe tus habilidades separadas por comas (Ej: Liderazgo de equipos, Python, Negociación, Diseño UX). Fundamental para hacer match.</p>
               <textarea name="habilidadesText" value={formData.habilidadesText} onChange={handleChange} rows={3}
                 className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-naranja/50 outline-none resize-none"
                 placeholder="Python, Excel, Liderazgo, Agile..." />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Pasatiempos / Hobbies</label>
+              <p className="text-xs text-slate-500 mb-3">Escribe tus pasatiempos separados por comas (Ej: Senderismo, Fotografía, Cocina, Lectura). Ayudan a conectar personas con intereses en común.</p>
+              <textarea name="hobbiesText" value={(formData as any).hobbiesText || ''} onChange={handleChange} rows={2}
+                className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-naranja/50 outline-none resize-none"
+                placeholder="Senderismo, Fotografía, Cocina, Lectura..." />
             </div>
 
             <div className="bg-green-50 border border-green-200 rounded-lg p-5 flex items-start gap-4 mt-6">
@@ -456,8 +523,8 @@ export default function ExalumnoOnboardingForm({
           
           <button type="submit" disabled={isSubmitting}
             className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold uppercase text-xs text-white transition-all shadow-sm ${isSubmitting ? 'bg-naranja/50 cursor-not-allowed' : 'bg-naranja hover:opacity-90 hover:shadow'}`}>
-            {isSubmitting ? 'Guardando...' : (step === 5 ? (isEditMode ? 'Guardar Cambios' : 'Completar Perfil') : 'Siguiente')}
-            {step < 5 && <ArrowRight size={16} />}
+            {isSubmitting ? 'Guardando...' : (step === 6 ? (isEditMode ? 'Guardar Cambios' : 'Completar Perfil') : 'Siguiente')}
+            {step < 6 && <ArrowRight size={16} />}
           </button>
         </div>
       </form>
