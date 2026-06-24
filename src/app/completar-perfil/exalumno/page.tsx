@@ -4,13 +4,29 @@ import AuthBackground from '@/components/ui/AuthBackground';
 import { Sparkles, Briefcase } from 'lucide-react';
 import '@/styles/registerStyles.css';
 import '@/styles/cycleWisdom.css';
+import { createClient } from '@/lib/supabase/server';
 
 export const metadata = {
   title: 'Completar Perfil | Exalumno',
   description: 'Completa tu perfil de exalumno en la plataforma Alumni UCR',
 };
 
-export default function ExalumnoOnboardingPage() {
+export default async function ExalumnoOnboardingPage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  let userName = 'No disponible';
+  if (user) {
+    const { data: profile } = await supabase.from('profiles').select('full_name, nombre, apellidos').eq('id', user.id).single();
+    if (profile && profile.full_name) {
+      userName = profile.full_name;
+    } else if (profile && profile.nombre) {
+      userName = `${profile.nombre} ${profile.apellidos || ''}`.trim();
+    } else if (user.user_metadata?.nombre) {
+      userName = user.user_metadata.nombre;
+    }
+  }
+
   return (
     <div className="register-page-wrapper bg-gray-50 relative min-h-screen py-16 px-4 sm:px-6 lg:px-8 flex items-center justify-center overflow-hidden">
       <AuthBackground />
@@ -33,9 +49,8 @@ export default function ExalumnoOnboardingPage() {
           </p>
         </div>
         
-        {/* Contenedor del Formulario con efecto de vidrio flotante */}
         <div className="bg-white/95 backdrop-blur-md border border-slate-200/80 rounded-3xl p-6 sm:p-10 shadow-xl hover:shadow-2xl transition-all duration-300 relative z-20">
-          <ExalumnoOnboardingForm />
+          <ExalumnoOnboardingForm userName={userName} userEmail={user?.email || 'No disponible'} />
         </div>
         
       </div>
