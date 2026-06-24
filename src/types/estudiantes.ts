@@ -9,6 +9,10 @@ export interface EstudianteDirectorio {
   sede: string;
   escuela_facultad?: string;
   anio_ingreso?: number | null;
+  carnet_ucr?: string | null;
+  nivel_academico?: string | null;
+  promedio_ponderado?: number | null;
+  beca_socioeconomica?: string | null;
   // Proyecto: en la BD actual solo existe proyecto_graduacion_resumen en curriculums
   proyecto_titulo?: string | null;
   proyecto_descripcion?: string | null;
@@ -23,6 +27,7 @@ export interface EstudianteDirectorio {
   proyecto_necesidades?: string[] | null;
   // Currículum
   sobre_mi?: string | null;
+  sobre_mi_personal?: string | null;
   url_linkedin?: string | null;
   url_portfolio?: string | null;
   habilidades?: string[] | null;

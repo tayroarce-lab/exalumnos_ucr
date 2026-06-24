@@ -2,8 +2,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { User, GraduationCap, HandHeart, Network } from 'lucide-react';
 import logoUCR from '@/images/Logo_UCR.png';
-import fondoUCR from '@/images/UCRbackground.png';
-import LogoAnimado from '@/components/ui/LogoAnimado';
+import fondoUCR from '@/images/SAVE_20260623_123242.png';
+// import LogoAnimado from '@/components/ui/LogoAnimado';
 
 import Footer from '@/components/layout/footer';
 
@@ -25,79 +25,20 @@ export default function PaginaInicio() {
   );
 }
 
-function SeccionApoyoComunidad() {
-  return (
-    <section className="seccion-apoyo">
-      <div className="apoyo-cabecera">
-        <h2 className="apoyo-titulo">¿Cómo apoyamos a la comunidad?</h2>
-        <p className="apoyo-subtitulo">
-          Nuestra plataforma facilita la mentoría y el financiamiento directo a través de una red institucional sólida.
-        </p>
-      </div>
-
-      <div className="apoyo-cuadricula">
-        {/* Tarjeta Grande (Izquierda) */}
-        <div className="apoyo-tarjeta-grande">
-          <div className="apoyo-tarjeta-bg-shape" />
-          <div className="apoyo-tarjeta-contenido">
-            <div className="apoyo-icono-contenedor-grande">
-              <GraduationCap className="apoyo-icono-grande" size={36} />
-            </div>
-            
-            <div className="apoyo-texto-grande">
-              <h3 className="apoyo-tarjeta-titulo-grande">Mentoría Alumni</h3>
-              <p className="apoyo-tarjeta-descripcion-grande">
-                Expertos graduados guían a estudiantes en sus trabajos finales, compartiendo experiencia del mundo real y mejores prácticas de la industria.
-              </p>
-              <Link href="/mentores" className="apoyo-enlace-grande">
-                Explorar mentores <span className="apoyo-flecha">→</span>
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        {/* Columna Derecha */}
-        <div className="apoyo-columna-derecha">
-          {/* Tarjeta Micro-becas */}
-          <div className="apoyo-tarjeta-pequena">
-            <div className="apoyo-icono-contenedor-pequeno">
-              <HandHeart className="apoyo-icono-pequeno" size={24} />
-            </div>
-            <h3 className="apoyo-tarjeta-titulo-pequeno">Micro-becas</h3>
-            <p className="apoyo-tarjeta-descripcion-pequeno">
-              Fondos rápidos para materiales de laboratorio, encuestas o prototipos físicos.
-            </p>
-          </div>
-
-          {/* Tarjeta Networking */}
-          <div className="apoyo-tarjeta-pequena">
-            <div className="apoyo-icono-contenedor-pequeno">
-              <Network className="apoyo-icono-pequeno" size={24} />
-            </div>
-            <h3 className="apoyo-tarjeta-titulo-pequeno">Networking</h3>
-            <p className="apoyo-tarjeta-descripcion-pequeno">
-              Conéctate con la red de profesionales UCR más grande de la región.
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function BarraNavegacion() {
   return (
     <header className="cabecera" id="cabecera-principal">
       <div className="contenedor-logo">
-        <Image
-          src={logoUCR}
-          alt="Logo UCR"
-          width={280}
-          height={100}
-          className="logo-imagen"
-          style={{ objectFit: 'contain', width: 'auto' }}
-          priority
-        />
+        <Link href="/">
+          <Image 
+            src={logoUCR} 
+            alt="Logo Alumni UCR" 
+            width={240} 
+            height={80} 
+            style={{ objectFit: 'contain' }}
+            priority
+          />
+        </Link>
       </div>
 
       <div className="contenedor-acciones">
@@ -269,16 +210,79 @@ function SeccionHeroSplit() {
           fill
           priority
           sizes="50vw"
-          style={{ objectFit: 'cover' }}
+          className="imagen-girasol-animada"
+          style={{ objectFit: 'cover', zIndex: 1 }}
         />
 
-        {/* Logo UCR sobre la imagen del campus */}
+        {/* Luz dorada de barrido */}
+        <div className="luz-dorada-barrido"></div>
+
+        {/* Logo animado guardado por si se requiere después
         <div className="logo-alumni-ucr" style={{ width: '100%', height: '100%' }}>
           <LogoAnimado src={logoUCR} />
         </div>
+        */}
       </div>
     </section>
   );
 }
 
+function SeccionApoyoComunidad() {
+  return (
+    <section className="seccion-apoyo">
+      <div className="apoyo-cabecera">
+        <h2 className="apoyo-titulo">¿Cómo apoyamos a la comunidad?</h2>
+        <p className="apoyo-subtitulo">
+          Nuestra plataforma facilita la mentoría y el financiamiento directo a través de una red institucional sólida.
+        </p>
+      </div>
 
+      <div className="apoyo-cuadricula">
+        {/* Tarjeta Grande (Izquierda) */}
+        <div className="apoyo-tarjeta-grande">
+          <div className="apoyo-tarjeta-bg-shape" />
+          <div className="apoyo-tarjeta-contenido">
+            <div className="apoyo-icono-contenedor-grande">
+              <GraduationCap className="apoyo-icono-grande" size={36} />
+            </div>
+            
+            <div className="apoyo-texto-grande">
+              <h3 className="apoyo-tarjeta-titulo-grande">Mentoría Alumni</h3>
+              <p className="apoyo-tarjeta-descripcion-grande">
+                Expertos graduados guían a estudiantes en sus trabajos finales, compartiendo experiencia del mundo real y mejores prácticas de la industria.
+              </p>
+              <Link href="/mentores" className="apoyo-enlace-grande">
+                Explorar mentores <span className="apoyo-flecha">→</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* Columna Derecha */}
+        <div className="apoyo-columna-derecha">
+          {/* Tarjeta Micro-becas */}
+          <div className="apoyo-tarjeta-pequena">
+            <div className="apoyo-icono-contenedor-pequeno">
+              <HandHeart className="apoyo-icono-pequeno" size={24} />
+            </div>
+            <h3 className="apoyo-tarjeta-titulo-pequeno">Micro-becas</h3>
+            <p className="apoyo-tarjeta-descripcion-pequeno">
+              Fondos rápidos para materiales de laboratorio, encuestas o prototipos físicos.
+            </p>
+          </div>
+
+          {/* Tarjeta Networking */}
+          <div className="apoyo-tarjeta-pequena">
+            <div className="apoyo-icono-contenedor-pequeno">
+              <Network className="apoyo-icono-pequeno" size={24} />
+            </div>
+            <h3 className="apoyo-tarjeta-titulo-pequeno">Networking</h3>
+            <p className="apoyo-tarjeta-descripcion-pequeno">
+              Conéctate con la red de profesionales UCR más grande de la región.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}

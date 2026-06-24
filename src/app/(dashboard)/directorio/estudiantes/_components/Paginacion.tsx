@@ -2,13 +2,13 @@
 
 import React from "react";
 
-interface PaginacionMockProps {
+interface PaginacionProps {
   paginaActual: number;
   totalPaginas: number;
   onChange: (pagina: number) => void;
 }
 
-export default function PaginacionMock({ paginaActual, totalPaginas, onChange }: PaginacionMockProps) {
+export default function Paginacion({ paginaActual, totalPaginas, onChange }: PaginacionProps) {
   if (totalPaginas <= 1) return null;
 
   // Limitar las páginas mostradas para UI limpia

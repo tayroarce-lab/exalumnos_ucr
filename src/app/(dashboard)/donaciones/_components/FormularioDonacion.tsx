@@ -29,7 +29,7 @@ export default function FormularioDonacion({ estudiante }: { estudiante: Estudia
   const [file, setFile] = useState<File | null>(null);
 
   const primerNombre = estudiante ? estudiante.nombre.split(' ')[0] : '';
-  const tituloProyecto = estudiante?.proyecto_titulo || (estudiante ? `Proyecto TFG ${primerNombre}` : 'Fondo General');
+  const tituloProyecto = estudiante?.proyecto_titulo || (estudiante ? `Apoyo para ${primerNombre}` : 'Fondo General');
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });

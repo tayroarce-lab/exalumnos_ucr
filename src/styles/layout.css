@@ -119,22 +119,48 @@ body {
   min-height: 100vh;
 }
 
-/* Layout split: 50% izquierda celeste / 50% derecha imagen */
+/* Layout split: 50% izquierda celeste /* ── CONTENEDOR PRINCIPAL ── */
 .seccion-hero-split {
   display: flex;
-  flex-direction: row;
-  flex: 1;
   min-height: 100vh;
+  width: 100%;
+  position: relative;
+  background: linear-gradient(135deg, #0284C7 25%, #F34B26 75%);
+  overflow: hidden;
+}
+
+/* Círculos decorativos del fondo */
+.seccion-hero-split::before,
+.seccion-hero-split::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  pointer-events: none;
+}
+
+.seccion-hero-split::before {
+  width: 500px;
+  height: 500px;
+  top: -150px;
+  left: -100px;
+}
+
+.seccion-hero-split::after {
+  width: 600px;
+  height: 600px;
+  bottom: -200px;
+  right: -150px;
 }
 
 /* ── LADO IZQUIERDO ── */
 .hero-lado-izquierdo {
   flex: 0.85;
-  background-color: #4BBDE8;
+  background-color: transparent;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  padding: 4rem 4.5rem;
+  padding: 10rem 4.5rem 4rem 4.5rem;
   position: relative;
   overflow: hidden;
 }
@@ -326,45 +352,43 @@ body {
 /* Título principal */
 .hero-titulo-split {
   font-family: var(--fuente-titulo);
-  font-size: 2.8rem;
+  font-size: 2.5rem;
   font-weight: 800;
-  color: #ffffff;
+  color: #FFFFFF;
   line-height: 1.15;
-  letter-spacing: -0.5px;
-  margin-bottom: 1.5rem;
+  margin-top: auto;
+  margin-bottom: 1.25rem;
   white-space: pre-line;
   position: relative;
   z-index: 1;
 }
 
-/* Descripción */
+/* Descripción / Subtítulo */
 .hero-descripcion-split {
-  font-size: 0.95rem;
-  font-weight: 400;
-  color: rgba(255, 255, 255, 0.92);
+  font-family: var(--fuente-principal);
+  font-size: 1.25rem;
+  color: rgba(255, 255, 255, 0.95);
   line-height: 1.65;
-  max-width: 380px;
-  margin-bottom: 2.5rem;
+  max-width: 480px;
+  margin-bottom: 2rem;
   position: relative;
   z-index: 1;
 }
 
 /* Botón "Unirse a la Red" — naranja-rojo como en la imagen */
 .boton-unirse-red {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  background-color: #E84F26;
-  color: #ffffff;
+  display: inline-block;
+  align-self: flex-start;
+  padding: 1rem 2rem;
+  background-color: var(--naranja);
+  color: #FFFFFF;
+  font-weight: 600;
+  border-radius: 8px;
   text-decoration: none;
-  font-family: var(--fuente-principal);
-  font-size: 0.95rem;
-  font-weight: 700;
-  padding: 0.85rem 2rem;
-  border-radius: 6px;
   width: fit-content;
   position: relative;
   z-index: 1;
+  margin-bottom: auto;
   transition: background-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
 }
 
@@ -378,22 +402,7 @@ body {
 .hero-lado-derecho {
   flex: 1.15;
   position: relative;
-  overflow: hidden;
-}
-
-/* Overlay con degradado: celeste del lado izquierdo → oscuro sobre la imagen */
-.hero-lado-derecho::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to right,
-    #4BBDE8 0%,
-    rgba(75, 189, 232, 0.60) 8%,
-    rgba(0, 25, 50, 0.55) 28%,
-    rgba(0, 10, 25, 0.78) 100%
-  );
-  z-index: 1;
+  background-color: transparent;
 }
 
 /* Logo UCR centrado sobre la imagen del campus */
@@ -457,28 +466,55 @@ body {
   }
 }
 
-.cabecera {
-  animation: anim-slide-down 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+@property --sweep-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
 }
 
-.hero-lado-izquierdo {
-  animation: anim-fade-in 0.8s ease both;
+@keyframes sweep-angle-anim {
+  0% {
+    --sweep-angle: 0deg;
+  }
+  100% {
+    --sweep-angle: 360deg;
+  }
 }
 
-.hero-titulo-split {
-  animation: anim-slide-right 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
-  animation-delay: 0.1s;
+.imagen-girasol-animada {
+  -webkit-mask-image: conic-gradient(black var(--sweep-angle), transparent var(--sweep-angle));
+  mask-image: conic-gradient(black var(--sweep-angle), transparent var(--sweep-angle));
+  animation: sweep-angle-anim 0.8s linear both;
+  animation-delay: 0.2s;
+  opacity: 1;
 }
 
-.hero-descripcion-split {
-  animation: anim-slide-right 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
-  animation-delay: 0.22s;
+.luz-dorada-barrido {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: conic-gradient(
+    transparent calc(var(--sweep-angle) - 60deg),
+    rgba(255, 150, 0, 0.4) calc(var(--sweep-angle) - 20deg),
+    rgba(255, 215, 0, 0.9) calc(var(--sweep-angle) - 3deg),
+    rgba(255, 255, 255, 1) var(--sweep-angle),
+    transparent var(--sweep-angle)
+  );
+  /* Se removió mix-blend-mode para asegurar que brille siempre al máximo */
+  animation: 
+    sweep-angle-anim 0.8s linear both,
+    anim-fade-out 0.3s linear 1.0s forwards;
+  animation-delay: 0.2s, 0s;
 }
 
-.boton-unirse-red {
-  animation: anim-slide-right 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
-  animation-delay: 0.34s;
+@keyframes anim-fade-out {
+  to { opacity: 0; }
 }
+
+
+
+
 
 .hero-lado-derecho {
   animation: anim-fade-in 1.2s ease both;
@@ -489,6 +525,7 @@ body {
   animation: anim-fade-in 1s ease both;
   animation-delay: 0.5s;
 }
+
 
 /* ── KEYFRAMES ANIMACIONES LOOP (decoraciones) ── */
 @keyframes flotar-deco {
