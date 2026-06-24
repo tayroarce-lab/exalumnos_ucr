@@ -501,3 +501,34 @@ export async function cancelDirectConnection(targetUserId: string) {
   if (error) return { success: false, error: error.message };
   return { success: true };
 }
+
+export async function removeDirectConnection(targetUserId: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) return { success: false, error: 'No autorizado' };
+
+  const { createAdminClient } = await import('@/lib/supabase/admin');
+  const adminClient = createAdminClient();
+
+  const { data: match } = await adminClient
+    .from('matches')
+    .select('id')
+    .or(`and(estudiante_id.eq.${user.id},exalumno_id.eq.${targetUserId}),and(estudiante_id.eq.${targetUserId},exalumno_id.eq.${user.id})`)
+    .in('estado', ['activo', 'contactado'])
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (!match) return { success: false, error: 'No se encontró una conexión activa para eliminar' };
+
+  // En lugar de hacer soft delete, la regresamos a sugerido para que puedan conectar en el futuro si lo desean.
+  // O podemos hacer delete() para borrar la fila completamente.
+  const { error } = await adminClient
+    .from('matches')
+    .delete()
+    .eq('id', match.id);
+
+  if (error) return { success: false, error: error.message };
+  return { success: true };
+}
