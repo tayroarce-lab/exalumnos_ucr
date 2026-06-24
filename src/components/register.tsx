@@ -94,7 +94,10 @@ export default function Register() {
       setSuccessMsg('estudiante');
       setResendTimer(60);
     } catch (err: any) {
-      setEstError(err.message || 'Error al enviar el enlace mágico.');
+      console.error("Supabase Auth Error:", err);
+      // Supabase a veces devuelve errores sin .message cuando es un 500 del servidor
+      const errorMessage = err.message || (err.status === 500 ? 'Fallo interno del servidor (posible error de SMTP al enviar correo).' : 'Error al enviar el enlace mágico.');
+      setEstError(typeof err === 'object' && !err.message ? JSON.stringify(err) : errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -252,7 +255,7 @@ export default function Register() {
         <Link href="/" className="absolute top-6 left-6 flex items-center gap-2 text-white/80 hover:text-white transition-colors text-sm font-semibold z-20 bg-black/10 hover:bg-black/20 px-4 py-2 rounded-full backdrop-blur-md border border-white/10">
           <ArrowLeft size={16} /> Volver al inicio
         </Link>
-        
+
         <div className="register-logo-container mt-8">
           <Link href="/">
             <Image src={logoUCR} alt="Logo Alumni UCR" width={320} height={105} className="register-brand-logo object-contain cursor-pointer" priority />
