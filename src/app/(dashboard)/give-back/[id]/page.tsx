@@ -48,11 +48,11 @@ const MOCK_OPPORTUNITIES = [
 ]
 
 interface GiveBackDetailPageProps {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 export default function GiveBackDetailPage({ params }: GiveBackDetailPageProps) {
-  const { id } = params
+  const { id } = React.use(params)
   const opp = MOCK_OPPORTUNITIES.find((o) => o.id === id) || MOCK_OPPORTUNITIES[0]
 
   const [isRegistering, setIsRegistering] = useState(false)

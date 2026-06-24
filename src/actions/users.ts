@@ -271,9 +271,64 @@ export async function actualizarPerfil(data: any) {
       .from('profiles')
       .upsert(payloadToUpdate)
 
-  if (error) {
-    throw new Error('Error al guardar el perfil: ' + error.message)
-  }
+    if (error) {
+      throw new Error('Error al guardar el perfil: ' + error.message)
+    }
+
+    // --- Sincronización con tablas legacy (users, exalumnos, estudiantes) para que el directorio no se rompa ---
+    try {
+      if (!isAdmin) {
+        // Actualizar foto y nombre en users
+        await adminClient.from('users').update({
+          foto_url: payloadToUpdate.foto_url,
+          nombre: payloadToUpdate.full_name ? payloadToUpdate.full_name.split(' ')[0] : '',
+          apellidos: payloadToUpdate.full_name ? payloadToUpdate.full_name.split(' ').slice(1).join(' ') : ''
+        }).eq('id', user.id);
+
+        if (!isStudentUser) {
+          // Es exalumno: sincronizar a la tabla exalumnos
+          const exalumnoPayload = {
+            id: user.id,
+            user_id: user.id,
+            carrera_ucr: payloadToUpdate.carrera_principal || 'No especificada',
+            escuela_facultad: payloadToUpdate.escuela_principal || 'No especificada',
+            empresa_actual: payloadToUpdate.empresa_actual || 'No especificada',
+            cargo_actual: payloadToUpdate.cargo_actual || 'No especificada',
+            sector_industria: payloadToUpdate.sector_industria || [],
+            anios_experiencia: payloadToUpdate.anos_experiencia || 0,
+            areas_de_interes: payloadToUpdate.areas_de_interes || [],
+            ofrece_mentoria: payloadToUpdate.ofrece_mentoria || false,
+            horas_mes_mentoria: payloadToUpdate.horas_mes_mentoria,
+            ofrece_empleo: payloadToUpdate.ofrece_empleo || false,
+            ofrece_pasantia: payloadToUpdate.ofrece_pasantia || false,
+            ofrece_proyecto: payloadToUpdate.ofrece_proyecto || false,
+            ofrece_donacion_dinero: payloadToUpdate.ofrece_donacion_dinero || false,
+            monto_maximo_donacion: payloadToUpdate.monto_maximo_donacion,
+            moneda_donacion: payloadToUpdate.moneda_donacion,
+            pais_ciudad: payloadToUpdate.pais_ciudad || 'No especificada',
+            anio_graduacion: payloadToUpdate.anio_graduacion || 2000,
+            linkedin_url: payloadToUpdate.linkedin_url || '',
+            bio: payloadToUpdate.bio || '',
+            visible_en_directorio: true,
+            perfil_completo: true
+          };
+          await adminClient.from('exalumnos').upsert(exalumnoPayload as any, { onConflict: 'id' });
+        } else {
+          // Es estudiante: sincronizar a la tabla estudiantes
+          const estudiantePayload = {
+            id: user.id,
+            user_id: user.id,
+            carrera: payloadToUpdate.carrera_principal || 'No especificada',
+            areas_de_interes: payloadToUpdate.areas_de_interes || [],
+            perfil_completo: true
+          };
+          await adminClient.from('estudiantes').upsert(estudiantePayload as any, { onConflict: 'id' });
+        }
+      }
+    } catch (syncErr) {
+      console.error('Error sincronizando a tablas legacy:', syncErr);
+    }
+    // -------------------------------------------------------------------------------------------------
 
     return { success: true, isAdmin }
   } catch (err: any) {

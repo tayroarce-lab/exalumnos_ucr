@@ -47,11 +47,11 @@ export async function getMatches(filters?: MatchFilters): Promise<{ data: MatchA
   if (filters?.tipo_apoyo && filters.tipo_apoyo !== 'todos') {
     query = query.eq('tipo_apoyo', filters.tipo_apoyo);
   }
-  
+
   if (filters?.fecha_inicio) {
     query = query.gte('created_at', filters.fecha_inicio);
   }
-  
+
   if (filters?.fecha_fin) {
     query = query.lte('created_at', filters.fecha_fin);
   }
@@ -66,13 +66,13 @@ export async function getMatches(filters?: MatchFilters): Promise<{ data: MatchA
   // Extraer las carreras en una segunda consulta ya que no hay foreign key directa desde matches hacia estudiantes
   const estudianteIds = data ? data.map(m => m.estudiante_id) : [];
   let carrerasMap: Record<string, string> = {};
-  
+
   if (estudianteIds.length > 0) {
     const { data: estudiantesData } = await adminClient
       .from('estudiantes')
       .select('user_id, carrera')
       .in('user_id', estudianteIds);
-      
+
     if (estudiantesData) {
       estudiantesData.forEach(e => {
         carrerasMap[e.user_id] = e.carrera;
@@ -156,12 +156,12 @@ export async function updateMatch(
 
       if (exEmail && exNombre) await sendMatchStatusUpdateEmail(exEmail, exNombre, estado, resultado, estNombre, estEmail);
       if (estEmail && estNombre) await sendMatchStatusUpdateEmail(estEmail, estNombre, estado, resultado, exNombre, exEmail);
-      
+
       console.log('Finished sending active status emails');
 
       const { createNotification } = await import('@/actions/notifications');
       const titulo = estado === 'activo' ? 'Conexión aceptada' : 'Conexión declinada';
-      
+
       // Notify Exalumno
       await createNotification({
         user_id: matchDetails.exalumno_id,
@@ -231,7 +231,7 @@ export async function getMyMatches() {
   if (finalData.length === 0 && user.user_metadata?.rol === 'estudiante') {
     const { generarMatchesMentoria } = await import('./matching');
     await generarMatchesMentoria(1, user.id);
-    
+
     // Fetch again
     const { data: newData, error: newError } = await supabase
       .from('matches')
@@ -258,9 +258,9 @@ export async function getMyMatches() {
       .or(`estudiante_id.eq.${user.id},exalumno_id.eq.${user.id}`)
       .order('score_match', { ascending: false });
 
-      if (newData) {
-        finalData = newData;
-      }
+    if (newData) {
+      finalData = newData;
+    }
   }
 
   const formattedData = finalData.map((m: any) => {
@@ -285,7 +285,7 @@ export async function requestConnection(matchId: string) {
   if (!user) {
     return { success: false, error: 'No autorizado' };
   }
-  
+
   if (user.user_metadata?.rol === 'admin' || user.user_metadata?.tipo === 'admin') {
     return { success: false, error: 'Acceso denegado: Los administradores no pueden solicitar conexiones' };
   }
@@ -295,7 +295,7 @@ export async function requestConnection(matchId: string) {
 
   // Marcar como contactado e iniciado por el usuario actual
   const initiatorRole = user.user_metadata?.rol || 'estudiante';
-  
+
   const { error } = await adminClient
     .from('matches')
     .update({
@@ -331,7 +331,7 @@ export async function requestConnection(matchId: string) {
     const exEmail = Array.isArray(matchDetails.exalumno) ? matchDetails.exalumno[0]?.email : matchDetails.exalumno?.email;
     const estNombre = Array.isArray(matchDetails.estudiante) ? matchDetails.estudiante[0]?.nombre : matchDetails.estudiante?.nombre;
     const estEmail = Array.isArray(matchDetails.estudiante) ? matchDetails.estudiante[0]?.email : matchDetails.estudiante?.email;
-    
+
     console.log('Sending notification email. Details:', { exEmail, exNombre, estEmail, estNombre, tipo_apoyo: matchDetails.tipo_apoyo, score_match: matchDetails.score_match });
 
     // Si fue el estudiante quien inició, enviamos al exalumno
@@ -341,9 +341,9 @@ export async function requestConnection(matchId: string) {
       console.log('Finished sendMatchNotificationEmails');
 
       const { createNotification } = await import('@/actions/notifications');
-      const targetUserId = initiatorRole === 'estudiante' ? matchDetails.exalumno_id : matchDetails.estudiante_id; 
+      const targetUserId = initiatorRole === 'estudiante' ? matchDetails.exalumno_id : matchDetails.estudiante_id;
       const initiatorName = initiatorRole === 'estudiante' ? estNombre : exNombre;
-      
+
       await createNotification({
         user_id: targetUserId,
         titulo: 'Nueva solicitud de mentoría',
@@ -433,7 +433,7 @@ export async function requestDirectConnection(targetUserId: string) {
   const initiatorRole = user.user_metadata?.rol || 'estudiante';
   let estudianteId = user.id;
   let exalumnoId = targetUserId;
-  
+
   if (initiatorRole === 'exalumno') {
     exalumnoId = user.id;
     estudianteId = targetUserId;
@@ -496,6 +496,37 @@ export async function cancelDirectConnection(targetUserId: string) {
   const { error } = await adminClient
     .from('matches')
     .update({ estado: 'sugerido', iniciado_por: 'plataforma', updated_at: new Date().toISOString() })
+    .eq('id', match.id);
+
+  if (error) return { success: false, error: error.message };
+  return { success: true };
+}
+
+export async function removeDirectConnection(targetUserId: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) return { success: false, error: 'No autorizado' };
+
+  const { createAdminClient } = await import('@/lib/supabase/admin');
+  const adminClient = createAdminClient();
+
+  const { data: match } = await adminClient
+    .from('matches')
+    .select('id')
+    .or(`and(estudiante_id.eq.${user.id},exalumno_id.eq.${targetUserId}),and(estudiante_id.eq.${targetUserId},exalumno_id.eq.${user.id})`)
+    .in('estado', ['activo', 'contactado'])
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (!match) return { success: false, error: 'No se encontró una conexión activa para eliminar' };
+
+  // En lugar de hacer soft delete, la regresamos a sugerido para que puedan conectar en el futuro si lo desean.
+  // O podemos hacer delete() para borrar la fila completamente.
+  const { error } = await adminClient
+    .from('matches')
+    .delete()
     .eq('id', match.id);
 
   if (error) return { success: false, error: error.message };
