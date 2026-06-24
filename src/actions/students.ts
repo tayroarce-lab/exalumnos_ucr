@@ -94,6 +94,9 @@ export async function completarOnboardingEstudiante(datos: {
   busca_empleo: boolean
   busca_pasantia: boolean
   habilidades: string[]
+  hobbies?: string[]
+  foto_url?: string
+  bio?: string
 }) {
   try {
     const supabase = await createClient()
@@ -136,9 +139,11 @@ export async function completarOnboardingEstudiante(datos: {
       return { success: false, error: 'Error al guardar datos académicos: ' + estError.message }
     }
 
-    // 2. Marcar perfil_completo en profiles usando adminClient
+    // 2. Marcar perfil_completo en profiles usando adminClient y actualizar foto_url y bio
     const { error: profilesError } = await adminClient.from('profiles').update({
       perfil_completo: 1 as any,
+      foto_url: datos.foto_url || null,
+      bio: datos.bio || null
     }).eq('id', user.id)
 
     if (profilesError) {
@@ -146,11 +151,29 @@ export async function completarOnboardingEstudiante(datos: {
       console.error('Warning: No se pudo actualizar perfil_completo en profiles:', profilesError.message)
     }
 
-    // 3. Actualizar flags de búsqueda en users
+    // 2.5 Actualizar curriculums con el bio (resumen)
+    if (datos.bio || (datos.habilidades && datos.habilidades.length > 0)) {
+      const { data: currentCv } = await adminClient.from('curriculums').select('id').eq('user_id', user.id).maybeSingle()
+      if (!currentCv) {
+        await adminClient.from('curriculums').insert({
+          user_id: user.id,
+          habilidades_blandas: datos.habilidades || [],
+          sobre_mi: datos.bio || ''
+        })
+      } else {
+        await adminClient.from('curriculums').update({
+          habilidades_blandas: datos.habilidades || [],
+          sobre_mi: datos.bio || ''
+        }).eq('id', currentCv.id)
+      }
+    }
+
+    // 3. Actualizar flags de búsqueda en users, incluyendo hobbies
     const { error: usersError } = await adminClient.from('users').update({
       busca_mentoria: datos.busca_mentoria,
       busca_empleo: datos.busca_empleo,
       busca_pasantia: datos.busca_pasantia,
+      hobbies: datos.hobbies || []
     }).eq('id', user.id)
 
     if (usersError) {
@@ -218,6 +241,10 @@ export async function actualizarPerfilCompletoEstudiante(datos: any) {
 
     // 3. Actualizar tabla estudiantes
     const estudiantePayload = {
+      carnet_ucr: datos.carnet_ucr,
+      beca_socioeconomica: datos.beca_socioeconomica,
+      nivel_academico: datos.nivel_academico,
+      promedio_ponderado: datos.promedio_ponderado === 0 ? null : datos.promedio_ponderado,
       carrera: datos.carrera,
       escuela_facultad: datos.escuela_facultad,
       sede: datos.sede,

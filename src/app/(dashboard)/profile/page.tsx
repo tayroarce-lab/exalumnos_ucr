@@ -6,6 +6,7 @@ import { Phone, ShieldCheck } from 'lucide-react'
 
 import ProfileHeader from './components/ProfileHeader'
 import ProfileTabs from './components/ProfileTabs'
+import { obtenerMiPerfil } from '@/actions/users'
 
 export default async function ProfilePage() {
   const supabase = await createClient()
@@ -15,49 +16,71 @@ export default async function ProfilePage() {
     redirect('/login')
   }
 
+  const fullProfile = await obtenerMiPerfil()
+
   const { data: profile } = await supabase
     .from('profiles')
     .select('*')
     .eq('id', user.id)
     .single()
 
-  const rol = user.user_metadata?.rol as string | undefined
+  const { data: userData } = await supabase
+    .from('users')
+    .select('hobbies')
+    .eq('id', user.id)
+    .single()
+
+  const rol = fullProfile?.rol || user.user_metadata?.rol || 'exalumno'
+  const isStudent = rol === 'estudiante'
   const isAdmin = rol === 'admin'
 
-  const name = profile?.full_name || user.user_metadata?.nombre || 'Nuevo Usuario'
+  const name = fullProfile?.full_name || profile?.full_name || user.user_metadata?.nombre || 'Nuevo Usuario'
   const initials = name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase()
-  const email = profile?.email || user.email || ''
-  const phone = profile?.phone || 'No especificado'
-  const location = profile?.pais_ciudad || 'No especificada'
+  const email = fullProfile?.email || profile?.email || user.email || ''
+  const phone = fullProfile?.phone || profile?.phone || 'No especificado'
+  const location = fullProfile?.pais_ciudad || profile?.pais_ciudad || 'No especificada'
   
   const headline = isAdmin 
     ? 'Administrador del Sistema' 
-    : (profile?.cargo_actual ? `${profile.cargo_actual} en ${profile.empresa_actual}` : 'Exalumno UCR')
+    : isStudent
+      ? `Estudiante de ${fullProfile?.carrera || 'carrera no especificada'}`
+      : (fullProfile?.cargo_actual || profile?.cargo_actual ? `${fullProfile?.cargo_actual || profile?.cargo_actual} en ${fullProfile?.empresa_actual || profile?.empresa_actual}` : 'Exalumno UCR')
 
-  const skills = (profile?.skills as string[]) || []
-  const academicRaw = (profile?.academic as any[]) || []
-  const academic = academicRaw.map((a: any) => ({
-    degree: a.carrera || 'Carrera no especificada',
-    school: a.escuela || 'Escuela no especificada',
-    year: a.anio ? `Graduado/a en ${a.anio}` : 'Año no especificado',
-    verified: false
-  }))
+  const skills = (fullProfile?.habilidades || fullProfile?.skills || profile?.skills as string[]) || []
+  
+  let academic: any[] = []
+  if (isStudent && fullProfile) {
+    academic = [{
+      degree: fullProfile.carrera || 'Carrera no especificada',
+      school: fullProfile.escuela_facultad || 'Escuela/Facultad no especificada',
+      year: fullProfile.anio_ingreso ? `Ingresó en ${fullProfile.anio_ingreso}` : 'Año de ingreso no especificado',
+      verified: true
+    }]
+  } else {
+    const academicRaw = (fullProfile?.academic || profile?.academic as any[]) || []
+    academic = academicRaw.map((a: any) => ({
+      degree: a.carrera || 'Carrera no especificada',
+      school: a.escuela || 'Escuela no especificada',
+      year: a.anio ? `Graduado/a en ${a.anio}` : 'Año no especificado',
+      verified: false
+    }))
+  }
 
   const experience: { role: string; company: string; period: string; desc: string }[] = []
-  if (profile?.empresa_actual && profile?.cargo_actual) {
+  if (!isStudent && (fullProfile?.empresa_actual || profile?.empresa_actual) && (fullProfile?.cargo_actual || profile?.cargo_actual)) {
     experience.push({
-      role: profile.cargo_actual,
-      company: profile.empresa_actual,
-      period: profile.anos_experiencia ? `${profile.anos_experiencia} años de exp.` : 'Actualidad',
-      desc: profile.sector_industria && (profile.sector_industria as string[]).length > 0
-        ? `Sector: ${(profile.sector_industria as string[]).join(', ')}`
+      role: fullProfile?.cargo_actual || profile?.cargo_actual || '',
+      company: fullProfile?.empresa_actual || profile?.empresa_actual || '',
+      period: (fullProfile?.anos_experiencia || profile?.anos_experiencia) ? `${fullProfile?.anos_experiencia || profile?.anos_experiencia} años de exp.` : 'Actualidad',
+      desc: (fullProfile?.sector_industria || profile?.sector_industria) && (fullProfile?.sector_industria || profile?.sector_industria as string[]).length > 0
+        ? `Sector: ${(fullProfile?.sector_industria || profile?.sector_industria as string[]).join(', ')}`
         : ''
     })
   }
 
-  const linkedin = profile?.linkedin_url || ''
-  const twitter = profile?.twitter_url || ''
-  const instagram = profile?.instagram_url || ''
+  const linkedin = fullProfile?.linkedin_url || profile?.linkedin_url || ''
+  const twitter = fullProfile?.twitter_url || profile?.twitter_url || ''
+  const instagram = fullProfile?.instagram_url || profile?.instagram_url || ''
 
   return (
     <div className="py-8 px-6 lg:px-10">
@@ -70,8 +93,8 @@ export default async function ProfilePage() {
           email={email}
           location={location}
           headline={headline}
-          avatarUrl={profile?.foto_url}
-          bannerUrl={profile?.banner_url}
+          avatarUrl={fullProfile?.foto_url || profile?.foto_url}
+          bannerUrl={fullProfile?.banner_url || profile?.banner_url}
           isOwner={true}
         />
 
@@ -93,8 +116,8 @@ export default async function ProfilePage() {
           </Card>
         ) : (
           <ProfileTabs 
-            profile={profile}
-            user={user}
+            profile={{ ...profile, ...fullProfile }}
+            user={{ ...user, hobbies: fullProfile?.hobbies || userData?.hobbies || [] }}
             name={name}
             email={email}
             phone={phone}

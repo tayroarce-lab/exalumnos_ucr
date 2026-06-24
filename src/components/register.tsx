@@ -263,15 +263,15 @@ export default function Register() {
         </div>
         <div className="register-hero-text mt-6">
           {tipoRegistro === 'estudiante' ? (
-            <>
+            <div key="hero-estudiante">
               <h2>Comienza tu camino de regreso.</h2>
               <p>Únete a la red de egresados más grande. Conecta con mentores, descubre oportunidades y mantén vivo el espíritu universitario.</p>
-            </>
+            </div>
           ) : (
-            <>
+            <div key="hero-exalumno">
               <h2>El camino de regreso.</h2>
               <p>Reconecta con tus raíces, expande tu red profesional y apoya a la próxima generación de graduados de la UCR.</p>
-            </>
+            </div>
           )}
         </div>
         <div className="toggle-register-type">
