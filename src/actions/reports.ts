@@ -16,7 +16,7 @@ export async function reportarPerfil(reportedId: string, motivo: string) {
 
   // Guardar el reporte en la tabla reportes_perfiles
   const { error: insertError } = await adminClient
-    .from('reportes_perfiles')
+    .from('reportes_perfiles' as any)
     .insert({
       reporter_id: user.id,
       reported_id: reportedId,
