@@ -6,6 +6,7 @@ import StitchProfileClient from './StitchProfileClient';
 import { ArrowLeft, Briefcase, MapPin, Linkedin, Mail, Twitter, Instagram, GraduationCap, CheckCircle2, ChevronLeft, Lock, Users } from 'lucide-react';
 import ConnectButton from './ConnectButton';
 import ReportButton from './ReportButton';
+import { getAvatarUrl } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;

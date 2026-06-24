@@ -312,7 +312,7 @@ export async function actualizarPerfil(data: any) {
             visible_en_directorio: true,
             perfil_completo: true
           };
-          await adminClient.from('exalumnos').upsert(exalumnoPayload, { onConflict: 'id' });
+          await adminClient.from('exalumnos').upsert(exalumnoPayload as any, { onConflict: 'id' });
         } else {
           // Es estudiante: sincronizar a la tabla estudiantes
           const estudiantePayload = {

@@ -260,7 +260,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
   return (
     <>
       {/* ───────────────────── BARRA PRINCIPAL ───────────────────── */}
-      <header className={`h-16 w-full ${config.bgClass} flex items-center justify-between px-4 lg:px-8 shrink-0 transition-all duration-300 backdrop-blur-sm z-30 relative`}>
+      <header className={`h-20 w-full ${config.bgClass} flex items-center justify-between px-4 lg:px-8 shrink-0 transition-all duration-300 backdrop-blur-sm z-30 relative`}>
 
         {/* Logo */}
         <div className="flex items-center">
@@ -268,10 +268,10 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
             <Image
               src={logoUCR}
               alt="Logo UCR"
-              width={180}
-              height={64}
+              width={240}
+              height={80}
               style={{ objectFit: 'contain', filter: config.logoFilter }}
-              className="h-12 w-auto transition-all duration-300"
+              className="h-16 w-auto transition-all duration-300"
             />
           </Link>
         </div>
