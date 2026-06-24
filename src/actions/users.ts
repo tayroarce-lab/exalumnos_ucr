@@ -312,7 +312,7 @@ export async function actualizarPerfil(data: any) {
             visible_en_directorio: true,
             perfil_completo: true
           };
-          await adminClient.from('exalumnos').upsert(exalumnoPayload, { onConflict: 'id' });
+          await adminClient.from('exalumnos').upsert(exalumnoPayload as any, { onConflict: 'id' });
         } else {
           // Es estudiante: sincronizar a la tabla estudiantes
           const estudiantePayload = {
@@ -322,7 +322,7 @@ export async function actualizarPerfil(data: any) {
             areas_de_interes: payloadToUpdate.areas_de_interes || [],
             perfil_completo: true
           };
-          await adminClient.from('estudiantes').upsert(estudiantePayload, { onConflict: 'id' });
+          await adminClient.from('estudiantes').upsert(estudiantePayload as any, { onConflict: 'id' });
         }
       }
     } catch (syncErr) {
