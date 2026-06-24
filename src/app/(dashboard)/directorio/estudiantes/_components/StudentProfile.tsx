@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { EstudianteDirectorio } from '@/types/estudiantes';
 import GrillaEstudiantes from './GrillaEstudiantes';
 import { getAvatarUrl } from '@/lib/utils';
@@ -549,9 +550,9 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
       )}
 
       {/* ── MODAL MENTORÍA ── */}
-      {showMentoriaModal && (
+      {showMentoriaModal && typeof document !== 'undefined' && createPortal(
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-6 md:p-8 w-full max-w-md border border-slate-200/80 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-2xl p-6 md:p-8 w-full max-w-md border border-slate-200/80 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
             <button 
               onClick={() => setShowMentoriaModal(false)}
               className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors text-2xl font-bold cursor-pointer"
@@ -625,13 +626,14 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* ── MODAL APÓYAR PROYECTO ── */}
-      {showApoyarModal && (
+      {showApoyarModal && typeof document !== 'undefined' && createPortal(
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[9998] flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-6 md:p-8 w-full max-w-md border border-slate-200/80 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-2xl p-6 md:p-8 w-full max-w-md border border-slate-200/80 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setShowApoyarModal(false)}
               className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors text-2xl font-bold cursor-pointer"
@@ -723,7 +725,8 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
