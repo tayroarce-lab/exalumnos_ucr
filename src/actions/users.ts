@@ -322,7 +322,7 @@ export async function actualizarPerfil(data: any) {
             areas_de_interes: payloadToUpdate.areas_de_interes || [],
             perfil_completo: true
           };
-          await adminClient.from('estudiantes').upsert(estudiantePayload, { onConflict: 'id' });
+          await adminClient.from('estudiantes').upsert(estudiantePayload as any, { onConflict: 'id' });
         }
       }
     } catch (syncErr) {
