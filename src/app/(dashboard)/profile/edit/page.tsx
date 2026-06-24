@@ -60,6 +60,8 @@ export default function ProfileEditPage() {
     habilidades: fullProfile.habilidades || []
   }
 
+  const userName = profile?.full_name || fullProfile?.nombre || user.user_metadata?.nombre || 'No disponible'
+
   return (
     <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8 animate-fade-in">
       {/* Header Area */}
@@ -89,14 +91,14 @@ export default function ProfileEditPage() {
           <StudentOnboardingForm 
             isEditMode={true} 
             initialData={initialData} 
-            userName={profile.full_name} 
+            userName={userName} 
             userEmail={user.email} 
           />
         ) : (
           <ExalumnoOnboardingForm 
             isEditMode={true} 
             initialData={initialData} 
-            userName={profile.full_name} 
+            userName={userName} 
             userEmail={user.email} 
           />
         )}

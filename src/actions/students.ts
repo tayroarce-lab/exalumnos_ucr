@@ -94,6 +94,7 @@ export async function completarOnboardingEstudiante(datos: {
   busca_empleo: boolean
   busca_pasantia: boolean
   habilidades: string[]
+  hobbies?: string[]
   foto_url?: string
   bio?: string
 }) {
@@ -167,11 +168,12 @@ export async function completarOnboardingEstudiante(datos: {
       }
     }
 
-    // 3. Actualizar flags de búsqueda en users
+    // 3. Actualizar flags de búsqueda en users, incluyendo hobbies
     const { error: usersError } = await adminClient.from('users').update({
       busca_mentoria: datos.busca_mentoria,
       busca_empleo: datos.busca_empleo,
       busca_pasantia: datos.busca_pasantia,
+      hobbies: datos.hobbies || []
     }).eq('id', user.id)
 
     if (usersError) {
@@ -239,6 +241,10 @@ export async function actualizarPerfilCompletoEstudiante(datos: any) {
 
     // 3. Actualizar tabla estudiantes
     const estudiantePayload = {
+      carnet_ucr: datos.carnet_ucr,
+      beca_socioeconomica: datos.beca_socioeconomica,
+      nivel_academico: datos.nivel_academico,
+      promedio_ponderado: datos.promedio_ponderado === 0 ? null : datos.promedio_ponderado,
       carrera: datos.carrera,
       escuela_facultad: datos.escuela_facultad,
       sede: datos.sede,
