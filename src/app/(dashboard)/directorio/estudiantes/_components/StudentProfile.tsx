@@ -4,7 +4,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { EstudianteDirectorio } from '@/types/estudiantes';
 import GrillaEstudiantes from './GrillaEstudiantes';
-import { getAvatarUrl } from '@/lib/utils';
+import { getAvatarUrl, getProyectoFileUrl } from '@/lib/utils';
 import Link from 'next/link';
 
 interface Props {
@@ -245,6 +245,16 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
             {areaTematica}
           </span>
         </div>
+        {/* Imagen de Proyecto si existe */}
+        {estudiante.proyecto_foto_url && (
+          <div className="rounded-xl overflow-hidden border border-[#B3DCEE]/30 mb-4 max-h-48 w-full relative">
+            <img 
+              src={getProyectoFileUrl(estudiante.proyecto_foto_url) || ''} 
+              alt={tituloProyecto}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        )}
         <h2 className="text-lg font-black text-[#B43B06] mb-3 uppercase">
           {tituloProyecto}
         </h2>
@@ -265,7 +275,7 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
         <div className="flex flex-col sm:flex-row gap-2 mb-5">
           {estudiante.proyecto_documento_url && (
             <a 
-              href={estudiante.proyecto_documento_url.startsWith('http') ? estudiante.proyecto_documento_url : `https://${estudiante.proyecto_documento_url}`}
+              href={getProyectoFileUrl(estudiante.proyecto_documento_url) || '#'}
               target="_blank"
               rel="noopener noreferrer"
               className="flex-1 flex items-center justify-center text-[11px] bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 px-3 py-2 rounded-xl font-bold transition-colors"

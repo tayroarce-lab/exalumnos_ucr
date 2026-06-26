@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, Suspense } from 'react'
 import { useProfile } from '@/contexts/ProfileContext'
 import StudentOnboardingForm from '@/components/forms/StudentOnboardingForm'
 import ExalumnoOnboardingForm from '@/components/forms/ExalumnoOnboardingForm'
@@ -9,6 +9,18 @@ import Link from 'next/link'
 import { obtenerMiPerfil } from '@/actions/users'
 
 export default function ProfileEditPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-celeste"></div>
+      </div>
+    }>
+      <ProfileEditFormContent />
+    </Suspense>
+  )
+}
+
+function ProfileEditFormContent() {
   const { user, profile, isLoading: isContextLoading } = useProfile()
   const [fullProfile, setFullProfile] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)

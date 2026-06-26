@@ -23,6 +23,7 @@ export interface EstudianteDirectorio {
   proyecto_valor_moneda?: string | null;
   proyecto_video_url?: string | null;
   proyecto_documento_url?: string | null;
+  proyecto_foto_url?: string | null;
   proyecto_activo?: boolean | null;
   proyecto_necesidades?: string[] | null;
   // Currículum
