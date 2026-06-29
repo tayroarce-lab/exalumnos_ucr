@@ -136,17 +136,16 @@ src/
 └── supabase/        # Migraciones SQL, tipos generados, funciones PL/pgSQL
 ```
 
----
-
-## What I'd Improve Next
-
-- [ ] Implementar un módulo de analíticas para medir la tasa de conversión en contrataciones gracias a los CVs optimizados.
-- [ ] Extraer el procesamiento de imágenes/documentos (compresión/validación) a tareas asíncronas en background.
-- [ ] Reemplazar las verificaciones manuales de identidad con una integración institucional directa a la UCR una vez que se firme un convenio de interoperabilidad.
 
 ---
 
 ## Authors
 
-**Joaquín Aguilar, Ransés Alvir, Daniela Fernandez, Alejandro Hernández, Gerson Dinarte, Mariel Lefebre, Tayro Arce**  
+- Joaquín Aguilar,
+- Ransés Alvir,
+- Daniela Fernandez,
+- Alejandro Hernández,
+- Gerson Dinarte,
+- Mariel Lefebre,
+- Tayro Arce
 Full Stack Developers · AI Automation Engineers  
