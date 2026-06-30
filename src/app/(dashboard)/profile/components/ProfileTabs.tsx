@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import Card from '@/components/ui/card'
+import { getProyectoFileUrl } from '@/lib/utils'
 import { 
   Phone, 
   Linkedin, 
@@ -371,6 +372,17 @@ export default function ProfileTabs({ profile, user, name, email, phone, locatio
                   </div>
                 </div>
 
+                {/* Imagen del Proyecto */}
+                {profile.proyecto_foto_url && (
+                  <div className="rounded-2xl overflow-hidden border border-slate-200 shadow-sm max-h-80 w-full relative">
+                    <img 
+                      src={getProyectoFileUrl(profile.proyecto_foto_url) || ''} 
+                      alt={`Imagen de ${profile.proyecto_titulo}`}
+                      className="w-full h-full object-cover object-center max-h-80"
+                    />
+                  </div>
+                )}
+
                 {/* Descripción */}
                 <div className="bg-slate-50/50 p-5 rounded-2xl border border-slate-100 space-y-2">
                   <h5 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Descripción del Proyecto</h5>
@@ -412,7 +424,7 @@ export default function ProfileTabs({ profile, user, name, email, phone, locatio
                     <div className="flex flex-col gap-2">
                       {profile.proyecto_documento_url ? (
                         <a 
-                          href={profile.proyecto_documento_url} 
+                          href={getProyectoFileUrl(profile.proyecto_documento_url) || '#'} 
                           target="_blank" 
                           rel="noopener noreferrer"
                           className="flex items-center gap-2.5 p-3 bg-white hover:bg-slate-100 text-slate-700 hover:text-slate-900 border border-slate-200 rounded-xl text-xs font-bold transition-all"

@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import crypto from 'crypto';
 
-export async function uploadFileAction(formData: FormData, bucket: 'avatars' | 'comprobantes', prefix?: string) {
+export async function uploadFileAction(formData: FormData, bucket: 'avatars' | 'comprobantes' | 'proyectos', prefix?: string) {
   const supabase = await createClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
 
@@ -35,7 +35,7 @@ export async function uploadFileAction(formData: FormData, bucket: 'avatars' | '
   return { success: true, path: data.path };
 }
 
-export async function getSignedUrlAction(bucket: 'comprobantes' | 'avatars', path: string, expiresIn: number = 3600) {
+export async function getSignedUrlAction(bucket: 'comprobantes' | 'avatars' | 'proyectos', path: string, expiresIn: number = 3600) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   
@@ -67,7 +67,7 @@ export async function getSignedUrlAction(bucket: 'comprobantes' | 'avatars', pat
     if (dbData && dbData.user_id === user.id) {
       allowed = true;
     }
-  } else if (bucket === 'avatars') {
+  } else if (bucket === 'avatars' || bucket === 'proyectos') {
     allowed = true; 
   }
 
