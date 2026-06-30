@@ -132,15 +132,144 @@ export default function InteractiveTour() {
         ]
       })
 
-      // Paso 5: Navbar
+      // Paso 5: Inicio
       tour.addStep({
-        id: 'navbar-links',
+        id: 'nav-inicio',
         attachTo: {
-          element: '#tour-navbar-links',
+          element: '#tour-nav-inicio',
           on: 'bottom'
         },
-        title: '🧭 NAVEGACIÓN PRINCIPAL',
-        text: 'Navega fácilmente entre directorios de egresados, mentorías personalizadas, ofertas de empleo y tus matches.',
+        title: '🏠 INICIO',
+        text: 'Regresa al Dashboard principal de tu portal en cualquier momento.',
+        buttons: [
+          {
+            text: 'Omitir',
+            classes: 'px-4 py-2 text-xs uppercase font-bold text-slate-500 hover:text-slate-700 transition-colors mr-auto cursor-pointer',
+            action: () => tour.cancel()
+          },
+          {
+            text: 'Siguiente',
+            classes: `px-5 py-2 text-xs uppercase font-bold text-white rounded-xl shadow-md transition-all duration-200 active:scale-95 cursor-pointer ${
+              isStudent ? 'bg-[#54BCEB] hover:bg-[#3FAEDD]' : 'bg-[#F34B26] hover:bg-[#D03816]'
+            }`,
+            action: () => tour.next()
+          }
+        ]
+      })
+
+      // Paso 6: Directorios
+      tour.addStep({
+        id: 'nav-directorios',
+        attachTo: {
+          element: '#tour-nav-directorios',
+          on: 'bottom'
+        },
+        title: '👥 DIRECTORIOS',
+        text: 'Explora y conecta con estudiantes o graduados de la comunidad UCR.',
+        buttons: [
+          {
+            text: 'Omitir',
+            classes: 'px-4 py-2 text-xs uppercase font-bold text-slate-500 hover:text-slate-700 transition-colors mr-auto cursor-pointer',
+            action: () => tour.cancel()
+          },
+          {
+            text: 'Siguiente',
+            classes: `px-5 py-2 text-xs uppercase font-bold text-white rounded-xl shadow-md transition-all duration-200 active:scale-95 cursor-pointer ${
+              isStudent ? 'bg-[#54BCEB] hover:bg-[#3FAEDD]' : 'bg-[#F34B26] hover:bg-[#D03816]'
+            }`,
+            action: () => tour.next()
+          }
+        ]
+      })
+
+      // Paso 7: Mentorías
+      tour.addStep({
+        id: 'nav-mentorias',
+        attachTo: {
+          element: '#tour-nav-mentorias',
+          on: 'bottom'
+        },
+        title: '🤝 MENTORÍAS',
+        text: isStudent
+          ? 'Solicita acompañamiento profesional de exalumnos experimentados.'
+          : 'Regístrate como mentor para guiar a estudiantes activos.',
+        buttons: [
+          {
+            text: 'Omitir',
+            classes: 'px-4 py-2 text-xs uppercase font-bold text-slate-500 hover:text-slate-700 transition-colors mr-auto cursor-pointer',
+            action: () => tour.cancel()
+          },
+          {
+            text: 'Siguiente',
+            classes: `px-5 py-2 text-xs uppercase font-bold text-white rounded-xl shadow-md transition-all duration-200 active:scale-95 cursor-pointer ${
+              isStudent ? 'bg-[#54BCEB] hover:bg-[#3FAEDD]' : 'bg-[#F34B26] hover:bg-[#D03816]'
+            }`,
+            action: () => tour.next()
+          }
+        ]
+      })
+
+      // Paso 8: Matches
+      tour.addStep({
+        id: 'nav-matches',
+        attachTo: {
+          element: '#tour-nav-matches',
+          on: 'bottom'
+        },
+        title: '⚡ MATCHES',
+        text: 'Revisa tus conexiones de mentoría aprobadas y activas.',
+        buttons: [
+          {
+            text: 'Omitir',
+            classes: 'px-4 py-2 text-xs uppercase font-bold text-slate-500 hover:text-slate-700 transition-colors mr-auto cursor-pointer',
+            action: () => tour.cancel()
+          },
+          {
+            text: 'Siguiente',
+            classes: `px-5 py-2 text-xs uppercase font-bold text-white rounded-xl shadow-md transition-all duration-200 active:scale-95 cursor-pointer ${
+              isStudent ? 'bg-[#54BCEB] hover:bg-[#3FAEDD]' : 'bg-[#F34B26] hover:bg-[#D03816]'
+            }`,
+            action: () => tour.next()
+          }
+        ]
+      })
+
+      // Paso 9: Eventos
+      tour.addStep({
+        id: 'nav-eventos',
+        attachTo: {
+          element: '#tour-nav-eventos',
+          on: 'bottom'
+        },
+        title: '📅 EVENTOS',
+        text: 'Consulta charlas, talleres y ferias programadas.',
+        buttons: [
+          {
+            text: 'Omitir',
+            classes: 'px-4 py-2 text-xs uppercase font-bold text-slate-500 hover:text-slate-700 transition-colors mr-auto cursor-pointer',
+            action: () => tour.cancel()
+          },
+          {
+            text: 'Siguiente',
+            classes: `px-5 py-2 text-xs uppercase font-bold text-white rounded-xl shadow-md transition-all duration-200 active:scale-95 cursor-pointer ${
+              isStudent ? 'bg-[#54BCEB] hover:bg-[#3FAEDD]' : 'bg-[#F34B26] hover:bg-[#D03816]'
+            }`,
+            action: () => tour.next()
+          }
+        ]
+      })
+
+      // Paso 10: Empleos
+      tour.addStep({
+        id: 'nav-empleos',
+        attachTo: {
+          element: '#tour-nav-empleos',
+          on: 'bottom'
+        },
+        title: '💼 EMPLEOS',
+        text: isStudent
+          ? 'Explora y postula a oportunidades laborales exclusivas.'
+          : 'Publica ofertas de trabajo o pasantías para la comunidad.',
         buttons: [
           {
             text: 'Omitir',

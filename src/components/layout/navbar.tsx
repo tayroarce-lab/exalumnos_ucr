@@ -283,9 +283,11 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
             const isActive = isExactOnly
               ? pathname === item.href
               : pathname === item.href || pathname?.startsWith(item.href + '/')
+            const elementId = `tour-nav-${item.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}`
             return (
               <Link
                 key={idx}
+                id={elementId}
                 href={item.href}
                 className={`text-xs uppercase tracking-wider font-bold px-4 py-2 rounded-xl transition-all duration-200 ${
                   isActive ? config.linkActiveClass : `text-current/80 ${config.linkHoverClass}`
