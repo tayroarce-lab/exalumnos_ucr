@@ -132,7 +132,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Banner Principal */}
-        <div className="rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-8 overflow-hidden relative shadow-md text-white bg-gradient-to-br from-[#E03A14] via-[#F34B26] to-[#FF9B18]">
+        <div id="tour-welcome-banner" className="rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-8 overflow-hidden relative shadow-md text-white bg-gradient-to-br from-[#E03A14] via-[#F34B26] to-[#FF9B18]">
           <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-white/5 rounded-l-full hidden md:block" />
           <div className="absolute right-1/4 top-1/4 w-20 h-20 bg-white/10 rounded-full blur-2xl" />
 
@@ -165,7 +165,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Resumen Rápido */}
-        <div className="space-y-4">
+        <div id="tour-quick-summary" className="space-y-4">
           <h2 className="text-lg font-bold uppercase tracking-wider text-slate-800 font-display">
             Resumen rápido
           </h2>
@@ -195,7 +195,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Próximos Eventos */}
-        <div className="space-y-4">
+        <div id="tour-upcoming-events" className="space-y-4">
           <div className="flex justify-between items-center">
             <h2 className="text-lg font-bold uppercase tracking-wider text-slate-800 font-display">
               Próximos eventos

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { Bell, ChevronDown, User, LogOut, Briefcase, Menu, X, Clock, Sun, Moon, BookOpen } from 'lucide-react'
+import { Bell, ChevronDown, User, LogOut, Briefcase, Menu, X, Clock, Sun, Moon, BookOpen, Sparkles } from 'lucide-react'
 import { useProfile } from '@/contexts/ProfileContext'
 import { createClient } from '@/lib/supabase/client'
 import logoUCR from '@/images/Logo_UCR.png'
@@ -277,7 +277,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
         </div>
 
         {/* Navegación desktop */}
-        <nav className="hidden lg:flex items-center gap-2">
+        <nav id="tour-navbar-links" className="hidden lg:flex items-center gap-2">
           {config.menuItems.map((item, idx) => {
             const isExactOnly = item.name === 'Inicio'
             const isActive = isExactOnly
@@ -372,7 +372,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
           </div>
 
           {/* Perfil (solo desktop) */}
-          <div className="relative hidden lg:block">
+          <div id="tour-user-menu" className="relative hidden lg:block">
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               className="flex items-center gap-2 hover:bg-current/10 p-1.5 rounded-xl transition-all active:scale-95 focus:outline-none"
@@ -415,6 +415,18 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
                     <Clock className="w-4 h-4 text-slate-400" />
                     <span>Ver mi Historial</span>
                   </Link>
+                )}
+                {!isAdmin && (
+                  <button
+                    onClick={() => {
+                      setIsDropdownOpen(false)
+                      window.dispatchEvent(new CustomEvent('start-interactive-tour'))
+                    }}
+                    className="w-full flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-600 hover:bg-slate-50 hover:text-[#F34B26] transition-colors text-left"
+                  >
+                    <Sparkles className="w-4 h-4 text-[#F34B26]" />
+                    <span>Tour Interactivo</span>
+                  </button>
                 )}
                 <div className="border-t border-slate-100 my-1"></div>
                 <button onClick={handleLogout} className="w-full flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider text-rose-600 hover:bg-rose-50 transition-colors text-left">
