@@ -1,6 +1,7 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 import { Database } from '@/types/database.types';
 import { sendTallerApprovalEmail, sendTallerApplicationResultEmail } from '@/services/email-service';
@@ -51,7 +52,7 @@ export async function getMisTalleres() {
 }
 
 export async function getAllTalleresAdmin() {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { data, error } = await supabase
     .from('talleres')
@@ -74,7 +75,7 @@ export async function getAllTalleresAdmin() {
 }
 
 export async function updateTallerEstadoAdmin(id: string, estado: 'PENDIENTE' | 'APROBADO' | 'RECHAZADO') {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { data: taller, error } = await supabase
     .from('talleres')
@@ -89,8 +90,8 @@ export async function updateTallerEstadoAdmin(id: string, estado: 'PENDIENTE' | 
     .single();
 
   if (error || !taller) {
-    console.error('Error al actualizar estado del taller:', error);
-    throw new Error('No se pudo actualizar el estado del taller');
+    console.error('Error al actualizar estado del taller:', error, JSON.stringify(error));
+    throw new Error('No se pudo actualizar el estado del taller: ' + (error?.message || 'Error desconocido'));
   }
 
   // Notificar al exalumno in-app
@@ -98,7 +99,7 @@ export async function updateTallerEstadoAdmin(id: string, estado: 'PENDIENTE' | 
     ? `Tu taller "${taller.titulo}" ha sido aprobado.` 
     : `Tu taller "${taller.titulo}" ha sido rechazado.`;
 
-  await supabase.from('notificaciones').insert({
+  await (supabase as any).from('notificaciones').insert({
     user_id: taller.exalumno_id,
     titulo: 'Estado de tu taller actualizado',
     mensaje: notificationMsg,
@@ -268,7 +269,7 @@ export async function responderPostulacion(postulacionId: string, estado: 'ACEPT
     ? `Has sido aceptado en el taller "${tallerTitulo}".` 
     : `Tu postulación al taller "${tallerTitulo}" no fue seleccionada.`;
 
-  await supabase.from('notificaciones').insert({
+  await (supabase as any).from('notificaciones').insert({
     user_id: postulacion.estudiante_id,
     titulo: 'Respuesta a tu postulación de taller',
     mensaje: notificationMsg,
