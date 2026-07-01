@@ -1,5 +1,5 @@
 const fs = require('fs');
-
+let txt = fs.readFileSync('src/types/database.types.ts', 'utf-8'); 
 const goodTypes = `      talleres: {
         Row: {
           id: string
@@ -52,7 +52,7 @@ const goodTypes = `      talleres: {
             referencedColumns: ["id"]
           }
         ]
-      }
+      },
       talleres_postulaciones: {
         Row: {
           id: string
@@ -97,22 +97,26 @@ const goodTypes = `      talleres: {
             referencedColumns: ["id"]
           }
         ]
-      }`;
+      },`;
 
-let txt = fs.readFileSync('src/types/database.types.ts', 'utf-8');
+let start = txt.indexOf('      talleres: {');
+if(start !== -1 && start < 500) {
+  let end = txt.indexOf('      }', txt.indexOf('talleres_postulaciones: {', start)) + 7;
+  if(txt[end] === ',') end++;
+  txt = txt.slice(0, start) + txt.slice(end);
+}
 
-const targetStr = `  public: {
-    Tables: {`;
-const idx = txt.indexOf(targetStr);
-if (idx !== -1) {
-  if (txt.indexOf('talleres: {', idx) === -1) {
-    const insertPos = idx + targetStr.length;
-    txt = txt.slice(0, insertPos) + '\n' + goodTypes + ',' + txt.slice(insertPos);
-    fs.writeFileSync('src/types/database.types.ts', txt);
-    console.log('Fixed correctly');
-  } else {
-    console.log('Already fixed');
+const pubIdx = txt.indexOf('  public: {');
+if(pubIdx !== -1) {
+  const tablesIdx = txt.indexOf('Tables: {', pubIdx);
+  if (tablesIdx !== -1) {
+    const injectPos = tablesIdx + 'Tables: {'.length;
+    if(txt.indexOf('talleres: {', pubIdx) === -1) {
+      txt = txt.slice(0, injectPos) + '\n' + goodTypes + txt.slice(injectPos);
+      fs.writeFileSync('src/types/database.types.ts', txt);
+      console.log('Fixed correctly at public: {} !');
+    } else {
+      console.log('Already there');
+    }
   }
-} else {
-  console.log('Target string not found');
 }
