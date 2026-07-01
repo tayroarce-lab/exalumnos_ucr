@@ -5,6 +5,7 @@ import { DonationAdminView, DonationsHistoryFilters } from '@/types/donations';
 import { sendDonationConfirmationEmails, sendDonationRejectionEmail, sendDonationVerificationEmail } from '@/services/email-service';
 import { notificarNuevaDonacionAdmin } from '@/lib/email';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { notifyAllAdmins } from '@/lib/notify-admins';
 
 export interface CrearDonacionInput {
   proyecto_destino: string;
@@ -280,8 +281,17 @@ export async function crearDonacion(data: CrearDonacionInput) {
       ? (data.proyecto_destino || 'Proyecto de estudiante')
       : (FONDOS_MAP[data.proyecto_destino] || data.proyecto_destino);
     
-    // Notificar al admin
+    // Notificar al admin por email
     await notificarNuevaDonacionAdmin(ADMIN_EMAIL, data.monto, data.moneda, projectName, data.metodo_pago);
+
+    // Notificar a todos los admins en la campanita
+    const donorName2 = (await supabase.from('users').select('nombre').eq('id', user.id).single()).data?.nombre || 'Un exalumno'
+    await notifyAllAdmins({
+      titulo: 'Nueva donación pendiente',
+      mensaje: `${donorName2} envió una donación de ${data.moneda === 'CRC' ? '₡' : '$'}${data.monto.toLocaleString()} para ${projectName}. Requiere revisión.`,
+      tipo: 'donacion_admin',
+      link: '/admin/donaciones'
+    })
 
     // Email de verificación al exalumno donante
     const { data: donorData } = await supabase

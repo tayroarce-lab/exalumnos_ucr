@@ -195,8 +195,11 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
       { name: 'Mentorías', href: '/mentorships' },
       { name: 'Matches', href: '/mis-matches' },
       { name: 'Eventos', href: '/events' },
-      { name: 'Empleos', href: '/jobs' }
+      { name: 'Empleos', href: '/jobs' },
+      { name: 'Consultas y Soporte', href: '/consultas-soporte' }
     ]
+
+
   }
 
   if (isAdmin) {
@@ -212,7 +215,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
       userCircleBg: 'bg-white/20 text-white',
       menuItems: [
         { name: 'Inicio', href: '/admin/dashboard' },
-        { name: 'Reportes', href: '/admin/reportes' },
+        { name: 'Consultas y Soporte', href: '/admin/consultas-soporte' },
         { name: 'Usuarios', href: '/admin/usuarios' },
         { name: 'Matches', href: '/admin/matches' },
         { name: 'Donaciones', href: '/admin/donaciones' },
@@ -236,7 +239,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
         { name: 'Mentorías', href: '/mentorships' },
         { name: 'Matches', href: '/mis-matches' },
         { name: 'Eventos', href: '/events' },
-        { name: 'Empleos', href: '/jobs' }
+        { name: 'Consultas y Soporte', href: '/consultas-soporte' }
       ]
     }
   }
