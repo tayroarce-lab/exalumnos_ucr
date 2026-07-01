@@ -251,7 +251,7 @@ function SeccionApoyoComunidad() {
               <p className="apoyo-tarjeta-descripcion-grande">
                 Expertos graduados guían a estudiantes en sus trabajos finales, compartiendo experiencia del mundo real y mejores prácticas de la industria.
               </p>
-              <Link href="/mentores" className="apoyo-enlace-grande">
+              <Link href="/mentorships" className="apoyo-enlace-grande">
                 Explorar mentores <span className="apoyo-flecha">→</span>
               </Link>
             </div>

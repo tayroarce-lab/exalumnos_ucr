@@ -171,9 +171,9 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
   }
 
   // Lógica de contexto: Admin, Estudiantes, Exalumnos
-  const isAdmin = pathname?.startsWith('/admin') || user?.user_metadata?.rol === 'admin'
-  const isStudentUser = user?.user_metadata?.rol === 'estudiante' || profile?.es_exalumno === false || user?.email?.endsWith('@ucr.ac.cr')
-  const isStudent = pathname?.startsWith('/student-dashboard') || (isStudentUser && user?.user_metadata?.rol !== 'exalumno')
+  const userRole = profile?.rol || user?.user_metadata?.rol || (profile?.es_exalumno === false ? 'estudiante' : 'exalumno')
+  const isAdmin = pathname?.startsWith('/admin') || userRole === 'admin'
+  const isStudent = userRole === 'estudiante'
 
   // Dashboard de inicio según rol
   const dashboardHref = isAdmin ? '/admin' : isStudent ? '/student-dashboard' : '/dashboard'
@@ -409,7 +409,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
                     <span>Mi Proyecto</span>
                   </Link>
                 )}
-                <Link href="/mis-posiciones" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-600 hover:bg-slate-50 hover:text-brand-blue transition-colors">
+                <Link href={isStudent ? "/mis-aplicaciones" : "/mis-posiciones"} onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-600 hover:bg-slate-50 hover:text-brand-blue transition-colors">
                   <Briefcase className="w-4 h-4 text-slate-400" />
                   <span>{isStudent ? 'Mis Postulaciones' : 'Mis Posiciones'}</span>
                 </Link>
@@ -521,7 +521,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
             </Link>
           )}
           <Link
-            href="/mis-posiciones"
+            href={isStudent ? "/mis-aplicaciones" : "/mis-posiciones"}
             onClick={() => setIsMobileMenuOpen(false)}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold uppercase tracking-wide text-white transition-all duration-200 ${config.drawerItemHover}`}
           >

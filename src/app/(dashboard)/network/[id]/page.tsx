@@ -4,9 +4,11 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import StitchProfileClient from './StitchProfileClient';
 import { ArrowLeft, Briefcase, MapPin, Linkedin, Mail, Twitter, Instagram, GraduationCap, CheckCircle2, ChevronLeft, Lock, Users } from 'lucide-react';
+import { obtenerInsigniasDonador } from '@/actions/donations';
+import ProyectoDonacionesProgreso from '@/components/ProyectoDonacionesProgreso';
 import ConnectButton from './ConnectButton';
 import ReportButton from './ReportButton';
-import { getAvatarUrl } from '@/lib/utils';
+import { getAvatarUrl, getProyectoFileUrl } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -16,7 +18,11 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
   const supabase = await createClient();
 
   const { data: { user } } = await supabase.auth.getUser();
-  const isAdmin = user?.user_metadata?.rol === 'admin';
+  let isAdmin = false;
+  if (user) {
+    const { data: loggedInUserData } = await supabase.from('users').select('rol').eq('id', user.id).single();
+    isAdmin = loggedInUserData?.rol === 'admin' || user.user_metadata?.rol === 'admin';
+  }
 
   const { data: userRecord, error } = await supabase
     .from('users')
@@ -81,7 +87,11 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
     proyecto_valor_moneda: estudianteData?.proyecto_valor_moneda,
     proyecto_documento_url: estudianteData?.proyecto_documento_url,
     proyecto_video_url: estudianteData?.proyecto_video_url,
+    proyecto_beneficios: estudianteData?.proyecto_beneficios,
+    proyecto_beneficios_fotos: estudianteData?.proyecto_beneficios_fotos,
   };
+
+  const insignias = profile.es_exalumno ? await obtenerInsigniasDonador(profile.id) : [];
 
   // Comprobar estado de conexión
   let connectionStatus: 'none' | 'contactado' | 'activo' = 'none';
@@ -144,12 +154,370 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
   };
 
   return (
-    <StitchProfileClient 
-      profile={profile}
-      isAdmin={isAdmin}
-      connectionStatus={connectionStatus}
-      recommendedProfiles={recommendedProfiles}
-      currentUserId={user?.id}
-    />
-  );
+    <div className="min-h-screen bg-[#54BCEB] py-10 px-4 sm:px-6 lg:px-10">
+      <div className="max-w-4xl mx-auto space-y-6">
+        
+        {/* Back navigation */}
+        <Link 
+          href="/network" 
+          className="inline-flex items-center gap-2 text-xs font-bold text-[#1B2A4A] hover:text-white transition-colors uppercase tracking-wider"
+        >
+          <ChevronLeft className="w-4 h-4" />
+          Volver al Directorio
+        </Link>
+
+        {/* Header Profile Card */}
+        <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+          {/* Banner */}
+          <div className="h-32 relative bg-gradient-to-r from-[#F34B26] to-[#FF9B18]">
+            {profile.banner_url && (
+              <img 
+                src={profile.banner_url} 
+                alt="Banner de Perfil" 
+                className="w-full h-full object-cover absolute inset-0"
+              />
+            )}
+          </div>
+          
+          <div className="px-6 sm:px-10 pb-10 relative">
+            {/* Avatar */}
+            <div className="absolute -top-16 border-4 border-white rounded-full bg-white shadow-md">
+              {profile.foto_url ? (
+                <img 
+                  src={getAvatarUrl(profile.foto_url) as string} 
+                  alt={displayName} 
+                  className="w-32 h-32 rounded-full object-cover"
+                />
+              ) : (
+                <div className="w-32 h-32 rounded-full bg-gradient-to-br from-[#F34B26] to-[#FF9B18] text-white flex items-center justify-center text-4xl font-black">
+                  {initials}
+                </div>
+              )}
+            </div>
+
+            {/* Acciones principales - Desktop right align */}
+            <div className="flex justify-end pt-4 pb-2 min-h-16 gap-3">
+              {showContactInfo && profile.email && (
+                <a 
+                  href={`mailto:${profile.email}`}
+                  className="flex items-center gap-2 bg-[#F34B26] hover:bg-[#d43d1d] text-white px-4 py-2 rounded-xl text-sm font-bold transition-colors shadow-md shadow-orange-900/20"
+                >
+                  <Mail className="w-4 h-4" />
+                  Contactar
+                </a>
+              )}
+              {showContactInfo && profile.linkedin_url && (
+                <a 
+                  href={profile.linkedin_url.startsWith('http') ? profile.linkedin_url : `https://${profile.linkedin_url}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 bg-[#0A66C2] hover:bg-[#004182] text-white px-4 py-2 rounded-xl text-sm font-bold transition-colors shadow-md shadow-blue-900/20"
+                >
+                  <Linkedin className="w-4 h-4" />
+                  LinkedIn
+                </a>
+              )}
+              {!isAdmin && user && user.id !== profile.id && (
+                <ConnectButton targetUserId={profile.id} initialStatus={connectionStatus} />
+              )}
+            </div>
+
+            <div className="mt-4 sm:mt-0 space-y-1">
+              <h1 className="text-3xl font-black text-slate-900 flex items-center gap-2 font-display">
+                {displayName}
+                {profile.es_exalumno && (
+                <span title="Exalumno Verificado" className="flex items-center">
+                  <CheckCircle2 className="w-6 h-6 text-emerald-500 fill-emerald-100 shrink-0" />
+                </span>
+                )}
+              </h1>
+              
+              {(profile.cargo_actual || profile.empresa_actual) && (
+                <p className="text-lg text-slate-600 font-medium flex items-center gap-2">
+                  <Briefcase className="w-5 h-5 text-slate-400 shrink-0" />
+                  <span>
+                    {profile.cargo_actual}
+                    {profile.cargo_actual && profile.empresa_actual && ' en '}
+                    <span className="font-bold text-slate-800">{profile.empresa_actual}</span>
+                  </span>
+                </p>
+              )}
+
+              {profile.pais_ciudad && (
+                <p className="text-sm text-slate-500 flex items-center gap-2 pt-1">
+                  <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
+                  {profile.pais_ciudad}
+                </p>
+              )}
+            </div>
+
+            {/* Badges de soporte */}
+            <div className="flex flex-wrap gap-2 mt-6">
+              {profile.ofrece_mentoria && (
+                <span className="bg-[#FF9B18]/10 text-[#FF9B18] border border-[#FF9B18]/20 px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider">
+                  Ofrece Mentoría
+                </span>
+              )}
+              {profile.ofrece_empleo && (
+                <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider">
+                  Ofrece Empleo
+                </span>
+              )}
+              {profile.ofrece_pasantia && (
+                <span className="bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider">
+                  Ofrece Pasantías
+                </span>
+              )}
+              {insignias.map((insignia: any) => (
+                <span 
+                  key={insignia.id} 
+                  title={insignia.description} 
+                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border text-[10px] font-bold uppercase tracking-wider cursor-help transition-all hover:scale-105 shrink-0 ${insignia.color}`}
+                >
+                  <span className="text-xs shrink-0">{insignia.icon}</span>
+                  <span>{insignia.name}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Main Content (Left) */}
+          <div className="md:col-span-2 space-y-6">
+            
+            {/* Bio */}
+            {profile.bio && (
+              <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm">
+                <h2 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2 font-display">
+                  Acerca de
+                </h2>
+                <p className="text-slate-600 whitespace-pre-wrap leading-relaxed">
+                  {profile.bio}
+                </p>
+              </div>
+            )}
+
+            {/* Proyecto Estudiantil */}
+            {profile.rol === 'estudiante' && profile.proyecto_titulo && (
+              <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6 relative overflow-hidden">
+                {/* Banner decorativo */}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-institutional/10 to-transparent rounded-bl-full pointer-events-none" />
+                
+                <div>
+                  <h2 className="text-lg font-bold text-slate-900 mb-1 flex items-center gap-2 font-display relative z-10">
+                    <GraduationCap className="w-5 h-5 text-institutional" /> Proyecto
+                  </h2>
+                  <h3 className="text-xl font-black text-institutional relative z-10">{profile.proyecto_titulo}</h3>
+                </div>
+
+                <p className="text-slate-600 whitespace-pre-wrap leading-relaxed relative z-10">
+                  {profile.proyecto_descripcion}
+                </p>
+
+                {profile.proyecto_beneficios && (
+                  <div className="bg-slate-50/50 p-5 rounded-2xl border border-slate-100 space-y-3 relative z-10">
+                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Beneficios para Donadores</h4>
+                    <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">{profile.proyecto_beneficios}</p>
+                    {profile.proyecto_beneficios_fotos && profile.proyecto_beneficios_fotos.length > 0 && (
+                      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mt-3">
+                        {profile.proyecto_beneficios_fotos.map((fotoUrl: string, idx: number) => (
+                          <div key={idx} className="rounded-xl overflow-hidden border border-slate-200 shadow-sm aspect-square relative bg-slate-100">
+                            <img 
+                              src={getProyectoFileUrl(fotoUrl) || ''} 
+                              alt={`Recompensa ${idx + 1}`}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {profile.proyecto_valor_monto != null && (
+                  <div className="pt-2 relative z-10">
+                    <ProyectoDonacionesProgreso 
+                      proyectoId={profile.id} 
+                      metaMonto={profile.proyecto_valor_monto} 
+                      metaMoneda={profile.proyecto_valor_moneda || 'USD'}
+                      mostrarBotonApoyar={true}
+                    />
+                  </div>
+                )}
+
+                <div className="flex flex-col sm:flex-row gap-4 pt-2 relative z-10">
+                  {profile.proyecto_documento_url && (
+                    <a 
+                      href={profile.proyecto_documento_url.startsWith('http') ? profile.proyecto_documento_url : `https://${profile.proyecto_documento_url}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 flex items-center justify-center gap-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 px-4 py-3 rounded-xl font-bold transition-colors"
+                    >
+                      Descargar Documento
+                    </a>
+                  )}
+                  {profile.proyecto_video_url && (
+                    <a 
+                      href={profile.proyecto_video_url.startsWith('http') ? profile.proyecto_video_url : `https://${profile.proyecto_video_url}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 flex items-center justify-center gap-2 bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 px-4 py-3 rounded-xl font-bold transition-colors"
+                    >
+                      Ver Video Explicativo
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Habilidades & Áreas de Interés */}
+            {(profile.skills && profile.skills.length > 0) || (profile.areas_de_interes && profile.areas_de_interes.length > 0) ? (
+              <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-8">
+                {profile.skills && profile.skills.length > 0 && (
+                  <div>
+                    <h2 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2 font-display">
+                      Habilidades
+                    </h2>
+                    <div className="flex flex-wrap gap-2">
+                      {profile.skills.map((skill: string) => (
+                        <span key={skill} className="bg-slate-100 text-slate-700 px-3 py-1.5 rounded-xl text-sm font-semibold">
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {profile.areas_de_interes && profile.areas_de_interes.length > 0 && (
+                  <div>
+                    <h2 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2 font-display">
+                      Áreas de Interés
+                    </h2>
+                    <div className="flex flex-wrap gap-2">
+                      {profile.areas_de_interes.map((area: string) => (
+                        <span key={area} className="bg-orange-50 text-[#F34B26] border border-[#F34B26]/20 px-3 py-1.5 rounded-xl text-sm font-semibold">
+                          {area}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : null}
+
+          </div>
+
+          {/* Sidebar (Right) */}
+          <div className="space-y-6">
+            
+            {/* Contacto Social */}
+            <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
+              <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">Contacto</h3>
+              
+              {!showContactInfo ? (
+                <div className="bg-slate-50 border border-slate-100 rounded-2xl p-5 text-center space-y-3">
+                  <div className="w-12 h-12 bg-slate-200 rounded-full flex items-center justify-center mx-auto text-slate-400">
+                    <Lock className="w-5 h-5" />
+                  </div>
+                  <p className="text-sm text-slate-500 font-medium leading-relaxed">
+                    La información de contacto es privada. <br />
+                    Conecta con este usuario para ver sus datos.
+                  </p>
+                  {!isAdmin && user && user.id !== profile.id && (
+                    <div className="pt-2 flex justify-center">
+                      <ConnectButton targetUserId={profile.id} initialStatus={connectionStatus} />
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {profile.email && (
+                    <a href={`mailto:${profile.email}`} className="flex items-center gap-3 text-slate-600 hover:text-[#F34B26] transition-colors">
+                      <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center shrink-0">
+                        <Mail className="w-4 h-4" />
+                      </div>
+                      <span className="text-sm font-medium truncate">{profile.email}</span>
+                    </a>
+                  )}
+                  
+                  {profile.linkedin_url && (
+                    <a href={profile.linkedin_url.startsWith('http') ? profile.linkedin_url : `https://${profile.linkedin_url}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-slate-600 hover:text-[#0A66C2] transition-colors">
+                      <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center shrink-0">
+                        <Linkedin className="w-4 h-4" />
+                      </div>
+                      <span className="text-sm font-medium truncate">LinkedIn</span>
+                    </a>
+                  )}
+
+                  {profile.twitter_url && (
+                    <a href={profile.twitter_url.startsWith('http') ? profile.twitter_url : `https://${profile.twitter_url}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-slate-600 hover:text-sky-500 transition-colors">
+                      <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center shrink-0">
+                        <Twitter className="w-4 h-4" />
+                      </div>
+                      <span className="text-sm font-medium truncate">Twitter</span>
+                    </a>
+                  )}
+
+                  {profile.instagram_url && (
+                    <a href={profile.instagram_url.startsWith('http') ? profile.instagram_url : `https://${profile.instagram_url}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-slate-600 hover:text-pink-600 transition-colors">
+                      <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center shrink-0">
+                        <Instagram className="w-4 h-4" />
+                      </div>
+                      <span className="text-sm font-medium truncate">Instagram</span>
+                    </a>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Botón de Reporte */}
+            {user && user.id !== profile.id && (
+              <div className="flex justify-center mt-2">
+                <ReportButton targetUserId={profile.id} />
+              </div>
+            )}
+
+          </div>
+        </div>
+
+        {/* Perfiles Recomendados */}
+        {recommendedProfiles.length > 0 && (
+          <div className="mt-12">
+            <h2 className="text-xl font-bold text-slate-900 mb-6 font-display flex items-center gap-2">
+              <Users className="w-5 h-5 text-[#F34B26]" />
+              Otros exalumnos que podrías conocer
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {recommendedProfiles.map((rec: any) => {
+                const init = rec.full_name.substring(0, 2).toUpperCase();
+                return (
+                  <Link href={`/network/${rec.id}`} key={rec.id} className="block group">
+                    <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm hover:shadow-md hover:border-[#54BCEB] transition-all flex items-center gap-4">
+                      {rec.foto_url ? (
+                        <img 
+                          src={getAvatarUrl(rec.foto_url) as string} 
+                          alt={rec.full_name} 
+                          className="w-12 h-12 rounded-full object-cover shrink-0"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-500 font-bold flex items-center justify-center shrink-0">
+                          {init}
+                        </div>
+                      )}
+                      <div className="min-w-0">
+                        <p className="font-bold text-slate-900 text-sm truncate group-hover:text-[#F34B26] transition-colors">{rec.full_name}</p>
+                        <p className="text-xs text-slate-500 truncate">{rec.headline}</p>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+      </div>
+    </div>
+  )
 }

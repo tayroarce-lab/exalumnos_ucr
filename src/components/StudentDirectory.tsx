@@ -141,9 +141,10 @@ export default function DirectorioEstudiantes() {
   useEffect(() => {
     import('@/lib/supabase/client').then(({ createClient }) => {
       const supabase = createClient()
-      supabase.auth.getUser().then(({ data: { user } }) => {
+      supabase.auth.getUser().then(async ({ data: { user } }) => {
         if (user) {
-          setIsAdmin(user.user_metadata?.rol === 'admin')
+          const { data: dbUser } = await supabase.from('users').select('rol').eq('id', user.id).single()
+          setIsAdmin(dbUser?.rol === 'admin' || user.user_metadata?.rol === 'admin')
         }
       })
     })

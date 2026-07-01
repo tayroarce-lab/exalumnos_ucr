@@ -38,9 +38,10 @@ export default function JobsPage() {
   const [hasCV, setHasCV] = useState<boolean | null>(null)
   const [bannerDismissed, setBannerDismissed] = useState(false)
 
-  const { user } = useProfile()
-  const isAdmin = user?.user_metadata?.rol === 'admin' || user?.user_metadata?.tipo === 'admin'
-  const isStudent = user?.user_metadata?.rol === 'estudiante'
+  const { user, profile } = useProfile()
+  const userRole = profile?.rol || user?.user_metadata?.rol
+  const isAdmin = userRole === 'admin' || user?.user_metadata?.tipo === 'admin'
+  const isStudent = userRole === 'estudiante'
 
   // Verificar si el usuario tiene CV
   useEffect(() => {

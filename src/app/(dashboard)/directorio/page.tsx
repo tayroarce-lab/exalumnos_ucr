@@ -9,7 +9,8 @@ export default async function DirectorioIndexPage() {
     redirect('/login');
   }
 
-  const rol = user.user_metadata?.rol;
+  const { data: userData } = await supabase.from('users').select('rol').eq('id', user.id).single();
+  const rol = userData?.rol || user.user_metadata?.rol;
 
   if (rol === 'estudiante') {
     // Alumnos ven a los Exalumnos

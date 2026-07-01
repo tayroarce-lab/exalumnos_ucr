@@ -26,6 +26,8 @@ export interface EstudianteDirectorio {
   proyecto_foto_url?: string | null;
   proyecto_activo?: boolean | null;
   proyecto_necesidades?: string[] | null;
+  proyecto_beneficios?: string | null;
+  proyecto_beneficios_fotos?: string[] | null;
   // Currículum
   sobre_mi?: string | null;
   sobre_mi_personal?: string | null;
