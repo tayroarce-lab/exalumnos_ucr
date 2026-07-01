@@ -27,7 +27,7 @@ export async function sendMessage(matchId: string, content: string) {
   // Validar bloqueo
   const otherUserId = match.estudiante_id === userId ? match.exalumno_id : match.estudiante_id
   const { data: block } = await adminClient
-    .from('user_blocks')
+    .from('user_blocks' as any)
     .select('id')
     .eq('blocked_id', userId)
     .eq('blocker_id', otherUserId)
@@ -36,12 +36,12 @@ export async function sendMessage(matchId: string, content: string) {
   if (block) throw new Error('Estás bloqueado por este usuario')
 
   // Obtener la configuración del usuario para el tiempo de expiración
-  const { data: settings } = await adminClient
-    .from('chat_settings')
+  const { data: settings } = (await adminClient
+    .from('chat_settings' as any)
     .select('message_expiration')
     .eq('match_id', matchId)
     .eq('user_id', userId)
-    .maybeSingle()
+    .maybeSingle()) as { data: any, error: any }
 
   const expiration = settings?.message_expiration || 'nunca'
   
@@ -55,7 +55,7 @@ export async function sendMessage(matchId: string, content: string) {
   }
 
   const { data, error } = await adminClient
-    .from('chat_messages')
+    .from('chat_messages' as any)
     .insert({
       match_id: matchId,
       sender_id: userId,
@@ -80,11 +80,11 @@ export async function editMessage(messageId: string, content: string) {
   const adminClient = createAdminClient()
 
   // Validar el tiempo transcurrido (5 minutos)
-  const { data: msg } = await adminClient
-    .from('chat_messages')
+  const { data: msg } = (await adminClient
+    .from('chat_messages' as any)
     .select('created_at, sender_id')
     .eq('id', messageId)
-    .maybeSingle()
+    .maybeSingle()) as { data: any, error: any }
 
   if (!msg || msg.sender_id !== userData.user.id) throw new Error('Mensaje no encontrado o no autorizado')
 
@@ -95,7 +95,7 @@ export async function editMessage(messageId: string, content: string) {
   if (diffMinutes > 5) throw new Error('Han pasado más de 5 minutos. No puedes editar este mensaje.')
 
   const { error } = await adminClient
-    .from('chat_messages')
+    .from('chat_messages' as any)
     .update({ 
       content, 
       is_edited: true, 
@@ -119,10 +119,10 @@ export async function deleteMessages(messageIds: string[]) {
 
   // Validar y borrar mensajes
   // Lo hacemos en lote
-  const { data: msgs, error: fetchError } = await adminClient
-    .from('chat_messages')
+  const { data: msgs, error: fetchError } = (await adminClient
+    .from('chat_messages' as any)
     .select('id, created_at, sender_id')
-    .in('id', messageIds)
+    .in('id', messageIds)) as { data: any, error: any }
 
   if (fetchError || !msgs) throw new Error('Error buscando mensajes')
 
@@ -141,7 +141,7 @@ export async function deleteMessages(messageIds: string[]) {
 
   if (validIdsToDel.length > 0) {
     const { error } = await adminClient
-      .from('chat_messages')
+      .from('chat_messages' as any)
       .update({ is_deleted: true, content: 'Este mensaje fue eliminado.', updated_at: new Date().toISOString() })
       .in('id', validIdsToDel)
 
@@ -162,22 +162,22 @@ export async function updateChatSettings(matchId: string, updates: { background_
   const adminClient = createAdminClient()
 
   // Upsert settings
-  const { data: existing } = await adminClient
-    .from('chat_settings')
+  const { data: existing } = (await adminClient
+    .from('chat_settings' as any)
     .select('id')
     .eq('match_id', matchId)
     .eq('user_id', userId)
-    .maybeSingle()
+    .maybeSingle()) as { data: any, error: any }
 
   if (existing) {
     const { error } = await adminClient
-      .from('chat_settings')
+      .from('chat_settings' as any)
       .update(updates)
       .eq('id', existing.id)
     if (error) throw new Error(error.message)
   } else {
     const { error } = await adminClient
-      .from('chat_settings')
+      .from('chat_settings' as any)
       .insert({
         match_id: matchId,
         user_id: userId,
@@ -198,7 +198,7 @@ export async function blockUser(blockedId: string, matchId?: string) {
   const adminClient = createAdminClient()
 
   const { error } = await adminClient
-    .from('user_blocks')
+    .from('user_blocks' as any)
     .insert({
       blocker_id: userData.user.id,
       blocked_id: blockedId

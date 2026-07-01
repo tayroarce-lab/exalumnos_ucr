@@ -189,7 +189,7 @@ export default function ChatDrawer({ matchId, currentUserId, otherUserName, othe
           onClose={() => setShowSettings(false)}
           onSettingsUpdated={() => {
             // Recargar settings localmente
-            supabase.from('chat_settings').select('*').eq('match_id', matchId).eq('user_id', currentUserId).maybeSingle().then(({data}) => {
+            supabase.from('chat_settings' as any).select('*').eq('match_id', matchId).eq('user_id', currentUserId).maybeSingle().then(({data}) => {
               if (data) setChatSettings(data)
             })
           }}

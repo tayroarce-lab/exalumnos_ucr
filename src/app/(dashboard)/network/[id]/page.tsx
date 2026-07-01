@@ -112,10 +112,10 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
   let initialSettings = null;
   if (matchId && user) {
     const adminClient = createAdminClient();
-    const { data: msgs } = await adminClient.from('chat_messages').select('*').eq('match_id', matchId).order('created_at', { ascending: true });
+    const { data: msgs } = await adminClient.from('chat_messages' as any).select('*').eq('match_id', matchId).order('created_at', { ascending: true });
     if (msgs) initialMessages = msgs;
     
-    const { data: setts } = await adminClient.from('chat_settings').select('*').eq('match_id', matchId).eq('user_id', user.id).maybeSingle();
+    const { data: setts } = await adminClient.from('chat_settings' as any).select('*').eq('match_id', matchId).eq('user_id', user.id).maybeSingle();
     if (setts) initialSettings = setts;
   }
 
