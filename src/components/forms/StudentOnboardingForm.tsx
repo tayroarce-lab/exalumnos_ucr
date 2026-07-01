@@ -772,7 +772,6 @@ export default function StudentOnboardingForm({
 
             <div className="space-y-3">
               {[
-<<<<<<< HEAD
                 { 
                   name: 'busca_financiamiento', 
                   label: '¿Busca financiamiento económico?',
@@ -822,22 +821,6 @@ export default function StudentOnboardingForm({
                     </span>
                   )}
                 </div>
-=======
-                { name: 'busca_mentoria', label: '¿Busca mentoría técnica?' },
-                { name: 'busca_empleo', label: '¿Busca empleo mientras estudia?' },
-                { name: 'busca_pasantia', label: '¿Busca pasantía relacionada?' },
-              ].map(item => (
-                <label key={item.name} className="flex items-center justify-between p-4 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
-                  <span className="text-sm font-medium text-slate-800">{item.label}</span>
-                  <div className="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
-                    <input type="checkbox" name={item.name} id={item.name}
-                      checked={formData[item.name as keyof StudentFormData] as boolean}
-                      onChange={handleChange}
-                      className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer" />
-                    <label htmlFor={item.name} className="toggle-label block overflow-hidden h-5 rounded-full bg-slate-300 cursor-pointer"></label>
-                  </div>
-                </label>
->>>>>>> 1057e2dbfd98597df37dc0d306fe30449ea0ddd3
               ))}
             </div>
           </div>
