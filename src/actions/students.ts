@@ -326,8 +326,8 @@ export async function obtenerMiPerfilEstudiante() {
   if (data) {
     const est = Array.isArray(data.estudiantes) ? data.estudiantes[0] : data.estudiantes;
     return { 
-      ...data, 
-      ...est, // merge estudiantes fields
+      ...est,
+      ...data, // merge estudiantes fields, prioritizing users fields
       areas_de_interes: est?.areas_de_interes || []
     }
   }
@@ -478,6 +478,7 @@ export async function listarEstudiantes(
     const est = Array.isArray(d.estudiantes) ? d.estudiantes[0] : d.estudiantes;
     const prof = profilesData.find(p => p.id === d.id);
     return {
+      ...est,
       ...d,
       estudiantes: est,
       areas_de_interes: est?.areas_de_interes || [],
@@ -533,6 +534,7 @@ export async function obtenerEstudiantePorId(id: string) {
   if (data) {
     const est = Array.isArray(data.estudiantes) ? data.estudiantes[0] : data.estudiantes;
     return { 
+      ...est,
       ...data, 
       estudiantes: est,
       areas_de_interes: est?.areas_de_interes || [],

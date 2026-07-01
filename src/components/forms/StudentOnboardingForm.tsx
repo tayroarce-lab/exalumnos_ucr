@@ -236,7 +236,17 @@ export default function StudentOnboardingForm({
     }
     if (type === 'checkbox') {
       const checked = (e.target as HTMLInputElement).checked;
-      setFormData(prev => ({ ...prev, [name]: checked }));
+      setFormData(prev => {
+        const next = { ...prev, [name]: checked };
+        if (name === 'busca_financiamiento' && checked === true) {
+          next.busca_empleo = false;
+          next.busca_pasantia = false;
+        }
+        if ((name === 'busca_empleo' || name === 'busca_pasantia') && checked === true) {
+          next.busca_financiamiento = false;
+        }
+        return next;
+      });
     } else if (type === 'number') {
       setFormData(prev => ({ ...prev, [name]: Number(value) }));
     } else {
@@ -762,20 +772,55 @@ export default function StudentOnboardingForm({
 
             <div className="space-y-3">
               {[
-                { name: 'busca_mentoria', label: '¿Busca mentoría técnica?' },
-                { name: 'busca_empleo', label: '¿Busca empleo mientras estudia?' },
-                { name: 'busca_pasantia', label: '¿Busca pasantía relacionada?' },
+                { 
+                  name: 'busca_financiamiento', 
+                  label: '¿Busca financiamiento económico?',
+                  isDisabled: formData.busca_empleo || formData.busca_pasantia,
+                  reason: 'No disponible al buscar empleo o pasantías'
+                },
+                { 
+                  name: 'busca_mentoria', 
+                  label: '¿Busca mentoría técnica?',
+                  isDisabled: false,
+                  reason: ''
+                },
+                { 
+                  name: 'busca_empleo', 
+                  label: '¿Busca empleo mientras estudia?',
+                  isDisabled: formData.busca_financiamiento,
+                  reason: 'No disponible al buscar financiamiento para el proyecto'
+                },
+                { 
+                  name: 'busca_pasantia', 
+                  label: '¿Busca pasantía relacionada?',
+                  isDisabled: formData.busca_financiamiento,
+                  reason: 'No disponible al buscar financiamiento para el proyecto'
+                },
               ].map(item => (
-                <label key={item.name} className="flex items-center justify-between p-4 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
-                  <span className="text-sm font-medium text-slate-800">{item.label}</span>
-                  <div className="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
-                    <input type="checkbox" name={item.name} id={item.name}
-                      checked={formData[item.name as keyof StudentFormData] as boolean}
-                      onChange={handleChange}
-                      className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer" />
-                    <label htmlFor={item.name} className="toggle-label block overflow-hidden h-5 rounded-full bg-slate-300 cursor-pointer"></label>
-                  </div>
-                </label>
+                <div key={item.name} className="flex flex-col">
+                  <label className={`flex items-center justify-between p-4 rounded-lg border transition-colors ${
+                    item.isDisabled ? 'bg-slate-50 border-slate-200 opacity-60 cursor-not-allowed' : 'border-slate-200 hover:bg-slate-50 cursor-pointer'
+                  }`}>
+                    <span className={`text-sm font-medium ${item.isDisabled ? 'text-slate-400' : 'text-slate-800'}`}>{item.label}</span>
+                    <div className="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                      <input 
+                        type="checkbox" 
+                        name={item.name} 
+                        id={item.name} 
+                        checked={formData[item.name as keyof StudentFormData] as boolean} 
+                        disabled={item.isDisabled}
+                        onChange={handleChange} 
+                        className={`toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none ${item.isDisabled ? 'cursor-not-allowed' : 'cursor-pointer'}`} 
+                      />
+                      <label htmlFor={item.name} className={`toggle-label block overflow-hidden h-5 rounded-full bg-slate-300 ${item.isDisabled ? 'cursor-not-allowed bg-slate-200' : 'cursor-pointer'} ${formData[item.name as keyof StudentFormData] ? 'bg-blue-500' : ''}`}></label>
+                    </div>
+                  </label>
+                  {item.isDisabled && item.reason && (
+                    <span className="text-[11px] font-semibold text-rose-500 mt-1 ml-2">
+                      ⚠️ {item.reason}
+                    </span>
+                  )}
+                </div>
               ))}
             </div>
           </div>

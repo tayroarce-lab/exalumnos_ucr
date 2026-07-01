@@ -262,7 +262,7 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
           {descripcionProyecto}
         </p>
 
-        {estudiante.proyecto_valor_monto != null && (
+        {estudiante.busca_financiamiento && estudiante.proyecto_valor_monto != null && (
           <div className="mb-4 inline-flex items-center gap-2 bg-emerald-50 border border-emerald-100 px-3 py-1.5 rounded-xl">
             <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Valor Monetario:</span>
             <span className="text-sm font-black text-emerald-700">
@@ -522,29 +522,35 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
       )}
 
       {/* ── ACCIONES PARA MENTORES (DASHED GREEN) ───────────── */}
-      <div className="rounded-2xl border-2 border-dashed border-[#8E9F7F]/40 bg-[#F4F9EE] p-5 mb-6">
-        <p className="text-[10px] font-black text-[#5C6E4F] text-center uppercase tracking-widest mb-4">Acciones para Mentores</p>
-        <div className="flex flex-col gap-3">
-          <button 
-            onClick={() => setShowMentoriaModal(true)}
-            className="w-full inline-flex justify-center items-center gap-2 rounded-xl text-sm font-bold bg-white text-[#1A5B75] hover:bg-slate-50 h-12 px-4 shadow transition-all duration-200 active:scale-95 cursor-pointer border border-[#1A5B75]/10"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/>
-            </svg>
-            Ofrecer Mentoría
-          </button>
-          <button 
-            onClick={() => setShowApoyarModal(true)}
-            className="w-full inline-flex justify-center items-center gap-2 rounded-xl text-sm font-bold bg-white text-[#B43B06] hover:bg-slate-50 h-12 px-4 shadow transition-all duration-200 active:scale-95 cursor-pointer border border-[#B43B06]/10"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4.5 16.5c-1.5 1.25-2.5 3.5-2.5 3.5s2.25-1 3.5-2.5M15 9l-9 9m9-9A6.5 6.5 0 1 0 5.8 4.2L15 9zm0 0l6-6"/>
-            </svg>
-            Apoyar Proyecto
-          </button>
+      {(estudiante.busca_mentoria || estudiante.busca_financiamiento) && (
+        <div className="rounded-2xl border-2 border-dashed border-[#8E9F7F]/40 bg-[#F4F9EE] p-5 mb-6">
+          <p className="text-[10px] font-black text-[#5C6E4F] text-center uppercase tracking-widest mb-4">Acciones para Mentores</p>
+          <div className="flex flex-col gap-3">
+            {estudiante.busca_mentoria && (
+              <button 
+                onClick={() => setShowMentoriaModal(true)}
+                className="w-full inline-flex justify-center items-center gap-2 rounded-xl text-sm font-bold bg-white text-[#1A5B75] hover:bg-slate-50 h-12 px-4 shadow transition-all duration-200 active:scale-95 cursor-pointer border border-[#1A5B75]/10"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/>
+                </svg>
+                Ofrecer Mentoría
+              </button>
+            )}
+            {estudiante.busca_financiamiento && (
+              <button 
+                onClick={() => setShowApoyarModal(true)}
+                className="w-full inline-flex justify-center items-center gap-2 rounded-xl text-sm font-bold bg-white text-[#B43B06] hover:bg-slate-50 h-12 px-4 shadow transition-all duration-200 active:scale-95 cursor-pointer border border-[#B43B06]/10"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4.5 16.5c-1.5 1.25-2.5 3.5-2.5 3.5s2.25-1 3.5-2.5M15 9l-9 9m9-9A6.5 6.5 0 1 0 5.8 4.2L15 9zm0 0l6-6"/>
+                </svg>
+                Apoyar Proyecto
+              </button>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* ── ESTUDIANTES RELACIONADOS ── */}
       {estudiantesRelacionados.length > 0 && (
