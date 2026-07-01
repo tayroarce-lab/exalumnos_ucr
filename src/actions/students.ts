@@ -19,6 +19,8 @@ export type PerfilEstudianteInput = {
   proyecto_video_url?: string | null
   proyecto_documento_url?: string | null
   proyecto_foto_url?: string | null
+  proyecto_beneficios?: string | null
+  proyecto_beneficios_fotos?: string[] | null
   areas_de_interes?: string[]
   busca_financiamiento?: boolean
   busca_mentoria?: boolean
@@ -103,6 +105,8 @@ export async function completarOnboardingEstudiante(datos: {
   proyecto_video_url?: string | null
   proyecto_documento_url?: string | null
   proyecto_foto_url?: string | null
+  proyecto_beneficios?: string | null
+  proyecto_beneficios_fotos?: string[] | null
 }) {
   try {
     const supabase = await createClient()
@@ -142,6 +146,8 @@ export async function completarOnboardingEstudiante(datos: {
       proyecto_video_url: datos.proyecto_video_url || null,
       proyecto_documento_url: datos.proyecto_documento_url || null,
       proyecto_foto_url: datos.proyecto_foto_url || null,
+      proyecto_beneficios: datos.proyecto_beneficios || null,
+      proyecto_beneficios_fotos: datos.proyecto_beneficios_fotos || [],
       perfil_completo: true,
     }, { onConflict: 'user_id' })
 
@@ -279,6 +285,8 @@ export async function actualizarPerfilCompletoEstudiante(datos: any) {
       proyecto_necesidades: datos.proyecto_necesidades,
       areas_de_interes: datos.areas_de_interes,
       busca_financiamiento: datos.busca_financiamiento,
+      proyecto_beneficios: datos.proyecto_beneficios || null,
+      proyecto_beneficios_fotos: datos.proyecto_beneficios_fotos || [],
     }
 
     const { error: estError } = await supabase
@@ -326,8 +334,8 @@ export async function obtenerMiPerfilEstudiante() {
   if (data) {
     const est = Array.isArray(data.estudiantes) ? data.estudiantes[0] : data.estudiantes;
     return { 
-      ...data, 
-      ...est, // merge estudiantes fields
+      ...est,
+      ...data, // merge estudiantes fields, prioritizing users fields
       areas_de_interes: est?.areas_de_interes || []
     }
   }
@@ -427,12 +435,16 @@ export async function listarEstudiantes(
       query = query.eq('estudiantes.proyecto_tipo', filtros.proyecto_tipo)
     }
     if (filtros.tipos_apoyo && filtros.tipos_apoyo.length > 0) {
+      const orConditions: string[] = []
       filtros.tipos_apoyo.forEach(tipo => {
-        if (tipo === 'financiamiento') query = query.eq('estudiantes.busca_financiamiento', true)
-        if (tipo === 'mentoría') query = query.eq('busca_mentoria', true)
-        if (tipo === 'empleo') query = query.eq('busca_empleo', true)
-        if (tipo === 'pasantía') query = query.eq('busca_pasantia', true)
+        if (tipo === 'financiamiento') orConditions.push('estudiantes.busca_financiamiento.eq.true')
+        if (tipo === 'mentoría') orConditions.push('busca_mentoria.eq.true')
+        if (tipo === 'empleo') orConditions.push('busca_empleo.eq.true')
+        if (tipo === 'pasantía') orConditions.push('busca_pasantia.eq.true')
       })
+      if (orConditions.length > 0) {
+        query = query.or(orConditions.join(','))
+      }
     }
   }
 
@@ -478,6 +490,7 @@ export async function listarEstudiantes(
     const est = Array.isArray(d.estudiantes) ? d.estudiantes[0] : d.estudiantes;
     const prof = profilesData.find(p => p.id === d.id);
     return {
+      ...est,
       ...d,
       estudiantes: est,
       areas_de_interes: est?.areas_de_interes || [],
@@ -533,6 +546,7 @@ export async function obtenerEstudiantePorId(id: string) {
   if (data) {
     const est = Array.isArray(data.estudiantes) ? data.estudiantes[0] : data.estudiantes;
     return { 
+      ...est,
       ...data, 
       estudiantes: est,
       areas_de_interes: est?.areas_de_interes || [],
@@ -565,3 +579,73 @@ export async function pausarPerfilEstudiante(pausar: boolean = true) {
   revalidatePath('/mi-perfil')
   return { success: true }
 }
+
+export async function obtenerProyectosBuscandoApoyo(limite: number = 3) {
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from('users')
+      .select(`
+        id,
+        nombre,
+        apellidos,
+        foto_url,
+        estudiantes (
+          carrera,
+          sede,
+          proyecto_titulo,
+          proyecto_descripcion,
+          proyecto_area_tematica,
+          proyecto_tipo,
+          proyecto_porcentaje_avance,
+          proyecto_valor_monto,
+          proyecto_valor_moneda,
+          busca_financiamiento,
+          busca_mentoria,
+          busca_empleo,
+          busca_pasantia
+        )
+      `)
+      .eq('rol', 'estudiante')
+      .eq('activo', true)
+      .eq('visible_en_directorio', true)
+      .or('busca_mentoria.eq.true,busca_empleo.eq.true,busca_pasantia.eq.true,estudiantes.busca_financiamiento.eq.true')
+      .order('created_at', { ascending: false })
+      .limit(limite)
+
+    if (error) {
+      console.error('Error en obtenerProyectosBuscandoApoyo:', error)
+      return { success: false, data: [] }
+    }
+
+    // Aplanar y filtrar registros válidos
+    const proyectos = (data || []).map((u: any) => {
+      const ests = u.estudiantes;
+      const est = Array.isArray(ests) ? ests[0] : ests;
+      if (!est) return null;
+      return {
+        estudianteId: u.id,
+        nombreCompleto: `${u.nombre || ''} ${u.apellidos || ''}`.trim() || 'Estudiante',
+        fotoUrl: u.foto_url,
+        carrera: est.carrera,
+        sede: est.sede,
+        proyectoTitulo: est.proyecto_titulo || 'Proyecto sin título',
+        proyectoDescripcion: est.proyecto_descripcion || '',
+        proyectoArea: est.proyecto_area_tematica || est.proyecto_tipo || 'General',
+        avanceAcademico: est.proyecto_porcentaje_avance || 0,
+        buscaFinanciamiento: est.busca_financiamiento,
+        buscaMentoria: est.busca_mentoria,
+        buscaEmpleo: est.busca_empleo,
+        buscaPasantia: est.busca_pasantia,
+        proyectoValorMonto: est.proyecto_valor_monto,
+        proyectoValorMoneda: est.proyecto_valor_moneda || 'USD',
+      };
+    }).filter(Boolean);
+
+    return { success: true, data: proyectos };
+  } catch (err) {
+    console.error('Error en obtenerProyectosBuscandoApoyo:', err)
+    return { success: false, data: [] }
+  }
+}
+

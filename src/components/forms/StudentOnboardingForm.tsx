@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { z } from 'zod';
 import { completarOnboardingEstudiante, actualizarPerfilCompletoEstudiante } from '@/actions/students';
 import { getProyectoFileUrl } from '@/lib/utils';
-import { AlertCircle, ArrowLeft, ArrowRight, CheckCircle2, ChevronDown } from 'lucide-react';
+import { AlertCircle, ArrowLeft, ArrowRight, CheckCircle2, ChevronDown, X } from 'lucide-react';
 import { AREAS_INTERES, CARRERAS_UCR, CARRERA_TO_ESCUELA, CARRERA_TO_SEDES } from '@/constants/catalogs';
 
 const studentSchema = z.object({
@@ -36,7 +36,9 @@ const studentSchema = z.object({
   proyecto_valor_moneda: z.enum(['CRC', 'USD']).optional(),
   proyecto_video_url: z.string().url("Enlace de video inválido").or(z.literal('')).optional(),
   proyecto_documento_url: z.string().optional(),
-  proyecto_foto_url: z.string().optional()
+  proyecto_foto_url: z.string().optional(),
+  proyecto_beneficios: z.string().max(1000).optional(),
+  proyecto_beneficios_fotos: z.array(z.string()).optional()
 });
 
 type StudentFormData = z.infer<typeof studentSchema>;
@@ -69,7 +71,9 @@ const defaultFormData: StudentFormData = {
   proyecto_valor_moneda: 'CRC',
   proyecto_video_url: '',
   proyecto_documento_url: '',
-  proyecto_foto_url: ''
+  proyecto_foto_url: '',
+  proyecto_beneficios: '',
+  proyecto_beneficios_fotos: []
 };
 
 const sedes = ['Sede Rodrigo Facio', 'Sede de Occidente', 'Sede del Atlántico', 'Sede de Guanacaste', 'Sede del Pacífico', 'Sede Interuniversitaria de Alajuela', 'Sede del Sur'];
@@ -89,6 +93,14 @@ export default function StudentOnboardingForm({
   const router = useRouter();
   const searchParams = useSearchParams();
   const [step, setStep] = useState(1);
+  const [formData, setFormData] = useState<StudentFormData>(initialData || defaultFormData);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [globalError, setGlobalError] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
+  const [isDocUploading, setIsDocUploading] = useState(false);
+  const [isProjPhotoUploading, setIsProjPhotoUploading] = useState(false);
+  const [isBenefitsPhotoUploading, setIsBenefitsPhotoUploading] = useState(false);
 
   React.useEffect(() => {
     const stepParam = searchParams.get('step');
@@ -99,48 +111,37 @@ export default function StudentOnboardingForm({
       }
     }
   }, [searchParams]);
-  const [formData, setFormData] = useState<StudentFormData>(initialData || defaultFormData);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [globalError, setGlobalError] = useState('');
 
   React.useEffect(() => {
     if (isEditMode && initialData) {
       setFormData(prev => ({
         ...prev,
+        ...initialData,
         carnet_ucr: initialData.carnet_ucr || '',
         carrera: initialData.carrera || '',
         escuela_facultad: initialData.escuela_facultad || '',
         sede: initialData.sede || '',
-        anio_ingreso: initialData.anio_ingreso || new Date().getFullYear(),
-        nivel_academico: initialData.nivel_academico || 'bachillerato',
-        promedio_ponderado: initialData.promedio_ponderado != null ? Number(initialData.promedio_ponderado) : 0,
-        beca_socioeconomica: initialData.beca_socioeconomica || 'ninguna',
         proyecto_titulo: initialData.proyecto_titulo || '',
         proyecto_descripcion: initialData.proyecto_descripcion || '',
         proyecto_area_tematica: initialData.proyecto_area_tematica || '',
-        proyecto_tipo: initialData.proyecto_tipo || 'tfg',
-        proyecto_porcentaje_avance: initialData.proyecto_porcentaje_avance != null ? Number(initialData.proyecto_porcentaje_avance) : 0,
-        proyecto_necesidades: Array.isArray(initialData.proyecto_necesidades) ? initialData.proyecto_necesidades : [],
-        areas_de_interes: Array.isArray(initialData.areas_de_interes) ? initialData.areas_de_interes : [],
-        busca_financiamiento: !!initialData.busca_financiamiento,
-        busca_mentoria: !!initialData.busca_mentoria,
-        busca_empleo: !!initialData.busca_empleo,
-        busca_pasantia: !!initialData.busca_pasantia,
-        foto_url: initialData.foto_url || '',
+        proyecto_necesidades: initialData.proyecto_necesidades || [],
+        areas_de_interes: initialData.areas_de_interes || [],
+        proyecto_porcentaje_avance: initialData.proyecto_porcentaje_avance || 0,
+        promedio_ponderado: initialData.promedio_ponderado || 0,
         bio: initialData.bio || '',
         proyecto_valor_monto: initialData.proyecto_valor_monto != null ? Number(initialData.proyecto_valor_monto) : 0,
         proyecto_valor_moneda: initialData.proyecto_valor_moneda || 'CRC',
         proyecto_video_url: initialData.proyecto_video_url || '',
         proyecto_documento_url: initialData.proyecto_documento_url || '',
         proyecto_foto_url: initialData.proyecto_foto_url || '',
+        proyecto_beneficios: initialData.proyecto_beneficios || '',
+        proyecto_beneficios_fotos: Array.isArray(initialData.proyecto_beneficios_fotos) ? initialData.proyecto_beneficios_fotos : [],
         habilidadesText: initialData.habilidades?.join(', ') || '',
         hobbiesText: Array.isArray(initialData.hobbies) ? initialData.hobbies.join(', ') : (initialData.hobbiesText || '')
       }));
     }
   }, [isEditMode, initialData]);
 
-  const [isUploading, setIsUploading] = useState(false);
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -163,7 +164,6 @@ export default function StudentOnboardingForm({
     }
   };
 
-  const [isDocUploading, setIsDocUploading] = useState(false);
   const handleDocFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -188,7 +188,6 @@ export default function StudentOnboardingForm({
     }
   };
 
-  const [isProjPhotoUploading, setIsProjPhotoUploading] = useState(false);
   const handleProjPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -217,6 +216,52 @@ export default function StudentOnboardingForm({
     }
   };
 
+  const handleBenefitsPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const currentCount = formData.proyecto_beneficios_fotos?.length || 0;
+    if (currentCount >= 5) {
+      setErrors(p => ({ ...p, benefits_foto: 'Puedes subir un máximo de 5 imágenes.' }));
+      return;
+    }
+
+    const file = files[0];
+    if (file.size > 5 * 1024 * 1024) { 
+      setErrors(p => ({ ...p, benefits_foto: 'La imagen supera el límite de 5MB.' })); 
+      return; 
+    }
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) { 
+      setErrors(p => ({ ...p, benefits_foto: 'Solo se permiten imágenes JPG, PNG o WEBP.' })); 
+      return; 
+    }
+    setErrors(p => ({ ...p, benefits_foto: '' }));
+    setIsBenefitsPhotoUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const { uploadFileAction } = await import('@/actions/storage');
+      const result = await uploadFileAction(fd, 'proyectos', 'photos');
+      if (result.success) {
+        setFormData(prev => ({ 
+          ...prev, 
+          proyecto_beneficios_fotos: [...(prev.proyecto_beneficios_fotos || []), result.path] 
+        }));
+      }
+    } catch (err: any) {
+      setErrors(p => ({ ...p, benefits_foto: err.message || 'Error al subir foto de beneficios.' }));
+    } finally {
+      setIsBenefitsPhotoUploading(false);
+    }
+  };
+
+  const removeBenefitsPhoto = (indexToRemove: number) => {
+    setFormData(prev => ({
+      ...prev,
+      proyecto_beneficios_fotos: (prev.proyecto_beneficios_fotos || []).filter((_, idx) => idx !== indexToRemove)
+    }));
+  };
+
   const handleNext = () => {
     setStep((prev) => Math.min(prev + 1, 7));
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -236,7 +281,17 @@ export default function StudentOnboardingForm({
     }
     if (type === 'checkbox') {
       const checked = (e.target as HTMLInputElement).checked;
-      setFormData(prev => ({ ...prev, [name]: checked }));
+      setFormData(prev => {
+        const next = { ...prev, [name]: checked };
+        if (name === 'busca_financiamiento' && checked === true) {
+          next.busca_empleo = false;
+          next.busca_pasantia = false;
+        }
+        if ((name === 'busca_empleo' || name === 'busca_pasantia') && checked === true) {
+          next.busca_financiamiento = false;
+        }
+        return next;
+      });
     } else if (type === 'number') {
       setFormData(prev => ({ ...prev, [name]: Number(value) }));
     } else {
@@ -298,6 +353,8 @@ export default function StudentOnboardingForm({
           proyecto_video_url: validData.proyecto_video_url,
           proyecto_documento_url: validData.proyecto_documento_url,
           proyecto_foto_url: validData.proyecto_foto_url,
+          proyecto_beneficios: validData.proyecto_beneficios,
+          proyecto_beneficios_fotos: validData.proyecto_beneficios_fotos || [],
           proyecto_necesidades: validData.proyecto_necesidades,
           areas_de_interes: validData.areas_de_interes,
           busca_financiamiento: validData.busca_financiamiento,
@@ -333,7 +390,9 @@ export default function StudentOnboardingForm({
           proyecto_valor_moneda: validData.proyecto_valor_moneda,
           proyecto_video_url: validData.proyecto_video_url,
           proyecto_documento_url: validData.proyecto_documento_url,
-          proyecto_foto_url: validData.proyecto_foto_url
+          proyecto_foto_url: validData.proyecto_foto_url,
+          proyecto_beneficios: validData.proyecto_beneficios,
+          proyecto_beneficios_fotos: validData.proyecto_beneficios_fotos || []
         });
       }
 
@@ -381,7 +440,7 @@ export default function StudentOnboardingForm({
   };
 
   return (
-    <div className="font-sans bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+    <div className="font-sans text-slate-900 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
       {/* Progress Bar */}
       <div className="bg-slate-50 border-b border-slate-200 p-4 sm:px-6">
         <div className="flex items-center justify-between text-sm font-medium text-slate-500 mb-2">
@@ -411,12 +470,12 @@ export default function StudentOnboardingForm({
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Nombre Completo</label>
                 <input type="text" value={userName || 'No disponible'} disabled
-                  className="w-full p-2.5 border border-slate-300 rounded-lg bg-slate-100 text-slate-500 cursor-not-allowed" />
+                  className="w-full p-2.5 border border-slate-300 rounded-lg bg-slate-100 text-slate-500 cursor-not-allowed text-slate-900" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Correo Electrónico</label>
                 <input type="text" value={userEmail || 'No disponible'} disabled
-                  className="w-full p-2.5 border border-slate-300 rounded-lg bg-slate-100 text-slate-500 cursor-not-allowed" />
+                  className="w-full p-2.5 border border-slate-300 rounded-lg bg-slate-100 text-slate-500 cursor-not-allowed text-slate-900" />
               </div>
             </div>
 
@@ -440,7 +499,7 @@ export default function StudentOnboardingForm({
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Biografía / Sobre mí</label>
               <textarea name="bio" value={formData.bio || ''} onChange={handleChange} rows={4} maxLength={1000}
-                className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none resize-none"
+                className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none resize-none text-slate-900 bg-white"
                 placeholder="Cuéntanos sobre ti..." />
               <p className="text-xs text-slate-500 mt-1 text-right">{(formData.bio || '').length}/1000</p>
             </div>
@@ -464,7 +523,7 @@ export default function StudentOnboardingForm({
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Carrera *</label>
                 <select name="carrera" value={formData.carrera} onChange={handleChange} required
-                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none bg-white">
+                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none bg-white text-slate-900">
                   <option value="" disabled>Seleccione una carrera</option>
                   {CARRERAS_UCR.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
@@ -473,7 +532,7 @@ export default function StudentOnboardingForm({
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Escuela / Facultad *</label>
                 <input type="text" name="escuela_facultad" value={formData.escuela_facultad} required
-                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none transition-shadow bg-slate-100 opacity-70 cursor-not-allowed"
+                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none transition-shadow bg-slate-100 opacity-70 cursor-not-allowed text-slate-900"
                   placeholder="Se asigna automáticamente" readOnly />
               </div>
 
@@ -481,7 +540,7 @@ export default function StudentOnboardingForm({
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Sede UCR <span className="text-rose-500">*</span></label>
                 <div className="relative">
                   <select name="sede" value={formData.sede} onChange={handleChange} required
-                    className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-celeste focus:ring-1 focus:ring-celeste/50 outline-none bg-white appearance-none">
+                    className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-celeste focus:ring-1 focus:ring-celeste/50 outline-none bg-white appearance-none text-slate-900">
                     <option value="" disabled>Seleccione una sede</option>
                     {(CARRERA_TO_SEDES[formData.carrera] || sedes).map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
@@ -492,14 +551,14 @@ export default function StudentOnboardingForm({
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Año de Ingreso *</label>
                 <input type="number" name="anio_ingreso" value={formData.anio_ingreso} onChange={handleChange} required min="1950" max={new Date().getFullYear() + 1}
-                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none" />
+                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none text-slate-900 bg-white" />
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Nivel Académico <span className="text-rose-500">*</span></label>
                 <div className="relative">
                   <select name="nivel_academico" value={formData.nivel_academico} onChange={handleChange} required
-                    className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-celeste focus:ring-1 focus:ring-celeste/50 outline-none bg-white appearance-none">
+                    className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-celeste focus:ring-1 focus:ring-celeste/50 outline-none bg-white appearance-none text-slate-900">
                     <option value="bachillerato">Bachillerato</option>
                     <option value="licenciatura">Licenciatura</option>
                     <option value="maestria">Maestría</option>
@@ -512,7 +571,7 @@ export default function StudentOnboardingForm({
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Promedio Ponderado</label>
                 <input type="number" name="promedio_ponderado" value={formData.promedio_ponderado || ''} onChange={handleChange} step="0.01" min="0" max="10"
-                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none"
+                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none text-slate-900 bg-white"
                   placeholder="Opcional" />
                 <p className="text-xs text-slate-500 mt-1">Privado, usado para matching avanzado.</p>
               </div>
@@ -536,7 +595,7 @@ export default function StudentOnboardingForm({
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Nivel de beca socioeconómica <span className="text-rose-500">*</span></label>
               <div className="relative">
                 <select name="beca_socioeconomica" value={formData.beca_socioeconomica} onChange={handleChange} required
-                  className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-celeste focus:ring-1 focus:ring-celeste/50 outline-none bg-white appearance-none text-base">
+                  className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-celeste focus:ring-1 focus:ring-celeste/50 outline-none bg-white appearance-none text-base text-slate-900">
                   <option value="ninguna">Sin beca</option>
                   <option value="nivel1">Nivel 1</option>
                   <option value="nivel2">Nivel 2</option>
@@ -559,14 +618,14 @@ export default function StudentOnboardingForm({
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Título del proyecto *</label>
                 <input type="text" name="proyecto_titulo" value={formData.proyecto_titulo} onChange={handleChange} required maxLength={200}
-                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none" />
+                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none text-slate-900 bg-white" />
                 <p className="text-xs text-slate-500 mt-1 text-right">{formData.proyecto_titulo.length}/200</p>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Descripción del proyecto *</label>
                 <textarea name="proyecto_descripcion" value={formData.proyecto_descripcion} onChange={handleChange} required maxLength={1000} rows={4}
-                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none resize-none" />
+                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none resize-none text-slate-900 bg-white" />
                 <p className="text-xs text-slate-500 mt-1 text-right">{formData.proyecto_descripcion.length}/1000</p>
               </div>
 
@@ -574,7 +633,7 @@ export default function StudentOnboardingForm({
                 <label className="block text-sm font-medium text-slate-700 mb-1">Tipo de proyecto *</label>
                 <div className="relative">
                   <select name="proyecto_tipo" value={formData.proyecto_tipo} onChange={handleChange} required
-                    className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none bg-white appearance-none">
+                    className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none bg-white appearance-none text-slate-900">
                     <option value="tfg">TFG</option>
                     <option value="tesis">Tesis</option>
                     <option value="practica_dirigida">Práctica Dirigida</option>
@@ -590,7 +649,7 @@ export default function StudentOnboardingForm({
                   <select
                     value={formData.proyecto_area_tematica}
                     onChange={e => setFormData(prev => ({ ...prev, proyecto_area_tematica: e.target.value }))}
-                    className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-celeste focus:ring-1 focus:ring-celeste/50 outline-none bg-white appearance-none"
+                    className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-celeste focus:ring-1 focus:ring-celeste/50 outline-none bg-white appearance-none text-slate-900"
                   >
                     <option value="">Seleccione un área...</option>
                     {AREAS_INTERES.map(area => (
@@ -720,6 +779,71 @@ export default function StudentOnboardingForm({
                   </div>
                   {errors.documento && <p className="text-red-500 text-xs mt-1">{errors.documento}</p>}
                 </div>
+
+                {/* Beneficios para donadores */}
+                {formData.busca_financiamiento && (
+                  <div className="mt-4">
+                    <label className="block text-sm font-semibold text-slate-700 mb-1">
+                      Beneficios para patrocinadores / donadores <span className="text-slate-400 font-normal">(opcional)</span>
+                    </label>
+                    <textarea 
+                      name="proyecto_beneficios" 
+                      value={formData.proyecto_beneficios || ''} 
+                      onChange={handleChange} 
+                      maxLength={1000} 
+                      rows={3}
+                      placeholder="Ej: Mención en los agradecimientos del documento final, acceso preferente a prototipos, presentación privada de resultados, etc."
+                      className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none bg-white text-sm resize-none" 
+                    />
+                    <p className="text-[11px] text-slate-400 mt-1">
+                      Describe los beneficios o reconocimientos que puedes ofrecer a quienes decidan apoyar económicamente tu proyecto.
+                    </p>
+
+                    {/* Subida de foto de beneficios (hasta 5) */}
+                    <div className="mt-4 space-y-3">
+                      <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                        Imágenes de los beneficios / recompensas <span className="text-slate-400 font-normal lowercase">(opcional, hasta 5 imágenes, máx. 5MB c/u)</span>
+                      </label>
+                      
+                      {/* Grid de imágenes cargadas */}
+                      {(formData.proyecto_beneficios_fotos || []).length > 0 && (
+                        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                          {formData.proyecto_beneficios_fotos!.map((photoPath, idx) => (
+                            <div key={idx} className="relative group rounded-xl overflow-hidden border border-slate-200 shadow-sm aspect-square bg-slate-100">
+                              <img 
+                                src={getProyectoFileUrl(photoPath) || ''} 
+                                alt={`Recompensa ${idx + 1}`} 
+                                className="w-full h-full object-cover animate-in fade-in zoom-in-50 duration-300" 
+                              />
+                              <button 
+                                type="button" 
+                                onClick={() => removeBenefitsPhoto(idx)}
+                                className="absolute top-1 right-1 bg-rose-500/90 text-white rounded-full p-1 shadow hover:bg-rose-600 transition-colors"
+                                title="Eliminar imagen"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Botón de subida si hay menos de 5 */}
+                      {(formData.proyecto_beneficios_fotos || []).length < 5 && (
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+                          <label className={`cursor-pointer flex items-center justify-center gap-2 px-5 py-3 rounded-xl border-2 border-dashed border-slate-300 hover:border-celeste text-xs font-bold text-slate-500 hover:text-celeste transition-all bg-slate-50 hover:bg-white grow sm:grow-0 ${isBenefitsPhotoUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                            {isBenefitsPhotoUploading ? 'Subiendo...' : 'Agregar imagen de recompensa'}
+                            <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleBenefitsPhoto} disabled={isBenefitsPhotoUploading} />
+                          </label>
+                          <span className="text-xs text-slate-400 font-medium">
+                            {(formData.proyecto_beneficios_fotos || []).length} de 5 imágenes cargadas
+                          </span>
+                        </div>
+                      )}
+                      {errors.benefits_foto && <p className="text-red-500 text-xs mt-1">{errors.benefits_foto}</p>}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -741,7 +865,7 @@ export default function StudentOnboardingForm({
                 <select
                   value={formData.areas_de_interes[0] || ''}
                   onChange={e => setFormData(prev => ({ ...prev, areas_de_interes: e.target.value ? [e.target.value] : [] }))}
-                  className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-celeste focus:ring-1 focus:ring-celeste/50 outline-none bg-white appearance-none"
+                  className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-celeste focus:ring-1 focus:ring-celeste/50 outline-none bg-white appearance-none text-slate-900"
                 >
                   <option value="">Seleccione un área...</option>
                   {AREAS_INTERES.map(area => (
@@ -762,20 +886,55 @@ export default function StudentOnboardingForm({
 
             <div className="space-y-3">
               {[
-                { name: 'busca_mentoria', label: '¿Busca mentoría técnica?' },
-                { name: 'busca_empleo', label: '¿Busca empleo mientras estudia?' },
-                { name: 'busca_pasantia', label: '¿Busca pasantía relacionada?' },
+                { 
+                  name: 'busca_financiamiento', 
+                  label: '¿Busca financiamiento económico?',
+                  isDisabled: formData.busca_empleo || formData.busca_pasantia,
+                  reason: 'No disponible al buscar empleo o pasantías'
+                },
+                { 
+                  name: 'busca_mentoria', 
+                  label: '¿Busca mentoría técnica?',
+                  isDisabled: false,
+                  reason: ''
+                },
+                { 
+                  name: 'busca_empleo', 
+                  label: '¿Busca empleo mientras estudia?',
+                  isDisabled: formData.busca_financiamiento,
+                  reason: 'No disponible al buscar financiamiento para el proyecto'
+                },
+                { 
+                  name: 'busca_pasantia', 
+                  label: '¿Busca pasantía relacionada?',
+                  isDisabled: formData.busca_financiamiento,
+                  reason: 'No disponible al buscar financiamiento para el proyecto'
+                },
               ].map(item => (
-                <label key={item.name} className="flex items-center justify-between p-4 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
-                  <span className="text-sm font-medium text-slate-800">{item.label}</span>
-                  <div className="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
-                    <input type="checkbox" name={item.name} id={item.name}
-                      checked={formData[item.name as keyof StudentFormData] as boolean}
-                      onChange={handleChange}
-                      className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer" />
-                    <label htmlFor={item.name} className="toggle-label block overflow-hidden h-5 rounded-full bg-slate-300 cursor-pointer"></label>
-                  </div>
-                </label>
+                <div key={item.name} className="flex flex-col">
+                  <label className={`flex items-center justify-between p-4 rounded-lg border transition-colors ${
+                    item.isDisabled ? 'bg-slate-50 border-slate-200 opacity-60 cursor-not-allowed' : 'border-slate-200 hover:bg-slate-50 cursor-pointer'
+                  }`}>
+                    <span className={`text-sm font-medium ${item.isDisabled ? 'text-slate-400' : 'text-slate-800'}`}>{item.label}</span>
+                    <div className="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                      <input 
+                        type="checkbox" 
+                        name={item.name} 
+                        id={item.name} 
+                        checked={formData[item.name as keyof StudentFormData] as boolean} 
+                        disabled={item.isDisabled}
+                        onChange={handleChange} 
+                        className={`toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none ${item.isDisabled ? 'cursor-not-allowed' : 'cursor-pointer'}`} 
+                      />
+                      <label htmlFor={item.name} className={`toggle-label block overflow-hidden h-5 rounded-full bg-slate-300 ${item.isDisabled ? 'cursor-not-allowed bg-slate-200' : 'cursor-pointer'} ${formData[item.name as keyof StudentFormData] ? 'bg-blue-500' : ''}`}></label>
+                    </div>
+                  </label>
+                  {item.isDisabled && item.reason && (
+                    <span className="text-[11px] font-semibold text-rose-500 mt-1 ml-2">
+                      ⚠️ {item.reason}
+                    </span>
+                  )}
+                </div>
               ))}
             </div>
           </div>
@@ -790,7 +949,7 @@ export default function StudentOnboardingForm({
               <label className="block text-sm font-medium text-slate-700 mb-1">Habilidades Técnicas <span className="text-slate-400 font-normal">(opcional)</span></label>
               <p className="text-xs text-slate-500 mb-3">Escribe tus habilidades separadas por comas (Ej: Python, AutoCAD, SPSS, diseño UX)</p>
               <textarea name="habilidadesText" value={formData.habilidadesText} onChange={handleChange} rows={3}
-                className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none resize-none"
+                className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none resize-none text-slate-900 bg-white"
                 placeholder="Python, Excel, Redacción técnica, Análisis de datos..." />
             </div>
 
@@ -798,7 +957,7 @@ export default function StudentOnboardingForm({
               <label className="block text-sm font-medium text-slate-700 mb-1">Pasatiempos / Hobbies <span className="text-slate-400 font-normal">(opcional)</span></label>
               <p className="text-xs text-slate-500 mb-3">Escribe tus pasatiempos separados por comas (Ej: Senderismo, Fotografía, Cocina, Lectura). Ayudan a hacer mejores conexiones.</p>
               <textarea name="hobbiesText" value={formData.hobbiesText || ''} onChange={handleChange} rows={2}
-                className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none resize-none"
+                className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none resize-none text-slate-900 bg-white"
                 placeholder="Senderismo, Fotografía, Cocina, Lectura..." />
             </div>
 
@@ -818,13 +977,33 @@ export default function StudentOnboardingForm({
             className={`flex items-center gap-2 px-5 py-2.5 font-bold uppercase text-xs transition-colors ${step === 1 ? 'invisible' : 'text-slate-600 hover:text-slate-900'}`}>
             <ArrowLeft size={16} /> Anterior
           </button>
+          <div className="flex items-center gap-3">
+            {isEditMode && step < 7 && (
+              <button 
+                type="submit" 
+                disabled={isSubmitting}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold uppercase text-xs transition-all border border-slate-300 text-slate-700 bg-white hover:bg-slate-50"
+              >
+                Siguiente <ArrowRight size={16} />
+              </button>
+            )}
 
-          <button type="submit" disabled={isSubmitting}
-            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold uppercase text-xs text-white transition-all shadow-sm ${isSubmitting ? 'bg-celeste/50 cursor-not-allowed' : 'bg-celeste hover:opacity-90 hover:shadow'}`}>
-            {isSubmitting ? 'Guardando...' : (step === 7 ? (isEditMode ? 'Guardar Cambios' : 'Completar Perfil') : 'Siguiente')}
-            {step < 7 && <ArrowRight size={16} />}
-          </button>
-        </div>
+            <button 
+              type={isEditMode && step < 7 ? 'button' : 'submit'} 
+              onClick={isEditMode && step < 7 ? handleSubmit : undefined}
+              disabled={isSubmitting}
+              className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold uppercase text-xs text-white transition-all shadow-sm ${
+                isSubmitting ? 'bg-celeste/50 cursor-not-allowed' : 'bg-celeste hover:opacity-90 hover:shadow'
+              }`}
+            >
+              {isSubmitting 
+                ? 'Guardando...' 
+                : (step === 7 
+                    ? (isEditMode ? 'Guardar Cambios' : 'Completar Perfil') 
+                    : 'Guardar Cambios'
+                  )}
+            </button>
+          </div>        </div>
       </form>
       <style jsx>{`
         .toggle-checkbox:checked { right: 0; border-color: #54BCEB; }

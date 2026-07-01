@@ -396,13 +396,14 @@ export default function NetworkPage() {
   useEffect(() => {
     // Validar sesión del lado del cliente como fallback (middleware hace el groso del trabajo)
     const supabase = createClient()
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
       if (!user) {
         window.location.href = '/login'
       } else if (!user.email_confirmed_at) {
         window.location.href = '/verificar-correo'
       } else {
-        setIsAdmin(user.user_metadata?.rol === 'admin')
+        const { data: dbUser } = await supabase.from('users').select('rol').eq('id', user.id).single()
+        setIsAdmin(dbUser?.rol === 'admin' || user.user_metadata?.rol === 'admin')
       }
     })
   }, [])

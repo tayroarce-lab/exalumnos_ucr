@@ -11,7 +11,7 @@ type ProfileRow = Database['public']['Tables']['profiles']['Row'];
 
 interface ProfileContextType {
   user: User | null;
-  profile: ProfileRow | null;
+  profile: (ProfileRow & { rol?: string }) | null;
   isLoading: boolean;
   refreshProfile: () => Promise<void>;
 }
@@ -25,7 +25,7 @@ const ProfileContext = createContext<ProfileContextType>({
 
 export function ProfileProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<ProfileRow | null>(null);
+  const [profile, setProfile] = useState<(ProfileRow & { rol?: string }) | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const supabase = createClient();
 
@@ -42,6 +42,13 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
       }
       
       setUser(authUser);
+
+      // Fetch user role from users table
+      const { data: userDataDb } = await supabase
+        .from('users')
+        .select('rol')
+        .eq('id', authUser.id)
+        .single();
 
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
@@ -84,7 +91,10 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
         }
       }
 
-      setProfile(profileDataResult || null);
+      setProfile(profileDataResult ? {
+        ...profileDataResult,
+        rol: userDataDb?.rol || authUser.user_metadata?.rol || 'exalumno'
+      } : null);
     } catch (err) {
       logError('ProfileContext.tsx/fetchUserAndProfile', err);
     } finally {

@@ -171,9 +171,9 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
   }
 
   // Lógica de contexto: Admin, Estudiantes, Exalumnos
-  const isAdmin = pathname?.startsWith('/admin') || user?.user_metadata?.rol === 'admin'
-  const isStudentUser = user?.user_metadata?.rol === 'estudiante' || profile?.es_exalumno === false || user?.email?.endsWith('@ucr.ac.cr')
-  const isStudent = pathname?.startsWith('/student-dashboard') || (isStudentUser && user?.user_metadata?.rol !== 'exalumno')
+  const userRole = profile?.rol || user?.user_metadata?.rol || (profile?.es_exalumno === false ? 'estudiante' : 'exalumno')
+  const isAdmin = pathname?.startsWith('/admin') || userRole === 'admin'
+  const isStudent = userRole === 'estudiante'
 
   // Dashboard de inicio según rol
   const dashboardHref = isAdmin ? '/admin' : isStudent ? '/student-dashboard' : '/dashboard'
@@ -195,8 +195,11 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
       { name: 'Mentorías', href: '/mentorships' },
       { name: 'Matches', href: '/mis-matches' },
       { name: 'Eventos', href: '/events' },
-      { name: 'Empleos', href: '/jobs' }
+      { name: 'Empleos', href: '/jobs' },
+      { name: 'Consultas y Soporte', href: '/consultas-soporte' }
     ]
+
+
   }
 
   if (isAdmin) {
@@ -212,7 +215,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
       userCircleBg: 'bg-white/20 text-white',
       menuItems: [
         { name: 'Inicio', href: '/admin/dashboard' },
-        { name: 'Reportes', href: '/admin/reportes' },
+        { name: 'Consultas y Soporte', href: '/admin/consultas-soporte' },
         { name: 'Usuarios', href: '/admin/usuarios' },
         { name: 'Matches', href: '/admin/matches' },
         { name: 'Donaciones', href: '/admin/donaciones' },
@@ -236,7 +239,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
         { name: 'Mentorías', href: '/mentorships' },
         { name: 'Matches', href: '/mis-matches' },
         { name: 'Eventos', href: '/events' },
-        { name: 'Empleos', href: '/jobs' }
+        { name: 'Consultas y Soporte', href: '/consultas-soporte' }
       ]
     }
   }
@@ -270,7 +273,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
               alt="Logo UCR"
               width={240}
               height={80}
-              style={{ objectFit: 'contain', filter: config.logoFilter }}
+              style={{ objectFit: 'contain', filter: config.logoFilter, width: 'auto', height: 'auto' }}
               className="h-16 w-auto transition-all duration-300"
             />
           </Link>
@@ -406,7 +409,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
                     <span>Mi Proyecto</span>
                   </Link>
                 )}
-                <Link href="/mis-posiciones" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-600 hover:bg-slate-50 hover:text-brand-blue transition-colors">
+                <Link href={isStudent ? "/mis-aplicaciones" : "/mis-posiciones"} onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-600 hover:bg-slate-50 hover:text-brand-blue transition-colors">
                   <Briefcase className="w-4 h-4 text-slate-400" />
                   <span>{isStudent ? 'Mis Postulaciones' : 'Mis Posiciones'}</span>
                 </Link>
@@ -518,7 +521,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
             </Link>
           )}
           <Link
-            href="/mis-posiciones"
+            href={isStudent ? "/mis-aplicaciones" : "/mis-posiciones"}
             onClick={() => setIsMobileMenuOpen(false)}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold uppercase tracking-wide text-white transition-all duration-200 ${config.drawerItemHover}`}
           >

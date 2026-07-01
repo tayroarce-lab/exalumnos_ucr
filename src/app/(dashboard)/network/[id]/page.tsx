@@ -4,9 +4,12 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import StitchProfileClient from './StitchProfileClient';
 import { ArrowLeft, Briefcase, MapPin, Linkedin, Mail, Twitter, Instagram, GraduationCap, CheckCircle2, ChevronLeft, Lock, Users } from 'lucide-react';
+import { obtenerInsigniasDonador } from '@/actions/donations';
+import ProyectoDonacionesProgreso from '@/components/ProyectoDonacionesProgreso';
 import ConnectButton from './ConnectButton';
 import ReportButton from './ReportButton';
-import { getAvatarUrl } from '@/lib/utils';
+import ChatDrawer from '@/components/chat/ChatDrawer';
+import { getAvatarUrl, getProyectoFileUrl } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -16,7 +19,11 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
   const supabase = await createClient();
 
   const { data: { user } } = await supabase.auth.getUser();
-  const isAdmin = user?.user_metadata?.rol === 'admin';
+  let isAdmin = false;
+  if (user) {
+    const { data: loggedInUserData } = await supabase.from('users').select('rol').eq('id', user.id).single();
+    isAdmin = loggedInUserData?.rol === 'admin' || user.user_metadata?.rol === 'admin';
+  }
 
   const { data: userRecord, error } = await supabase
     .from('users')
@@ -81,25 +88,46 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
     proyecto_valor_moneda: estudianteData?.proyecto_valor_moneda,
     proyecto_documento_url: estudianteData?.proyecto_documento_url,
     proyecto_video_url: estudianteData?.proyecto_video_url,
+    proyecto_beneficios: estudianteData?.proyecto_beneficios,
+    proyecto_beneficios_fotos: estudianteData?.proyecto_beneficios_fotos,
   };
+
+  const insignias = profile.es_exalumno ? await obtenerInsigniasDonador(profile.id) : [];
 
   // Comprobar estado de conexión
   let connectionStatus: 'none' | 'contactado' | 'activo' = 'none';
+  let matchId: string | null = null;
   if (!isAdmin && user && user.id !== profile.id) {
     const adminClient = createAdminClient();
     const { data: matchData } = await adminClient
       .from('matches')
-      .select('estado')
+      .select('id, estado')
       .or(`and(estudiante_id.eq.${user.id},exalumno_id.eq.${profile.id}),and(estudiante_id.eq.${profile.id},exalumno_id.eq.${user.id})`)
       .order('created_at', { ascending: false })
       .limit(1)
       .maybeSingle();
       
     if (matchData) {
-      if (matchData.estado === 'activo') connectionStatus = 'activo';
+      if (matchData.estado === 'activo') {
+        connectionStatus = 'activo';
+        matchId = matchData.id;
+      }
       else if (matchData.estado === 'contactado') connectionStatus = 'contactado';
       else if (matchData.estado === 'sugerido') connectionStatus = 'none';
     }
+  }
+
+  const themeColor = user?.user_metadata?.rol === 'estudiante' ? '#54BCEB' : '#F34B26';
+
+  let initialMessages = [];
+  let initialSettings = null;
+  if (matchId && user) {
+    const adminClient = createAdminClient();
+    const { data: msgs } = await adminClient.from('chat_messages' as any).select('*').eq('match_id', matchId).order('created_at', { ascending: true });
+    if (msgs) initialMessages = msgs;
+    
+    const { data: setts } = await adminClient.from('chat_settings' as any).select('*').eq('match_id', matchId).eq('user_id', user.id).maybeSingle();
+    if (setts) initialSettings = setts;
   }
 
   // Fetch up to 3 recommended profiles (excluding the current one)
@@ -258,6 +286,16 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
                   Ofrece Pasantías
                 </span>
               )}
+              {insignias.map((insignia: any) => (
+                <span 
+                  key={insignia.id} 
+                  title={insignia.description} 
+                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border text-[10px] font-bold uppercase tracking-wider cursor-help transition-all hover:scale-105 shrink-0 ${insignia.color}`}
+                >
+                  <span className="text-xs shrink-0">{insignia.icon}</span>
+                  <span>{insignia.name}</span>
+                </span>
+              ))}
             </div>
           </div>
         </div>
@@ -295,13 +333,34 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
                   {profile.proyecto_descripcion}
                 </p>
 
+                {profile.proyecto_beneficios && (
+                  <div className="bg-slate-50/50 p-5 rounded-2xl border border-slate-100 space-y-3 relative z-10">
+                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Beneficios para Donadores</h4>
+                    <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">{profile.proyecto_beneficios}</p>
+                    {profile.proyecto_beneficios_fotos && profile.proyecto_beneficios_fotos.length > 0 && (
+                      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mt-3">
+                        {profile.proyecto_beneficios_fotos.map((fotoUrl: string, idx: number) => (
+                          <div key={idx} className="rounded-xl overflow-hidden border border-slate-200 shadow-sm aspect-square relative bg-slate-100">
+                            <img 
+                              src={getProyectoFileUrl(fotoUrl) || ''} 
+                              alt={`Recompensa ${idx + 1}`}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {profile.proyecto_valor_monto != null && (
-                  <div className="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-100 px-4 py-2 rounded-xl relative z-10">
-                    <span className="text-xs font-bold text-emerald-600 uppercase tracking-wider">Valor Monetario / Presupuesto:</span>
-                    <span className="text-lg font-black text-emerald-700">
-                      {profile.proyecto_valor_moneda === 'USD' ? '$' : '₡'}
-                      {profile.proyecto_valor_monto.toLocaleString('es-CR')}
-                    </span>
+                  <div className="pt-2 relative z-10">
+                    <ProyectoDonacionesProgreso 
+                      proyectoId={profile.id} 
+                      metaMonto={profile.proyecto_valor_monto} 
+                      metaMoneda={profile.proyecto_valor_moneda || 'USD'}
+                      mostrarBotonApoyar={true}
+                    />
                   </div>
                 )}
 
@@ -477,6 +536,18 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
         )}
 
       </div>
+      
+      {matchId && user && (
+        <ChatDrawer 
+          matchId={matchId} 
+          currentUserId={user.id} 
+          otherUserName={profile.full_name} 
+          otherUserInitials={initials} 
+          themeColor={themeColor} 
+          initialMessages={initialMessages}
+          initialSettings={initialSettings}
+        />
+      )}
     </div>
   )
 }

@@ -24,7 +24,13 @@ export default async function DashboardLayout({
     redirect('/login')
   }
 
-  const rol = user.user_metadata?.rol || 'exalumno'
+  const { data: userData } = await supabase
+    .from('users')
+    .select('rol')
+    .eq('id', user.id)
+    .single()
+
+  const rol = userData?.rol || user.user_metadata?.rol || 'exalumno'
 
   return (
     <ExalumnosLayoutClient role={rol}>

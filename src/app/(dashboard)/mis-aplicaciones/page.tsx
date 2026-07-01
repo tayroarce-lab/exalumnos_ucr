@@ -106,7 +106,7 @@ export default function MisAplicacionesPage() {
           { label: 'Seleccionado/a', value: stats.seleccionadas, color: 'text-emerald-700', bg: 'bg-emerald-50/30', border: 'border-emerald-200/50 hover:border-emerald-300' },
           { label: 'Descartadas', value: stats.descartadas, color: 'text-slate-500', bg: 'bg-slate-50/50', border: 'border-slate-200/50 hover:border-slate-300' },
         ].map(({ label, value, color, bg, border }) => (
-          <div key={label} className={`${bg} ${border} rounded-2xl p-5 text-center border shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-0.5`}>
+          <div key={label} className={`stats-card ${bg} ${border} rounded-2xl p-5 text-center border shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-0.5`}>
             <p className={`text-3xl font-black ${color} tracking-tight`}>{value}</p>
             <p className="text-[10px] font-bold text-slate-400 mt-1.5 uppercase tracking-wider">{label}</p>
           </div>
@@ -159,7 +159,7 @@ export default function MisAplicacionesPage() {
                     {app.position.alumni_name}
                   </Link>
                   {app.message && (
-                    <div className="mt-2.5 p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs text-slate-600 font-medium italic relative">
+                    <div className="mt-2.5 p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs text-slate-600 font-medium italic relative break-words">
                       "{app.message}"
                     </div>
                   )}

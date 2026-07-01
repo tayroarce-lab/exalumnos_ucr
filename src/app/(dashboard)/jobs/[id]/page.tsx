@@ -17,8 +17,8 @@ interface JobDetailPageProps {
 }
 
 export default function JobDetailPage({ params }: JobDetailPageProps) {
-  const { id } = params
-  const { user } = useProfile()
+  const { id } = React.use(params)
+  const { user, profile } = useProfile()
 
   const [job, setJob] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -26,8 +26,9 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
   const [isApplied, setIsApplied] = useState(false)
   const [hasCV, setHasCV] = useState<boolean | null>(null)
 
-  const isStudent = user?.user_metadata?.rol === 'estudiante'
-  const isExalumno = user?.user_metadata?.rol === 'exalumno'
+  const userRole = profile?.rol || user?.user_metadata?.rol || 'estudiante'
+  const isStudent = userRole === 'estudiante'
+  const isExalumno = userRole === 'exalumno'
   const [showNoCVNotice, setShowNoCVNotice] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
