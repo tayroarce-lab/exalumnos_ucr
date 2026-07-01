@@ -196,6 +196,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
       { name: 'Matches', href: '/mis-matches' },
       { name: 'Eventos', href: '/events' },
       { name: 'Empleos', href: '/jobs' },
+      { name: 'Talleres', href: '/mis-talleres' },
       { name: 'Consultas y Soporte', href: '/consultas-soporte' }
     ]
 
@@ -219,7 +220,8 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
         { name: 'Usuarios', href: '/admin/usuarios' },
         { name: 'Matches', href: '/admin/matches' },
         { name: 'Donaciones', href: '/admin/donaciones' },
-        { name: 'Vacantes', href: '/admin/vacantes' }
+        { name: 'Vacantes', href: '/admin/vacantes' },
+        { name: 'Talleres', href: '/admin/talleres' }
       ]
     }
   } else if (isStudent) {
@@ -239,6 +241,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
         { name: 'Mentorías', href: '/mentorships' },
         { name: 'Matches', href: '/mis-matches' },
         { name: 'Eventos', href: '/events' },
+        { name: 'Talleres', href: '/talleres' },
         { name: 'Consultas y Soporte', href: '/consultas-soporte' }
       ]
     }
