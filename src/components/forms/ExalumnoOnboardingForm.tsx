@@ -229,7 +229,7 @@ export default function ExalumnoOnboardingForm({
   };
 
   return (
-    <div className="font-sans bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+    <div className="font-sans text-slate-900 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
       {/* Progress Bar */}
       <div className="bg-slate-50 border-b border-slate-200 p-4 sm:px-6">
         <div className="flex items-center justify-between text-sm font-medium text-slate-500 mb-2">
@@ -260,12 +260,12 @@ export default function ExalumnoOnboardingForm({
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Nombre Completo</label>
                 <input type="text" value={userName || 'No disponible'} disabled
-                  className="w-full p-2.5 border border-slate-300 rounded-lg bg-slate-100 text-slate-500 cursor-not-allowed" />
+                  className="w-full p-2.5 border border-slate-300 rounded-lg bg-slate-100 text-slate-500 cursor-not-allowed text-slate-900" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Correo Electrónico</label>
                 <input type="text" value={userEmail || 'No disponible'} disabled
-                  className="w-full p-2.5 border border-slate-300 rounded-lg bg-slate-100 text-slate-500 cursor-not-allowed" />
+                  className="w-full p-2.5 border border-slate-300 rounded-lg bg-slate-100 text-slate-500 cursor-not-allowed text-slate-900" />
               </div>
             </div>
 
@@ -290,7 +290,7 @@ export default function ExalumnoOnboardingForm({
               <label className="block text-sm font-medium text-slate-700 mb-1">Biografía / Acerca de mí</label>
               <p className="text-xs text-slate-500 mb-2">Cuéntale a la comunidad un poco sobre tu trayectoria y qué buscas aportar.</p>
               <textarea name="bio" value={formData.bio || ''} onChange={handleChange} rows={4} maxLength={1000}
-                className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-naranja/50 outline-none resize-none"
+                className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-naranja/50 outline-none resize-none text-slate-900 bg-white"
                 placeholder="Soy egresado de... Actualmente trabajo en... Me apasiona..." />
               <p className="text-xs text-slate-500 mt-1 text-right">{(formData.bio || '').length}/1000</p>
             </div>
@@ -306,7 +306,7 @@ export default function ExalumnoOnboardingForm({
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Carrera UCR *</label>
                 <select name="carrera_ucr" value={formData.carrera_ucr} onChange={handleChange} required
-                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-naranja/50 outline-none bg-white">
+                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-naranja/50 outline-none bg-white text-slate-900">
                   <option value="" disabled>Seleccione una carrera</option>
                   {CARRERAS_UCR.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
@@ -316,7 +316,7 @@ export default function ExalumnoOnboardingForm({
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Escuela / Facultad *</label>
                 <input type="text" name="escuela_facultad" value={formData.escuela_facultad} required
-                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-naranja/50 outline-none bg-slate-100 opacity-70 cursor-not-allowed"
+                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-naranja/50 outline-none bg-slate-100 opacity-70 cursor-not-allowed text-slate-900"
                   placeholder="Se asigna automáticamente" readOnly />
                 {errors.escuela_facultad && <p className="text-red-500 text-xs mt-1">{errors.escuela_facultad}</p>}
               </div>
@@ -324,7 +324,7 @@ export default function ExalumnoOnboardingForm({
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Año de Graduación *</label>
                 <input type="number" name="anio_graduacion" value={formData.anio_graduacion || ''} onChange={handleChange} required min="1940" max={new Date().getFullYear()}
-                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-naranja/50 outline-none" />
+                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-naranja/50 outline-none text-slate-900 bg-white" />
                 {errors.anio_graduacion && <p className="text-red-500 text-xs mt-1">{errors.anio_graduacion}</p>}
               </div>
             </div>
@@ -340,14 +340,14 @@ export default function ExalumnoOnboardingForm({
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Empresa Actual</label>
                 <input type="text" name="empresa_actual" value={formData.empresa_actual} onChange={handleChange}
-                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-naranja/50 outline-none"
+                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-naranja/50 outline-none text-slate-900 bg-white"
                   placeholder="Ej: Intel, BAC, UCR..." />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Cargo / Puesto</label>
                 <input type="text" name="cargo_actual" value={formData.cargo_actual} onChange={handleChange}
-                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-naranja/50 outline-none"
+                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-naranja/50 outline-none text-slate-900 bg-white"
                   placeholder="Ej: Desarrollador, Gerente..." />
               </div>
 
@@ -355,7 +355,7 @@ export default function ExalumnoOnboardingForm({
                 <label className="block text-sm font-medium text-slate-700 mb-1">Sector o Industria</label>
                 <div className="relative">
                   <select name="sector_industria" value={formData.sector_industria} onChange={handleChange}
-                    className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-naranja focus:ring-1 focus:ring-naranja/50 outline-none bg-white appearance-none">
+                    className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-naranja focus:ring-1 focus:ring-naranja/50 outline-none bg-white appearance-none text-slate-900">
                     <option value="">Seleccione una industria...</option>
                     {SECTORES_INDUSTRIA.map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
@@ -366,13 +366,13 @@ export default function ExalumnoOnboardingForm({
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Años de Experiencia Laboral</label>
                 <input type="number" name="anos_experiencia" value={formData.anos_experiencia || ''} onChange={handleChange} min="0" max="60"
-                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-naranja/50 outline-none" />
+                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-naranja/50 outline-none text-slate-900 bg-white" />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">País y Ciudad</label>
                 <input type="text" name="pais_ciudad" value={formData.pais_ciudad} onChange={handleChange}
-                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-naranja/50 outline-none"
+                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-naranja/50 outline-none text-slate-900 bg-white"
                   placeholder="Ej: San José, Costa Rica" />
               </div>
 
@@ -403,7 +403,7 @@ export default function ExalumnoOnboardingForm({
                 <select 
                   value={formData.areas_de_interes[0] || ''} 
                   onChange={e => setFormData(prev => ({ ...prev, areas_de_interes: e.target.value ? [e.target.value] : [] }))}
-                  className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-naranja focus:ring-1 focus:ring-naranja/50 outline-none bg-white appearance-none"
+                  className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-naranja focus:ring-1 focus:ring-naranja/50 outline-none bg-white appearance-none text-slate-900"
                 >
                   <option value="">Seleccione un área...</option>
                   {AREAS_INTERES.map(area => (
@@ -492,7 +492,7 @@ export default function ExalumnoOnboardingForm({
               <label className="block text-sm font-medium text-slate-700 mb-1">Habilidades Profesionales y Técnicas</label>
               <p className="text-xs text-slate-500 mb-3">Escribe tus habilidades separadas por comas (Ej: Liderazgo de equipos, Python, Negociación, Diseño UX). Fundamental para hacer match.</p>
               <textarea name="habilidadesText" value={formData.habilidadesText} onChange={handleChange} rows={3}
-                className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-naranja/50 outline-none resize-none"
+                className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-naranja/50 outline-none resize-none text-slate-900 bg-white"
                 placeholder="Python, Excel, Liderazgo, Agile..." />
             </div>
 
@@ -500,7 +500,7 @@ export default function ExalumnoOnboardingForm({
               <label className="block text-sm font-medium text-slate-700 mb-1">Pasatiempos / Hobbies</label>
               <p className="text-xs text-slate-500 mb-3">Escribe tus pasatiempos separados por comas (Ej: Senderismo, Fotografía, Cocina, Lectura). Ayudan a conectar personas con intereses en común.</p>
               <textarea name="hobbiesText" value={(formData as any).hobbiesText || ''} onChange={handleChange} rows={2}
-                className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-naranja/50 outline-none resize-none"
+                className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-naranja/50 outline-none resize-none text-slate-900 bg-white"
                 placeholder="Senderismo, Fotografía, Cocina, Lectura..." />
             </div>
 

@@ -7,7 +7,7 @@ import { ArrowLeft, Briefcase, MapPin, Linkedin, Mail, Twitter, Instagram, Gradu
 import ConnectButton from './ConnectButton';
 import ReportButton from './ReportButton';
 import { getAvatarUrl } from '@/lib/utils';
-
+import ChatDrawer from '@/components/chat/ChatDrawer';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
@@ -85,21 +85,38 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
 
   // Comprobar estado de conexión
   let connectionStatus: 'none' | 'contactado' | 'activo' = 'none';
+  let matchId: string | null = null;
   if (!isAdmin && user && user.id !== profile.id) {
     const adminClient = createAdminClient();
     const { data: matchData } = await adminClient
       .from('matches')
-      .select('estado')
+      .select('id, estado')
       .or(`and(estudiante_id.eq.${user.id},exalumno_id.eq.${profile.id}),and(estudiante_id.eq.${profile.id},exalumno_id.eq.${user.id})`)
       .order('created_at', { ascending: false })
       .limit(1)
       .maybeSingle();
       
     if (matchData) {
-      if (matchData.estado === 'activo') connectionStatus = 'activo';
+      if (matchData.estado === 'activo') {
+        connectionStatus = 'activo';
+        matchId = matchData.id;
+      }
       else if (matchData.estado === 'contactado') connectionStatus = 'contactado';
       else if (matchData.estado === 'sugerido') connectionStatus = 'none';
     }
+  }
+
+  const themeColor = user?.user_metadata?.rol === 'estudiante' ? '#54BCEB' : '#F34B26';
+
+  let initialMessages = [];
+  let initialSettings = null;
+  if (matchId && user) {
+    const adminClient = createAdminClient();
+    const { data: msgs } = await adminClient.from('chat_messages').select('*').eq('match_id', matchId).order('created_at', { ascending: true });
+    if (msgs) initialMessages = msgs;
+    
+    const { data: setts } = await adminClient.from('chat_settings').select('*').eq('match_id', matchId).eq('user_id', user.id).maybeSingle();
+    if (setts) initialSettings = setts;
   }
 
   // Fetch up to 3 recommended profiles (excluding the current one)
@@ -477,6 +494,18 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
         )}
 
       </div>
+      
+      {matchId && user && (
+        <ChatDrawer 
+          matchId={matchId} 
+          currentUserId={user.id} 
+          otherUserName={profile.full_name} 
+          otherUserInitials={initials} 
+          themeColor={themeColor} 
+          initialMessages={initialMessages}
+          initialSettings={initialSettings}
+        />
+      )}
     </div>
   )
 }
