@@ -116,26 +116,18 @@ export default function StudentOnboardingForm({
     if (isEditMode && initialData) {
       setFormData(prev => ({
         ...prev,
+        ...initialData,
         carnet_ucr: initialData.carnet_ucr || '',
         carrera: initialData.carrera || '',
         escuela_facultad: initialData.escuela_facultad || '',
         sede: initialData.sede || '',
-        anio_ingreso: initialData.anio_ingreso || new Date().getFullYear(),
-        nivel_academico: initialData.nivel_academico || 'bachillerato',
-        promedio_ponderado: initialData.promedio_ponderado != null ? Number(initialData.promedio_ponderado) : 0,
-        beca_socioeconomica: initialData.beca_socioeconomica || 'ninguna',
         proyecto_titulo: initialData.proyecto_titulo || '',
         proyecto_descripcion: initialData.proyecto_descripcion || '',
         proyecto_area_tematica: initialData.proyecto_area_tematica || '',
-        proyecto_tipo: initialData.proyecto_tipo || 'tfg',
-        proyecto_porcentaje_avance: initialData.proyecto_porcentaje_avance != null ? Number(initialData.proyecto_porcentaje_avance) : 0,
-        proyecto_necesidades: Array.isArray(initialData.proyecto_necesidades) ? initialData.proyecto_necesidades : [],
-        areas_de_interes: Array.isArray(initialData.areas_de_interes) ? initialData.areas_de_interes : [],
-        busca_financiamiento: !!initialData.busca_financiamiento,
-        busca_mentoria: !!initialData.busca_mentoria,
-        busca_empleo: !!initialData.busca_empleo,
-        busca_pasantia: !!initialData.busca_pasantia,
-        foto_url: initialData.foto_url || '',
+        proyecto_necesidades: initialData.proyecto_necesidades || [],
+        areas_de_interes: initialData.areas_de_interes || [],
+        proyecto_porcentaje_avance: initialData.proyecto_porcentaje_avance || 0,
+        promedio_ponderado: initialData.promedio_ponderado || 0,
         bio: initialData.bio || '',
         proyecto_valor_monto: initialData.proyecto_valor_monto != null ? Number(initialData.proyecto_valor_monto) : 0,
         proyecto_valor_moneda: initialData.proyecto_valor_moneda || 'CRC',
@@ -448,7 +440,7 @@ export default function StudentOnboardingForm({
   };
 
   return (
-    <div className="font-sans bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+    <div className="font-sans text-slate-900 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
       {/* Progress Bar */}
       <div className="bg-slate-50 border-b border-slate-200 p-4 sm:px-6">
         <div className="flex items-center justify-between text-sm font-medium text-slate-500 mb-2">
@@ -478,12 +470,12 @@ export default function StudentOnboardingForm({
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Nombre Completo</label>
                 <input type="text" value={userName || 'No disponible'} disabled
-                  className="w-full p-2.5 border border-slate-300 rounded-lg bg-slate-100 text-slate-500 cursor-not-allowed" />
+                  className="w-full p-2.5 border border-slate-300 rounded-lg bg-slate-100 text-slate-500 cursor-not-allowed text-slate-900" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Correo Electrónico</label>
                 <input type="text" value={userEmail || 'No disponible'} disabled
-                  className="w-full p-2.5 border border-slate-300 rounded-lg bg-slate-100 text-slate-500 cursor-not-allowed" />
+                  className="w-full p-2.5 border border-slate-300 rounded-lg bg-slate-100 text-slate-500 cursor-not-allowed text-slate-900" />
               </div>
             </div>
 
@@ -507,7 +499,7 @@ export default function StudentOnboardingForm({
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Biografía / Sobre mí</label>
               <textarea name="bio" value={formData.bio || ''} onChange={handleChange} rows={4} maxLength={1000}
-                className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none resize-none"
+                className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none resize-none text-slate-900 bg-white"
                 placeholder="Cuéntanos sobre ti..." />
               <p className="text-xs text-slate-500 mt-1 text-right">{(formData.bio || '').length}/1000</p>
             </div>
@@ -531,7 +523,7 @@ export default function StudentOnboardingForm({
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Carrera *</label>
                 <select name="carrera" value={formData.carrera} onChange={handleChange} required
-                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none bg-white">
+                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none bg-white text-slate-900">
                   <option value="" disabled>Seleccione una carrera</option>
                   {CARRERAS_UCR.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
@@ -540,7 +532,7 @@ export default function StudentOnboardingForm({
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Escuela / Facultad *</label>
                 <input type="text" name="escuela_facultad" value={formData.escuela_facultad} required
-                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none transition-shadow bg-slate-100 opacity-70 cursor-not-allowed"
+                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none transition-shadow bg-slate-100 opacity-70 cursor-not-allowed text-slate-900"
                   placeholder="Se asigna automáticamente" readOnly />
               </div>
 
@@ -548,7 +540,7 @@ export default function StudentOnboardingForm({
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Sede UCR <span className="text-rose-500">*</span></label>
                 <div className="relative">
                   <select name="sede" value={formData.sede} onChange={handleChange} required
-                    className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-celeste focus:ring-1 focus:ring-celeste/50 outline-none bg-white appearance-none">
+                    className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-celeste focus:ring-1 focus:ring-celeste/50 outline-none bg-white appearance-none text-slate-900">
                     <option value="" disabled>Seleccione una sede</option>
                     {(CARRERA_TO_SEDES[formData.carrera] || sedes).map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
@@ -559,14 +551,14 @@ export default function StudentOnboardingForm({
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Año de Ingreso *</label>
                 <input type="number" name="anio_ingreso" value={formData.anio_ingreso} onChange={handleChange} required min="1950" max={new Date().getFullYear() + 1}
-                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none" />
+                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none text-slate-900 bg-white" />
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Nivel Académico <span className="text-rose-500">*</span></label>
                 <div className="relative">
                   <select name="nivel_academico" value={formData.nivel_academico} onChange={handleChange} required
-                    className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-celeste focus:ring-1 focus:ring-celeste/50 outline-none bg-white appearance-none">
+                    className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-celeste focus:ring-1 focus:ring-celeste/50 outline-none bg-white appearance-none text-slate-900">
                     <option value="bachillerato">Bachillerato</option>
                     <option value="licenciatura">Licenciatura</option>
                     <option value="maestria">Maestría</option>
@@ -579,7 +571,7 @@ export default function StudentOnboardingForm({
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Promedio Ponderado</label>
                 <input type="number" name="promedio_ponderado" value={formData.promedio_ponderado || ''} onChange={handleChange} step="0.01" min="0" max="10"
-                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none"
+                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none text-slate-900 bg-white"
                   placeholder="Opcional" />
                 <p className="text-xs text-slate-500 mt-1">Privado, usado para matching avanzado.</p>
               </div>
@@ -603,7 +595,7 @@ export default function StudentOnboardingForm({
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Nivel de beca socioeconómica <span className="text-rose-500">*</span></label>
               <div className="relative">
                 <select name="beca_socioeconomica" value={formData.beca_socioeconomica} onChange={handleChange} required
-                  className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-celeste focus:ring-1 focus:ring-celeste/50 outline-none bg-white appearance-none text-base">
+                  className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-celeste focus:ring-1 focus:ring-celeste/50 outline-none bg-white appearance-none text-base text-slate-900">
                   <option value="ninguna">Sin beca</option>
                   <option value="nivel1">Nivel 1</option>
                   <option value="nivel2">Nivel 2</option>
@@ -626,14 +618,14 @@ export default function StudentOnboardingForm({
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Título del proyecto *</label>
                 <input type="text" name="proyecto_titulo" value={formData.proyecto_titulo} onChange={handleChange} required maxLength={200}
-                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none" />
+                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none text-slate-900 bg-white" />
                 <p className="text-xs text-slate-500 mt-1 text-right">{formData.proyecto_titulo.length}/200</p>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Descripción del proyecto *</label>
                 <textarea name="proyecto_descripcion" value={formData.proyecto_descripcion} onChange={handleChange} required maxLength={1000} rows={4}
-                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none resize-none" />
+                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none resize-none text-slate-900 bg-white" />
                 <p className="text-xs text-slate-500 mt-1 text-right">{formData.proyecto_descripcion.length}/1000</p>
               </div>
 
@@ -641,7 +633,7 @@ export default function StudentOnboardingForm({
                 <label className="block text-sm font-medium text-slate-700 mb-1">Tipo de proyecto *</label>
                 <div className="relative">
                   <select name="proyecto_tipo" value={formData.proyecto_tipo} onChange={handleChange} required
-                    className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none bg-white appearance-none">
+                    className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none bg-white appearance-none text-slate-900">
                     <option value="tfg">TFG</option>
                     <option value="tesis">Tesis</option>
                     <option value="practica_dirigida">Práctica Dirigida</option>
@@ -657,7 +649,7 @@ export default function StudentOnboardingForm({
                   <select
                     value={formData.proyecto_area_tematica}
                     onChange={e => setFormData(prev => ({ ...prev, proyecto_area_tematica: e.target.value }))}
-                    className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-celeste focus:ring-1 focus:ring-celeste/50 outline-none bg-white appearance-none"
+                    className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-celeste focus:ring-1 focus:ring-celeste/50 outline-none bg-white appearance-none text-slate-900"
                   >
                     <option value="">Seleccione un área...</option>
                     {AREAS_INTERES.map(area => (
@@ -873,7 +865,7 @@ export default function StudentOnboardingForm({
                 <select
                   value={formData.areas_de_interes[0] || ''}
                   onChange={e => setFormData(prev => ({ ...prev, areas_de_interes: e.target.value ? [e.target.value] : [] }))}
-                  className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-celeste focus:ring-1 focus:ring-celeste/50 outline-none bg-white appearance-none"
+                  className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-celeste focus:ring-1 focus:ring-celeste/50 outline-none bg-white appearance-none text-slate-900"
                 >
                   <option value="">Seleccione un área...</option>
                   {AREAS_INTERES.map(area => (
@@ -957,7 +949,7 @@ export default function StudentOnboardingForm({
               <label className="block text-sm font-medium text-slate-700 mb-1">Habilidades Técnicas <span className="text-slate-400 font-normal">(opcional)</span></label>
               <p className="text-xs text-slate-500 mb-3">Escribe tus habilidades separadas por comas (Ej: Python, AutoCAD, SPSS, diseño UX)</p>
               <textarea name="habilidadesText" value={formData.habilidadesText} onChange={handleChange} rows={3}
-                className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none resize-none"
+                className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none resize-none text-slate-900 bg-white"
                 placeholder="Python, Excel, Redacción técnica, Análisis de datos..." />
             </div>
 
@@ -965,7 +957,7 @@ export default function StudentOnboardingForm({
               <label className="block text-sm font-medium text-slate-700 mb-1">Pasatiempos / Hobbies <span className="text-slate-400 font-normal">(opcional)</span></label>
               <p className="text-xs text-slate-500 mb-3">Escribe tus pasatiempos separados por comas (Ej: Senderismo, Fotografía, Cocina, Lectura). Ayudan a hacer mejores conexiones.</p>
               <textarea name="hobbiesText" value={formData.hobbiesText || ''} onChange={handleChange} rows={2}
-                className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none resize-none"
+                className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none resize-none text-slate-900 bg-white"
                 placeholder="Senderismo, Fotografía, Cocina, Lectura..." />
             </div>
 

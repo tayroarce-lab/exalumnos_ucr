@@ -273,7 +273,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
               alt="Logo UCR"
               width={240}
               height={80}
-              style={{ objectFit: 'contain', filter: config.logoFilter }}
+              style={{ objectFit: 'contain', filter: config.logoFilter, width: 'auto', height: 'auto' }}
               className="h-16 w-auto transition-all duration-300"
             />
           </Link>

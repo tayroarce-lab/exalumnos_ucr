@@ -169,29 +169,6 @@ export default function LinkedInProfileClient({
     setShowRecommendationModal(false)
   }
 
-  // Handle send message in drawer
-  const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!chatMessage.trim()) return
-
-    setChatHistory([
-      ...chatHistory,
-      { sender: 'me', text: chatMessage, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }
-    ])
-    setChatMessage('')
-
-    // Simulated reply after 1.5 seconds
-    setTimeout(() => {
-      setChatHistory(prev => [
-        ...prev,
-        {
-          sender: 'them',
-          text: `¡Hola! He recibido tu mensaje. Estaré encantado de ponernos en contacto para hablar más al respecto.`,
-          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        }
-      ])
-    }, 1500)
-  }
 
   const initials = profile.full_name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'EX'
 
@@ -816,76 +793,7 @@ export default function LinkedInProfileClient({
         </div>
       )}
 
-      {/* C. MENSAJES DRAWER (Replicación LinkedIn Mensajes) */}
-      <div 
-        className={`fixed bottom-0 right-6 w-80 bg-white border border-slate-200 rounded-t-lg shadow-xl z-40 transition-all duration-300 ${
-          chatExpanded ? 'h-96' : 'h-11'
-        }`}
-      >
-        {/* Header Drawer */}
-        <div 
-          onClick={() => setChatExpanded(!chatExpanded)}
-          className="flex items-center justify-between px-4 py-2.5 bg-white border-b border-slate-200 cursor-pointer rounded-t-lg select-none hover:bg-slate-50"
-        >
-          <div className="flex items-center gap-2">
-            {/* Avatar circular con puntito online verde */}
-            <div className="relative">
-              <div className="w-6 h-6 rounded-full bg-[#003B4F]/10 text-[#003B4F] flex items-center justify-center font-bold text-[8px]">
-                {initials}
-              </div>
-              <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white"></span>
-            </div>
-            <span className="text-xs font-bold text-slate-800">Mensajes</span>
-          </div>
-          <span className="text-slate-500">
-            <ChevronRight className={`w-4 h-4 transform transition-transform ${chatExpanded ? 'rotate-90' : '-rotate-90'}`} />
-          </span>
-        </div>
-
-        {/* Chat Content */}
-        {chatExpanded && (
-          <div className="flex flex-col h-[calc(100%-44px)]">
-            {/* Historial de mensajes */}
-            <div className="flex-1 p-3 overflow-y-auto space-y-3 bg-slate-50">
-              {chatHistory.map((msg, i) => (
-                <div 
-                  key={i} 
-                  className={`flex flex-col max-w-[80%] ${
-                    msg.sender === 'me' ? 'ml-auto items-end' : 'mr-auto items-start'
-                  }`}
-                >
-                  <span className="text-[9px] text-slate-400 mb-0.5">{msg.time}</span>
-                  <div className={`p-2.5 rounded-lg text-xs leading-normal shadow-sm ${
-                    msg.sender === 'me' 
-                      ? 'bg-[#0A66C2] text-white rounded-tr-none' 
-                      : 'bg-white text-slate-800 border border-slate-200 rounded-tl-none'
-                  }`}>
-                    {msg.text}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Input para escribir */}
-            <form onSubmit={handleSendMessage} className="p-2 border-t border-slate-200 flex gap-1.5 bg-white">
-              <input 
-                type="text"
-                placeholder="Escribe un mensaje..."
-                value={chatMessage}
-                onChange={e => setChatMessage(e.target.value)}
-                className="flex-1 text-xs px-3 py-1.5 border border-slate-200 rounded-full focus:outline-none focus:border-[#0A66C2] bg-slate-50"
-              />
-              <button 
-                type="submit"
-                disabled={!chatMessage.trim()}
-                className="p-1.5 rounded-full bg-[#0A66C2] hover:bg-[#004182] text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all shrink-0"
-              >
-                <Send className="w-3.5 h-3.5 rotate-45 -mt-0.5 mr-0.5" />
-              </button>
-            </form>
-          </div>
-        )}
-      </div>
+      {/* El ChatDrawer real ahora se renderiza a nivel de página en network/[id]/page.tsx */}
 
     </div>
   )
