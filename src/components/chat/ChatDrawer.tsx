@@ -109,8 +109,8 @@ export default function ChatDrawer({ matchId, currentUserId, otherUserName, othe
       const newMsg = await sendMessage(matchId, inputText)
       if (newMsg) {
         setMessages(prev => {
-          if (prev.some(m => m.id === newMsg.id)) return prev
-          return [...prev, newMsg as ChatMessage]
+          if (prev.some(m => m.id === (newMsg as any).id)) return prev
+          return [...prev, newMsg as unknown as ChatMessage]
         })
       }
       setInputText('')

@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { z } from 'zod';
-import { completarOnboardingEstudiante } from '@/actions/students';
+import { completarOnboardingEstudiante, actualizarPerfilCompletoEstudiante } from '@/actions/students';
+import { getProyectoFileUrl } from '@/lib/utils';
 import { AlertCircle, ArrowLeft, ArrowRight, CheckCircle2, ChevronDown } from 'lucide-react';
 import { AREAS_INTERES, CARRERAS_UCR, CARRERA_TO_ESCUELA, CARRERA_TO_SEDES } from '@/constants/catalogs';
 
@@ -30,7 +31,12 @@ const studentSchema = z.object({
   habilidadesText: z.string().optional(),
   hobbiesText: z.string().optional(),
   foto_url: z.string().optional(),
-  bio: z.string().max(1000).optional()
+  bio: z.string().max(1000).optional(),
+  proyecto_valor_monto: z.number().min(0).optional().or(z.literal(0)),
+  proyecto_valor_moneda: z.enum(['CRC', 'USD']).optional(),
+  proyecto_video_url: z.string().url("Enlace de video inválido").or(z.literal('')).optional(),
+  proyecto_documento_url: z.string().optional(),
+  proyecto_foto_url: z.string().optional()
 });
 
 type StudentFormData = z.infer<typeof studentSchema>;
@@ -58,7 +64,12 @@ const defaultFormData: StudentFormData = {
   habilidadesText: '',
   hobbiesText: '',
   foto_url: '',
-  bio: ''
+  bio: '',
+  proyecto_valor_monto: 0,
+  proyecto_valor_moneda: 'CRC',
+  proyecto_video_url: '',
+  proyecto_documento_url: '',
+  proyecto_foto_url: ''
 };
 
 const sedes = ['Sede Rodrigo Facio', 'Sede de Occidente', 'Sede del Atlántico', 'Sede de Guanacaste', 'Sede del Pacífico', 'Sede Interuniversitaria de Alajuela', 'Sede del Sur'];
@@ -76,7 +87,18 @@ export default function StudentOnboardingForm({
   userEmail?: string
 }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [step, setStep] = useState(1);
+
+  React.useEffect(() => {
+    const stepParam = searchParams.get('step');
+    if (stepParam) {
+      const parsed = parseInt(stepParam, 10);
+      if (!isNaN(parsed) && parsed >= 1 && parsed <= 7) {
+        setStep(parsed);
+      }
+    }
+  }, [searchParams]);
   const [formData, setFormData] = useState<StudentFormData>(initialData || defaultFormData);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -125,6 +147,60 @@ export default function StudentOnboardingForm({
       setErrors(p => ({ ...p, foto: err.message || 'Error al subir imagen.' }));
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  const [isDocUploading, setIsDocUploading] = useState(false);
+  const handleDocFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) { 
+      setErrors(p => ({ ...p, documento: 'El archivo excede el tamaño máximo permitido (10MB).' })); 
+      return; 
+    }
+    setErrors(p => ({ ...p, documento: '' }));
+    setIsDocUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const { uploadFileAction } = await import('@/actions/storage');
+      const result = await uploadFileAction(fd, 'proyectos', 'documents');
+      if (result.success) {
+        setFormData(prev => ({ ...prev, proyecto_documento_url: result.path }));
+      }
+    } catch (err: any) {
+      setErrors(p => ({ ...p, documento: err.message || 'Error al subir documento.' }));
+    } finally {
+      setIsDocUploading(false);
+    }
+  };
+
+  const [isProjPhotoUploading, setIsProjPhotoUploading] = useState(false);
+  const handleProjPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { 
+      setErrors(p => ({ ...p, proyecto_foto: 'La imagen excede el tamaño máximo permitido (5MB).' })); 
+      return; 
+    }
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) { 
+      setErrors(p => ({ ...p, proyecto_foto: 'Solo se permiten imágenes JPG, PNG o WEBP.' })); 
+      return; 
+    }
+    setErrors(p => ({ ...p, proyecto_foto: '' }));
+    setIsProjPhotoUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const { uploadFileAction } = await import('@/actions/storage');
+      const result = await uploadFileAction(fd, 'proyectos', 'photos');
+      if (result.success) {
+        setFormData(prev => ({ ...prev, proyecto_foto_url: result.path }));
+      }
+    } catch (err: any) {
+      setErrors(p => ({ ...p, proyecto_foto: err.message || 'Error al subir foto del proyecto.' }));
+    } finally {
+      setIsProjPhotoUploading(false);
     }
   };
 
@@ -182,37 +258,81 @@ export default function StudentOnboardingForm({
         ? validData.hobbiesText.split(',').map(h => h.trim()).filter(h => h.length > 0)
         : [];
 
-      const result = await completarOnboardingEstudiante({
-        carnet_ucr: validData.carnet_ucr,
-        carrera: validData.carrera,
-        escuela_facultad: validData.escuela_facultad,
-        sede: validData.sede,
-        anio_ingreso: validData.anio_ingreso,
-        nivel_academico: validData.nivel_academico,
-        promedio_ponderado: validData.promedio_ponderado === 0 ? null : validData.promedio_ponderado,
-        beca_socioeconomica: validData.beca_socioeconomica,
-        proyecto_titulo: validData.proyecto_titulo,
-        proyecto_descripcion: validData.proyecto_descripcion,
-        proyecto_area_tematica: validData.proyecto_area_tematica,
-        proyecto_tipo: validData.proyecto_tipo,
-        proyecto_porcentaje_avance: validData.proyecto_porcentaje_avance,
-        proyecto_necesidades: validData.proyecto_necesidades,
-        areas_de_interes: validData.areas_de_interes,
-        busca_financiamiento: validData.busca_financiamiento,
-        busca_mentoria: validData.busca_mentoria,
-        busca_empleo: validData.busca_empleo,
-        busca_pasantia: validData.busca_pasantia,
-        habilidades: habilidadesArray,
-        hobbies: hobbiesArray,
-        foto_url: validData.foto_url,
-        bio: validData.bio,
-      });
+      let result;
+      if (isEditMode) {
+        result = await actualizarPerfilCompletoEstudiante({
+          full_name: userName,
+          foto_url: validData.foto_url,
+          bio: validData.bio,
+          busca_mentoria: validData.busca_mentoria,
+          busca_empleo: validData.busca_empleo,
+          busca_pasantia: validData.busca_pasantia,
+          carnet_ucr: validData.carnet_ucr,
+          beca_socioeconomica: validData.beca_socioeconomica,
+          nivel_academico: validData.nivel_academico,
+          promedio_ponderado: validData.promedio_ponderado === 0 ? null : validData.promedio_ponderado,
+          carrera: validData.carrera,
+          escuela_facultad: validData.escuela_facultad,
+          sede: validData.sede,
+          anio_ingreso: validData.anio_ingreso,
+          proyecto_titulo: validData.proyecto_titulo,
+          proyecto_descripcion: validData.proyecto_descripcion,
+          proyecto_area_tematica: validData.proyecto_area_tematica,
+          proyecto_tipo: validData.proyecto_tipo,
+          proyecto_porcentaje_avance: validData.proyecto_porcentaje_avance,
+          proyecto_valor_monto: validData.proyecto_valor_monto,
+          proyecto_valor_moneda: validData.proyecto_valor_moneda,
+          proyecto_video_url: validData.proyecto_video_url,
+          proyecto_documento_url: validData.proyecto_documento_url,
+          proyecto_foto_url: validData.proyecto_foto_url,
+          proyecto_necesidades: validData.proyecto_necesidades,
+          areas_de_interes: validData.areas_de_interes,
+          busca_financiamiento: validData.busca_financiamiento,
+          habilidades: habilidadesArray,
+          hobbies: hobbiesArray
+        });
+      } else {
+        result = await completarOnboardingEstudiante({
+          carnet_ucr: validData.carnet_ucr,
+          carrera: validData.carrera,
+          escuela_facultad: validData.escuela_facultad,
+          sede: validData.sede,
+          anio_ingreso: validData.anio_ingreso,
+          nivel_academico: validData.nivel_academico,
+          promedio_ponderado: validData.promedio_ponderado === 0 ? null : validData.promedio_ponderado,
+          beca_socioeconomica: validData.beca_socioeconomica,
+          proyecto_titulo: validData.proyecto_titulo,
+          proyecto_descripcion: validData.proyecto_descripcion,
+          proyecto_area_tematica: validData.proyecto_area_tematica,
+          proyecto_tipo: validData.proyecto_tipo,
+          proyecto_porcentaje_avance: validData.proyecto_porcentaje_avance,
+          proyecto_necesidades: validData.proyecto_necesidades,
+          areas_de_interes: validData.areas_de_interes,
+          busca_financiamiento: validData.busca_financiamiento,
+          busca_mentoria: validData.busca_mentoria,
+          busca_empleo: validData.busca_empleo,
+          busca_pasantia: validData.busca_pasantia,
+          habilidades: habilidadesArray,
+          hobbies: hobbiesArray,
+          foto_url: validData.foto_url,
+          bio: validData.bio,
+          proyecto_valor_monto: validData.proyecto_valor_monto,
+          proyecto_valor_moneda: validData.proyecto_valor_moneda,
+          proyecto_video_url: validData.proyecto_video_url,
+          proyecto_documento_url: validData.proyecto_documento_url,
+          proyecto_foto_url: validData.proyecto_foto_url
+        });
+      }
 
       if (!result.success) {
         throw new Error(result.error || 'Error al guardar el perfil');
       }
 
-      router.push('/student-dashboard');
+      if (isEditMode) {
+        router.push('/profile');
+      } else {
+        router.push('/student-dashboard');
+      }
     } catch (err: any) {
       if (err instanceof z.ZodError) {
         const newErrors: Record<string, string> = {};
@@ -222,8 +342,9 @@ export default function StudentOnboardingForm({
           carnet_ucr: 2, carrera: 2, escuela_facultad: 2, sede: 2, anio_ingreso: 2, nivel_academico: 2, promedio_ponderado: 2,
           beca_socioeconomica: 3,
           proyecto_titulo: 4, proyecto_descripcion: 4, proyecto_area_tematica: 4, proyecto_tipo: 4, proyecto_porcentaje_avance: 4, proyecto_necesidades: 4,
+          proyecto_valor_monto: 4, proyecto_valor_moneda: 4, proyecto_video_url: 4, proyecto_documento_url: 4, proyecto_foto_url: 4, busca_financiamiento: 4,
           areas_de_interes: 5,
-          busca_financiamiento: 6, busca_mentoria: 6, busca_empleo: 6, busca_pasantia: 6,
+          busca_mentoria: 6, busca_empleo: 6, busca_pasantia: 6,
           habilidadesText: 7, hobbiesText: 7
         };
         err.errors.forEach(e => {
@@ -489,6 +610,104 @@ export default function StudentOnboardingForm({
                 </div>
                 {errors.proyecto_necesidades && <p className="text-red-500 text-xs mt-2">{errors.proyecto_necesidades}</p>}
               </div>
+
+              {/* Detalles adicionales del Proyecto */}
+              <div className="border-t border-slate-100 pt-5 space-y-4">
+                <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Detalles adicionales del Proyecto</h3>
+                
+                {/* Financiamiento Toggle */}
+                <label className="flex items-center justify-between p-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors">
+                  <div>
+                    <span className="text-sm font-semibold text-slate-700 block">¿Requiere financiamiento económico?</span>
+                    <span className="text-xs text-slate-400">Habilita esta opción si tu proyecto necesita apoyo económico.</span>
+                  </div>
+                  <div className="relative inline-block w-10 align-middle select-none">
+                    <input type="checkbox" name="busca_financiamiento" id="busca_financiamiento_step4"
+                      checked={formData.busca_financiamiento}
+                      onChange={handleChange}
+                      className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer" />
+                    <label htmlFor="busca_financiamiento_step4" className="toggle-label block overflow-hidden h-5 rounded-full bg-slate-300 cursor-pointer"></label>
+                  </div>
+                </label>
+
+                {/* Campos de Presupuesto (Condicionales) */}
+                {formData.busca_financiamiento && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-slate-50/50 border border-slate-200 rounded-xl animate-in fade-in slide-in-from-top-2 duration-300">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Monto solicitado</label>
+                      <input type="number" name="proyecto_valor_monto" value={formData.proyecto_valor_monto || ''} onChange={handleChange} min="0" placeholder="Ej: 500000"
+                        className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-celeste focus:ring-1 focus:ring-celeste/50 outline-none bg-white text-sm" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Moneda</label>
+                      <div className="relative">
+                        <select name="proyecto_valor_moneda" value={formData.proyecto_valor_moneda} onChange={handleChange}
+                          className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-celeste focus:ring-1 focus:ring-celeste/50 outline-none bg-white appearance-none text-sm">
+                          <option value="CRC">Colones (CRC)</option>
+                          <option value="USD">Dólares (USD)</option>
+                        </select>
+                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Enlace de Video */}
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-1">Enlace a video explicativo <span className="text-slate-400 font-normal">(opcional)</span></label>
+                  <input type="url" name="proyecto_video_url" value={formData.proyecto_video_url || ''} onChange={handleChange} placeholder="https://www.youtube.com/watch?v=..."
+                    className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-celeste focus:ring-1 focus:ring-celeste/50 outline-none bg-white text-sm" />
+                  <p className="text-[11px] text-slate-400 mt-1">Comparte un video en YouTube, Vimeo o Google Drive presentando tu proyecto.</p>
+                  {errors.proyecto_video_url && <p className="text-red-500 text-xs mt-1">{errors.proyecto_video_url}</p>}
+                </div>
+
+                {/* Carga de Foto del Proyecto */}
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-1">Foto o Imagen del Proyecto <span className="text-slate-400 font-normal">(opcional, máx. 5MB)</span></label>
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+                    <label className={`cursor-pointer flex items-center justify-center gap-2 px-5 py-3 rounded-xl border-2 border-dashed border-slate-300 hover:border-celeste text-xs font-bold text-slate-500 hover:text-celeste transition-all bg-slate-50 hover:bg-white grow sm:grow-0 ${isProjPhotoUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                      {isProjPhotoUploading ? 'Subiendo foto...' : 'Subir imagen'}
+                      <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleProjPhoto} disabled={isProjPhotoUploading} />
+                    </label>
+                    {formData.proyecto_foto_url ? (
+                      <div className="flex items-center justify-between p-3 bg-emerald-50 border border-emerald-100 rounded-xl text-emerald-800 text-xs font-medium gap-2 max-w-full overflow-hidden shrink-0">
+                        <span className="truncate">🖼️ Imagen del proyecto subida</span>
+                        <button type="button" onClick={() => setFormData(p => ({ ...p, proyecto_foto_url: '' }))} className="text-rose-500 hover:text-rose-700 font-bold ml-2">Remover</button>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-slate-400 font-medium">Ninguna imagen cargada aún.</span>
+                    )}
+                  </div>
+                  {errors.proyecto_foto && <p className="text-red-500 text-xs mt-1">{errors.proyecto_foto}</p>}
+                  
+                  {/* Vista previa de la imagen del proyecto */}
+                  {formData.proyecto_foto_url && (
+                    <div className="mt-3 max-w-xs rounded-xl overflow-hidden border border-slate-200 shadow-sm relative group">
+                      <img src={getProyectoFileUrl(formData.proyecto_foto_url) || ''} alt="Vista previa del proyecto" className="w-full h-auto max-h-40 object-cover" />
+                    </div>
+                  )}
+                </div>
+
+                {/* Carga de Documento */}
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-1">Documento del proyecto (PDF) <span className="text-slate-400 font-normal">(opcional, máx. 10MB)</span></label>
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+                    <label className={`cursor-pointer flex items-center justify-center gap-2 px-5 py-3 rounded-xl border-2 border-dashed border-slate-300 hover:border-celeste text-xs font-bold text-slate-500 hover:text-celeste transition-all bg-slate-50 hover:bg-white grow sm:grow-0 ${isDocUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                      {isDocUploading ? 'Subiendo documento...' : 'Adjuntar PDF'}
+                      <input type="file" accept="application/pdf" className="hidden" onChange={handleDocFile} disabled={isDocUploading} />
+                    </label>
+                    {formData.proyecto_documento_url ? (
+                      <div className="flex items-center justify-between p-3 bg-emerald-50 border border-emerald-100 rounded-xl text-emerald-800 text-xs font-medium gap-2 max-w-full overflow-hidden shrink-0">
+                        <span className="truncate">📄 {formData.proyecto_documento_url.split('/').pop()}</span>
+                        <button type="button" onClick={() => setFormData(p => ({ ...p, proyecto_documento_url: '' }))} className="text-rose-500 hover:text-rose-700 font-bold ml-2">Remover</button>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-slate-400 font-medium">Ningún documento adjunto aún.</span>
+                    )}
+                  </div>
+                  {errors.documento && <p className="text-red-500 text-xs mt-1">{errors.documento}</p>}
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -530,7 +749,6 @@ export default function StudentOnboardingForm({
 
             <div className="space-y-3">
               {[
-                { name: 'busca_financiamiento', label: '¿Busca financiamiento económico?' },
                 { name: 'busca_mentoria', label: '¿Busca mentoría técnica?' },
                 { name: 'busca_empleo', label: '¿Busca empleo mientras estudia?' },
                 { name: 'busca_pasantia', label: '¿Busca pasantía relacionada?' },
@@ -547,11 +765,6 @@ export default function StudentOnboardingForm({
                 </label>
               ))}
             </div>
-            <style jsx>{`
-              .toggle-checkbox:checked { right: 0; border-color: #54BCEB; }
-              .toggle-checkbox:checked + .toggle-label { background-color: #54BCEB; }
-              .toggle-checkbox { right: 1.25rem; z-index: 1; border-color: #cbd5e1; transition: all 0.3s; }
-            `}</style>
           </div>
         )}
 
@@ -600,6 +813,11 @@ export default function StudentOnboardingForm({
           </button>
         </div>
       </form>
+      <style jsx>{`
+        .toggle-checkbox:checked { right: 0; border-color: #54BCEB; }
+        .toggle-checkbox:checked + .toggle-label { background-color: #54BCEB; }
+        .toggle-checkbox { right: 1.25rem; z-index: 1; border-color: #cbd5e1; transition: all 0.3s; }
+      `}</style>
     </div>
   );
 }

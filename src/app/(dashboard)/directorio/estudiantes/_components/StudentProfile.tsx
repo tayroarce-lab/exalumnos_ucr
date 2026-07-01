@@ -1,9 +1,10 @@
 'use client';
 
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { EstudianteDirectorio } from '@/types/estudiantes';
 import GrillaEstudiantes from './GrillaEstudiantes';
-import { getAvatarUrl } from '@/lib/utils';
+import { getAvatarUrl, getProyectoFileUrl } from '@/lib/utils';
 import Link from 'next/link';
 
 interface Props {
@@ -244,6 +245,16 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
             {areaTematica}
           </span>
         </div>
+        {/* Imagen de Proyecto si existe */}
+        {estudiante.proyecto_foto_url && (
+          <div className="rounded-xl overflow-hidden border border-[#B3DCEE]/30 mb-4 max-h-48 w-full relative">
+            <img 
+              src={getProyectoFileUrl(estudiante.proyecto_foto_url) || ''} 
+              alt={tituloProyecto}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        )}
         <h2 className="text-lg font-black text-[#B43B06] mb-3 uppercase">
           {tituloProyecto}
         </h2>
@@ -264,7 +275,7 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
         <div className="flex flex-col sm:flex-row gap-2 mb-5">
           {estudiante.proyecto_documento_url && (
             <a 
-              href={estudiante.proyecto_documento_url.startsWith('http') ? estudiante.proyecto_documento_url : `https://${estudiante.proyecto_documento_url}`}
+              href={getProyectoFileUrl(estudiante.proyecto_documento_url) || '#'}
               target="_blank"
               rel="noopener noreferrer"
               className="flex-1 flex items-center justify-center text-[11px] bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 px-3 py-2 rounded-xl font-bold transition-colors"
@@ -549,9 +560,9 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
       )}
 
       {/* ── MODAL MENTORÍA ── */}
-      {showMentoriaModal && (
+      {showMentoriaModal && typeof document !== 'undefined' && createPortal(
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-6 md:p-8 w-full max-w-md border border-slate-200/80 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-2xl p-6 md:p-8 w-full max-w-md border border-slate-200/80 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
             <button 
               onClick={() => setShowMentoriaModal(false)}
               className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors text-2xl font-bold cursor-pointer"
@@ -625,13 +636,14 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* ── MODAL APÓYAR PROYECTO ── */}
-      {showApoyarModal && (
+      {showApoyarModal && typeof document !== 'undefined' && createPortal(
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[9998] flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-6 md:p-8 w-full max-w-md border border-slate-200/80 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-2xl p-6 md:p-8 w-full max-w-md border border-slate-200/80 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setShowApoyarModal(false)}
               className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors text-2xl font-bold cursor-pointer"
@@ -723,7 +735,8 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
