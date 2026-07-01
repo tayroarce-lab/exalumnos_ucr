@@ -35,7 +35,7 @@ export default async function MisMatchesPage({
     <div className="container mx-auto py-10 px-4 max-w-6xl">
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight mb-2">Mis Conexiones</h1>
-        <p className="text-gray-500">
+        <p className="text-slate-500">
           Aquí aparecen tus conexiones activas de mentoría, empleo y pasantías con estudiantes UCR.
         </p>
       </div>
