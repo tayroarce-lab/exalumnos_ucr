@@ -5,6 +5,7 @@ import { DonationAdminView, DonationsHistoryFilters } from '@/types/donations';
 import { sendDonationConfirmationEmails, sendDonationRejectionEmail, sendDonationVerificationEmail } from '@/services/email-service';
 import { notificarNuevaDonacionAdmin } from '@/lib/email';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { notifyAllAdmins } from '@/lib/notify-admins';
 
 export interface CrearDonacionInput {
   proyecto_destino: string;
@@ -280,8 +281,17 @@ export async function crearDonacion(data: CrearDonacionInput) {
       ? (data.proyecto_destino || 'Proyecto de estudiante')
       : (FONDOS_MAP[data.proyecto_destino] || data.proyecto_destino);
     
-    // Notificar al admin
+    // Notificar al admin por email
     await notificarNuevaDonacionAdmin(ADMIN_EMAIL, data.monto, data.moneda, projectName, data.metodo_pago);
+
+    // Notificar a todos los admins en la campanita
+    const donorName2 = (await supabase.from('users').select('nombre').eq('id', user.id).single()).data?.nombre || 'Un exalumno'
+    await notifyAllAdmins({
+      titulo: 'Nueva donación pendiente',
+      mensaje: `${donorName2} envió una donación de ${data.moneda === 'CRC' ? '₡' : '$'}${data.monto.toLocaleString()} para ${projectName}. Requiere revisión.`,
+      tipo: 'donacion_admin',
+      link: '/admin/donaciones'
+    })
 
     // Email de verificación al exalumno donante
     const { data: donorData } = await supabase
@@ -396,3 +406,126 @@ export async function obtenerMisDonacionesRecibidas() {
     throw new Error(error.message || 'Error al obtener el historial de donaciones recibidas');
   }
 }
+
+export async function obtenerProgresoDonacionesProyecto(
+  proyectoId: string, 
+  metaMonto: number | null, 
+  metaMoneda: string | null
+) {
+  if (!proyectoId || !metaMonto) {
+    return { totalAcumulado: 0, porcentaje: 0, donantesUnicos: 0 };
+  }
+
+  try {
+    const supabaseAdmin = createAdminClient();
+    const { data, error } = await supabaseAdmin
+      .from(DB_TABLE)
+      .select('monto, moneda, user_id')
+      .eq('proyecto_id', proyectoId)
+      .eq('estado', 'confirmada');
+
+    if (error) throw error;
+
+    const tCambio = 520; // 1 USD = 520 CRC
+    const targetMoneda = (metaMoneda || 'USD').toUpperCase();
+    let totalAcumulado = 0;
+
+    data?.forEach(d => {
+      const donacionMoneda = (d.moneda || 'USD').toUpperCase();
+      const donacionMonto = Number(d.monto) || 0;
+
+      if (donacionMoneda === targetMoneda) {
+        totalAcumulado += donacionMonto;
+      } else {
+        if (targetMoneda === 'USD' && donacionMoneda === 'CRC') {
+          totalAcumulado += donacionMonto / tCambio;
+        } else if (targetMoneda === 'CRC' && donacionMoneda === 'USD') {
+          totalAcumulado += donacionMonto * tCambio;
+        }
+      }
+    });
+
+    const porcentaje = Math.min(Math.round((totalAcumulado / metaMonto) * 100), 100);
+    const donantesUnicos = new Set(data?.map(d => d.user_id).filter(Boolean)).size;
+
+    return { totalAcumulado, porcentaje, donantesUnicos };
+  } catch (error) {
+    console.error('Error al obtener progreso donaciones:', error);
+    return { totalAcumulado: 0, porcentaje: 0, donantesUnicos: 0 };
+  }
+}
+
+export async function obtenerInsigniasDonador(alumniId: string) {
+  if (!alumniId) return [];
+
+  try {
+    const supabaseAdmin = createAdminClient();
+    const { data, error } = await supabaseAdmin
+      .from(DB_TABLE)
+      .select('monto, moneda')
+      .eq('user_id', alumniId)
+      .eq('estado', 'confirmada');
+
+    if (error) throw error;
+
+    const confirmedCount = data?.length || 0;
+    const badges = [];
+    const tCambio = 520;
+
+    let hasBigDonation = false;
+    data?.forEach(d => {
+      const moneda = (d.moneda || 'USD').toUpperCase();
+      const monto = Number(d.monto) || 0;
+      const montoEnUsd = moneda === 'USD' ? monto : monto / tCambio;
+      if (montoEnUsd >= 200) {
+        hasBigDonation = true;
+      }
+    });
+
+    if (confirmedCount >= 1) {
+      badges.push({
+        id: 'padrino_inicial',
+        name: 'Padrino/Madrina Inicial',
+        description: 'Ha realizado 1 donación confirmada para apoyar el futuro académico.',
+        icon: '🥉',
+        color: 'badge-donacion-bronze'
+      });
+    }
+
+    if (confirmedCount >= 3) {
+      badges.push({
+        id: 'mecenas_ucr',
+        name: 'Mecenas de la UCR',
+        description: 'Ha realizado 3 o más donaciones confirmadas para incentivar la investigación.',
+        icon: '🥈',
+        color: 'badge-donacion-silver'
+      });
+    }
+
+    if (confirmedCount >= 5) {
+      badges.push({
+        id: 'socio_benefactor',
+        name: 'Socio Benefactor',
+        description: 'Socio de honor con 5 o más donaciones confirmadas para el desarrollo universitario.',
+        icon: '🥇',
+        color: 'badge-donacion-gold'
+      });
+    }
+
+    if (hasBigDonation) {
+      badges.push({
+        id: 'gran_patrocinador',
+        name: 'Gran Patrocinador',
+        description: 'Realizó una aportación individual destacada de más de $200 USD (o ₡104,000 CRC).',
+        icon: '💎',
+        color: 'badge-donacion-diamond animate-pulse'
+      });
+    }
+
+    return badges;
+  } catch (error) {
+    console.error('Error al obtener insignias donador:', error);
+    return [];
+  }
+}
+

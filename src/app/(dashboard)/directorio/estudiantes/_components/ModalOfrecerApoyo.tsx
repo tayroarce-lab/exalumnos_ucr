@@ -103,7 +103,7 @@ export default function ModalOfrecerApoyo({
 
     switch (tipoId) {
       case 'donacion':
-        router.push(`/donaciones?proyecto=${estudianteId}`);
+        router.push(`/donations?proyecto_id=${estudianteId}`);
         break;
       case 'mentoria':
       case 'empleo':

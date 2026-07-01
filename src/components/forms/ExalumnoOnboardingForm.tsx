@@ -79,6 +79,7 @@ export default function ExalumnoOnboardingForm({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [globalError, setGlobalError] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
 
   React.useEffect(() => {
     if (isEditMode && initialData) {
@@ -95,7 +96,6 @@ export default function ExalumnoOnboardingForm({
     }
   }, [isEditMode, initialData]);
 
-  const [isUploading, setIsUploading] = useState(false);
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -520,12 +520,33 @@ export default function ExalumnoOnboardingForm({
             className={`flex items-center gap-2 px-5 py-2.5 font-bold uppercase text-xs transition-colors ${step === 1 ? 'invisible' : 'text-slate-600 hover:text-slate-900'}`}>
             <ArrowLeft size={16} /> Anterior
           </button>
-          
-          <button type="submit" disabled={isSubmitting}
-            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold uppercase text-xs text-white transition-all shadow-sm ${isSubmitting ? 'bg-naranja/50 cursor-not-allowed' : 'bg-naranja hover:opacity-90 hover:shadow'}`}>
-            {isSubmitting ? 'Guardando...' : (step === 6 ? (isEditMode ? 'Guardar Cambios' : 'Completar Perfil') : 'Siguiente')}
-            {step < 6 && <ArrowRight size={16} />}
-          </button>
+          <div className="flex items-center gap-3">
+            {isEditMode && step < 6 && (
+              <button 
+                type="submit" 
+                disabled={isSubmitting}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold uppercase text-xs transition-all border border-slate-300 text-slate-700 bg-white hover:bg-slate-50"
+              >
+                Siguiente <ArrowRight size={16} />
+              </button>
+            )}
+
+            <button 
+              type={isEditMode && step < 6 ? 'button' : 'submit'} 
+              onClick={isEditMode && step < 6 ? handleSubmit : undefined}
+              disabled={isSubmitting}
+              className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold uppercase text-xs text-white transition-all shadow-sm ${
+                isSubmitting ? 'bg-naranja/50 cursor-not-allowed' : 'bg-naranja hover:opacity-90 hover:shadow'
+              }`}
+            >
+              {isSubmitting 
+                ? 'Guardando...' 
+                : (step === 6 
+                    ? (isEditMode ? 'Guardar Cambios' : 'Completar Perfil') 
+                    : 'Guardar Cambios'
+                  )}
+            </button>
+          </div>
         </div>
       </form>
     </div>
