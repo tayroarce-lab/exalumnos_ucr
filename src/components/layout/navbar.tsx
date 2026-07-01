@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { Bell, ChevronDown, User, LogOut, Briefcase, Menu, X, Clock, Sun, Moon } from 'lucide-react'
+import { Bell, ChevronDown, User, LogOut, Briefcase, Menu, X, Clock, Sun, Moon, BookOpen } from 'lucide-react'
 import { useProfile } from '@/contexts/ProfileContext'
 import { createClient } from '@/lib/supabase/client'
 import logoUCR from '@/images/Logo_UCR.png'
@@ -400,6 +400,12 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
                   <User className="w-4 h-4 text-slate-400" />
                   <span>Mi Perfil</span>
                 </Link>
+                {isStudent && (
+                  <Link href="/profile/edit?step=4" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-600 hover:bg-slate-50 hover:text-brand-blue transition-colors">
+                    <BookOpen className="w-4 h-4 text-slate-400" />
+                    <span>Mi Proyecto</span>
+                  </Link>
+                )}
                 <Link href="/mis-posiciones" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-600 hover:bg-slate-50 hover:text-brand-blue transition-colors">
                   <Briefcase className="w-4 h-4 text-slate-400" />
                   <span>{isStudent ? 'Mis Postulaciones' : 'Mis Posiciones'}</span>
@@ -501,13 +507,23 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
             <User className="w-4 h-4 opacity-70" />
             Mi Perfil
           </Link>
+          {isStudent && (
+            <Link
+              href="/profile/edit?step=4"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold uppercase tracking-wide text-white transition-all duration-200 ${config.drawerItemHover}`}
+            >
+              <BookOpen className="w-4 h-4 opacity-70" />
+              Mi Proyecto
+            </Link>
+          )}
           <Link
             href="/mis-posiciones"
             onClick={() => setIsMobileMenuOpen(false)}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold uppercase tracking-wide text-white transition-all duration-200 ${config.drawerItemHover}`}
           >
             <Briefcase className="w-4 h-4 opacity-70" />
-            Mis Posiciones
+            {isStudent ? 'Mis Postulaciones' : 'Mis Posiciones'}
           </Link>
           {!isAdmin && (
             <Link

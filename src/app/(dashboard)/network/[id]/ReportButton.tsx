@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Flag, X, AlertTriangle, Loader2 } from 'lucide-react'
-import { reportarPerfil } from '@/actions/reports'
+import { submitProfileReport, ReportMotivo } from '@/actions/reports'
 
 const PREDEFINED_REASONS = [
   'Perfil falso o identidad suplantada',
@@ -11,6 +11,14 @@ const PREDEFINED_REASONS = [
   'Acoso o comportamiento abusivo',
   'Otro motivo'
 ]
+
+const PREDEFINED_REASONS_MAP: Record<string, ReportMotivo> = {
+  'Perfil falso o identidad suplantada': 'Perfil Falso',
+  'Información inapropiada u ofensiva': 'Comportamiento Inapropiado',
+  'Spam o comportamiento comercial no deseado': 'Spam',
+  'Acoso o comportamiento abusivo': 'Comportamiento Inapropiado',
+  'Otro motivo': 'Otro'
+}
 
 export default function ReportButton({ targetUserId }: { targetUserId: string }) {
   const [isOpen, setIsOpen] = useState(false)
@@ -23,20 +31,28 @@ export default function ReportButton({ targetUserId }: { targetUserId: string })
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    let motivo = selectedReason
+    let motivoEnum = PREDEFINED_REASONS_MAP[selectedReason] || 'Otro';
+    let desc = '';
+    
     if (selectedReason === 'Otro motivo') {
       if (!otherReason.trim()) {
         setError('Por favor, especifica el motivo del reporte.')
         return
       }
-      motivo = otherReason.trim()
+      desc = otherReason.trim()
+    } else {
+      desc = selectedReason; // Send the original predefined reason as description
     }
 
     setIsSubmitting(true)
     setError('')
     
     try {
-      const res = await reportarPerfil(targetUserId, motivo)
+      const res = await submitProfileReport({
+        perfil_reportado: targetUserId,
+        motivo: motivoEnum,
+        descripcion: desc
+      })
       if (res.success) {
         setSuccess(true)
       } else {
