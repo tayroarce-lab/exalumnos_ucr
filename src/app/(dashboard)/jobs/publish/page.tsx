@@ -38,7 +38,7 @@ const MAX_RESP = 10
 
 export default function PublishJobPage() {
   const router = useRouter()
-  const { user } = useProfile()
+  const { user, profile } = useProfile()
   const [step, setStep] = useState(1)
   const [isPublishing, setIsPublishing] = useState(false)
   const [isPublished, setIsPublished] = useState(false)
@@ -47,10 +47,11 @@ export default function PublishJobPage() {
   const [isProfileComplete, setIsProfileComplete] = useState<boolean | null>(null)
   const [isLoadingProfile, setIsLoadingProfile] = useState(true)
 
-  const isStudent = user?.user_metadata?.rol === 'estudiante'
+  const userRole = profile?.rol || user?.user_metadata?.rol || 'exalumno'
+  const isStudent = userRole === 'estudiante'
 
   React.useEffect(() => {
-    const isAdmin = user?.user_metadata?.rol === 'admin' || user?.user_metadata?.tipo === 'admin'
+    const isAdmin = userRole === 'admin' || user?.user_metadata?.tipo === 'admin'
     if (isAdmin) {
       router.replace('/jobs')
       return

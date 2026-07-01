@@ -6,6 +6,8 @@ import { EstudianteDirectorio } from '@/types/estudiantes';
 import GrillaEstudiantes from './GrillaEstudiantes';
 import { getAvatarUrl, getProyectoFileUrl } from '@/lib/utils';
 import Link from 'next/link';
+import ProyectoDonacionesProgreso from '@/components/ProyectoDonacionesProgreso';
+import ModalProyectoEstudiante from './ModalProyectoEstudiante';
 
 interface Props {
   estudiante: EstudianteDirectorio;
@@ -102,14 +104,16 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
   // Modal states
   const [showMentoriaModal, setShowMentoriaModal] = React.useState(false);
   const [showApoyarModal, setShowApoyarModal] = React.useState(false);
+  const [showProyectoModal, setShowProyectoModal] = React.useState(false);
   const [isAdmin, setIsAdmin] = React.useState(false);
 
   React.useEffect(() => {
     import('@/lib/supabase/client').then(({ createClient }) => {
       const supabase = createClient()
-      supabase.auth.getUser().then(({ data: { user } }) => {
+      supabase.auth.getUser().then(async ({ data: { user } }) => {
         if (user) {
-          setIsAdmin(user.user_metadata?.rol === 'admin')
+          const { data: dbUser } = await supabase.from('users').select('rol').eq('id', user.id).single()
+          setIsAdmin(dbUser?.rol === 'admin' || user.user_metadata?.rol === 'admin')
         }
       })
     })
@@ -262,6 +266,26 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
           {descripcionProyecto}
         </p>
 
+        {estudiante.proyecto_beneficios && (
+          <div className="bg-slate-50/50 p-4 rounded-xl border border-slate-100 mb-5 space-y-2">
+            <h5 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Beneficios para Donadores</h5>
+            <p className="text-xs text-slate-600 leading-relaxed whitespace-pre-wrap">{estudiante.proyecto_beneficios}</p>
+            {estudiante.proyecto_beneficios_fotos && estudiante.proyecto_beneficios_fotos.length > 0 && (
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 mt-2">
+                {estudiante.proyecto_beneficios_fotos.map((fotoUrl, idx) => (
+                  <div key={idx} className="rounded-xl overflow-hidden border border-slate-200 shadow-sm aspect-square relative bg-slate-100">
+                    <img 
+                      src={getProyectoFileUrl(fotoUrl) || ''} 
+                      alt={`Recompensa ${idx + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {estudiante.proyecto_valor_monto != null && (
           <div className="mb-4 inline-flex items-center gap-2 bg-emerald-50 border border-emerald-100 px-3 py-1.5 rounded-xl">
             <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Valor Monetario:</span>
@@ -269,6 +293,18 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
               {estudiante.proyecto_valor_moneda === 'USD' ? '$' : '₡'}
               {estudiante.proyecto_valor_monto.toLocaleString('es-CR')}
             </span>
+          </div>
+        )}
+
+        {/* Barra de financiamiento colectivo si busca financiamiento */}
+        {estudiante.busca_financiamiento && estudiante.proyecto_valor_monto && (
+          <div className="mb-5">
+            <ProyectoDonacionesProgreso 
+              proyectoId={estudiante.user_id} 
+              metaMonto={estudiante.proyecto_valor_monto} 
+              metaMoneda={estudiante.proyecto_valor_moneda || 'USD'} 
+              mostrarBotonApoyar={true} 
+            />
           </div>
         )}
 
@@ -298,14 +334,65 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
         <div className="pt-4 border-t border-slate-100">
           <div className="flex justify-between items-center mb-2">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Progreso del Proyecto</span>
-            <span className="text-xs font-black text-[#1A5B75]">{progresoProyecto}%</span>
+            <span className="text-xs font-black text-[#F34B26]">{progresoProyecto}%</span>
           </div>
-          <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden shadow-inner">
+          <div className="w-full bg-[#FAF9E6] dark:bg-slate-900 rounded-full h-2 overflow-hidden shadow-inner">
             <div 
-              className="bg-[#1A5B75] h-2 rounded-full transition-all duration-700 ease-out" 
+              className="bg-gradient-to-r from-[#F34B26] to-[#FF9B18] h-2 rounded-full transition-all duration-700 ease-out" 
               style={{ width: `${progresoProyecto}%` }}
             />
           </div>
+        </div>
+
+        {/* Avance Financiero si busca financiamiento */}
+        {estudiante.busca_financiamiento && estudiante.proyecto_valor_monto && (
+          <div className="pt-4 border-t border-slate-100 mt-4">
+            <h5 className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+              💰 Financiamiento Colectivo
+            </h5>
+            <ProyectoDonacionesProgreso 
+              proyectoId={estudiante.user_id} 
+              metaMonto={estudiante.proyecto_valor_monto} 
+              metaMoneda={estudiante.proyecto_valor_moneda || 'USD'}
+              mostrarBotonApoyar={false}
+            />
+          </div>
+        )}
+
+        {/* Botón de apoyo al proyecto */}
+        {(estudiante.busca_financiamiento || estudiante.busca_mentoria || estudiante.busca_empleo || estudiante.busca_pasantia) && (
+          <div className="mt-5 pt-4 border-t border-slate-100">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Este estudiante busca</p>
+            <div className="flex flex-wrap gap-2 mb-4">
+              {estudiante.busca_financiamiento && (
+                <span className="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2.5 py-1 rounded-lg border border-emerald-100">💰 Apoyo Económico</span>
+              )}
+              {estudiante.busca_mentoria && (
+                <span className="bg-blue-50 text-blue-700 text-[10px] font-bold px-2.5 py-1 rounded-lg border border-blue-100">🎓 Mentoría Técnica</span>
+              )}
+              {estudiante.busca_empleo && (
+                <span className="bg-orange-50 text-orange-700 text-[10px] font-bold px-2.5 py-1 rounded-lg border border-orange-100">💼 Oportunidad de Empleo</span>
+              )}
+              {estudiante.busca_pasantia && (
+                <span className="bg-violet-50 text-violet-700 text-[10px] font-bold px-2.5 py-1 rounded-lg border border-violet-100">👜 Pasantía</span>
+              )}
+            </div>
+            <button
+              onClick={() => setShowApoyarModal(true)}
+              className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-xl bg-[#003B4F] hover:bg-[#1A5B75] text-white text-sm font-bold shadow-md transition-all active:scale-95 cursor-pointer"
+            >
+              <IconHand /> Ofrecer Apoyo a este Estudiante
+            </button>
+          </div>
+        )}
+
+        <div className="mt-4 flex">
+          <button
+            onClick={() => setShowProyectoModal(true)}
+            className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-xl bg-[#F34B26] hover:bg-[#C82A08] text-white text-sm font-bold shadow-sm transition-all active:scale-95 cursor-pointer"
+          >
+            Ver Detalles del Proyecto Completo
+          </button>
         </div>
       </div>
 
@@ -485,13 +572,13 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
           <div className="flex justify-between items-center py-2 border-t border-slate-100/60">
             <span className="text-xs text-slate-500 font-semibold">Nivel de Beca</span>
             <span className="text-xs font-bold text-[#003B4F] flex items-center gap-1.5">
-              {estudiante.beca_socioeconomica || 'Privado'} <IconLock color="#b0c4d8" size={12} />
+              {isAdmin ? (estudiante.beca_socioeconomica || 'No registrado') : 'Restringido'} <IconLock color="#b0c4d8" size={12} />
             </span>
           </div>
           <div className="flex justify-between items-center py-2 border-t border-slate-100/60">
             <span className="text-xs text-slate-500 font-semibold">Promedio Ponderado</span>
             <span className="text-xs font-bold text-[#003B4F] flex items-center gap-1.5">
-              {estudiante.promedio_ponderado || 'Privado'} <IconLock color="#b0c4d8" size={12} />
+              {isAdmin ? (estudiante.promedio_ponderado || 'No registrado') : 'Restringido'} <IconLock color="#b0c4d8" size={12} />
             </span>
           </div>
         </div>
@@ -715,7 +802,7 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
                   Puedes realizar una donación directa para apoyar la trayectoria de este estudiante a través de la pasarela de pagos.
                 </p>
                 <Link 
-                  href={`/donations?metodo=sinpe`}
+                  href={`/donations?proyecto_id=${estudiante.user_id}`}
                   className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-[#F34B26] hover:bg-[#C82A08] text-white text-sm font-bold shadow-sm transition-all active:scale-95"
                 >
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -736,6 +823,19 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
             </div>
           </div>
         </div>,
+        document.body
+      )}
+
+      {/* Modal de Detalles del Proyecto Completo */}
+      {showProyectoModal && createPortal(
+        <ModalProyectoEstudiante
+          estudiante={estudiante}
+          onClose={() => setShowProyectoModal(false)}
+          onOfrecerApoyo={() => {
+            setShowProyectoModal(false);
+            setShowApoyarModal(true);
+          }}
+        />,
         document.body
       )}
     </div>

@@ -54,7 +54,7 @@ export function calcularMatch(estudiante: EstudianteDirectorio, perfilActual: an
   if (perfilActual.ofrece_mentoria && estudiante.busca_mentoria) apoyosMatch += 5;
   if (perfilActual.ofrece_empleo && estudiante.busca_empleo) apoyosMatch += 5;
   if (perfilActual.ofrece_pasantia && estudiante.busca_pasantia) apoyosMatch += 5;
-  if (perfilActual.ofrece_financiamiento && estudiante.busca_financiamiento) apoyosMatch += 5;
+  if ((perfilActual.ofrece_financiamiento || perfilActual.ofrece_donacion_dinero) && estudiante.busca_financiamiento) apoyosMatch += 5;
   if (perfilActual.ofrece_proyecto && (estudiante.proyecto_activo || estudiante.proyecto_necesidades)) apoyosMatch += 5;
   score += Math.min(10, apoyosMatch);
 

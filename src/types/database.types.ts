@@ -851,6 +851,8 @@ export type Database = {
             proyecto_video_url: string | null
             proyecto_documento_url: string | null
             proyecto_foto_url: string | null
+            proyecto_beneficios: string | null
+            proyecto_beneficios_fotos: string[] | null
           proyecto_porcentaje_avance: number | null
           proyecto_tipo: string
           proyecto_titulo: string
@@ -883,6 +885,8 @@ export type Database = {
             proyecto_video_url?: string | null
             proyecto_documento_url?: string | null
             proyecto_foto_url?: string | null
+            proyecto_beneficios?: string | null
+            proyecto_beneficios_fotos?: string[] | null
           proyecto_porcentaje_avance?: number | null
           proyecto_tipo: string
           proyecto_titulo: string
@@ -915,6 +919,8 @@ export type Database = {
             proyecto_video_url?: string | null
             proyecto_documento_url?: string | null
             proyecto_foto_url?: string | null
+            proyecto_beneficios?: string | null
+            proyecto_beneficios_fotos?: string[] | null
           proyecto_porcentaje_avance?: number | null
           proyecto_tipo?: string
           proyecto_titulo?: string

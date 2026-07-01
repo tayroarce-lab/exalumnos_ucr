@@ -95,7 +95,7 @@ function TarjetaAplicante({ aplicacion, onCambiarEstado }: {
             </div>
 
             {aplicacion.message && (
-              <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-600 leading-relaxed italic mt-3 mb-2">
+              <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-600 leading-relaxed italic mt-3 mb-2 break-words">
                 "{aplicacion.message}"
               </div>
             )}

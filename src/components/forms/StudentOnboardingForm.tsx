@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { z } from 'zod';
 import { completarOnboardingEstudiante, actualizarPerfilCompletoEstudiante } from '@/actions/students';
 import { getProyectoFileUrl } from '@/lib/utils';
-import { AlertCircle, ArrowLeft, ArrowRight, CheckCircle2, ChevronDown } from 'lucide-react';
+import { AlertCircle, ArrowLeft, ArrowRight, CheckCircle2, ChevronDown, X } from 'lucide-react';
 import { AREAS_INTERES, CARRERAS_UCR, CARRERA_TO_ESCUELA, CARRERA_TO_SEDES } from '@/constants/catalogs';
 
 const studentSchema = z.object({
@@ -36,7 +36,9 @@ const studentSchema = z.object({
   proyecto_valor_moneda: z.enum(['CRC', 'USD']).optional(),
   proyecto_video_url: z.string().url("Enlace de video inválido").or(z.literal('')).optional(),
   proyecto_documento_url: z.string().optional(),
-  proyecto_foto_url: z.string().optional()
+  proyecto_foto_url: z.string().optional(),
+  proyecto_beneficios: z.string().max(1000).optional(),
+  proyecto_beneficios_fotos: z.array(z.string()).optional()
 });
 
 type StudentFormData = z.infer<typeof studentSchema>;
@@ -69,7 +71,9 @@ const defaultFormData: StudentFormData = {
   proyecto_valor_moneda: 'CRC',
   proyecto_video_url: '',
   proyecto_documento_url: '',
-  proyecto_foto_url: ''
+  proyecto_foto_url: '',
+  proyecto_beneficios: '',
+  proyecto_beneficios_fotos: []
 };
 
 const sedes = ['Sede Rodrigo Facio', 'Sede de Occidente', 'Sede del Atlántico', 'Sede de Guanacaste', 'Sede del Pacífico', 'Sede Interuniversitaria de Alajuela', 'Sede del Sur'];
@@ -89,6 +93,14 @@ export default function StudentOnboardingForm({
   const router = useRouter();
   const searchParams = useSearchParams();
   const [step, setStep] = useState(1);
+  const [formData, setFormData] = useState<StudentFormData>(initialData || defaultFormData);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [globalError, setGlobalError] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
+  const [isDocUploading, setIsDocUploading] = useState(false);
+  const [isProjPhotoUploading, setIsProjPhotoUploading] = useState(false);
+  const [isBenefitsPhotoUploading, setIsBenefitsPhotoUploading] = useState(false);
 
   React.useEffect(() => {
     const stepParam = searchParams.get('step');
@@ -99,10 +111,6 @@ export default function StudentOnboardingForm({
       }
     }
   }, [searchParams]);
-  const [formData, setFormData] = useState<StudentFormData>(initialData || defaultFormData);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [globalError, setGlobalError] = useState('');
 
   React.useEffect(() => {
     if (isEditMode && initialData) {
@@ -134,13 +142,14 @@ export default function StudentOnboardingForm({
         proyecto_video_url: initialData.proyecto_video_url || '',
         proyecto_documento_url: initialData.proyecto_documento_url || '',
         proyecto_foto_url: initialData.proyecto_foto_url || '',
+        proyecto_beneficios: initialData.proyecto_beneficios || '',
+        proyecto_beneficios_fotos: Array.isArray(initialData.proyecto_beneficios_fotos) ? initialData.proyecto_beneficios_fotos : [],
         habilidadesText: initialData.habilidades?.join(', ') || '',
         hobbiesText: Array.isArray(initialData.hobbies) ? initialData.hobbies.join(', ') : (initialData.hobbiesText || '')
       }));
     }
   }, [isEditMode, initialData]);
 
-  const [isUploading, setIsUploading] = useState(false);
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -163,7 +172,6 @@ export default function StudentOnboardingForm({
     }
   };
 
-  const [isDocUploading, setIsDocUploading] = useState(false);
   const handleDocFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -188,7 +196,6 @@ export default function StudentOnboardingForm({
     }
   };
 
-  const [isProjPhotoUploading, setIsProjPhotoUploading] = useState(false);
   const handleProjPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -215,6 +222,52 @@ export default function StudentOnboardingForm({
     } finally {
       setIsProjPhotoUploading(false);
     }
+  };
+
+  const handleBenefitsPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const currentCount = formData.proyecto_beneficios_fotos?.length || 0;
+    if (currentCount >= 5) {
+      setErrors(p => ({ ...p, benefits_foto: 'Puedes subir un máximo de 5 imágenes.' }));
+      return;
+    }
+
+    const file = files[0];
+    if (file.size > 5 * 1024 * 1024) { 
+      setErrors(p => ({ ...p, benefits_foto: 'La imagen supera el límite de 5MB.' })); 
+      return; 
+    }
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) { 
+      setErrors(p => ({ ...p, benefits_foto: 'Solo se permiten imágenes JPG, PNG o WEBP.' })); 
+      return; 
+    }
+    setErrors(p => ({ ...p, benefits_foto: '' }));
+    setIsBenefitsPhotoUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const { uploadFileAction } = await import('@/actions/storage');
+      const result = await uploadFileAction(fd, 'proyectos', 'photos');
+      if (result.success) {
+        setFormData(prev => ({ 
+          ...prev, 
+          proyecto_beneficios_fotos: [...(prev.proyecto_beneficios_fotos || []), result.path] 
+        }));
+      }
+    } catch (err: any) {
+      setErrors(p => ({ ...p, benefits_foto: err.message || 'Error al subir foto de beneficios.' }));
+    } finally {
+      setIsBenefitsPhotoUploading(false);
+    }
+  };
+
+  const removeBenefitsPhoto = (indexToRemove: number) => {
+    setFormData(prev => ({
+      ...prev,
+      proyecto_beneficios_fotos: (prev.proyecto_beneficios_fotos || []).filter((_, idx) => idx !== indexToRemove)
+    }));
   };
 
   const handleNext = () => {
@@ -298,6 +351,8 @@ export default function StudentOnboardingForm({
           proyecto_video_url: validData.proyecto_video_url,
           proyecto_documento_url: validData.proyecto_documento_url,
           proyecto_foto_url: validData.proyecto_foto_url,
+          proyecto_beneficios: validData.proyecto_beneficios,
+          proyecto_beneficios_fotos: validData.proyecto_beneficios_fotos || [],
           proyecto_necesidades: validData.proyecto_necesidades,
           areas_de_interes: validData.areas_de_interes,
           busca_financiamiento: validData.busca_financiamiento,
@@ -333,7 +388,9 @@ export default function StudentOnboardingForm({
           proyecto_valor_moneda: validData.proyecto_valor_moneda,
           proyecto_video_url: validData.proyecto_video_url,
           proyecto_documento_url: validData.proyecto_documento_url,
-          proyecto_foto_url: validData.proyecto_foto_url
+          proyecto_foto_url: validData.proyecto_foto_url,
+          proyecto_beneficios: validData.proyecto_beneficios,
+          proyecto_beneficios_fotos: validData.proyecto_beneficios_fotos || []
         });
       }
 
@@ -720,6 +777,71 @@ export default function StudentOnboardingForm({
                   </div>
                   {errors.documento && <p className="text-red-500 text-xs mt-1">{errors.documento}</p>}
                 </div>
+
+                {/* Beneficios para donadores */}
+                {formData.busca_financiamiento && (
+                  <div className="mt-4">
+                    <label className="block text-sm font-semibold text-slate-700 mb-1">
+                      Beneficios para patrocinadores / donadores <span className="text-slate-400 font-normal">(opcional)</span>
+                    </label>
+                    <textarea 
+                      name="proyecto_beneficios" 
+                      value={formData.proyecto_beneficios || ''} 
+                      onChange={handleChange} 
+                      maxLength={1000} 
+                      rows={3}
+                      placeholder="Ej: Mención en los agradecimientos del documento final, acceso preferente a prototipos, presentación privada de resultados, etc."
+                      className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none bg-white text-sm resize-none" 
+                    />
+                    <p className="text-[11px] text-slate-400 mt-1">
+                      Describe los beneficios o reconocimientos que puedes ofrecer a quienes decidan apoyar económicamente tu proyecto.
+                    </p>
+
+                    {/* Subida de foto de beneficios (hasta 5) */}
+                    <div className="mt-4 space-y-3">
+                      <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                        Imágenes de los beneficios / recompensas <span className="text-slate-400 font-normal lowercase">(opcional, hasta 5 imágenes, máx. 5MB c/u)</span>
+                      </label>
+                      
+                      {/* Grid de imágenes cargadas */}
+                      {(formData.proyecto_beneficios_fotos || []).length > 0 && (
+                        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                          {formData.proyecto_beneficios_fotos!.map((photoPath, idx) => (
+                            <div key={idx} className="relative group rounded-xl overflow-hidden border border-slate-200 shadow-sm aspect-square bg-slate-100">
+                              <img 
+                                src={getProyectoFileUrl(photoPath) || ''} 
+                                alt={`Recompensa ${idx + 1}`} 
+                                className="w-full h-full object-cover animate-in fade-in zoom-in-50 duration-300" 
+                              />
+                              <button 
+                                type="button" 
+                                onClick={() => removeBenefitsPhoto(idx)}
+                                className="absolute top-1 right-1 bg-rose-500/90 text-white rounded-full p-1 shadow hover:bg-rose-600 transition-colors"
+                                title="Eliminar imagen"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Botón de subida si hay menos de 5 */}
+                      {(formData.proyecto_beneficios_fotos || []).length < 5 && (
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+                          <label className={`cursor-pointer flex items-center justify-center gap-2 px-5 py-3 rounded-xl border-2 border-dashed border-slate-300 hover:border-celeste text-xs font-bold text-slate-500 hover:text-celeste transition-all bg-slate-50 hover:bg-white grow sm:grow-0 ${isBenefitsPhotoUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                            {isBenefitsPhotoUploading ? 'Subiendo...' : 'Agregar imagen de recompensa'}
+                            <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleBenefitsPhoto} disabled={isBenefitsPhotoUploading} />
+                          </label>
+                          <span className="text-xs text-slate-400 font-medium">
+                            {(formData.proyecto_beneficios_fotos || []).length} de 5 imágenes cargadas
+                          </span>
+                        </div>
+                      )}
+                      {errors.benefits_foto && <p className="text-red-500 text-xs mt-1">{errors.benefits_foto}</p>}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -818,13 +940,33 @@ export default function StudentOnboardingForm({
             className={`flex items-center gap-2 px-5 py-2.5 font-bold uppercase text-xs transition-colors ${step === 1 ? 'invisible' : 'text-slate-600 hover:text-slate-900'}`}>
             <ArrowLeft size={16} /> Anterior
           </button>
+          <div className="flex items-center gap-3">
+            {isEditMode && step < 7 && (
+              <button 
+                type="submit" 
+                disabled={isSubmitting}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold uppercase text-xs transition-all border border-slate-300 text-slate-700 bg-white hover:bg-slate-50"
+              >
+                Siguiente <ArrowRight size={16} />
+              </button>
+            )}
 
-          <button type="submit" disabled={isSubmitting}
-            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold uppercase text-xs text-white transition-all shadow-sm ${isSubmitting ? 'bg-celeste/50 cursor-not-allowed' : 'bg-celeste hover:opacity-90 hover:shadow'}`}>
-            {isSubmitting ? 'Guardando...' : (step === 7 ? (isEditMode ? 'Guardar Cambios' : 'Completar Perfil') : 'Siguiente')}
-            {step < 7 && <ArrowRight size={16} />}
-          </button>
-        </div>
+            <button 
+              type={isEditMode && step < 7 ? 'button' : 'submit'} 
+              onClick={isEditMode && step < 7 ? handleSubmit : undefined}
+              disabled={isSubmitting}
+              className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold uppercase text-xs text-white transition-all shadow-sm ${
+                isSubmitting ? 'bg-celeste/50 cursor-not-allowed' : 'bg-celeste hover:opacity-90 hover:shadow'
+              }`}
+            >
+              {isSubmitting 
+                ? 'Guardando...' 
+                : (step === 7 
+                    ? (isEditMode ? 'Guardar Cambios' : 'Completar Perfil') 
+                    : 'Guardar Cambios'
+                  )}
+            </button>
+          </div>        </div>
       </form>
       <style jsx>{`
         .toggle-checkbox:checked { right: 0; border-color: #54BCEB; }
