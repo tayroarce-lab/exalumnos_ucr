@@ -14,9 +14,18 @@
 
 
 /* Change white cards to Turquoise (#004C63) in Exalumnos Dark Mode */
-.exalumnos-theme-dark .bg-white {
+.exalumnos-theme-dark .bg-white,
+.exalumnos-theme-dark .bg-white\/95,
+.exalumnos-theme-dark .bg-white\/90,
+.exalumnos-theme-dark .bg-white\/85,
+.exalumnos-theme-dark .bg-white\/80 {
   background-color: #004C63 !important;
   border-color: #003B4C !important;
+}
+
+/* Ensure the beige directory background turns dark */
+.exalumnos-theme-dark .bg-\[\#FAF9E6\] {
+  background-color: #0b1120 !important;
 }
 
 /* Ensure text is legible on the Turquoise background */
@@ -44,3 +53,184 @@
 .exalumnos-theme-dark .bg-white p {
   color: #E2E8F0 !important; /* light gray/blue for readability */
 }
+
+/* --- ADAPTACIÓN DE FORMULARIOS E INPUTS MODO NOCHE --- */
+.exalumnos-theme-dark input[type="text"],
+.exalumnos-theme-dark input[type="number"],
+.exalumnos-theme-dark input[type="email"],
+.exalumnos-theme-dark input[type="password"],
+.exalumnos-theme-dark input[type="url"],
+.exalumnos-theme-dark input[type="tel"],
+.exalumnos-theme-dark textarea,
+.exalumnos-theme-dark select {
+  background-color: rgba(0, 0, 0, 0.3) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  color: #FFFFFF !important;
+  font-family: var(--font-sans) !important;
+}
+
+.exalumnos-theme-dark input[type="text"]:focus,
+.exalumnos-theme-dark input[type="number"]:focus,
+.exalumnos-theme-dark input[type="email"]:focus,
+.exalumnos-theme-dark input[type="password"]:focus,
+.exalumnos-theme-dark input[type="url"]:focus,
+.exalumnos-theme-dark input[type="tel"]:focus,
+.exalumnos-theme-dark textarea:focus,
+.exalumnos-theme-dark select:focus {
+  background-color: rgba(0, 0, 0, 0.45) !important;
+  border-color: #54BCEB !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 0 0 2px rgba(84, 188, 235, 0.25) !important;
+  outline: none !important;
+}
+
+.exalumnos-theme-dark input::placeholder,
+.exalumnos-theme-dark textarea::placeholder {
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+/* Modificamos los inputs deshabilitados */
+.exalumnos-theme-dark input:disabled {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  color: rgba(255, 255, 255, 0.5) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  cursor: not-allowed !important;
+}
+
+/* Evitar que el toggle checkbox knob se vuelva turquesa al tener la clase bg-white */
+.exalumnos-theme-dark .toggle-checkbox {
+  background-color: #FFFFFF !important;
+  border-color: #CBD5E1 !important;
+}
+
+/* Ajustes de legibilidad para desplegables (select option) */
+.exalumnos-theme-dark select option {
+  background-color: #004C63 !important;
+  color: #FFFFFF !important;
+}
+
+/* Asegurar legibilidad en textos e iconos secundarios en modo noche */
+.exalumnos-theme-dark .text-slate-400,
+.exalumnos-theme-dark .text-slate-300 {
+  color: #CBD5E1 !important;
+}
+
+/* Saneamiento de bordes grises que se ven muy brillantes en fondos oscuros */
+.exalumnos-theme-dark .border-slate-100,
+.exalumnos-theme-dark .border-slate-200,
+.exalumnos-theme-dark .border-slate-300 {
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+/* Sincronización de tipografías globales para controles en modo noche */
+.exalumnos-theme-dark button,
+.exalumnos-theme-dark input,
+.exalumnos-theme-dark select,
+.exalumnos-theme-dark textarea {
+  font-family: var(--font-sans) !important;
+}
+
+/* --- TARJETAS DE ESTADÍSTICAS (STATS CARDS) EN MODO NOCHE --- */
+.exalumnos-theme-dark .stats-card {
+  background-color: rgba(0, 0, 0, 0.3) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.exalumnos-theme-dark .stats-card p {
+  color: #FFFFFF !important;
+}
+
+.exalumnos-theme-dark .stats-card .text-brand-blue {
+  color: #54BCEB !important;
+}
+
+.exalumnos-theme-dark .stats-card .text-emerald-700,
+.exalumnos-theme-dark .stats-card .text-emerald-600 {
+  color: #34D399 !important;
+}
+
+.exalumnos-theme-dark .stats-card .text-amber-600 {
+  color: #FBBF24 !important;
+}
+
+/* --- BADGES DE ESTADO EN MODO NOCHE (SEGUIMIENTO Y APLICACIONES) --- */
+.exalumnos-theme-dark .text-brand-blue {
+  color: #54BCEB !important;
+}
+
+.exalumnos-theme-dark .bg-celeste\/10 {
+  background-color: rgba(84, 188, 235, 0.15) !important;
+}
+
+.exalumnos-theme-dark .text-amber-700 {
+  color: #FBBF24 !important;
+}
+
+.exalumnos-theme-dark .bg-yellow-50 {
+  background-color: rgba(251, 191, 36, 0.1) !important;
+}
+
+.exalumnos-theme-dark .border-yellow-300\/50 {
+  border-color: rgba(251, 191, 36, 0.25) !important;
+}
+
+.exalumnos-theme-dark .text-emerald-700 {
+  color: #34D399 !important;
+}
+
+.exalumnos-theme-dark .bg-emerald-50,
+.exalumnos-theme-dark .bg-emerald-50\/30 {
+  background-color: rgba(52, 211, 153, 0.1) !important;
+}
+
+.exalumnos-theme-dark .border-emerald-300\/50 {
+  border-color: rgba(52, 211, 153, 0.25) !important;
+}
+
+.exalumnos-theme-dark .text-slate-500 {
+  color: #94A3B8 !important;
+}
+
+.exalumnos-theme-dark .bg-slate-50,
+.exalumnos-theme-dark .bg-slate-50\/50,
+.exalumnos-theme-dark .bg-slate-100 {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* --- OVERRIDES DE COLORES DE MARCA / LINKS EN MODO NOCHE --- */
+.exalumnos-theme-dark .text-brand-emerald {
+  color: #34D399 !important; /* Brighter green for readability */
+}
+
+.exalumnos-theme-dark .text-brand-blue {
+  color: #54BCEB !important; /* Brighter blue for readability */
+}
+
+/* --- ESTILOS DE INSIGNIAS EN MODO NOCHE --- */
+.exalumnos-theme-dark .badge-donacion-bronze {
+  background-color: rgba(184, 115, 51, 0.15) !important;
+  border-color: rgba(184, 115, 51, 0.3) !important;
+  color: #CD7F32 !important;
+}
+
+.exalumnos-theme-dark .badge-donacion-silver {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  color: #E2E8F0 !important;
+}
+
+.exalumnos-theme-dark .badge-donacion-gold {
+  background-color: rgba(251, 191, 36, 0.15) !important;
+  border-color: rgba(251, 191, 36, 0.3) !important;
+  color: #FBBF24 !important;
+}
+
+.exalumnos-theme-dark .badge-donacion-diamond {
+  background-color: rgba(6, 182, 212, 0.15) !important;
+  border-color: rgba(6, 182, 212, 0.3) !important;
+  color: #22D3EE !important;
+}
+
+
+
+

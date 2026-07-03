@@ -1,47 +1,21 @@
-'use client'
-
 import React from 'react'
 import Link from 'next/link'
 import Card from '@/components/ui/card'
 import { Calendar, MapPin, Video } from 'lucide-react'
+import { createClient } from '@/lib/supabase/server'
 
-const MOCK_EVENTS = [
-  {
-    id: '1',
-    title: 'Encuentro Anual de Egresados 2026',
-    category: 'Presencial',
-    date: '15 de Junio, 2026',
-    time: '6:00 PM - 9:00 PM',
-    location: 'Auditorio Abelardo Bonilla, Sede Rodrigo Facio, UCR',
-    desc: 'Un espacio de reencuentro, networking y discusión sobre las tendencias tecnológicas y económicas en Costa Rica.',
-    gradientFrom: '#F34B26',
-    gradientTo: '#FF9B18',
-  },
-  {
-    id: '2',
-    title: 'Webinar: Inteligencia Artificial en Modelos de Negocio',
-    category: 'Virtual',
-    date: '20 de Junio, 2026',
-    time: '10:00 AM - 12:00 PM',
-    location: 'Transmisión en Vivo (Zoom)',
-    desc: 'Aprende cómo las corporaciones modernas integran modelos generativos para optimizar sus procesos de desarrollo y marketing.',
-    gradientFrom: '#FF9B18',
-    gradientTo: '#FFD000',
-  },
-  {
-    id: '3',
-    title: 'Congreso de Innovación y Sostenibilidad',
-    category: 'Presencial',
-    date: '05 de Julio, 2026',
-    time: '8:30 AM - 4:30 PM',
-    location: 'Aula Magna, Ciudad de la Investigación, UCR',
-    desc: 'Charlas magistrales con expertos internacionales y presentación de TFGs estudiantiles con enfoque sostenible.',
-    gradientFrom: '#E03A14',
-    gradientTo: '#F34B26',
-  }
-]
+function getEventGradient(category: string) {
+  if (category === 'Virtual') return { from: '#FF9B18', to: '#FFD000' }
+  if (category === 'Presencial') return { from: '#F34B26', to: '#FF9B18' }
+  return { from: '#E03A14', to: '#F34B26' }
+}
 
-export default function EventsPage() {
+export default async function EventsPage() {
+  const supabase = await createClient()
+  const { data: events, error } = await supabase.from('events').select('*')
+  
+  const displayEvents = events || []
+
   return (
     <div className="bg-transparent min-h-screen py-10 relative overflow-hidden transition-colors duration-300">
       {/* Círculos decorativos */}
@@ -61,62 +35,71 @@ export default function EventsPage() {
 
         {/* Grid de Eventos */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {MOCK_EVENTS.map((event) => (
-            <Card
-              key={event.id}
-              hoverEffect={true}
-              className="flex flex-col justify-between p-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
-            >
-              {/* Cabecera con gradiente real */}
-              <div
-                className="h-44 w-full relative flex items-end justify-start p-5 text-white"
-                style={{
-                  background: `linear-gradient(135deg, ${event.gradientFrom}, ${event.gradientTo})`
-                }}
+          {displayEvents.map((event) => {
+            const gradient = getEventGradient(event.category)
+            return (
+              <Card
+                key={event.id}
+                hoverEffect={true}
+                className="flex flex-col justify-between p-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
               >
-                {/* Overlay oscuro para legibilidad */}
-                <div className="absolute inset-0 bg-black/20" />
-                <span className="absolute top-4 left-4 bg-white/25 backdrop-blur-md text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider z-10">
-                  {event.category}
-                </span>
-                <h3 className="relative z-10 font-display font-extrabold text-base uppercase tracking-wide leading-snug drop-shadow-md">
-                  {event.title}
-                </h3>
-              </div>
+                {/* Cabecera con gradiente real */}
+                <div
+                  className="h-44 w-full relative flex items-end justify-start p-5 text-white"
+                  style={{
+                    background: `linear-gradient(135deg, ${gradient.from}, ${gradient.to})`
+                  }}
+                >
+                  {/* Overlay oscuro para legibilidad */}
+                  <div className="absolute inset-0 bg-black/20" />
+                  <span className="absolute top-4 left-4 bg-white/25 backdrop-blur-md text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider z-10">
+                    {event.category || 'Evento'}
+                  </span>
+                  <h3 className="relative z-10 font-display font-extrabold text-base uppercase tracking-wide leading-snug drop-shadow-md">
+                    {event.title}
+                  </h3>
+                </div>
 
-              {/* Contenido */}
-              <div className="p-6 space-y-5 flex-1 flex flex-col justify-between">
-                <div className="space-y-4">
-                  <p className="text-sm text-slate-700 font-medium leading-relaxed line-clamp-3">
-                    {event.desc}
-                  </p>
-                  <div className="space-y-2.5 text-sm text-slate-800 font-semibold">
-                    <div className="flex items-center gap-3">
-                      <Calendar className="w-4 h-4 text-[#F34B26] shrink-0" />
-                      <span>{event.date} · {event.time}</span>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      {event.category === 'Virtual' ? (
-                        <Video className="w-4 h-4 text-[#F34B26] shrink-0 mt-0.5" />
-                      ) : (
-                        <MapPin className="w-4 h-4 text-[#F34B26] shrink-0 mt-0.5" />
-                      )}
-                      <span className="line-clamp-2">{event.location}</span>
+                {/* Contenido */}
+                <div className="p-6 space-y-5 flex-1 flex flex-col justify-between">
+                  <div className="space-y-4">
+                    <p className="text-sm text-slate-700 font-medium leading-relaxed line-clamp-3">
+                      {event.description}
+                    </p>
+                    <div className="space-y-2.5 text-sm text-slate-800 font-semibold">
+                      <div className="flex items-center gap-3">
+                        <Calendar className="w-4 h-4 text-[#F34B26] shrink-0" />
+                        <span>{event.event_date} · {event.event_time}</span>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        {event.category === 'Virtual' ? (
+                          <Video className="w-4 h-4 text-[#F34B26] shrink-0 mt-0.5" />
+                        ) : (
+                          <MapPin className="w-4 h-4 text-[#F34B26] shrink-0 mt-0.5" />
+                        )}
+                        <span className="line-clamp-2">{event.location}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="pt-4 border-t border-slate-200">
-                  <Link href={`/events/${event.id}`} className="block">
-                    <span className="block text-center text-xs font-bold text-[#F34B26] hover:text-[#C82A08] transition-colors uppercase tracking-wider pt-2 cursor-pointer">
-                      Ver Detalles →
-                    </span>
-                  </Link>
+                  <div className="pt-4 border-t border-slate-200">
+                    <Link href={`/events/${event.id}`} className="block">
+                      <span className="block text-center text-xs font-bold text-[#F34B26] hover:text-[#C82A08] transition-colors uppercase tracking-wider pt-2 cursor-pointer">
+                        Ver Detalles →
+                      </span>
+                    </Link>
+                  </div>
                 </div>
-              </div>
-            </Card>
-          ))}
+              </Card>
+            )
+          })}
         </div>
+        
+        {displayEvents.length === 0 && (
+          <div className="text-center py-10 text-slate-500">
+            No hay eventos próximos en este momento.
+          </div>
+        )}
       </div>
     </div>
   )

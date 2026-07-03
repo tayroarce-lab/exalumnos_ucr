@@ -5,6 +5,7 @@ import { useProfile } from '@/contexts/ProfileContext'
 import StudentOnboardingForm from '@/components/forms/StudentOnboardingForm'
 import ExalumnoOnboardingForm from '@/components/forms/ExalumnoOnboardingForm'
 import { ArrowLeft, UserCircle2 } from 'lucide-react'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { obtenerMiPerfil } from '@/actions/users'
 
@@ -24,6 +25,7 @@ function ProfileEditFormContent() {
   const { user, profile, isLoading: isContextLoading } = useProfile()
   const [fullProfile, setFullProfile] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const searchParams = useSearchParams()
 
   useEffect(() => {
     async function loadFullProfile() {
@@ -59,7 +61,9 @@ function ProfileEditFormContent() {
     )
   }
 
-  const isStudent = user.user_metadata?.rol === 'estudiante'
+  const isStudent = profile?.rol === 'estudiante' || user.user_metadata?.rol === 'estudiante'
+  const stepParam = searchParams.get('step')
+  const isEditingProject = isStudent && stepParam === '4'
 
   // El profile completo se usará como initialData
   const initialData = {
@@ -88,10 +92,12 @@ function ProfileEditFormContent() {
             </div>
             <div>
               <h1 className="text-3xl sm:text-4xl font-display font-bold text-slate-900 tracking-tight">
-                Editar Perfil
+                {isEditingProject ? 'Mi Proyecto' : 'Editar Perfil'}
               </h1>
               <p className="text-sm text-slate-500 mt-1 font-medium">
-                Mantén tu información actualizada para conectar mejor con la comunidad
+                {isEditingProject 
+                  ? 'Mantén tu proyecto de graduación actualizado para conectar con mentores y financiamiento' 
+                  : 'Mantén tu información actualizada para conectar mejor con la comunidad'}
               </p>
             </div>
           </div>

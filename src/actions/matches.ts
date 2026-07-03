@@ -5,6 +5,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { MatchAdminView, MatchFilters } from '@/types/matches';
 import { sendMatchStatusUpdateEmail } from '@/services/email-service';
 import { logError } from '@/lib/logger';
+import { notifyAllAdmins } from '@/lib/notify-admins';
 
 export async function getMatches(filters?: MatchFilters): Promise<{ data: MatchAdminView[] | null; error: string | null }> {
   const supabase = await createClient();
@@ -180,6 +181,14 @@ export async function updateMatch(
         link: '/mis-matches'
       });
 
+      // Notify Admins
+      await notifyAllAdmins({
+        titulo: estado === 'activo' ? 'Match activado' : 'Match cerrado',
+        mensaje: `La conexión entre ${exNombre} y ${estNombre} ha cambiado a estado: ${estado}.`,
+        tipo: 'match_admin',
+        link: '/admin/matches'
+      });
+
     } else {
       console.error('Failed to retrieve matchDetails for email');
     }
@@ -350,6 +359,14 @@ export async function requestConnection(matchId: string) {
         mensaje: `Has recibido una solicitud de conexión de ${initiatorName}.`,
         tipo: 'mentoria',
         link: '/mis-matches'
+      });
+
+      // Notify Admins of new connection request
+      await notifyAllAdmins({
+        titulo: 'Nueva solicitud de conexión',
+        mensaje: `${initiatorName} solicitó una conexión de mentoría.`,
+        tipo: 'match_admin',
+        link: '/admin/matches'
       });
     } else {
       console.error('Missing data for email:', { exEmail, exNombre, estNombre });

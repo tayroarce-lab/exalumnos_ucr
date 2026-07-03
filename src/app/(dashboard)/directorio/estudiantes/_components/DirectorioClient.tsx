@@ -125,6 +125,50 @@ export default function DirectorioClient({
         />
       </div>
 
+      {/* Pestañas Rápidas de Filtrado */}
+      <div className="flex gap-2.5 mb-6 overflow-x-auto pb-1 scrollbar-thin shrink-0">
+        <button
+          onClick={() => {
+            setFiltros({
+              carrera: [],
+              proyecto_area_tematica: [],
+              areas_de_interes: [],
+              tipos_apoyo: [],
+              proyecto_tipo: "",
+              sede: "",
+            });
+            setPagina(1);
+          }}
+          className={`px-4 py-2.5 text-xs font-bold rounded-xl transition-all shadow-sm cursor-pointer ${
+            filtros.tipos_apoyo.length === 0
+              ? "bg-[#003B4F] text-white hover:bg-[#002735]"
+              : "bg-white/95 border border-white/20 text-slate-800 hover:bg-white"
+          }`}
+        >
+          🔍 Todos los Estudiantes
+        </button>
+        <button
+          onClick={() => {
+            setFiltros({
+              carrera: [],
+              proyecto_area_tematica: [],
+              areas_de_interes: [],
+              tipos_apoyo: ["financiamiento", "mentoría", "empleo", "pasantía"],
+              proyecto_tipo: "",
+              sede: "",
+            });
+            setPagina(1);
+          }}
+          className={`px-4 py-2.5 text-xs font-bold rounded-xl transition-all shadow-sm cursor-pointer ${
+            filtros.tipos_apoyo.length > 0
+              ? "bg-[#003B4F] text-white hover:bg-[#002735]"
+              : "bg-white/95 border border-white/20 text-slate-800 hover:bg-white"
+          }`}
+        >
+          💡 Proyectos Buscando Apoyo (Cualquier Tipo)
+        </button>
+      </div>
+
       {/* Modal de Filtros (Centro de la pantalla) */}
       {showFiltersModal && (
         <div className="fixed inset-0 z-50 overflow-y-auto">

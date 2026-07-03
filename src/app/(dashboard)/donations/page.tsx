@@ -7,7 +7,8 @@ import Card from '@/components/ui/card'
 import Button from '@/components/ui/button'
 import {
   Heart, History, CheckCircle2, Upload, X, AlertCircle,
-  Smartphone, Building2, Clock, FileText, Info, ArrowLeft, ArrowRight, DollarSign
+  Smartphone, Building2, Clock, FileText, Info, ArrowLeft, ArrowRight, DollarSign,
+  GraduationCap
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { crearDonacion } from '@/actions/donations'
@@ -156,8 +157,9 @@ function FondoCard({
 // PÁGINA PRINCIPAL
 // ============================================================
 export default function DonationsPage() {
-  const { user } = useProfile()
-  const isAdmin = user?.user_metadata?.rol === 'admin' || user?.user_metadata?.tipo === 'admin'
+  const { user, profile } = useProfile()
+  const userRole = profile?.rol || user?.user_metadata?.rol
+  const isAdmin = userRole === 'admin' || user?.user_metadata?.tipo === 'admin'
   const [form, setForm] = useState<FormDonacion>(INITIAL_FORM)
   const [comprobante, setComprobante] = useState<File | null>(null)
   const [comprobanteError, setComprobanteError] = useState('')
@@ -165,6 +167,35 @@ export default function DonationsPage() {
   
   const [step, setStep] = useState<number>(1);
   const searchParams = useSearchParams();
+  const [proyectoEstudiante, setProyectoEstudiante] = useState<{ id: string, title: string, desc: string, studentName: string } | null>(null);
+
+  useEffect(() => {
+    const projId = searchParams.get('proyecto_id');
+    if (projId) {
+      const supabase = createClient();
+      supabase
+        .from('users')
+        .select('nombre, apellidos, estudiantes(proyecto_titulo, proyecto_descripcion)')
+        .eq('id', projId)
+        .single()
+        .then(({ data }) => {
+          if (data) {
+            const ests = data.estudiantes;
+            const est = Array.isArray(ests) ? ests[0] : ests;
+            if (est) {
+              setProyectoEstudiante({
+                id: projId,
+                title: est.proyecto_titulo || 'Proyecto de Graduación',
+                desc: est.proyecto_descripcion || '',
+                studentName: `${data.nombre} ${data.apellidos}`
+              });
+              setForm(p => ({ ...p, fondo_id: projId }));
+            }
+          }
+        });
+    }
+  }, [searchParams]);
+
   useEffect(() => {
     const metodo = searchParams.get('metodo');
     if (metodo === 'sinpe') {
@@ -179,7 +210,7 @@ export default function DonationsPage() {
 
   const update = (k: keyof FormDonacion, v: string) => setForm(p => ({ ...p, [k]: v }))
 
-  const fondoSeleccionado = FONDOS.find(f => f.id === form.fondo_id)
+  const fondoSeleccionado = FONDOS.find(f => f.id === form.fondo_id) || (proyectoEstudiante && form.fondo_id === proyectoEstudiante.id ? { title: proyectoEstudiante.title, id: proyectoEstudiante.id } : null)
 
   if (isAdmin) {
     return (
@@ -273,14 +304,15 @@ export default function DonationsPage() {
       const mappedMetodo = form.metodo === 'sinpe' ? 'SINPE' : 'Transferencia'
 
       await crearDonacion({
-        proyecto_destino: form.fondo_id,
+        proyecto_destino: proyectoEstudiante && form.fondo_id === proyectoEstudiante.id ? proyectoEstudiante.title : form.fondo_id,
         monto: Number(form.monto),
         moneda: form.moneda,
         metodo_pago: mappedMetodo,
         fecha_transferencia: new Date(form.fecha_transferencia).toISOString(),
         numero_referencia: form.numero_referencia || '',
         comprobante_url: comprobantePath,
-        mensaje_estudiante: form.mensaje || undefined
+        mensaje_estudiante: form.mensaje || undefined,
+        estudiante_id: proyectoEstudiante && form.fondo_id === proyectoEstudiante.id ? proyectoEstudiante.id : undefined
       })
 
       setSaved(true)
@@ -338,6 +370,32 @@ export default function DonationsPage() {
         return (
           <div className="space-y-4">
             <h2 className="text-xs font-black text-slate-600 uppercase tracking-wider border-b border-slate-100 pb-3">1. Elige el fondo destino</h2>
+            {proyectoEstudiante && (
+              <button
+                type="button"
+                onClick={() => update('fondo_id', proyectoEstudiante.id)}
+                className={`w-full text-left p-5 rounded-2xl border-2 transition-all space-y-3 ${
+                  form.fondo_id === proyectoEstudiante.id ? 'border-celeste bg-sky-50/40 shadow-md animate-pulse-subtle' : 'border-slate-200 bg-white hover:border-sky-200 hover:shadow-sm'
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${form.fondo_id === proyectoEstudiante.id ? 'bg-celeste text-white' : 'bg-slate-100 text-slate-500'}`}>
+                    <GraduationCap className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <span className="text-[9px] font-black text-celeste uppercase tracking-wider bg-sky-100 dark:bg-sky-900/30 px-2 py-0.5 rounded">Apoyo Directo a Proyecto Estudiantil</span>
+                    <h3 className="font-display font-extrabold text-sm text-slate-900 uppercase tracking-wide leading-tight mt-1">{proyectoEstudiante.title}</h3>
+                    <p className="text-xs text-slate-500 font-medium mt-1 leading-relaxed">{proyectoEstudiante.desc}</p>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between pt-1 border-t border-slate-100 mt-2">
+                  <span className="text-[11px] font-bold text-slate-400">Estudiante: {proyectoEstudiante.studentName}</span>
+                  <span className="text-xs font-black text-celeste uppercase tracking-wider bg-white dark:bg-slate-800 border border-slate-200 px-3 py-1 rounded-xl">
+                    {form.fondo_id === proyectoEstudiante.id ? 'Seleccionado' : 'Seleccionar'}
+                  </span>
+                </div>
+              </button>
+            )}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {FONDOS.map(f => (
                 <FondoCard

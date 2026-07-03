@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { requestConnection, respondToConnection } from '@/actions/matches';
+import { requestConnection, respondToConnection, cancelDirectConnection } from '@/actions/matches';
 import Card from '@/components/ui/card';
 import Button from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
@@ -46,6 +46,25 @@ export function MatchesList({ initialMatches, currentUserId, currentUserRole }: 
         setMatches(matches.map(m => m.id === matchId ? { ...m, estado: 'contactado', iniciado_por: currentUserRole } : m));
       } else {
         toast({ title: 'Error', description: res.error || 'No se pudo solicitar la conexión.', variant: 'destructive' });
+      }
+    } catch (e: any) {
+      toast({ title: 'Error', description: e.message, variant: 'destructive' });
+    } finally {
+      setLoadingId(null);
+    }
+  };
+
+  const handleCancelRequest = async (matchId: string, exalumnoId: string, estudianteId: string, currentUserId: string) => {
+    setLoadingId(matchId);
+    // The cancel action uses target user ID
+    const targetId = currentUserId === exalumnoId ? estudianteId : exalumnoId;
+    try {
+      const res = await cancelDirectConnection(targetId);
+      if (res.success) {
+        toast({ title: 'Solicitud cancelada', description: 'Tu solicitud fue retirada correctamente.' });
+        setMatches(matches.map(m => m.id === matchId ? { ...m, estado: 'sugerido', iniciado_por: null } : m));
+      } else {
+        toast({ title: 'Error', description: res.error || 'No se pudo cancelar la solicitud.', variant: 'destructive' });
       }
     } catch (e: any) {
       toast({ title: 'Error', description: e.message, variant: 'destructive' });
@@ -115,9 +134,9 @@ export function MatchesList({ initialMatches, currentUserId, currentUserRole }: 
                 </span>
               </div>
               
-              <div className="space-y-2 mb-6 text-sm text-gray-600">
+              <div className="space-y-2 mb-6 text-sm text-slate-600">
                 <div className="flex items-center gap-1 mb-1">
-                  <span className="font-medium text-gray-900">Tipo de apoyo:</span>
+                  <span className="font-medium text-slate-900">Tipo de apoyo:</span>
                   {match.tipo_apoyo === 'mentoria' && <><GraduationCap className="w-4 h-4 ml-1 text-blue-600" /> <span>Mentoría profesional</span></>}
                   {match.tipo_apoyo === 'empleo' && <><Briefcase className="w-4 h-4 ml-1 text-emerald-600" /> <span>Oferta de empleo</span></>}
                   {match.tipo_apoyo === 'pasantia' && <><Users className="w-4 h-4 ml-1 text-violet-600" /> <span>Pasantía</span></>}
@@ -125,13 +144,13 @@ export function MatchesList({ initialMatches, currentUserId, currentUserRole }: 
                   {!['mentoria', 'empleo', 'pasantia', 'donacion'].includes(match.tipo_apoyo) && <span className="capitalize ml-1">{match.tipo_apoyo}</span>}
                 </div>
                 {otherUserInfo?.hobbies && otherUserInfo.hobbies.length > 0 && (
-                  <p><span className="font-medium text-gray-900">Hobbies:</span> {otherUserInfo.hobbies.join(', ')}</p>
+                  <p><span className="font-medium text-slate-900">Hobbies:</span> {otherUserInfo.hobbies.join(', ')}</p>
                 )}
                 {otherUserInfo?.proyecto_area_tematica && (
-                  <p><span className="font-medium text-gray-900">Área Proyecto:</span> {otherUserInfo.proyecto_area_tematica}</p>
+                  <p><span className="font-medium text-slate-900">Área Proyecto:</span> {otherUserInfo.proyecto_area_tematica}</p>
                 )}
                 {otherUserInfo?.sector_industria && otherUserInfo.sector_industria.length > 0 && (
-                  <p><span className="font-medium text-gray-900">Sector:</span> {otherUserInfo.sector_industria.join(', ')}</p>
+                  <p><span className="font-medium text-slate-900">Sector:</span> {otherUserInfo.sector_industria.join(', ')}</p>
                 )}
               </div>
             </div>
@@ -148,9 +167,18 @@ export function MatchesList({ initialMatches, currentUserId, currentUserRole }: 
               )}
 
               {yaSolicite && (
-                <Button disabled variant="secondary" className="w-full">
-                  Solicitud Enviada
-                </Button>
+                <div className="flex flex-col gap-2">
+                  <Button disabled variant="secondary" className="w-full opacity-70">
+                    ✓ Solicitud Enviada
+                  </Button>
+                  <button
+                    onClick={() => handleCancelRequest(match.id, match.exalumno_id, match.estudiante_id, currentUserId)}
+                    disabled={loadingId === match.id}
+                    className="w-full text-xs font-bold text-red-500 hover:text-red-700 hover:bg-red-50 border border-red-200 rounded-xl py-2 transition-all duration-150 disabled:opacity-40"
+                  >
+                    {loadingId === match.id ? 'Cancelando...' : '✕ Cancelar solicitud'}
+                  </button>
+                </div>
               )}
 
               {isMiTurnoDeResponder && (
@@ -175,13 +203,13 @@ export function MatchesList({ initialMatches, currentUserId, currentUserRole }: 
 
               {isActivo && (
                 <>
-                  <div className="bg-green-50 border border-green-200 text-green-800 rounded p-3 text-center text-sm mb-2">
+                  <div className="bg-emerald-50 border border-emerald-300/50 text-emerald-700 rounded p-3 text-center text-sm mb-2">
                     <p className="font-medium">¡Conexión Activa!</p>
                     <p className="text-xs mt-1">Revisa tu correo para ver los datos de contacto.</p>
                   </div>
                   <Link
                     href={`/network/${isEstudiante ? match.exalumno_id : match.estudiante_id}`}
-                    className="w-full flex items-center justify-center gap-2 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-emerald-600 text-sm font-medium hover:bg-emerald-500/20 active:scale-[0.98] transition-all duration-150"
+                    className="w-full flex items-center justify-center gap-2 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-emerald-700 text-sm font-medium hover:bg-emerald-500/20 active:scale-[0.98] transition-all duration-150"
                   >
                     <User className="w-4 h-4" />
                     Ver información

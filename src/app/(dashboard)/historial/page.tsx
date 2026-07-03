@@ -143,8 +143,8 @@ function DonacionCard({ d, isStudent }: { d: Donacion, isStudent?: boolean }) {
 }
 
 export default function HistorialPage() {
-  const { user, isLoading: isProfileLoading } = useProfile()
-  const isStudent = user?.user_metadata?.rol === 'estudiante'
+  const { user, profile, isLoading: isProfileLoading } = useProfile()
+  const isStudent = profile?.rol === 'estudiante' || user?.user_metadata?.rol === 'estudiante'
 
   const [donaciones, setDonaciones] = useState<Donacion[]>([])
   const [isLoading, setIsLoading] = useState(true)

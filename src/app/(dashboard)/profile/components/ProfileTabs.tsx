@@ -1,8 +1,10 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Card from '@/components/ui/card'
 import { getProyectoFileUrl } from '@/lib/utils'
+import ProyectoDonacionesProgreso from '@/components/ProyectoDonacionesProgreso'
+import { obtenerInsigniasDonador } from '@/actions/donations'
 import { 
   Phone, 
   Linkedin, 
@@ -20,6 +22,13 @@ import {
 
 export default function ProfileTabs({ profile, user, name, email, phone, location, initials, linkedin, twitter, instagram, skills, academic, experience }: any) {
   const isStudent = profile?.rol === 'estudiante'
+  const [insignias, setInsignias] = useState<any[]>([])
+
+  useEffect(() => {
+    if (profile?.id && profile?.rol === 'exalumno') {
+      obtenerInsigniasDonador(profile.id).then(setInsignias)
+    }
+  }, [profile])
   
   const tabs = isStudent 
     ? ['personal', 'academica', 'proyecto'] 
@@ -141,6 +150,27 @@ export default function ProfileTabs({ profile, user, name, email, phone, locatio
                 <div className="flex flex-wrap gap-2 mt-1">
                   {user.hobbies.map((hobby: string, idx: number) => (
                     <span key={idx} className="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-semibold">{hobby}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Insignias AlumniUCR */}
+            {!isStudent && insignias.length > 0 && (
+              <div className="space-y-3 pt-4 border-t border-slate-100">
+                <h4 className="text-xs font-black text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                  Insignias AlumniUCR
+                </h4>
+                <div className="flex flex-wrap gap-2.5">
+                  {insignias.map((insignia) => (
+                    <div 
+                      key={insignia.id}
+                      title={insignia.description}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-extrabold transition-all hover:scale-105 cursor-help ${insignia.color}`}
+                    >
+                      <span className="text-base shrink-0">{insignia.icon}</span>
+                      <span>{insignia.name}</span>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -372,6 +402,15 @@ export default function ProfileTabs({ profile, user, name, email, phone, locatio
                   </div>
                 </div>
 
+                {/* Barra de donaciones si busca financiamiento */}
+                {profile.busca_financiamiento && profile.proyecto_valor_monto && (
+                  <ProyectoDonacionesProgreso 
+                    proyectoId={profile.id || profile.user_id || user?.id} 
+                    metaMonto={profile.proyecto_valor_monto} 
+                    metaMoneda={profile.proyecto_valor_moneda} 
+                  />
+                )}
+
                 {/* Imagen del Proyecto */}
                 {profile.proyecto_foto_url && (
                   <div className="rounded-2xl overflow-hidden border border-slate-200 shadow-sm max-h-80 w-full relative">
@@ -388,6 +427,27 @@ export default function ProfileTabs({ profile, user, name, email, phone, locatio
                   <h5 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Descripción del Proyecto</h5>
                   <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">{profile.proyecto_descripcion}</p>
                 </div>
+
+                {/* Beneficios para donadores */}
+                {profile.proyecto_beneficios && (
+                  <div className="bg-slate-50/50 p-5 rounded-2xl border border-slate-100 space-y-3">
+                    <h5 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Beneficios para patrocinadores</h5>
+                    <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">{profile.proyecto_beneficios}</p>
+                    {profile.proyecto_beneficios_fotos && profile.proyecto_beneficios_fotos.length > 0 && (
+                      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mt-3">
+                        {profile.proyecto_beneficios_fotos.map((fotoUrl: string, idx: number) => (
+                          <div key={idx} className="rounded-xl overflow-hidden border border-slate-200 shadow-sm aspect-square relative bg-slate-105">
+                            <img 
+                              src={getProyectoFileUrl(fotoUrl) || ''} 
+                              alt={`Recompensa ${idx + 1}`}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Grid de detalles */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

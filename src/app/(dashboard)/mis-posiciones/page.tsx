@@ -33,8 +33,8 @@ export default function MisPosicionesPage() {
   const [accionando, setAccionando] = useState<string | null>(null)
   const [confirmarEliminar, setConfirmarEliminar] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const { user } = useProfile()
-  const isStudent = user?.user_metadata?.rol === 'estudiante'
+  const { user, profile } = useProfile()
+  const isStudent = profile?.rol === 'estudiante' || user?.user_metadata?.rol === 'estudiante'
 
   if (isStudent) {
     return <MisAplicacionesPage />
@@ -115,7 +115,7 @@ export default function MisPosicionesPage() {
             { label: 'Pausadas', value: pausadas,  color: 'text-amber-600',   bg: 'bg-amber-50 border-amber-100'     },
             { label: 'Cerradas', value: cerradas,  color: 'text-slate-500',   bg: 'bg-slate-50 border-slate-200'     },
           ].map(stat => (
-            <div key={stat.label} className={`${stat.bg} border rounded-2xl p-4 text-center`}>
+            <div key={stat.label} className={`stats-card ${stat.bg} border rounded-2xl p-4 text-center`}>
               <p className={`text-3xl font-black ${stat.color}`}>{stat.value}</p>
               <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">{stat.label}</p>
             </div>
