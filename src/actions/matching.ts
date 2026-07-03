@@ -364,7 +364,7 @@ export async function calcularScorePuesto(
   if (!posicion)   throw new Error(`Posición "${posicionId}" no encontrada.`)
 
   const mapAreas = (u: any) => {
-    return u.users_areas_interes?.map((ua: any) => ua.catalogo_areas_interes?.nombre).filter(Boolean) || []
+    return u.estudiantes?.[0]?.areas_de_interes || u.exalumnos?.[0]?.areas_de_interes || u.areas_de_interes || []
   }
 
   // Si la posición no está activa (usa 'activa', no 'abierta'), score = 0
