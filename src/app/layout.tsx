@@ -30,7 +30,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="es">
+    <html lang="es" className={`${barlow.variable} ${workSans.variable}`}>
       <body>
         <GlobalLoadingOverlay />
         <A11yToolbar />
