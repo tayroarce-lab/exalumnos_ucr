@@ -1,11 +1,12 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { User, GraduationCap, HandHeart, Network } from 'lucide-react';
+import { User } from 'lucide-react';
 import logoUCR from '@/images/Logo_UCR.png';
 import fondoUCR from '@/images/SAVE_20260623_123242.png';
 // import LogoAnimado from '@/components/ui/LogoAnimado';
 
 import Footer from '@/components/layout/footer';
+import SeccionApoyoComunidad from '@/components/layout/SeccionApoyoComunidad';
 
 export const metadata = {
   title: 'Fundación Exalumnos UCR | Inicio',
@@ -227,62 +228,4 @@ function SeccionHeroSplit() {
   );
 }
 
-function SeccionApoyoComunidad() {
-  return (
-    <section className="seccion-apoyo">
-      <div className="apoyo-cabecera">
-        <h2 className="apoyo-titulo">¿Cómo apoyamos a la comunidad?</h2>
-        <p className="apoyo-subtitulo">
-          Nuestra plataforma facilita la mentoría y el financiamiento directo a través de una red institucional sólida.
-        </p>
-      </div>
 
-      <div className="apoyo-cuadricula">
-        {/* Tarjeta Grande (Izquierda) */}
-        <div className="apoyo-tarjeta-grande">
-          <div className="apoyo-tarjeta-bg-shape" />
-          <div className="apoyo-tarjeta-contenido">
-            <div className="apoyo-icono-contenedor-grande">
-              <GraduationCap className="apoyo-icono-grande" size={36} />
-            </div>
-            
-            <div className="apoyo-texto-grande">
-              <h3 className="apoyo-tarjeta-titulo-grande">Mentoría Alumni</h3>
-              <p className="apoyo-tarjeta-descripcion-grande">
-                Expertos graduados guían a estudiantes en sus trabajos finales, compartiendo experiencia del mundo real y mejores prácticas de la industria.
-              </p>
-              <Link href="/mentorships" className="apoyo-enlace-grande">
-                Explorar mentores <span className="apoyo-flecha">→</span>
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        {/* Columna Derecha */}
-        <div className="apoyo-columna-derecha">
-          {/* Tarjeta Micro-becas */}
-          <div className="apoyo-tarjeta-pequena">
-            <div className="apoyo-icono-contenedor-pequeno">
-              <HandHeart className="apoyo-icono-pequeno" size={24} />
-            </div>
-            <h3 className="apoyo-tarjeta-titulo-pequeno">Micro-becas</h3>
-            <p className="apoyo-tarjeta-descripcion-pequeno">
-              Fondos rápidos para materiales de laboratorio, encuestas o prototipos físicos.
-            </p>
-          </div>
-
-          {/* Tarjeta Networking */}
-          <div className="apoyo-tarjeta-pequena">
-            <div className="apoyo-icono-contenedor-pequeno">
-              <Network className="apoyo-icono-pequeno" size={24} />
-            </div>
-            <h3 className="apoyo-tarjeta-titulo-pequeno">Networking</h3>
-            <p className="apoyo-tarjeta-descripcion-pequeno">
-              Conéctate con la red de profesionales UCR más grande de la región.
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}

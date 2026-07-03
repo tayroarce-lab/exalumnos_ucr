@@ -1,7 +1,7 @@
 
 :root {
   /* Paleta oficial */
-  --esmeralda: #003B4F;
+  --esmeralda: #004C63;
   /* Azul oscuro de los botones y textos de la cabecera */
   --celeste: #54BCEB;
   --amarillo: #FF9B18;
@@ -13,11 +13,11 @@
   --gris-fondo: #F7F9FB;
   --gris-texto: #4A5568;
   --gris-borde: #E2E8F0;
-  --azul-oscuro-footer: #001C29;
+  --azul-oscuro-footer: #004C63;
 
   /* Fuentes */
-  --fuente-principal: 'Inter', sans-serif;
-  --fuente-titulo: 'Outfit', sans-serif;
+  --fuente-principal: var(--font-work-sans), 'Work Sans', sans-serif;
+  --fuente-titulo: var(--font-barlow), 'Barlow Semi Condensed', sans-serif;
 }
 
 /* Reset básico */
@@ -125,7 +125,7 @@ body {
   min-height: 100vh;
   width: 100%;
   position: relative;
-  background: linear-gradient(135deg, #0284C7 25%, #F34B26 75%);
+  background: linear-gradient(135deg, #0284C7 25%, #F34B26 75%) fixed;
   overflow: hidden;
 }
 
@@ -632,9 +632,9 @@ body {
 
 /* ── FOOTER ── */
 .footer-principal {
-  background-color: #00111f;
-  border-top: 1px solid rgba(84, 188, 235, 0.12);
-  padding: 4.5rem 0 0;
+  background-color: #004C63; /* Esmeralda oficial */
+  border-top: 4px solid #54BCEB; /* Borde celeste como acento institucional angular sutil */
+  padding: 5rem 0 0;
   font-family: var(--fuente-principal);
 }
 
@@ -649,115 +649,125 @@ body {
 }
 
 .footer-descripcion {
-  color: rgba(255, 255, 255, 0.50);
-  font-size: 0.875rem;
-  line-height: 1.78;
-  margin-top: 1.25rem;
-  max-width: 290px;
+  color: rgba(255, 255, 255, 0.85); /* Accesibilidad AA */
+  font-size: 0.9rem;
+  line-height: 1.8;
+  margin-top: 1.5rem;
+  max-width: 320px;
 }
 
 .footer-redes {
   display: flex;
-  gap: 0.65rem;
-  margin-top: 1.5rem;
+  gap: 0.85rem;
+  margin-top: 1.75rem;
 }
 
 .footer-red-icono {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.07);
-  color: rgba(255, 255, 255, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.09);
+  width: 42px;
+  height: 42px;
+  border-radius: 50%; /* Comunidad = círculo */
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   text-decoration: none;
-  transition: background 0.25s ease, color 0.25s ease, transform 0.25s ease, border-color 0.25s ease;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.footer-red-icono:hover {
-  background: rgba(84, 188, 235, 0.18);
+/* Hover específico para Facebook y LinkedIn (Celeste) y Instagram y YouTube (Amarillo) */
+.footer-red-icono[aria-label="Facebook"]:hover,
+.footer-red-icono[aria-label="LinkedIn"]:hover {
+  background: rgba(84, 188, 235, 0.15);
   color: #54BCEB;
-  border-color: rgba(84, 188, 235, 0.30);
-  transform: translateY(-3px);
+  border-color: #54BCEB;
+  transform: translateY(-4px) scale(1.05);
+}
+
+.footer-red-icono[aria-label="Instagram"]:hover,
+.footer-red-icono[aria-label="YouTube"]:hover {
+  background: rgba(255, 155, 24, 0.15);
+  color: #FF9B18;
+  border-color: #FF9B18;
+  transform: translateY(-4px) scale(1.05);
 }
 
 .footer-titulo-col {
   font-family: var(--fuente-titulo);
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.38);
+  font-size: 0.9rem;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.95); /* Contraste AA excelente */
   text-transform: uppercase;
-  letter-spacing: 1.8px;
-  margin-bottom: 1.25rem;
+  letter-spacing: 2px;
+  margin-bottom: 1.5rem;
 }
 
 .footer-lista {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 0.72rem;
+  gap: 0.85rem;
 }
 
 .footer-enlace {
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(255, 255, 255, 0.80);
   text-decoration: none;
-  font-size: 0.875rem;
-  transition: color 0.2s ease, padding-left 0.2s ease;
+  font-size: 0.925rem;
+  transition: all 0.25s ease;
   display: inline-block;
 }
 
 .footer-enlace:hover {
   color: #54BCEB;
-  padding-left: 4px;
+  padding-left: 6px;
 }
 
 .footer-contacto-lista {
-  gap: 0.9rem !important;
+  gap: 1rem !important;
 }
 
 .footer-contacto-lista li {
   display: flex;
   align-items: flex-start;
-  gap: 0.65rem;
-  color: rgba(255, 255, 255, 0.55);
-  font-size: 0.875rem;
-  line-height: 1.5;
+  gap: 0.75rem;
+  color: rgba(255, 255, 255, 0.80);
+  font-size: 0.925rem;
+  line-height: 1.6;
 }
 
 .footer-contacto-lista svg {
   color: #54BCEB;
   flex-shrink: 0;
-  margin-top: 2px;
+  margin-top: 3px;
 }
 
 .footer-inferior {
-  margin-top: 3.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  padding: 1.5rem 4rem;
+  margin-top: 4rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.10);
+  padding: 2rem 4rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
 .footer-inferior p {
-  color: rgba(255, 255, 255, 0.28);
-  font-size: 0.80rem;
+  color: rgba(255, 255, 255, 0.60);
+  font-size: 0.85rem;
 }
 
 .footer-inferior-links {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  color: rgba(255, 255, 255, 0.20);
-  font-size: 0.80rem;
+  color: rgba(255, 255, 255, 0.30);
+  font-size: 0.85rem;
 }
 
 .footer-enlace-inferior {
-  color: rgba(255, 255, 255, 0.30);
+  color: rgba(255, 255, 255, 0.60);
   text-decoration: none;
-  font-size: 0.80rem;
+  font-size: 0.85rem;
   transition: color 0.2s ease;
 }
 
