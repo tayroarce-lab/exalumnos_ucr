@@ -98,7 +98,7 @@ export default function StudentDashboardPage() {
         </div>
 
         {/* Banner con Gradiente y Diseño Moderno */}
-        <div className="rounded-3xl p-8 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-8 overflow-hidden relative shadow-xl text-white bg-gradient-to-br from-esmeralda via-[#093e50] to-celeste transition-all duration-500 hover:shadow-celeste/20 group">
+        <div id="tour-welcome-banner" className="rounded-3xl p-8 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-8 overflow-hidden relative shadow-xl text-white bg-gradient-to-br from-esmeralda via-[#093e50] to-celeste transition-all duration-500 hover:shadow-celeste/20 group">
           <div className="absolute right-0 top-0 bottom-0 w-1/2 bg-white/5 rounded-l-full hidden md:block transform translate-x-10 group-hover:translate-x-6 transition-transform duration-700" />
           <div className="absolute right-1/4 top-1/4 w-32 h-32 bg-celeste/20 rounded-full blur-3xl group-hover:scale-125 transition-transform duration-700" />
           <div className="absolute left-1/3 bottom-0 w-24 h-24 bg-white/5 rounded-full blur-xl" />
@@ -134,7 +134,7 @@ export default function StudentDashboardPage() {
         </div>
 
         {/* Accesos Rápidos */}
-        <div className="space-y-5">
+        <div id="tour-quick-summary" className="space-y-5">
           <h2 className="text-lg font-bold uppercase tracking-wider text-slate-800 font-display flex items-center gap-2">
             <span className="w-2 h-6 bg-celeste rounded-full" />
             Accesos rápidos
@@ -165,7 +165,7 @@ export default function StudentDashboardPage() {
         </div>
 
         {/* Pasos para comenzar */}
-        <div className="space-y-5">
+        <div id="tour-upcoming-events" className="space-y-5">
           <h2 className="text-lg font-bold uppercase tracking-wider text-slate-800 font-display flex items-center gap-2">
             <span className="w-2 h-6 bg-esmeralda rounded-full" />
             ¿Por dónde empezar?
