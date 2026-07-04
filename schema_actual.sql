@@ -409,6 +409,9 @@ CREATE TABLE public.estudiantes (
   proyecto_valor_moneda text CHECK (proyecto_valor_moneda = ANY (ARRAY['CRC'::text, 'USD'::text])),
   proyecto_video_url text,
   proyecto_documento_url text,
+  proyecto_foto_url text,
+  proyecto_beneficios text,
+  proyecto_beneficios_fotos ARRAY,
   CONSTRAINT estudiantes_pkey PRIMARY KEY (id),
   CONSTRAINT estudiantes_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id)
 );
