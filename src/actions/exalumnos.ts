@@ -25,6 +25,7 @@ export async function completarOnboardingExalumno(datos: {
   bio?: string;
   habilidades: string[];
   hobbies?: string[];
+  full_name?: string;
   foto_url?: string;
   carrera_ucr?: string;
   escuela_facultad?: string;

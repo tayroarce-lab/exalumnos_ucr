@@ -98,6 +98,7 @@ export async function completarOnboardingEstudiante(datos: {
   busca_pasantia: boolean
   habilidades: string[]
   hobbies?: string[]
+  full_name?: string
   foto_url?: string
   bio?: string
   proyecto_valor_monto?: number | null
