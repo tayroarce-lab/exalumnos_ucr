@@ -84,6 +84,28 @@ export default function ExalumnoOnboardingForm({
   const [globalError, setGlobalError] = useState('');
   const [isUploading, setIsUploading] = useState(false);
 
+  const draftKey = `exalumno_form_draft_${userEmail || 'default'}`;
+  const [isDraftLoaded, setIsDraftLoaded] = useState(false);
+
+  useEffect(() => {
+    if (!isDraftLoaded && typeof window !== 'undefined') {
+      const saved = localStorage.getItem(draftKey);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          setFormData(prev => ({ ...prev, ...parsed }));
+        } catch (e) {}
+      }
+      setIsDraftLoaded(true);
+    }
+  }, [draftKey, isDraftLoaded]);
+
+  useEffect(() => {
+    if (isDraftLoaded) {
+      localStorage.setItem(draftKey, JSON.stringify(formData));
+    }
+  }, [formData, draftKey, isDraftLoaded]);
+
   useEffect(() => {
     if (userName && !formData.full_name) {
       setFormData(prev => ({ ...prev, full_name: userName }));
@@ -206,6 +228,7 @@ export default function ExalumnoOnboardingForm({
         habilidades: habilidadesArray,
         hobbies: hobbiesArray,
         foto_url: validData.foto_url,
+        full_name: validData.full_name,
         carrera_ucr: validData.carrera_ucr,
         escuela_facultad: validData.escuela_facultad,
         anio_graduacion: validData.anio_graduacion,
@@ -213,6 +236,11 @@ export default function ExalumnoOnboardingForm({
 
       if (!result.success) {
         throw new Error(result.error || 'Error al guardar el perfil');
+      }
+
+      // Limpiar el borrador local al guardar exitosamente
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem(draftKey);
       }
 
       router.push('/dashboard');

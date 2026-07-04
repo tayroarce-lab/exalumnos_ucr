@@ -100,6 +100,28 @@ export default function StudentOnboardingForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [globalError, setGlobalError] = useState('');
   const [isUploading, setIsUploading] = useState(false);
+  
+  const draftKey = `student_form_draft_${userEmail || 'default'}`;
+  const [isDraftLoaded, setIsDraftLoaded] = useState(false);
+
+  useEffect(() => {
+    if (!isDraftLoaded && typeof window !== 'undefined') {
+      const saved = localStorage.getItem(draftKey);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          setFormData(prev => ({ ...prev, ...parsed }));
+        } catch (e) {}
+      }
+      setIsDraftLoaded(true);
+    }
+  }, [draftKey, isDraftLoaded]);
+
+  useEffect(() => {
+    if (isDraftLoaded) {
+      localStorage.setItem(draftKey, JSON.stringify(formData));
+    }
+  }, [formData, draftKey, isDraftLoaded]);
 
   useEffect(() => {
     if (userName && !formData.full_name) {
@@ -337,7 +359,7 @@ export default function StudentOnboardingForm({
       let result;
       if (isEditMode) {
         result = await actualizarPerfilCompletoEstudiante({
-          full_name: userName,
+          full_name: validData.full_name,
           foto_url: validData.foto_url,
           bio: validData.bio,
           busca_mentoria: validData.busca_mentoria,
@@ -400,12 +422,18 @@ export default function StudentOnboardingForm({
           proyecto_documento_url: validData.proyecto_documento_url,
           proyecto_foto_url: validData.proyecto_foto_url,
           proyecto_beneficios: validData.proyecto_beneficios,
-          proyecto_beneficios_fotos: validData.proyecto_beneficios_fotos || []
+          proyecto_beneficios_fotos: validData.proyecto_beneficios_fotos || [],
+          full_name: validData.full_name
         });
       }
 
       if (!result.success) {
         throw new Error(result.error || 'Error al guardar el perfil');
+      }
+
+      // Limpiar el borrador local al guardar exitosamente
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem(draftKey);
       }
 
       if (isEditMode) {
