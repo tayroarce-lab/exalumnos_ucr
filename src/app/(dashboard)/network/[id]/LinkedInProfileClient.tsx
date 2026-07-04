@@ -8,6 +8,7 @@ import {
   MoreHorizontal, Plus, Check, MessageSquare, ExternalLink, 
   FileText, Shield, Star, Award, Heart, Sparkles, X, ChevronRight
 } from 'lucide-react'
+import { toast } from 'sonner'
 import { getAvatarUrl } from '@/lib/utils'
 
 interface RecommendedProfile {
@@ -340,7 +341,7 @@ export default function LinkedInProfileClient({
                         <button 
                           onClick={() => {
                             navigator.clipboard.writeText(window.location.href)
-                            alert('Enlace copiado al portapapeles!')
+                            toast.success('Enlace copiado al portapapeles')
                             setShowMoreDropdown(false)
                           }}
                           className="w-full text-left px-4 py-2 hover:bg-slate-50 flex items-center gap-2 text-slate-700"

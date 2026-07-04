@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { ChevronRight, Send, Settings, CheckSquare, Trash, Edit2, ShieldAlert, Maximize2, Minimize2 } from 'lucide-react'
 import { sendMessage, deleteMessages, editMessage } from '@/actions/chat'
 import ChatSettingsPanel from './ChatSettingsPanel'
+import { toast } from 'sonner'
 
 interface ChatMessage {
   id: string
@@ -97,7 +98,7 @@ export default function ChatDrawer({ matchId, currentUserId, otherUserName, othe
         setEditingMsg(null)
         setInputText('')
       } catch (err: any) {
-        alert(err.message)
+        toast.error(err.message || 'Error al editar el mensaje')
       } finally {
         setLoading(false)
       }
@@ -115,7 +116,7 @@ export default function ChatDrawer({ matchId, currentUserId, otherUserName, othe
       }
       setInputText('')
     } catch (err: any) {
-      alert(err.message)
+      toast.error(err.message || 'Error al enviar el mensaje')
     } finally {
       setLoading(false)
     }
@@ -132,7 +133,7 @@ export default function ChatDrawer({ matchId, currentUserId, otherUserName, othe
       setSelectedIds([])
       setManageMode(false)
     } catch(err: any) {
-      alert(err.message)
+      toast.error(err.message || 'Error al eliminar mensajes')
     } finally {
       setLoading(false)
     }
@@ -156,7 +157,7 @@ export default function ChatDrawer({ matchId, currentUserId, otherUserName, othe
     const createdAtTime = new Date(createdAt).getTime()
     const now = new Date().getTime()
     if ((now - createdAtTime) / 60000 > 5) {
-      alert('Solo puedes gestionar mensajes enviados en los últimos 5 minutos.')
+      toast.warning('Solo puedes gestionar mensajes enviados en los últimos 5 minutos.')
       return
     }
 

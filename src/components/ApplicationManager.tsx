@@ -8,6 +8,7 @@
 
 import { useState } from 'react';
 import { FileText, Send, User, MapPin, Star, Eye, Check, X, AlertTriangle } from 'lucide-react';
+import { toast } from 'sonner';
 import { enviarAplicacion, cambiarEstadoAplicacion, EstadoAplicacion } from '@/services/applicationService';
 
 // =============================================================================
@@ -170,7 +171,7 @@ export function PanelAplicantes({
     if (respuesta.exito) {
       onUpdate();
     } else {
-      alert(respuesta.mensaje);
+      toast.error(respuesta.mensaje);
     }
     setActualizando(null);
   };
@@ -243,7 +244,7 @@ export function PanelAplicantes({
             <div className="flex flex-wrap items-center gap-2 md:w-auto w-full">
               {candidato.cv_url && (
                 <button 
-                  onClick={() => alert(`Abre CV: ${candidato.cv_url}`)} 
+                  onClick={() => toast.info('Visualizaci\u00f3n de CV disponible pr\u00f3ximamente.')} 
                   className="flex items-center gap-1 px-3 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-sm font-medium transition"
                 >
                   <Eye className="w-4 h-4" /> CV

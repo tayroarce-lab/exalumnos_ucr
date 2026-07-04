@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { CheckCircle, XCircle, Clock } from 'lucide-react'
 import { getAllTalleresAdmin, updateTallerEstadoAdmin } from '@/actions/talleres'
+import { toast } from 'sonner'
 import Card from '@/components/ui/card'
 import Button from '@/components/ui/button'
 
@@ -30,7 +31,7 @@ export default function AdminTalleresPage() {
       setTalleres(prev => prev.map(t => t.id === id ? { ...t, estado } : t))
     } catch (error) {
       console.error(error)
-      alert('Error al actualizar taller')
+      toast.error('Error al actualizar taller')
     }
   }
 

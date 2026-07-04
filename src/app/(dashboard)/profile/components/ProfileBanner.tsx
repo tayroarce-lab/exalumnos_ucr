@@ -3,6 +3,7 @@
 import React, { useRef, useState } from 'react'
 import { Camera, Loader2 } from 'lucide-react'
 import { updateBannerImage } from '../actions'
+import { toast } from 'sonner'
 
 interface ProfileBannerProps {
   bannerUrl: string | null | undefined
@@ -24,13 +25,13 @@ export default function ProfileBanner({ bannerUrl, isOwner }: ProfileBannerProps
       
       const res = await updateBannerImage(formData)
       if (!res.success) {
-        alert(res.error || 'Error al subir el banner')
+        toast.error(res.error || 'Error al subir el banner')
       } else {
-        // La Server Action ya revalida el path
+        toast.success('Banner actualizado correctamente')
       }
     } catch (error) {
       console.error(error)
-      alert('Ocurrió un error inesperado al subir el banner')
+      toast.error('Ocurrió un error inesperado al subir el banner')
     } finally {
       setIsUploading(false)
       if (fileInputRef.current) {

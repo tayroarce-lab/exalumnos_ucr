@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import { blockUser, updateChatSettings } from '@/actions/chat'
 import { Settings, X, ShieldAlert } from 'lucide-react'
+import { toast } from 'sonner'
 
 interface ChatSettingsPanelProps {
   matchId: string
@@ -31,7 +32,7 @@ export default function ChatSettingsPanel({ matchId, blockedUserId, currentExpir
       onClose()
     } catch (error) {
       console.error('Error updating settings', error)
-      alert('Error guardando configuraciones')
+      toast.error('Error guardando configuraciones')
     }
     setLoading(false)
   }
@@ -40,11 +41,11 @@ export default function ChatSettingsPanel({ matchId, blockedUserId, currentExpir
     setLoading(true)
     try {
       await blockUser(blockedUserId, matchId)
-      alert('Usuario bloqueado exitosamente. El chat ha sido cerrado.')
+      toast.success('Usuario bloqueado. El chat ha sido cerrado.')
       window.location.reload()
     } catch (error) {
       console.error('Error al bloquear', error)
-      alert('Error bloqueando al usuario')
+      toast.error('Error bloqueando al usuario')
     }
     setLoading(false)
   }

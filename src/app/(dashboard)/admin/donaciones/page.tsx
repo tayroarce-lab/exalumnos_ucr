@@ -6,6 +6,7 @@ import { DonationAdminView, DonationsHistoryFilters } from '@/types/donations';
 import { getPendingDonations, getDonationsHistory, processDonation } from '@/actions/donations';
 import { PendingDonations } from './_components/pending-donations';
 import { DonationsHistory } from './_components/donations-history';
+import { toast } from 'sonner';
 import '../../../../styles/admin-dashboard.css';
 import '../../../../styles/admin-donaciones.css';
 
@@ -43,7 +44,7 @@ export default function AdminDonationsPage() {
     if (res.success) {
       fetchPending();
     } else {
-      alert(`Error al procesar la donación: ${res.error}`);
+      toast.error(`Error al procesar la donación: ${res.error}`);
     }
   };
 

@@ -8,7 +8,8 @@
 //               Prohibido: <form>, style={{}}, datos socioeconómicos.
 // =============================================================================
 
-import { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
+import { toast } from 'sonner';
 import { Search, SlidersHorizontal, X, ChevronDown, Users } from 'lucide-react';
 import { TarjetaEstudiante, type EstudiantePublico } from './StudentCard';
 import { AREAS_INTERES } from '@/constants/interestAreas';
@@ -261,7 +262,7 @@ export default function DirectorioEstudiantes() {
     const estudiante = estudiantes.find(e => e.id === idEstudiante);
     if (!estudiante) return;
     // TODO: Conectar con el flujo de match / notificación al estudiante
-    alert(`¡Oferta de apoyo enviada a ${estudiante.nombreCompleto}!`);
+    toast.success(`¡Oferta de apoyo enviada a ${estudiante.nombreCompleto}!`);
   }
 
   // Catálogo de áreas temáticas derivado de las áreas de interés generales
