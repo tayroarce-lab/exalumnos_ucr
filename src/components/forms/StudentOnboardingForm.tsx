@@ -322,7 +322,7 @@ export default function StudentOnboardingForm({
         }
         return next;
       });
-    } else if (type === 'number') {
+    } else if (type === 'number' || type === 'range') {
       setFormData(prev => ({ ...prev, [name]: Number(value) }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
