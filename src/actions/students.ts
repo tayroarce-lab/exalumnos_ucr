@@ -108,6 +108,8 @@ export async function completarOnboardingEstudiante(datos: {
   proyecto_foto_url?: string | null
   proyecto_beneficios?: string | null
   proyecto_beneficios_fotos?: string[] | null
+  phone?: string
+  linkedin_url?: string
 }) {
   try {
     const supabase = await createClient()
@@ -162,7 +164,9 @@ export async function completarOnboardingEstudiante(datos: {
       perfil_completo: 1 as any,
       full_name: datos.full_name || user.user_metadata?.nombre || user.email?.split('@')[0],
       foto_url: datos.foto_url || null,
-      bio: datos.bio || null
+      bio: datos.bio || null,
+      phone: datos.phone || null,
+      linkedin_url: datos.linkedin_url || null
     }).eq('id', user.id)
 
     if (datos.full_name) {
@@ -227,7 +231,7 @@ export async function actualizarPerfilCompletoEstudiante(datos: any) {
     // 1. Obtener datos actuales del profile para no borrarlos accidentalmente si vienen undefined
     const { data: currentProfile } = await adminClient
       .from('profiles')
-      .select('full_name, foto_url, pais_ciudad, linkedin_url, bio')
+      .select('full_name, foto_url, pais_ciudad, linkedin_url, phone, bio')
       .eq('id', user.id)
       .maybeSingle()
 
@@ -237,6 +241,7 @@ export async function actualizarPerfilCompletoEstudiante(datos: any) {
       foto_url: datos.foto_url !== undefined ? datos.foto_url : (currentProfile?.foto_url || null),
       pais_ciudad: datos.pais_ciudad !== undefined ? datos.pais_ciudad : (currentProfile?.pais_ciudad || null),
       linkedin_url: datos.linkedin_url !== undefined ? datos.linkedin_url : (currentProfile?.linkedin_url || null),
+      phone: datos.phone !== undefined ? datos.phone : (currentProfile?.phone || null),
       bio: datos.bio !== undefined ? datos.bio : (currentProfile?.bio || null),
       es_exalumno: false // Siempre forzamos a false porque es un estudiante
     }

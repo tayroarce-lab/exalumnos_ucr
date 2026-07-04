@@ -39,7 +39,9 @@ const studentSchema = z.object({
   proyecto_foto_url: z.string().optional(),
   proyecto_beneficios: z.string().max(1000).optional(),
   proyecto_beneficios_fotos: z.array(z.string()).optional(),
-  full_name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres').max(100, 'El nombre es demasiado largo')
+  full_name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres').max(100, 'El nombre es demasiado largo'),
+  phone: z.string().optional(),
+  linkedin_url: z.string().url("Enlace de LinkedIn inválido").or(z.literal('')).optional()
 });
 
 type StudentFormData = z.infer<typeof studentSchema>;
@@ -75,7 +77,9 @@ const defaultFormData: StudentFormData = {
   proyecto_foto_url: '',
   proyecto_beneficios: '',
   proyecto_beneficios_fotos: [],
-  full_name: ''
+  full_name: '',
+  phone: '',
+  linkedin_url: ''
 };
 
 const sedes = ['Sede Rodrigo Facio', 'Sede de Occidente', 'Sede del Atlántico', 'Sede de Guanacaste', 'Sede del Pacífico', 'Sede Interuniversitaria de Alajuela', 'Sede del Sur'];
@@ -389,7 +393,9 @@ export default function StudentOnboardingForm({
           areas_de_interes: validData.areas_de_interes,
           busca_financiamiento: validData.busca_financiamiento,
           habilidades: habilidadesArray,
-          hobbies: hobbiesArray
+          hobbies: hobbiesArray,
+          phone: validData.phone,
+          linkedin_url: validData.linkedin_url
         });
       } else {
         result = await completarOnboardingEstudiante({
@@ -423,7 +429,9 @@ export default function StudentOnboardingForm({
           proyecto_foto_url: validData.proyecto_foto_url,
           proyecto_beneficios: validData.proyecto_beneficios,
           proyecto_beneficios_fotos: validData.proyecto_beneficios_fotos || [],
-          full_name: validData.full_name
+          full_name: validData.full_name,
+          phone: validData.phone,
+          linkedin_url: validData.linkedin_url
         });
       }
 
@@ -517,6 +525,19 @@ export default function StudentOnboardingForm({
                 <label className="block text-sm font-medium text-slate-700 mb-1">Correo Electrónico</label>
                 <input type="text" value={userEmail || 'No disponible'} disabled
                   className="w-full p-2.5 border border-slate-300 rounded-lg bg-slate-100 text-slate-500 cursor-not-allowed text-slate-900" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Teléfono <span className="text-slate-400 font-normal">(opcional)</span></label>
+                <input type="tel" name="phone" value={formData.phone || ''} onChange={handleChange}
+                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste focus:border-transparent outline-none transition-all text-slate-900" 
+                  placeholder="+506 8888-8888" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">URL de LinkedIn <span className="text-slate-400 font-normal">(opcional)</span></label>
+                <input type="url" name="linkedin_url" value={formData.linkedin_url || ''} onChange={handleChange}
+                  className={`w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-celeste focus:border-transparent outline-none transition-all text-slate-900 ${errors.linkedin_url ? 'border-red-500' : 'border-slate-300'}`} 
+                  placeholder="https://linkedin.com/in/tu-perfil" />
+                {errors.linkedin_url && <p className="text-red-500 text-xs mt-1">{errors.linkedin_url}</p>}
               </div>
             </div>
 
