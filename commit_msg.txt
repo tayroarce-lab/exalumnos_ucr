@@ -1,0 +1,8 @@
+feat: actualiza desde dev y configura Jest para pruebas automatizadas
+
+- Se trajeron los últimos cambios de la rama dev y se resolvieron los conflictos de código.
+- Se integró la funcionalidad de 'ProyectoDonacionesProgreso' dentro del nuevo diseño del dashboard.
+- Se instaló y configuró Jest junto con React Testing Library para empezar a escribir pruebas.
+- Se añadieron los archivos base de configuración de Jest (jest.config.ts y jest.setup.ts).
+- Se agregaron los comandos 'npm run test' y 'npm run test:watch' en el package.json.
+- Se creó una primera prueba de ejemplo para confirmar que todo el entorno funciona correctamente.

@@ -15,7 +15,9 @@
     "supabase:start": "supabase start",
     "supabase:stop": "supabase stop",
     "supabase:reset": "supabase db reset",
-    "supabase:generate-types": "supabase gen types typescript --local > types/supabase.ts"
+    "supabase:generate-types": "supabase gen types typescript --local > types/supabase.ts",
+    "test": "jest",
+    "test:watch": "jest --watch"
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.71",
@@ -57,13 +59,19 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/jest": "^30.0.0",
     "@types/node": "^20.14.9",
     "@types/pdfkit": "^0.17.6",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "eslint": "^8.57.0",
     "eslint-config-next": "^14.2.35",
+    "jest": "^30.4.2",
+    "jest-environment-jsdom": "^30.4.1",
     "supabase": "^2.104.0",
+    "ts-node": "^10.9.2",
     "typescript": "^5.5.2"
   },
   "engines": {

@@ -609,7 +609,7 @@ export async function obtenerProyectosBuscandoApoyo(limite: number = 3) {
       .eq('rol', 'estudiante')
       .eq('activo', true)
       .eq('visible_en_directorio', true)
-      .or('busca_mentoria.eq.true,busca_empleo.eq.true,busca_pasantia.eq.true,estudiantes.busca_financiamiento.eq.true')
+      .or('busca_mentoria.eq.true,busca_empleo.eq.true,busca_pasantia.eq.true,busca_financiamiento.eq.true')
       .order('created_at', { ascending: false })
       .limit(limite)
 

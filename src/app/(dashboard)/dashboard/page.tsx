@@ -11,6 +11,8 @@ import {
   MapPin, Video, Type, Contrast, Mic, RotateCcw, Accessibility,
   X, ArrowRight, Users, BookOpen, Globe
 } from 'lucide-react'
+import ProyectoDonacionesProgreso from '@/components/ProyectoDonacionesProgreso'
+import { getProyectoFileUrl } from '@/lib/utils'
 
 /* ─────────── Floating Accessibility Panel ─────────── */
 function AccessibilityPanel() {
