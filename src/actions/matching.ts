@@ -155,14 +155,14 @@ export async function calcularScoreMentoria(
     ])
 
   if (errEst) throw new Error(`Error al obtener estudiante: ${errEst.message}`)
-  if (errEx)  throw new Error(`Error al obtener exalumno: ${errEx.message}`)
+  if (errEx) throw new Error(`Error al obtener exalumno: ${errEx.message}`)
   if (!estudiante) throw new Error(`Estudiante "${estudianteId}" no encontrado.`)
-  if (!exalumno)   throw new Error(`Exalumno "${exalumnoId}" no encontrado.`)
+  if (!exalumno) throw new Error(`Exalumno "${exalumnoId}" no encontrado.`)
 
   const mapAreas = (u: any) => {
     const arr = u.estudiantes?.[0]?.areas_de_interes || u.exalumnos?.[0]?.areas_de_interes || []
-    return { 
-      ...u, 
+    return {
+      ...u,
       areas_de_interes: arr,
       sector_industria: Array.isArray(u.exalumnos) ? u.exalumnos[0]?.sector_industria : u.exalumnos?.sector_industria,
       proyecto_area_tematica: Array.isArray(u.estudiantes) ? u.estudiantes[0]?.proyecto_area_tematica : u.estudiantes?.proyecto_area_tematica
@@ -175,12 +175,12 @@ export async function calcularScoreMentoria(
   // ── Criterio 1: Misma carrera principal — 25 puntos ─────────────────────
   const puntosCarrera =
     est.carrera_principal_id !== null &&
-    exal.carrera_principal_id !== null &&
-    est.carrera_principal_id === exal.carrera_principal_id
+      exal.carrera_principal_id !== null &&
+      est.carrera_principal_id === exal.carrera_principal_id
       ? 25 : 0
 
   // ── Criterio 2: Intersección proporcional de áreas de interés — máx. 25 pts
-  const areasEst:  string[] = est.areas_de_interes ?? []
+  const areasEst: string[] = est.areas_de_interes ?? []
   const areasExal: string[] = exal.areas_de_interes ?? []
   const ratioAreas = interseccionProporcional(areasEst, areasExal)
   const puntosAreas = Math.round(ratioAreas * 25)
@@ -195,9 +195,9 @@ export async function calcularScoreMentoria(
 
   // ── Criterio 4: Al menos un tipo de apoyo coincide — 20 puntos ──────────
   const hayCoincidenciaApoyo =
-    (exal.ofrece_mentoria       && est.busca_mentoria)      ||
-    (exal.ofrece_empleo         && est.busca_empleo)        ||
-    (exal.ofrece_pasantia       && est.busca_pasantia)      ||
+    (exal.ofrece_mentoria && est.busca_mentoria) ||
+    (exal.ofrece_empleo && est.busca_empleo) ||
+    (exal.ofrece_pasantia && est.busca_pasantia) ||
     (exal.ofrece_donacion_dinero && est.busca_financiamiento)
   const puntosTipoApoyo = hayCoincidenciaApoyo ? 20 : 0
 
@@ -212,11 +212,11 @@ export async function calcularScoreMentoria(
   return {
     score: Math.min(scoreTotal, 100),
     desglose: {
-      carrera:       puntosCarrera,
-      areasInteres:  puntosAreas,
+      carrera: puntosCarrera,
+      areasInteres: puntosAreas,
       sectorVsAreas: puntosSector,
-      tipoApoyo:     puntosTipoApoyo,
-      hobbies:       puntosHobbies,
+      tipoApoyo: puntosTipoApoyo,
+      hobbies: puntosHobbies,
     },
   }
 }
@@ -257,10 +257,10 @@ export async function generarMatchesMentoria(
     ])
 
   if (errEst) throw new Error(`Error al obtener estudiantes: ${errEst.message}`)
-  if (errEx)  throw new Error(`Error al obtener exalumnos: ${errEx.message}`)
+  if (errEx) throw new Error(`Error al obtener exalumnos: ${errEx.message}`)
 
   const estudiantesList = estudiantes ?? []
-  const exalumnosList   = exalumnos ?? []
+  const exalumnosList = exalumnos ?? []
   const errores: string[] = []
   let insertados = 0
 
@@ -284,11 +284,11 @@ export async function generarMatchesMentoria(
         if (matchExistente) continue
 
         const { error: errInsert } = await adminClient.from('matches').insert({
-          exalumno_id:  ex.id,
+          exalumno_id: ex.id,
           estudiante_id: est.id,
-          tipo_apoyo:   'mentoria',
-          score_match:  resultado.score,
-          estado:       'sugerido',
+          tipo_apoyo: 'mentoria',
+          score_match: resultado.score,
+          estado: 'sugerido',
           iniciado_por: 'plataforma',
         })
 
@@ -328,8 +328,8 @@ export async function calcularScorePuesto(
 
   const [
     { data: estudiante, error: errEst },
-    { data: posicion,   error: errPos },
-    { data: cvData,     error: errCv  },
+    { data: posicion, error: errPos },
+    { data: cvData, error: errCv },
   ] = await Promise.all([
     supabase
       .from('users')
@@ -359,9 +359,9 @@ export async function calcularScorePuesto(
 
   if (errEst) throw new Error(`Error al obtener estudiante: ${errEst.message}`)
   if (errPos) throw new Error(`Error al obtener posición: ${errPos.message}`)
-  if (errCv)  throw new Error(`Error al obtener curriculum: ${errCv.message}`)
+  if (errCv) throw new Error(`Error al obtener curriculum: ${errCv.message}`)
   if (!estudiante) throw new Error(`Estudiante "${estudianteId}" no encontrado.`)
-  if (!posicion)   throw new Error(`Posición "${posicionId}" no encontrada.`)
+  if (!posicion) throw new Error(`Posición "${posicionId}" no encontrada.`)
 
   const mapAreas = (u: any) => {
     return u.estudiantes?.[0]?.areas_de_interes || u.exalumnos?.[0]?.areas_de_interes || u.areas_de_interes || []
@@ -372,9 +372,9 @@ export async function calcularScorePuesto(
     return { score: 0, desglose: { areaSector: 0, habilidades: 0, areasInteres: 0, tipoApoyo: 0 } }
   }
 
-  const areasEst: string[]        = mapAreas(estudiante)
-  const sectorPos: string[]        = posicion.sector ?? []
-  const habilidadesReq: string[]   = posicion.habilidades_requeridas ?? []
+  const areasEst: string[] = mapAreas(estudiante)
+  const sectorPos: string[] = posicion.sector ?? []
+  const habilidadesReq: string[] = posicion.habilidades_requeridas ?? []
 
   // Extraer claves del JSONB { "React": "avanzado", ... } → ["React", ...]
   const habilidadesCvRaw: unknown = cvData?.habilidades_tecnicas ?? {}
@@ -398,8 +398,8 @@ export async function calcularScorePuesto(
 
   // ── Criterio 4: Tipo de apoyo buscado coincide — 10 pts ─────────────────
   const puntosTipoApoyo =
-    (posicion.tipo === 'empleo'   && estudiante.busca_empleo) ||
-    (posicion.tipo === 'pasantia' && estudiante.busca_pasantia)
+    (posicion.tipo === 'empleo' && estudiante.busca_empleo) ||
+      (posicion.tipo === 'pasantia' && estudiante.busca_pasantia)
       ? 10 : 0
 
   const scoreTotal = puntosAreaSector + puntosHabilidades + puntosAreas + puntosTipoApoyo
@@ -407,10 +407,10 @@ export async function calcularScorePuesto(
   return {
     score: Math.min(scoreTotal, 100),
     desglose: {
-      areaSector:  puntosAreaSector,
+      areaSector: puntosAreaSector,
       habilidades: puntosHabilidades,
       areasInteres: puntosAreas,
-      tipoApoyo:   puntosTipoApoyo,
+      tipoApoyo: puntosTipoApoyo,
     },
   }
 }
@@ -446,7 +446,7 @@ export async function generarScoresPuestos(
   if (errPos) throw new Error(`Error al obtener posiciones: ${errPos.message}`)
 
   const estudiantesList = estudiantes ?? []
-  const posicionesList  = posiciones ?? []
+  const posicionesList = posiciones ?? []
   const errores: string[] = []
   let procesados = 0
 
@@ -462,11 +462,11 @@ export async function generarScoresPuestos(
           .upsert(
             {
               estudiante_id: est.id,
-              exalumno_id:   pos.exalumno_id,
-              tipo_apoyo:    'puesto',
-              score_match:   resultado.score,
-              estado:        'sugerido',
-              iniciado_por:  'plataforma',
+              exalumno_id: pos.exalumno_id,
+              tipo_apoyo: 'puesto',
+              score_match: resultado.score,
+              estado: 'sugerido',
+              iniciado_por: 'plataforma',
             },
             { onConflict: 'estudiante_id,exalumno_id' }
           )

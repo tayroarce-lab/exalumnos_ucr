@@ -165,6 +165,8 @@ export default function PublishJobPage() {
         newErrors.titulo = 'El título debe tener al menos 5 caracteres'
       if (!formData.lugar.trim())
         newErrors.lugar = 'La ubicación es obligatoria'
+      if (!formData.empresa.trim())
+        newErrors.empresa = 'La empresa es obligatoria'
       if (formData.sector.length === 0)
         newErrors.sector = 'Selecciona al menos un sector'
       
@@ -378,9 +380,11 @@ export default function PublishJobPage() {
               <Input
                 label="Empresa"
                 name="empresa"
+                placeholder="Ej: Intel Costa Rica"
                 value={formData.empresa}
-                disabled
-                className="h-11 border-slate-200 bg-slate-100"
+                onChange={handleChange}
+                error={errors.empresa}
+                className="h-11 border-slate-200 focus:border-brand-blue bg-slate-50/50"
               />
               <Input
                 label="Ubicación"

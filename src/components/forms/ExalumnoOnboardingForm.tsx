@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { z } from 'zod';
 import { completarOnboardingExalumno } from '@/actions/exalumnos';
@@ -32,7 +32,9 @@ const exalumnoSchema = z.object({
   bio: z.string().max(1000).optional(),
   habilidadesText: z.string().optional(),
   hobbiesText: z.string().optional(),
-  foto_url: z.string().optional()
+  foto_url: z.string().optional(),
+  phone: z.string().optional(),
+  full_name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres').max(100, 'El nombre es demasiado largo')
 });
 
 type ExalumnoFormData = z.infer<typeof exalumnoSchema>;
@@ -59,7 +61,8 @@ const defaultFormData: ExalumnoFormData = {
   bio: '',
   habilidadesText: '',
   hobbiesText: '',
-  foto_url: ''
+  foto_url: '',
+  phone: ''
 };
 
 export default function ExalumnoOnboardingForm({ 
@@ -81,6 +84,34 @@ export default function ExalumnoOnboardingForm({
   const [globalError, setGlobalError] = useState('');
   const [isUploading, setIsUploading] = useState(false);
 
+  const draftKey = `exalumno_form_draft_${userEmail || 'default'}`;
+  const [isDraftLoaded, setIsDraftLoaded] = useState(false);
+
+  useEffect(() => {
+    if (!isDraftLoaded && typeof window !== 'undefined') {
+      const saved = localStorage.getItem(draftKey);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          setFormData(prev => ({ ...prev, ...parsed }));
+        } catch (e) {}
+      }
+      setIsDraftLoaded(true);
+    }
+  }, [draftKey, isDraftLoaded]);
+
+  useEffect(() => {
+    if (isDraftLoaded) {
+      localStorage.setItem(draftKey, JSON.stringify(formData));
+    }
+  }, [formData, draftKey, isDraftLoaded]);
+
+  useEffect(() => {
+    if (userName && !formData.full_name) {
+      setFormData(prev => ({ ...prev, full_name: userName }));
+    }
+  }, [userName, formData.full_name]);
+
   React.useEffect(() => {
     if (isEditMode && initialData) {
       setFormData(prev => ({
@@ -91,7 +122,20 @@ export default function ExalumnoOnboardingForm({
         anio_graduacion: initialData.anio_graduacion || (initialData.academic?.[0]?.anio ? parseInt(initialData.academic[0].anio) : new Date().getFullYear() - 1),
         sector_industria: Array.isArray(initialData.sector_industria) ? (initialData.sector_industria[0] || '') : (initialData.sector_industria || ''),
         habilidadesText: initialData.habilidades?.join(', ') || '',
-        hobbiesText: Array.isArray(initialData.hobbies) ? initialData.hobbies.join(', ') : (initialData.hobbiesText || '')
+        hobbiesText: Array.isArray(initialData.hobbies) ? initialData.hobbies.join(', ') : (initialData.hobbiesText || ''),
+        // Asegurar que los campos opcionales nunca sean null para evitar advertencias de componentes controlados
+        empresa_actual: initialData.empresa_actual || '',
+        cargo_actual: initialData.cargo_actual || '',
+        pais_ciudad: initialData.pais_ciudad || '',
+        phone: initialData.phone || '',
+        linkedin_url: initialData.linkedin_url || '',
+        bio: initialData.bio || '',
+        foto_url: initialData.foto_url || '',
+        moneda_donacion: initialData.moneda_donacion || 'USD',
+        areas_de_interes: initialData.areas_de_interes || [],
+        horas_mes_mentoria: initialData.horas_mes_mentoria || 0,
+        monto_maximo_donacion: initialData.monto_maximo_donacion || 0,
+        anos_experiencia: initialData.anos_experiencia || 0,
       }));
     }
   }, [isEditMode, initialData]);
@@ -169,6 +213,7 @@ export default function ExalumnoOnboardingForm({
         sector_industria: validData.sector_industria,
         anos_experiencia: validData.anos_experiencia,
         pais_ciudad: validData.pais_ciudad,
+        phone: validData.phone,
         linkedin_url: validData.linkedin_url,
         areas_de_interes: validData.areas_de_interes,
         ofrece_mentoria: validData.ofrece_mentoria,
@@ -183,6 +228,7 @@ export default function ExalumnoOnboardingForm({
         habilidades: habilidadesArray,
         hobbies: hobbiesArray,
         foto_url: validData.foto_url,
+        full_name: validData.full_name,
         carrera_ucr: validData.carrera_ucr,
         escuela_facultad: validData.escuela_facultad,
         anio_graduacion: validData.anio_graduacion,
@@ -190,6 +236,11 @@ export default function ExalumnoOnboardingForm({
 
       if (!result.success) {
         throw new Error(result.error || 'Error al guardar el perfil');
+      }
+
+      // Limpiar el borrador local al guardar exitosamente
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem(draftKey);
       }
 
       router.push('/dashboard');
@@ -201,7 +252,7 @@ export default function ExalumnoOnboardingForm({
         const stepMapping: Record<string, number> = {
           foto_url: 1, bio: 1,
           carrera_ucr: 2, escuela_facultad: 2, anio_graduacion: 2,
-          empresa_actual: 3, cargo_actual: 3, sector_industria: 3, anos_experiencia: 3, pais_ciudad: 3, linkedin_url: 3,
+          empresa_actual: 3, cargo_actual: 3, sector_industria: 3, anos_experiencia: 3, pais_ciudad: 3, phone: 3, linkedin_url: 3,
           areas_de_interes: 4,
           ofrece_mentoria: 5, horas_mes_mentoria: 5, ofrece_empleo: 5, ofrece_pasantia: 5, ofrece_proyecto: 5, ofrece_donacion_dinero: 5,
           habilidadesText: 6
@@ -258,9 +309,14 @@ export default function ExalumnoOnboardingForm({
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Nombre Completo</label>
-                <input type="text" value={userName || 'No disponible'} disabled
-                  className="w-full p-2.5 border border-slate-300 rounded-lg bg-slate-100 text-slate-500 cursor-not-allowed text-slate-900" />
+                <label className="block text-sm font-medium text-slate-700 mb-1">Nombre Completo <span className="text-rose-500">*</span></label>
+                <input type="text" value={formData.full_name} 
+                  onChange={(e) => {
+                    setFormData({ ...formData, full_name: e.target.value });
+                    if (errors.full_name) setErrors(prev => ({ ...prev, full_name: undefined }));
+                  }}
+                  className={`w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-celeste focus:border-transparent outline-none transition-all ${errors.full_name ? 'border-red-500' : 'border-slate-300'}`} />
+                {errors.full_name && <p className="text-red-500 text-xs mt-1">{errors.full_name}</p>}
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Correo Electrónico</label>
@@ -374,6 +430,13 @@ export default function ExalumnoOnboardingForm({
                 <input type="text" name="pais_ciudad" value={formData.pais_ciudad} onChange={handleChange}
                   className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-naranja/50 outline-none text-slate-900 bg-white"
                   placeholder="Ej: San José, Costa Rica" />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Número de Teléfono</label>
+                <input type="text" name="phone" value={formData.phone} onChange={handleChange}
+                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-naranja/50 outline-none text-slate-900 bg-white"
+                  placeholder="Ej: +506 8888-8888" />
               </div>
 
               <div>

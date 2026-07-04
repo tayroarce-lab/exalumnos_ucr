@@ -13,44 +13,38 @@ import {
   Bell,
 } from 'lucide-react'
 import { useProfile } from '@/contexts/ProfileContext'
+import { createClient } from '@/lib/supabase/client'
+import { useEffect } from 'react'
 
-/* ─────────── Datos de eventos mock ─────────── */
-const eventosMock = [
-  {
-    id: 1,
-    imagen: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&h=400&fit=crop',
-    fecha: '15 OCTUBRE',
-    tipo: 'PRESENCIAL',
-    titulo: 'Taller: Mejora tu Currículum',
-    descripcion: 'Secretos prácticos para destacar ante reclutadores internacionales.',
-  },
-  {
-    id: 2,
-    imagen: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&h=400&fit=crop',
-    fecha: '15 OCTUBRE',
-    tipo: 'VIRTUAL',
-    titulo: 'Taller de Vida Estudiantil',
-    descripcion: 'Herramientas esenciales para el equilibrio y bienestar personal.',
-  },
-  {
-    id: 3,
-    imagen: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&h=400&fit=crop',
-    fecha: '05 NOVIEMBRE',
-    tipo: 'CHARLA',
-    titulo: 'Charla: Becas de Posgrado',
-    descripcion: 'Información sobre convenios y financiamiento internacional.',
-  },
-]
+/* ─────────── Utils ─────────── */
+function parseEventDateStr(dateString: string) {
+  if (!dateString) return '---'
+  try {
+    const d = new Date(dateString)
+    const months = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE']
+    return `${String(d.getDate()).padStart(2, '0')} ${months[d.getMonth()]}`
+  } catch(e) {
+    return '---'
+  }
+}
+
 
 export default function StudentDashboardPage() {
   const { user, profile } = useProfile()
   const userName = profile?.full_name || user?.user_metadata?.nombre || 'Estudiante'
 
-  /* Estado para el card de Acceso Rápido seleccionado */
   const [selectedCard, setSelectedCard] = useState<number | null>(null)
+  const [activeBtn, setActiveBtn] = useState<string | null>(null)
+  const [eventsData, setEventsData] = useState<any[]>([])
 
-  /* Estado para botón "Inscribirse" activo */
-  const [activeBtn, setActiveBtn] = useState<number | null>(null)
+  useEffect(() => {
+    async function fetchEvents() {
+      const supabase = createClient()
+      const { data } = await supabase.from('events').select('*').limit(3)
+      if (data) setEventsData(data)
+    }
+    fetchEvents()
+  }, [])
 
   const quickLinks = [
     {
@@ -303,8 +297,11 @@ export default function StudentDashboardPage() {
 
           {/* Event cards grid */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            {eventosMock.map((evento) => {
+            {eventsData.map((evento) => {
               const isActive = activeBtn === evento.id
+              const isVirtual = evento.location?.toLowerCase().includes('virtual') || evento.location?.toLowerCase().includes('zoom')
+              const imgUrl = 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&h=400&fit=crop'
+
               return (
                 <div
                   key={evento.id}
@@ -315,8 +312,8 @@ export default function StudentDashboardPage() {
                   <div className="relative w-full h-44 overflow-hidden">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={evento.imagen}
-                      alt={evento.titulo}
+                      src={imgUrl}
+                      alt={evento.title}
                       className="w-full h-full object-cover"
                     />
                   </div>
@@ -329,14 +326,14 @@ export default function StudentDashboardPage() {
                         className="text-[0.68rem] font-bold uppercase tracking-wider"
                         style={{ color: '#54BCEB' }}
                       >
-                        {evento.fecha}
+                        {parseEventDateStr(evento.event_date)}
                       </span>
                       <span style={{ color: '#D1D5DB' }}>·</span>
                       <span
                         className="text-[0.68rem] font-bold uppercase tracking-wider"
                         style={{ color: '#54BCEB' }}
                       >
-                        {evento.tipo}
+                        {isVirtual ? 'VIRTUAL' : 'PRESENCIAL'}
                       </span>
                     </div>
 
@@ -345,7 +342,7 @@ export default function StudentDashboardPage() {
                       className="text-[0.95rem] font-bold leading-snug"
                       style={{ color: '#1A1A2E' }}
                     >
-                      {evento.titulo}
+                      {evento.title}
                     </h3>
 
                     {/* Description */}
@@ -353,7 +350,7 @@ export default function StudentDashboardPage() {
                       className="text-[0.8rem] leading-relaxed flex-1"
                       style={{ color: '#6B7280' }}
                     >
-                      {evento.descripcion}
+                      {evento.description || evento.category}
                     </p>
 
                     {/* CTA Button */}
@@ -378,12 +375,17 @@ export default function StudentDashboardPage() {
                         }
                       }}
                     >
-                      Inscribirse
+                      {isActive ? 'Inscrito' : 'Inscribirse'}
                     </button>
                   </div>
                 </div>
               )
             })}
+            {eventsData.length === 0 && (
+              <div className="col-span-3 text-sm text-slate-500 bg-white p-6 rounded-xl border border-slate-100 shadow-sm text-center">
+                No hay eventos próximos programados en este momento.
+              </div>
+            )}
           </div>
         </section>
 

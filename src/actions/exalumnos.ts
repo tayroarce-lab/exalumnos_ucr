@@ -11,6 +11,7 @@ export async function completarOnboardingExalumno(datos: {
   sector_industria?: string;
   anos_experiencia?: number;
   pais_ciudad?: string;
+  phone?: string;
   linkedin_url?: string;
   areas_de_interes: string[];
   ofrece_mentoria: boolean;
@@ -24,6 +25,7 @@ export async function completarOnboardingExalumno(datos: {
   bio?: string;
   habilidades: string[];
   hobbies?: string[];
+  full_name?: string;
   foto_url?: string;
   carrera_ucr?: string;
   escuela_facultad?: string;
@@ -65,11 +67,13 @@ export async function completarOnboardingExalumno(datos: {
     // 2. Upsert en tabla "profiles"
     const profilePayload = {
       id: user.id,
+      full_name: datos.full_name || user.user_metadata?.nombre || user.email?.split('@')[0],
       empresa_actual: datos.empresa_actual || null,
       cargo_actual: datos.cargo_actual || null,
       sector_industria: datos.sector_industria ? [datos.sector_industria] : null,
       anos_experiencia: datos.anos_experiencia || null,
       pais_ciudad: datos.pais_ciudad || null,
+      phone: datos.phone || null,
       linkedin_url: datos.linkedin_url || null,
       areas_de_interes: datos.areas_de_interes,
       ofrece_mentoria: datos.ofrece_mentoria,
@@ -139,12 +143,17 @@ export async function completarOnboardingExalumno(datos: {
     }
 
     // 4. Actualizar tabla "users" - guardar hobbies
+    const userUpdatePayload: any = {
+      ofrece_mentoria: datos.ofrece_mentoria,
+      hobbies: datos.hobbies || []
+    }
+    if (datos.full_name) {
+      userUpdatePayload.nombre = datos.full_name;
+    }
+
     const { error: usersError } = await adminClient
       .from('users')
-      .update({
-        ofrece_mentoria: datos.ofrece_mentoria,
-        hobbies: datos.hobbies || []
-      })
+      .update(userUpdatePayload)
       .eq('id', user.id)
 
     if (usersError) {

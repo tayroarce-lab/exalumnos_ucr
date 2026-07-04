@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { z } from 'zod';
 import { completarOnboardingEstudiante, actualizarPerfilCompletoEstudiante } from '@/actions/students';
@@ -38,7 +38,10 @@ const studentSchema = z.object({
   proyecto_documento_url: z.string().optional(),
   proyecto_foto_url: z.string().optional(),
   proyecto_beneficios: z.string().max(1000).optional(),
-  proyecto_beneficios_fotos: z.array(z.string()).optional()
+  proyecto_beneficios_fotos: z.array(z.string()).optional(),
+  full_name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres').max(100, 'El nombre es demasiado largo'),
+  phone: z.string().optional(),
+  linkedin_url: z.string().url("Enlace de LinkedIn inválido").or(z.literal('')).optional()
 });
 
 type StudentFormData = z.infer<typeof studentSchema>;
@@ -73,7 +76,10 @@ const defaultFormData: StudentFormData = {
   proyecto_documento_url: '',
   proyecto_foto_url: '',
   proyecto_beneficios: '',
-  proyecto_beneficios_fotos: []
+  proyecto_beneficios_fotos: [],
+  full_name: '',
+  phone: '',
+  linkedin_url: ''
 };
 
 const sedes = ['Sede Rodrigo Facio', 'Sede de Occidente', 'Sede del Atlántico', 'Sede de Guanacaste', 'Sede del Pacífico', 'Sede Interuniversitaria de Alajuela', 'Sede del Sur'];
@@ -98,6 +104,34 @@ export default function StudentOnboardingForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [globalError, setGlobalError] = useState('');
   const [isUploading, setIsUploading] = useState(false);
+  
+  const draftKey = `student_form_draft_${userEmail || 'default'}`;
+  const [isDraftLoaded, setIsDraftLoaded] = useState(false);
+
+  useEffect(() => {
+    if (!isDraftLoaded && typeof window !== 'undefined') {
+      const saved = localStorage.getItem(draftKey);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          setFormData(prev => ({ ...prev, ...parsed }));
+        } catch (e) {}
+      }
+      setIsDraftLoaded(true);
+    }
+  }, [draftKey, isDraftLoaded]);
+
+  useEffect(() => {
+    if (isDraftLoaded) {
+      localStorage.setItem(draftKey, JSON.stringify(formData));
+    }
+  }, [formData, draftKey, isDraftLoaded]);
+
+  useEffect(() => {
+    if (userName && !formData.full_name) {
+      setFormData(prev => ({ ...prev, full_name: userName }));
+    }
+  }, [userName, formData.full_name]);
   const [isDocUploading, setIsDocUploading] = useState(false);
   const [isProjPhotoUploading, setIsProjPhotoUploading] = useState(false);
   const [isBenefitsPhotoUploading, setIsBenefitsPhotoUploading] = useState(false);
@@ -292,7 +326,7 @@ export default function StudentOnboardingForm({
         }
         return next;
       });
-    } else if (type === 'number') {
+    } else if (type === 'number' || type === 'range') {
       setFormData(prev => ({ ...prev, [name]: Number(value) }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
@@ -329,7 +363,7 @@ export default function StudentOnboardingForm({
       let result;
       if (isEditMode) {
         result = await actualizarPerfilCompletoEstudiante({
-          full_name: userName,
+          full_name: validData.full_name,
           foto_url: validData.foto_url,
           bio: validData.bio,
           busca_mentoria: validData.busca_mentoria,
@@ -359,7 +393,9 @@ export default function StudentOnboardingForm({
           areas_de_interes: validData.areas_de_interes,
           busca_financiamiento: validData.busca_financiamiento,
           habilidades: habilidadesArray,
-          hobbies: hobbiesArray
+          hobbies: hobbiesArray,
+          phone: validData.phone,
+          linkedin_url: validData.linkedin_url
         });
       } else {
         result = await completarOnboardingEstudiante({
@@ -392,12 +428,20 @@ export default function StudentOnboardingForm({
           proyecto_documento_url: validData.proyecto_documento_url,
           proyecto_foto_url: validData.proyecto_foto_url,
           proyecto_beneficios: validData.proyecto_beneficios,
-          proyecto_beneficios_fotos: validData.proyecto_beneficios_fotos || []
+          proyecto_beneficios_fotos: validData.proyecto_beneficios_fotos || [],
+          full_name: validData.full_name,
+          phone: validData.phone,
+          linkedin_url: validData.linkedin_url
         });
       }
 
       if (!result.success) {
         throw new Error(result.error || 'Error al guardar el perfil');
+      }
+
+      // Limpiar el borrador local al guardar exitosamente
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem(draftKey);
       }
 
       if (isEditMode) {
@@ -468,14 +512,32 @@ export default function StudentOnboardingForm({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Nombre Completo</label>
-                <input type="text" value={userName || 'No disponible'} disabled
-                  className="w-full p-2.5 border border-slate-300 rounded-lg bg-slate-100 text-slate-500 cursor-not-allowed text-slate-900" />
+                <label className="block text-sm font-medium text-slate-700 mb-1">Nombre Completo <span className="text-rose-500">*</span></label>
+                <input type="text" value={formData.full_name} 
+                  onChange={(e) => {
+                    setFormData({ ...formData, full_name: e.target.value });
+                    if (errors.full_name) setErrors(prev => ({ ...prev, full_name: undefined }));
+                  }}
+                  className={`w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-celeste focus:border-transparent outline-none transition-all ${errors.full_name ? 'border-red-500' : 'border-slate-300'}`} />
+                {errors.full_name && <p className="text-red-500 text-xs mt-1">{errors.full_name}</p>}
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Correo Electrónico</label>
                 <input type="text" value={userEmail || 'No disponible'} disabled
                   className="w-full p-2.5 border border-slate-300 rounded-lg bg-slate-100 text-slate-500 cursor-not-allowed text-slate-900" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Teléfono <span className="text-slate-400 font-normal">(opcional)</span></label>
+                <input type="tel" name="phone" value={formData.phone || ''} onChange={handleChange}
+                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste focus:border-transparent outline-none transition-all text-slate-900" 
+                  placeholder="+506 8888-8888" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">URL de LinkedIn <span className="text-slate-400 font-normal">(opcional)</span></label>
+                <input type="url" name="linkedin_url" value={formData.linkedin_url || ''} onChange={handleChange}
+                  className={`w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-celeste focus:border-transparent outline-none transition-all text-slate-900 ${errors.linkedin_url ? 'border-red-500' : 'border-slate-300'}`} 
+                  placeholder="https://linkedin.com/in/tu-perfil" />
+                {errors.linkedin_url && <p className="text-red-500 text-xs mt-1">{errors.linkedin_url}</p>}
               </div>
             </div>
 
@@ -618,15 +680,21 @@ export default function StudentOnboardingForm({
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Título del proyecto *</label>
                 <input type="text" name="proyecto_titulo" value={formData.proyecto_titulo} onChange={handleChange} required maxLength={200}
-                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none text-slate-900 bg-white" />
-                <p className="text-xs text-slate-500 mt-1 text-right">{formData.proyecto_titulo.length}/200</p>
+                  className={`w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none text-slate-900 bg-white ${errors.proyecto_titulo ? 'border-red-500' : 'border-slate-300'}`} />
+                <div className="flex justify-between mt-1">
+                  {errors.proyecto_titulo ? <p className="text-red-500 text-xs">{errors.proyecto_titulo}</p> : <div/>}
+                  <p className="text-xs text-slate-500 text-right">{formData.proyecto_titulo.length}/200</p>
+                </div>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Descripción del proyecto *</label>
                 <textarea name="proyecto_descripcion" value={formData.proyecto_descripcion} onChange={handleChange} required maxLength={1000} rows={4}
-                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none resize-none text-slate-900 bg-white" />
-                <p className="text-xs text-slate-500 mt-1 text-right">{formData.proyecto_descripcion.length}/1000</p>
+                  className={`w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none resize-none text-slate-900 bg-white ${errors.proyecto_descripcion ? 'border-red-500' : 'border-slate-300'}`} />
+                <div className="flex justify-between mt-1">
+                  {errors.proyecto_descripcion ? <p className="text-red-500 text-xs">{errors.proyecto_descripcion}</p> : <div/>}
+                  <p className="text-xs text-slate-500 text-right">{formData.proyecto_descripcion.length}/1000</p>
+                </div>
               </div>
 
               <div>
@@ -641,6 +709,7 @@ export default function StudentOnboardingForm({
                   </select>
                   <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
                 </div>
+                {errors.proyecto_tipo && <p className="text-red-500 text-xs mt-1">{errors.proyecto_tipo}</p>}
               </div>
 
               <div>
@@ -665,6 +734,7 @@ export default function StudentOnboardingForm({
                 <label className="block text-sm font-medium text-slate-700 mb-1">Porcentaje de avance: {formData.proyecto_porcentaje_avance}% *</label>
                 <input type="range" name="proyecto_porcentaje_avance" min="0" max="100" value={formData.proyecto_porcentaje_avance} onChange={handleChange}
                   className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-celeste" />
+                {errors.proyecto_porcentaje_avance && <p className="text-red-500 text-xs mt-1">{errors.proyecto_porcentaje_avance}</p>}
               </div>
 
               <div>
@@ -708,7 +778,8 @@ export default function StudentOnboardingForm({
                     <div>
                       <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Monto solicitado</label>
                       <input type="number" name="proyecto_valor_monto" value={formData.proyecto_valor_monto || ''} onChange={handleChange} min="0" placeholder="Ej: 500000"
-                        className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-celeste focus:ring-1 focus:ring-celeste/50 outline-none bg-white text-sm" />
+                        className={`w-full h-11 px-4 border rounded-xl focus:border-celeste focus:ring-1 focus:ring-celeste/50 outline-none bg-white text-sm ${errors.proyecto_valor_monto ? 'border-red-500' : 'border-slate-200'}`} />
+                      {errors.proyecto_valor_monto && <p className="text-red-500 text-xs mt-1">{errors.proyecto_valor_monto}</p>}
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Moneda</label>
@@ -750,7 +821,7 @@ export default function StudentOnboardingForm({
                       <span className="text-xs text-slate-400 font-medium">Ninguna imagen cargada aún.</span>
                     )}
                   </div>
-                  {errors.proyecto_foto && <p className="text-red-500 text-xs mt-1">{errors.proyecto_foto}</p>}
+                  {errors.proyecto_foto_url && <p className="text-red-500 text-xs mt-1">{errors.proyecto_foto_url}</p>}
                   
                   {/* Vista previa de la imagen del proyecto */}
                   {formData.proyecto_foto_url && (
@@ -777,7 +848,7 @@ export default function StudentOnboardingForm({
                       <span className="text-xs text-slate-400 font-medium">Ningún documento adjunto aún.</span>
                     )}
                   </div>
-                  {errors.documento && <p className="text-red-500 text-xs mt-1">{errors.documento}</p>}
+                  {errors.proyecto_documento_url && <p className="text-red-500 text-xs mt-1">{errors.proyecto_documento_url}</p>}
                 </div>
 
                 {/* Beneficios para donadores */}

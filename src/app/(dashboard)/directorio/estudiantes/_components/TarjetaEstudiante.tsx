@@ -79,7 +79,7 @@ export default function TarjetaEstudiante({ estudiante }: { estudiante: Estudian
               </div>
               
               {/* Badge de Match */}
-              {matchScore > 0 && (
+              {matchScore !== undefined && (
                 <span className="bg-[#003B4F] text-white text-[13px] font-black px-3 py-2 rounded-full shadow-sm flex flex-col items-center justify-center min-w-[55px] shrink-0">
                   <span>{matchScore}%</span>
                   <span className="text-[8px] font-extrabold uppercase tracking-widest opacity-90 leading-none mt-0.5">Match</span>

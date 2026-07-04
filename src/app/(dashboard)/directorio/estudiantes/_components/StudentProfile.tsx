@@ -134,14 +134,14 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
   const tituloProyecto = estudiante.proyecto_titulo || 'Proyecto sin título';
   const descripcionProyecto = estudiante.proyecto_descripcion || 'Sin descripción disponible del proyecto.';
   const areaTematica = estudiante.proyecto_area_tematica || estudiante.proyecto_tipo || 'General';
-  const habilidadesTecnicasMock = tecnicas.length > 0 ? tecnicas : [];
+  const habilidadesTecnicasData = tecnicas.length > 0 ? tecnicas : [];
 
-  const deportesMock = estudiante.deportes || [];
-  const musicaMock = estudiante.musica || [];
-  const hobbiesMock = estudiante.hobbies || [];
-  const idiomasMock = estudiante.idiomas || [];
+  const deportesData = estudiante.deportes || [];
+  const musicaData = estudiante.musica || [];
+  const hobbiesData = estudiante.hobbies || [];
+  const idiomasData = estudiante.idiomas || [];
 
-  const pasionesMatch = [...deportesMock.slice(0,1), ...musicaMock.slice(0,1), ...hobbiesMock.slice(0,1)];
+  const pasionesMatch = [...deportesData.slice(0,1), ...musicaData.slice(0,1), ...hobbiesData.slice(0,1)];
 
   return (
     <div className="font-sans text-[#003B4F] max-w-xl mx-auto pb-12">
@@ -474,7 +474,7 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
           <div>
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">⚽ Deportes & Actividad Física</p>
             <div className="flex flex-wrap gap-2">
-              {deportesMock.map((d, i) => (
+              {deportesData.map((d, i) => (
                 <span key={i} className="px-3 py-1.5 rounded-full bg-[#E84F26]/10 text-[#B43B06] text-xs font-bold border border-[#E84F26]/20">
                   {d}
                 </span>
@@ -486,7 +486,7 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
           <div>
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">🎵 Música & Artes</p>
             <div className="flex flex-wrap gap-2">
-              {musicaMock.map((m, i) => (
+              {musicaData.map((m, i) => (
                 <span key={i} className="px-3 py-1.5 rounded-full bg-[#8B5CF6]/10 text-[#6D28D9] text-xs font-bold border border-[#8B5CF6]/20">
                   {m}
                 </span>
@@ -498,7 +498,7 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
           <div>
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">✨ Pasatiempos & Hobbies</p>
             <div className="flex flex-wrap gap-2">
-              {hobbiesMock.map((h, i) => (
+              {hobbiesData.map((h, i) => (
                 <span key={i} className="px-3 py-1.5 rounded-full bg-[#10B981]/10 text-[#065F46] text-xs font-bold border border-[#10B981]/20">
                   {h}
                 </span>
@@ -510,7 +510,7 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
           <div>
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">🌐 Idiomas</p>
             <div className="flex flex-wrap gap-2">
-              {idiomasMock.map((lang, i) => (
+              {idiomasData.map((lang, i) => (
                 <span key={i} className="px-3 py-1.5 rounded-full bg-[#1A5B75]/10 text-[#1A5B75] text-xs font-bold border border-[#1A5B75]/20">
                   {lang}
                 </span>
@@ -547,8 +547,8 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
           <span>💻</span> Habilidades Técnicas
         </h3>
         <div className="flex flex-wrap gap-2">
-          {habilidadesTecnicasMock.length > 0 ? (
-            habilidadesTecnicasMock.map((h, i) => (
+          {habilidadesTecnicasData.length > 0 ? (
+            habilidadesTecnicasData.map((h, i) => (
               <span key={i} className="px-3.5 py-2 rounded-xl bg-[#E0F2FE]/70 text-[#003B4F] text-xs font-bold border border-[#54BCEB]/30 shadow-sm">
                 {h}
               </span>

@@ -5,12 +5,16 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useProfile } from '@/contexts/ProfileContext'
 import { obtenerProyectosBuscandoApoyo } from '@/actions/students'
-import heroBannerImg from '@/images/hero_banner_exact.png'
+import { getRecommendedStudentConnections } from '@/actions/matches'
+import { createClient } from '@/lib/supabase/client'
+import heroBannerImg from '@/images/hero_banner_new.png'
 import {
   GraduationCap, Briefcase, DollarSign, Bell, ChevronRight,
   MapPin, Video, Type, Contrast, Mic, RotateCcw, Accessibility,
   X, ArrowRight, Users, BookOpen, Globe
 } from 'lucide-react'
+import ProyectoDonacionesProgreso from '@/components/ProyectoDonacionesProgreso'
+import { getProyectoFileUrl } from '@/lib/utils'
 
 /* ─────────── Floating Accessibility Panel ─────────── */
 function AccessibilityPanel() {
@@ -126,17 +130,20 @@ function AnimatedNumber({ value, prefix = '', suffix = '' }: { value: number; pr
   return <span ref={ref}>{prefix}{display.toLocaleString()}{suffix}</span>
 }
 
-/* ─────────── Events Data ─────────── */
-const EVENTS = [
-  { id: '1', day: '15', month: 'NOV', title: 'Encuentro Anual de Exalumnos UCR', location: 'Auditorio Rodrigo Facio', virtual: false, img: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&q=80' },
-  { id: '2', day: '22', month: 'NOV', title: 'Networking de Negocios', location: 'Virtual (Zoom)', virtual: true, img: 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=600&q=80' },
-  { id: '3', day: '05', month: 'DIC', title: 'Conferencia: Liderazgo en la Industria', location: 'Restaurante El Mirador', virtual: false, img: 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=600&q=80' },
-]
-
-const NEWS = [
-  { id: '1', category: 'INVESTIGACIÓN', title: 'Nuevo hito en nanotecnología biomédica', excerpt: 'Investigadores de la UCR logran desarrollar un parche inteligente para la regeneración...', img: 'https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=200&q=80' },
-  { id: '2', category: 'VIDA ESTUDIANTIL', title: 'Inauguran nuevo Centro de Bienestar Estudiantil', excerpt: 'Un espacio dedicado a la salud mental y el desarrollo integral de la comunidad...', img: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=200&q=80' },
-]
+/* ─────────── Utils ─────────── */
+function parseEventDate(dateString: string) {
+  if (!dateString) return { day: '00', month: '---' }
+  try {
+    const d = new Date(dateString)
+    const months = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC']
+    return {
+      day: String(d.getDate()).padStart(2, '0'),
+      month: months[d.getMonth()] || '---'
+    }
+  } catch(e) {
+    return { day: '00', month: '---' }
+  }
+}
 
 /* ─────────── Main Dashboard ─────────── */
 export default function DashboardPage() {
@@ -146,6 +153,32 @@ export default function DashboardPage() {
 
   const [mentorias] = useState(4)
   const [vacantes] = useState(2)
+
+  const [recommendedMatches, setRecommendedMatches] = useState<any[]>([])
+  const [eventsData, setEventsData] = useState<any[]>([])
+  const [newsData, setNewsData] = useState<any[]>([])
+
+  useEffect(() => {
+    async function fetchMatches() {
+      const { data } = await getRecommendedStudentConnections()
+      if (data) {
+        setRecommendedMatches(data)
+      }
+    }
+    
+    async function fetchDashboardData() {
+      const supabase = createClient()
+      const [eventsRes, newsRes] = await Promise.all([
+        supabase.from('events').select('*').limit(3),
+        supabase.from('noticias').select('*').limit(2)
+      ])
+      if (eventsRes.data) setEventsData(eventsRes.data)
+      if (newsRes.data) setNewsData(newsRes.data)
+    }
+
+    fetchMatches()
+    fetchDashboardData()
+  }, [])
 
   return (
     <div className="min-h-screen bg-[#FAF6F1]">
@@ -261,6 +294,56 @@ export default function DashboardPage() {
         </div>
       </section>
 
+      {/* ─── CONEXIONES RECOMENDADAS ─── */}
+      <section className="px-6 lg:px-16 py-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-2xl font-black text-slate-900">Conexiones Recomendadas</h2>
+              <p className="text-slate-500 text-sm mt-0.5">Tienes {recommendedMatches.length} {recommendedMatches.length === 1 ? 'conexión sugerida' : 'conexiones sugeridas'} según tu perfil.</p>
+            </div>
+            <Link href="/matches" className="text-[#F34B26] text-sm font-bold hover:underline flex items-center gap-1">
+              Ver todos <ChevronRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          {recommendedMatches.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {recommendedMatches.map(estudiante => {
+                const nombreCompleto = `${estudiante.nombre || ''} ${estudiante.apellidos || ''}`.trim()
+                const roleDisplay = estudiante.proyecto_area_tematica || estudiante.proyecto_tipo || 'Estudiante'
+                
+                return (
+                <div key={estudiante.id} className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-lg transition-all hover:-translate-y-1 flex flex-col items-center text-center group">
+                  <div className="relative mb-4">
+                    <img src={estudiante.foto_url || 'https://via.placeholder.com/150'} alt={nombreCompleto} className="w-20 h-20 rounded-full object-cover border-4 border-slate-50 group-hover:border-[#F34B26]/20 transition-colors" />
+                    <div className="absolute -bottom-2 right-0 bg-green-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full border-2 border-white shadow-sm" title="Afinidad">
+                      {estudiante.score_match}%
+                    </div>
+                  </div>
+                  <h3 className="font-bold text-slate-800">{nombreCompleto}</h3>
+                  <p className="text-[#F34B26] text-xs font-bold mt-1 line-clamp-1">{roleDisplay}</p>
+                  <p className="text-slate-500 text-[11px] mt-1 line-clamp-1">
+                    {estudiante.carrera || 'Universidad de Costa Rica'}
+                  </p>
+                  
+                  <Link 
+                    href={`/directorio/estudiantes/${estudiante.id}`}
+                    className="mt-5 w-full py-2.5 bg-slate-50 hover:bg-[#F34B26] text-slate-700 hover:text-white text-sm font-bold rounded-xl transition-all shadow-sm active:scale-95 flex items-center justify-center gap-2 group/btn">
+                    <Users className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />
+                    Ver detalles
+                  </Link>
+                </div>
+              )})}
+            </div>
+          ) : (
+            <div className="bg-white rounded-2xl p-8 border border-slate-100 text-center text-slate-500 text-sm shadow-sm">
+              No hay conexiones recomendadas en este momento.
+            </div>
+          )}
+        </div>
+      </section>
+
       {/* ─── PRÓXIMOS EVENTOS ─── */}
       <section className="px-6 lg:px-16 py-4">
         <div className="max-w-6xl mx-auto">
@@ -275,26 +358,37 @@ export default function DashboardPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {EVENTS.map(ev => (
-              <Link key={ev.id} href={`/events/${ev.id}`} className="group block">
-                <div className="relative rounded-2xl overflow-hidden h-52 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                  <img src={ev.img} alt={ev.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                  {/* Date badge */}
-                  <div className="absolute top-3 left-3 bg-[#F34B26] text-white rounded-xl px-3 py-1.5 text-center shadow-lg">
-                    <div className="text-xl font-black leading-none">{ev.day}</div>
-                    <div className="text-[10px] font-bold uppercase tracking-wider opacity-90">{ev.month}</div>
+            {eventsData.map(ev => {
+              const { day, month } = parseEventDate(ev.event_date)
+              const isVirtual = ev.location?.toLowerCase().includes('virtual') || ev.location?.toLowerCase().includes('zoom')
+              // Use a generic placeholder since events table doesn't have an image field
+              const imgUrl = 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&q=80'
+              return (
+                <Link key={ev.id} href={`/events/${ev.id}`} className="group block">
+                  <div className="relative rounded-2xl overflow-hidden h-52 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                    <img src={imgUrl} alt={ev.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                    {/* Date badge */}
+                    <div className="absolute top-3 left-3 bg-[#F34B26] text-white rounded-xl px-3 py-1.5 text-center shadow-lg">
+                      <div className="text-xl font-black leading-none">{day}</div>
+                      <div className="text-[10px] font-bold uppercase tracking-wider opacity-90">{month}</div>
+                    </div>
+                    <div className="absolute bottom-0 left-0 right-0 p-4">
+                      <h4 className="text-white font-bold text-sm leading-snug">{ev.title}</h4>
+                      <p className="text-white/70 text-xs mt-1 flex items-center gap-1">
+                        {isVirtual ? <Video className="w-3 h-3" /> : <MapPin className="w-3 h-3" />}
+                        {ev.location}
+                      </p>
+                    </div>
                   </div>
-                  <div className="absolute bottom-0 left-0 right-0 p-4">
-                    <h4 className="text-white font-bold text-sm leading-snug">{ev.title}</h4>
-                    <p className="text-white/70 text-xs mt-1 flex items-center gap-1">
-                      {ev.virtual ? <Video className="w-3 h-3" /> : <MapPin className="w-3 h-3" />}
-                      {ev.location}
-                    </p>
-                  </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              )
+            })}
+            {eventsData.length === 0 && (
+              <div className="col-span-3 text-sm text-slate-500 p-4 bg-white rounded-xl text-center shadow-sm border border-slate-100">
+                No hay eventos programados en este momento.
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -306,16 +400,20 @@ export default function DashboardPage() {
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
             {/* News list */}
             <div className="lg:col-span-3 space-y-6">
-              {NEWS.map(n => (
+              {newsData.length > 0 ? newsData.map(n => (
                 <div key={n.id} className="flex gap-4 group cursor-pointer hover:bg-white/60 p-3 rounded-xl transition-all">
-                  <img src={n.img} alt={n.title} className="w-20 h-20 rounded-xl object-cover shrink-0 group-hover:scale-105 transition-transform" />
+                  <img src={n.imagen_url || 'https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=200&q=80'} alt={n.titulo} className="w-20 h-20 rounded-xl object-cover shrink-0 group-hover:scale-105 transition-transform" />
                   <div>
-                    <span className="text-[#F34B26] text-[10px] font-black uppercase tracking-widest">{n.category}</span>
-                    <h4 className="font-bold text-slate-800 text-sm mt-1 leading-snug group-hover:text-[#F34B26] transition-colors">{n.title}</h4>
-                    <p className="text-slate-500 text-xs mt-1 leading-relaxed">{n.excerpt}</p>
+                    <span className="text-[#F34B26] text-[10px] font-black uppercase tracking-widest">{n.categoria}</span>
+                    <h4 className="font-bold text-slate-800 text-sm mt-1 leading-snug group-hover:text-[#F34B26] transition-colors">{n.titulo}</h4>
+                    <p className="text-slate-500 text-xs mt-1 leading-relaxed">{n.extracto}</p>
                   </div>
                 </div>
-              ))}
+              )) : (
+                <div className="text-sm text-slate-500 bg-white p-4 rounded-xl text-center shadow-sm border border-slate-100">
+                  No hay noticias publicadas en este momento.
+                </div>
+              )}
             </div>
 
             {/* Sabías que */}

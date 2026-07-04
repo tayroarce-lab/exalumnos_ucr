@@ -180,38 +180,48 @@ export default function MentoriasPage() {
           exalumno_id,
           estudiante_id,
           contraparte_ex:users!matches_exalumno_id_fkey (
-            id, nombre, apellidos, foto_url
+            id, nombre, apellidos, foto_url, rol, busca_mentoria
           ),
           contraparte_est:users!matches_estudiante_id_fkey (
-            id, nombre, apellidos, foto_url
+            id, nombre, apellidos, foto_url, rol, busca_mentoria
           )
         `)
         .or(`exalumno_id.eq.${user.id},estudiante_id.eq.${user.id}`)
         .in('tipo_apoyo', ['mentoria', 'mentoría'])
-        .neq('estado', 'cerrado')
+        .in('estado', ['contactado', 'activo'])
         .order('score_match', { ascending: false })
 
       if (fetchError) throw new Error(fetchError.message)
 
-      const mappedData = (data ?? []).map((m: any) => {
-        // La "otra persona" depende del rol
-        const esElExalumno = m.exalumno_id === user.id
-        const contraparteRaw = esElExalumno
-          ? (Array.isArray(m.contraparte_est) ? m.contraparte_est[0] : m.contraparte_est)
-          : (Array.isArray(m.contraparte_ex)  ? m.contraparte_ex[0]  : m.contraparte_ex)
+      const mappedData = (data ?? [])
+        .map((m: any) => {
+          // La "otra persona" depende del rol
+          const esElExalumno = m.exalumno_id === user.id
+          const contraparteRaw = esElExalumno
+            ? (Array.isArray(m.contraparte_est) ? m.contraparte_est[0] : m.contraparte_est)
+            : (Array.isArray(m.contraparte_ex)  ? m.contraparte_ex[0]  : m.contraparte_ex)
 
-        return {
-          ...m,
-          estudiante: contraparteRaw ? {
-            id:               contraparteRaw.id,
-            nombre:           contraparteRaw.nombre,
-            apellidos:        contraparteRaw.apellidos,
-            foto_url:         contraparteRaw.foto_url,
-            carrera_principal: null,
-            proyecto_titulo:  null,
-          } : null
-        }
-      })
+          return {
+            ...m,
+            contraparteRaw,
+            estudiante: contraparteRaw ? {
+              id:               contraparteRaw.id,
+              nombre:           contraparteRaw.nombre,
+              apellidos:        contraparteRaw.apellidos,
+              foto_url:         contraparteRaw.foto_url,
+              carrera_principal: null,
+              proyecto_titulo:  null,
+            } : null
+          }
+        })
+        .filter(m => {
+          if (!m.contraparteRaw) return false;
+          // Si el usuario logueado es exalumno, queremos que la contraparte sea estudiante y busque mentoría
+          if (isExalumno) {
+            return m.contraparteRaw.rol === 'estudiante' && m.contraparteRaw.busca_mentoria === true;
+          }
+          return true; // Si es estudiante, ve a exalumnos normalmente
+        });
 
       setMatches(mappedData as unknown as MatchReal[])
     } catch (e: unknown) {

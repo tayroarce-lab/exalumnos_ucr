@@ -98,6 +98,7 @@ export async function completarOnboardingEstudiante(datos: {
   busca_pasantia: boolean
   habilidades: string[]
   hobbies?: string[]
+  full_name?: string
   foto_url?: string
   bio?: string
   proyecto_valor_monto?: number | null
@@ -107,6 +108,8 @@ export async function completarOnboardingEstudiante(datos: {
   proyecto_foto_url?: string | null
   proyecto_beneficios?: string | null
   proyecto_beneficios_fotos?: string[] | null
+  phone?: string
+  linkedin_url?: string
 }) {
   try {
     const supabase = await createClient()
@@ -156,12 +159,19 @@ export async function completarOnboardingEstudiante(datos: {
       return { success: false, error: 'Error al guardar datos académicos: ' + estError.message }
     }
 
-    // 2. Marcar perfil_completo en profiles usando adminClient y actualizar foto_url y bio
+    // 2. Marcar perfil_completo en profiles usando adminClient y actualizar nombre, foto_url y bio
     const { error: profilesError } = await adminClient.from('profiles').update({
       perfil_completo: 1 as any,
+      full_name: datos.full_name || user.user_metadata?.nombre || user.email?.split('@')[0],
       foto_url: datos.foto_url || null,
-      bio: datos.bio || null
+      bio: datos.bio || null,
+      phone: datos.phone || null,
+      linkedin_url: datos.linkedin_url || null
     }).eq('id', user.id)
+
+    if (datos.full_name) {
+      await adminClient.from('users').update({ nombre: datos.full_name }).eq('id', user.id)
+    }
 
     if (profilesError) {
       logError('students.ts/completarOnboardingEstudiante', profilesError, { userId: user.id })
@@ -221,7 +231,7 @@ export async function actualizarPerfilCompletoEstudiante(datos: any) {
     // 1. Obtener datos actuales del profile para no borrarlos accidentalmente si vienen undefined
     const { data: currentProfile } = await adminClient
       .from('profiles')
-      .select('full_name, foto_url, pais_ciudad, linkedin_url, bio')
+      .select('full_name, foto_url, pais_ciudad, linkedin_url, phone, bio')
       .eq('id', user.id)
       .maybeSingle()
 
@@ -231,6 +241,7 @@ export async function actualizarPerfilCompletoEstudiante(datos: any) {
       foto_url: datos.foto_url !== undefined ? datos.foto_url : (currentProfile?.foto_url || null),
       pais_ciudad: datos.pais_ciudad !== undefined ? datos.pais_ciudad : (currentProfile?.pais_ciudad || null),
       linkedin_url: datos.linkedin_url !== undefined ? datos.linkedin_url : (currentProfile?.linkedin_url || null),
+      phone: datos.phone !== undefined ? datos.phone : (currentProfile?.phone || null),
       bio: datos.bio !== undefined ? datos.bio : (currentProfile?.bio || null),
       es_exalumno: false // Siempre forzamos a false porque es un estudiante
     }
@@ -251,7 +262,7 @@ export async function actualizarPerfilCompletoEstudiante(datos: any) {
       busca_pasantia: datos.busca_pasantia,
     }
 
-    const { error: usersError } = await supabase
+    const { error: usersError } = await adminClient
       .from('users')
       .update(userPayload)
       .eq('id', user.id)
@@ -289,10 +300,9 @@ export async function actualizarPerfilCompletoEstudiante(datos: any) {
       proyecto_beneficios_fotos: datos.proyecto_beneficios_fotos || [],
     }
 
-    const { error: estError } = await supabase
+    const { error: estError } = await adminClient
       .from('estudiantes')
-      .update(estudiantePayload)
-      .eq('user_id', user.id)
+      .upsert({ user_id: user.id, ...estudiantePayload }, { onConflict: 'user_id' })
 
     if (estError) {
       logError('students.ts/actualizarPerfilCompletoEstudiante', estError, { userId: user.id });
@@ -455,13 +465,14 @@ export async function listarEstudiantes(
     });
   }
 
-  if (opciones?.page && opciones?.limit) {
-    const from = (opciones.page - 1) * opciones.limit
-    const to = from + opciones.limit - 1
-    query = query.range(from, to)
-  } else if (opciones?.limit) {
-    query = query.limit(opciones.limit)
-  }
+  // REMOVIDO: Paginación en SQL para poder ordenar por score_match en memoria
+  // if (opciones?.page && opciones?.limit) {
+  //   const from = (opciones.page - 1) * opciones.limit
+  //   const to = from + opciones.limit - 1
+  //   query = query.range(from, to)
+  // } else if (opciones?.limit) {
+  //   query = query.limit(opciones.limit)
+  // }
 
   const { data, count, error } = await query
   if (error) {
@@ -485,19 +496,43 @@ export async function listarEstudiantes(
       console.error('Error fetching batch profiles in listarEstudiantes:', err);
     }
   }
-  
-  const mappedData = data?.map(d => {
+  const { obtenerMiPerfil } = await import('./users');
+  const perfilActual = await obtenerMiPerfil().catch(() => null);
+  const { calcularMatch } = await import('@/lib/match');
+
+  let mappedData = data?.map(d => {
     const est = Array.isArray(d.estudiantes) ? d.estudiantes[0] : d.estudiantes;
     const prof = profilesData.find(p => p.id === d.id);
-    return {
+    const result = {
       ...est,
       ...d,
       estudiantes: est,
       areas_de_interes: est?.areas_de_interes || [],
       foto_url: prof?.foto_url || d.foto_url,
-      banner_url: prof?.banner_url || null
+      banner_url: prof?.banner_url || null,
+      match_score: 0
     }
-  })
+    
+    if (perfilActual) {
+      result.match_score = calcularMatch(result, perfilActual);
+    }
+    
+    return result;
+  }) || [];
+
+  // Ordenar por score_match descendente
+  if (perfilActual) {
+    mappedData.sort((a, b) => (b.match_score || 0) - (a.match_score || 0));
+  }
+
+  // Aplicar paginación en memoria
+  if (opciones?.page && opciones?.limit) {
+    const from = (opciones.page - 1) * opciones.limit;
+    const to = from + opciones.limit;
+    mappedData = mappedData.slice(from, to);
+  } else if (opciones?.limit) {
+    mappedData = mappedData.slice(0, opciones.limit);
+  }
 
   return { data: mappedData, count: count || 0 }
 }
@@ -609,7 +644,7 @@ export async function obtenerProyectosBuscandoApoyo(limite: number = 3) {
       .eq('rol', 'estudiante')
       .eq('activo', true)
       .eq('visible_en_directorio', true)
-      .or('busca_mentoria.eq.true,busca_empleo.eq.true,busca_pasantia.eq.true,estudiantes.busca_financiamiento.eq.true')
+      .or('busca_mentoria.eq.true,busca_empleo.eq.true,busca_pasantia.eq.true,busca_financiamiento.eq.true')
       .order('created_at', { ascending: false })
       .limit(limite)
 

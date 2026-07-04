@@ -75,26 +75,7 @@ export default function LinkedInProfileClient({
   const [validatedSkills, setValidatedSkills] = useState<Record<string, { count: number; userHasValidated: boolean }>>({})
 
   // Recommendations state
-  const [recommendations, setRecommendations] = useState([
-    {
-      id: 'r1',
-      authorName: 'Antonio David Mora',
-      authorTitle: 'Consultor de IA & Automatización',
-      authorAvatar: null,
-      relationship: 'Trabajó con Santiago en la UCR',
-      date: '14 de mayo, 2026',
-      text: 'Excelente profesional con una gran disposición para ayudar y compartir conocimientos sobre inteligencia artificial y mentorías.'
-    },
-    {
-      id: 'r2',
-      authorName: 'María Fernanda Ruiz',
-      authorTitle: 'Directora de Recursos Humanos',
-      authorAvatar: null,
-      relationship: 'Santiago fue cliente de María Fernanda',
-      date: '2 de abril, 2026',
-      text: 'Santiago demostró un liderazgo excepcional durante el proyecto de vinculación. Altamente recomendado para mentoría y liderazgo de equipos.'
-    }
-  ])
+  const [recommendations, setRecommendations] = useState<any[]>([])
   const [showRecommendationModal, setShowRecommendationModal] = useState(false)
   const [newRecommendation, setNewRecommendation] = useState({ text: '', relationship: 'Colaboró con Santiago' })
 
@@ -296,17 +277,7 @@ export default function LinkedInProfileClient({
                   </div>
                 </div>
 
-                {/* Contactos en común mockeados para total realismo */}
-                <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
-                  <div className="flex -space-x-2">
-                    <div className="w-6 h-6 rounded-full bg-slate-300 border border-white flex items-center justify-center text-[8px] font-black">AD</div>
-                    <div className="w-6 h-6 rounded-full bg-[#54BCEB] border border-white flex items-center justify-center text-[8px] font-black text-white">IM</div>
-                    <div className="w-6 h-6 rounded-full bg-orange-200 border border-white flex items-center justify-center text-[8px] font-black text-orange-800">MA</div>
-                  </div>
-                  <p className="text-xs text-slate-500 font-medium">
-                    <span className="font-bold text-slate-700">Antonio David Mora, Iván Mieres</span> y 4 contactos más en común
-                  </p>
-                </div>
+
 
                 {/* Botones de acción principales */}
                 <div className="flex flex-wrap gap-2 pt-4">

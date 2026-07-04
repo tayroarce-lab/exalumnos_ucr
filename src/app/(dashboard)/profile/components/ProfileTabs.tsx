@@ -17,8 +17,11 @@ import {
   FileText,
   Video,
   DollarSign,
-  Lightbulb
+  Lightbulb,
+  ShieldCheck
 } from 'lucide-react'
+
+import SecurityTab from './SecurityTab'
 
 export default function ProfileTabs({ profile, user, name, email, phone, location, initials, linkedin, twitter, instagram, skills, academic, experience }: any) {
   const isStudent = profile?.rol === 'estudiante'
@@ -31,8 +34,8 @@ export default function ProfileTabs({ profile, user, name, email, phone, locatio
   }, [profile])
   
   const tabs = isStudent 
-    ? ['personal', 'academica', 'proyecto'] 
-    : ['personal', 'academica', 'profesional']
+    ? ['personal', 'academica', 'proyecto', 'seguridad'] 
+    : ['personal', 'academica', 'profesional', 'seguridad']
 
   const [activeTab, setActiveTab] = useState('personal')
 
@@ -42,6 +45,7 @@ export default function ProfileTabs({ profile, user, name, email, phone, locatio
       case 'academica': return 'Académica'
       case 'profesional': return 'Profesional'
       case 'proyecto': return 'Proyecto de Graduación'
+      case 'seguridad': return 'Seguridad'
       default: return tab
     }
   }
