@@ -156,12 +156,17 @@ export async function completarOnboardingEstudiante(datos: {
       return { success: false, error: 'Error al guardar datos académicos: ' + estError.message }
     }
 
-    // 2. Marcar perfil_completo en profiles usando adminClient y actualizar foto_url y bio
+    // 2. Marcar perfil_completo en profiles usando adminClient y actualizar nombre, foto_url y bio
     const { error: profilesError } = await adminClient.from('profiles').update({
       perfil_completo: 1 as any,
+      full_name: datos.full_name || user.user_metadata?.nombre || user.email?.split('@')[0],
       foto_url: datos.foto_url || null,
       bio: datos.bio || null
     }).eq('id', user.id)
+
+    if (datos.full_name) {
+      await adminClient.from('users').update({ nombre: datos.full_name }).eq('id', user.id)
+    }
 
     if (profilesError) {
       logError('students.ts/completarOnboardingEstudiante', profilesError, { userId: user.id })

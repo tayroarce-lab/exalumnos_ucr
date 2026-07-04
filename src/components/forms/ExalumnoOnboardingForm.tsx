@@ -33,7 +33,8 @@ const exalumnoSchema = z.object({
   habilidadesText: z.string().optional(),
   hobbiesText: z.string().optional(),
   foto_url: z.string().optional(),
-  phone: z.string().optional()
+  phone: z.string().optional(),
+  full_name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres').max(100, 'El nombre es demasiado largo')
 });
 
 type ExalumnoFormData = z.infer<typeof exalumnoSchema>;
@@ -82,6 +83,12 @@ export default function ExalumnoOnboardingForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [globalError, setGlobalError] = useState('');
   const [isUploading, setIsUploading] = useState(false);
+
+  useEffect(() => {
+    if (userName && !formData.full_name) {
+      setFormData(prev => ({ ...prev, full_name: userName }));
+    }
+  }, [userName, formData.full_name]);
 
   React.useEffect(() => {
     if (isEditMode && initialData) {
@@ -274,9 +281,14 @@ export default function ExalumnoOnboardingForm({
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Nombre Completo</label>
-                <input type="text" value={userName || 'No disponible'} disabled
-                  className="w-full p-2.5 border border-slate-300 rounded-lg bg-slate-100 text-slate-500 cursor-not-allowed text-slate-900" />
+                <label className="block text-sm font-medium text-slate-700 mb-1">Nombre Completo <span className="text-rose-500">*</span></label>
+                <input type="text" value={formData.full_name} 
+                  onChange={(e) => {
+                    setFormData({ ...formData, full_name: e.target.value });
+                    if (errors.full_name) setErrors(prev => ({ ...prev, full_name: undefined }));
+                  }}
+                  className={`w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-celeste focus:border-transparent outline-none transition-all ${errors.full_name ? 'border-red-500' : 'border-slate-300'}`} />
+                {errors.full_name && <p className="text-red-500 text-xs mt-1">{errors.full_name}</p>}
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Correo Electrónico</label>

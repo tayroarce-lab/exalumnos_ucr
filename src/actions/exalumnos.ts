@@ -66,6 +66,7 @@ export async function completarOnboardingExalumno(datos: {
     // 2. Upsert en tabla "profiles"
     const profilePayload = {
       id: user.id,
+      full_name: datos.full_name || user.user_metadata?.nombre || user.email?.split('@')[0],
       empresa_actual: datos.empresa_actual || null,
       cargo_actual: datos.cargo_actual || null,
       sector_industria: datos.sector_industria ? [datos.sector_industria] : null,
@@ -141,12 +142,17 @@ export async function completarOnboardingExalumno(datos: {
     }
 
     // 4. Actualizar tabla "users" - guardar hobbies
+    const userUpdatePayload: any = {
+      ofrece_mentoria: datos.ofrece_mentoria,
+      hobbies: datos.hobbies || []
+    }
+    if (datos.full_name) {
+      userUpdatePayload.nombre = datos.full_name;
+    }
+
     const { error: usersError } = await adminClient
       .from('users')
-      .update({
-        ofrece_mentoria: datos.ofrece_mentoria,
-        hobbies: datos.hobbies || []
-      })
+      .update(userUpdatePayload)
       .eq('id', user.id)
 
     if (usersError) {
