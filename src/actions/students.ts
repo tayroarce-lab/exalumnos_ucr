@@ -438,9 +438,9 @@ export async function listarEstudiantes(
       const orConditions: string[] = []
       filtros.tipos_apoyo.forEach(tipo => {
         if (tipo === 'financiamiento') orConditions.push('estudiantes.busca_financiamiento.eq.true')
-        if (tipo === 'mentoría') orConditions.push('busca_mentoria.eq.true')
+        if (tipo === 'mentoria' || tipo === 'mentoría') orConditions.push('busca_mentoria.eq.true')
         if (tipo === 'empleo') orConditions.push('busca_empleo.eq.true')
-        if (tipo === 'pasantía') orConditions.push('busca_pasantia.eq.true')
+        if (tipo === 'pasantia' || tipo === 'pasantía') orConditions.push('busca_pasantia.eq.true')
       })
       if (orConditions.length > 0) {
         query = query.or(orConditions.join(','))

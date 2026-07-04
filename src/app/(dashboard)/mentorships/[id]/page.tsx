@@ -1,77 +1,33 @@
-'use client'
-
-import React, { useState } from 'react'
+import React from 'react'
 import Link from 'next/link'
 import Card from '@/components/ui/card'
-import Button from '@/components/ui/button'
-import Modal from '@/components/ui/modal'
-import { Textarea } from '@/components/ui/input'
-import { ArrowLeft, Star, Calendar, Clock, GraduationCap, Award, CheckCircle2 } from 'lucide-react'
-
-const MOCK_MENTORS = [
-  {
-    id: '1',
-    name: 'Ing. Carlos Salazar',
-    role: 'Staff Engineer',
-    company: 'Amazon Web Services',
-    rating: 4.9,
-    sessions: 42,
-    degree: 'Ingeniería Eléctrica, UCR',
-    skills: ['AWS', 'Cloud Architecture', 'Python', 'DevOps'],
-    quote: 'Me apasiona guiar a estudiantes en la transición del ámbito académico al corporativo global.',
-    bio: 'Más de 10 años diseñando e implementando arquitecturas en la nube. Graduado de la Escuela de Ingeniería Eléctrica de la UCR. Comprometido con la formación del talento costarricense.',
-    slots: ['Lunes 2:00 PM', 'Miércoles 10:00 AM', 'Jueves 4:00 PM']
-  },
-  {
-    id: '2',
-    name: 'Lic. Laura Rodríguez',
-    role: 'Product Manager',
-    company: 'Fintech Solutions',
-    rating: 4.7,
-    sessions: 18,
-    degree: 'Dirección de Empresas, UCR',
-    skills: ['Scrum', 'Product Design', 'Agile', 'Finanzas'],
-    quote: 'Apoyo a definir objetivos de carrera y metodologías ágiles en equipos multidisciplinarios.',
-    bio: 'Especialista en gerencia de producto y metodologías ágiles en el sector financiero digital. Graduada de la Facultad de Ciencias Económicas de la UCR.',
-    slots: ['Martes 9:00 AM', 'Jueves 2:00 PM', 'Viernes 11:00 AM']
-  },
-  {
-    id: '3',
-    name: 'M.Sc. Esteban Vargas',
-    role: 'Data Scientist Lead',
-    company: 'Intel Corporation',
-    rating: 4.8,
-    sessions: 29,
-    degree: 'Matemáticas y Computación, UCR',
-    skills: ['Data Science', 'Machine Learning', 'SQL', 'R/Python'],
-    quote: 'Te ayudo a adentrarte en el mundo de la analítica avanzada y la inteligencia artificial práctica.',
-    bio: 'Experto en modelos predictivos e inteligencia artificial para la optimización de procesos industriales. Exalumno de Matemáticas de la UCR.',
-    slots: ['Lunes 10:00 AM', 'Miércoles 3:00 PM', 'Viernes 9:00 AM']
-  }
-]
+import { ArrowLeft, Star, GraduationCap } from 'lucide-react'
+import { createClient } from '@/lib/supabase/server'
+import MentorshipRequestModal from './MentorshipRequestModal'
 
 interface MentorshipDetailPageProps {
   params: Promise<{ id: string }>
 }
 
-export default function MentorshipDetailPage({ params }: MentorshipDetailPageProps) {
-  const { id } = React.use(params)
-  const mentor = MOCK_MENTORS.find((m) => m.id === id) || MOCK_MENTORS[0]
+export default async function MentorshipDetailPage({ params }: MentorshipDetailPageProps) {
+  const { id } = await params
+  
+  const supabase = await createClient()
+  const { data: mentor, error } = await supabase.from('mentors').select('*').eq('id', id).single()
 
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [selectedSlot, setSelectedSlot] = useState('')
-  const [objective, setObjective] = useState('')
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isSubmitted, setIsSubmitted] = useState(false)
-
-  const handleRequestSubmit = () => {
-    setIsSubmitting(true)
-    setTimeout(() => {
-      setIsSubmitting(false)
-      setIsSubmitted(true)
-      setIsModalOpen(false)
-    }, 1500)
+  if (error || !mentor) {
+    return (
+      <div className="space-y-6 text-center py-20">
+        <h2 className="text-2xl font-bold text-slate-700">Mentor no encontrado</h2>
+        <Link href="/mentorships" className="inline-flex items-center gap-2 text-sm font-bold text-brand-emerald hover:underline">
+          <ArrowLeft className="w-4 h-4" />
+          Volver a mentores
+        </Link>
+      </div>
+    )
   }
+
+  const initial = mentor.name ? mentor.name.charAt(mentor.name.startsWith('Ing. ') || mentor.name.startsWith('Lic. ') ? 5 : 0).toUpperCase() : 'M'
 
   return (
     <div className="space-y-6">
@@ -89,7 +45,7 @@ export default function MentorshipDetailPage({ params }: MentorshipDetailPagePro
           <Card hoverEffect={false} className="space-y-6">
             <div className="flex items-start gap-4 flex-col sm:flex-row">
               <div className="w-16 h-16 rounded-full bg-brand-emerald text-white font-bold font-display text-2xl flex items-center justify-center shadow-inner shrink-0">
-                {mentor.name.charAt(5)}
+                {initial}
               </div>
               <div className="space-y-1">
                 <h1 className="text-2xl font-extrabold uppercase font-display text-slate-800 tracking-wide">
@@ -122,18 +78,20 @@ export default function MentorshipDetailPage({ params }: MentorshipDetailPagePro
               </p>
             </div>
 
-            <div className="space-y-4">
-              <h3 className="font-display font-bold text-base text-slate-700 uppercase tracking-wider">
-                Especialidades
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {mentor.skills.map((skill, idx) => (
-                  <span key={idx} className="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-semibold uppercase">
-                    {skill}
-                  </span>
-                ))}
+            {mentor.skills && Array.isArray(mentor.skills) && (
+              <div className="space-y-4">
+                <h3 className="font-display font-bold text-base text-slate-700 uppercase tracking-wider">
+                  Especialidades
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {mentor.skills.map((skill: string, idx: number) => (
+                    <span key={idx} className="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-semibold uppercase">
+                      {skill}
+                    </span>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </Card>
         </div>
 
@@ -147,78 +105,11 @@ export default function MentorshipDetailPage({ params }: MentorshipDetailPagePro
               Reserva un espacio virtual para conversar sobre tu carrera y recibir retroalimentación.
             </p>
 
-            <div className="border-t border-slate-100 pt-6 space-y-3">
-              {isSubmitted ? (
-                <div className="bg-emerald-50 text-emerald-800 p-4 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 border border-emerald-100">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-                  <span>¡Solicitud enviada!</span>
-                </div>
-              ) : (
-                <Button
-                  onClick={() => setIsModalOpen(true)}
-                  className="w-full h-12 text-sm uppercase tracking-wider font-bold"
-                >
-                  Agendar Sesión
-                </Button>
-              )}
-            </div>
+            <MentorshipRequestModal slots={mentor.slots || []} />
           </Card>
         </div>
 
       </div>
-
-      {/* Modal de Agenda */}
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title="Agendar Mentoría"
-        footer={
-          <>
-            <Button variant="ghost" onClick={() => setIsModalOpen(false)}>
-              Cancelar
-            </Button>
-            <Button
-              variant="primary"
-              onClick={handleRequestSubmit}
-              isLoading={isSubmitting}
-              disabled={!selectedSlot || !objective}
-            >
-              Enviar Solicitud
-            </Button>
-          </>
-        }
-      >
-        <div className="space-y-5 text-left">
-          <div className="space-y-2">
-            <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider">
-              Seleccionar Horario Disponible
-            </label>
-            <div className="grid grid-cols-1 gap-2">
-              {mentor.slots.map((slot) => (
-                <button
-                  key={slot}
-                  onClick={() => setSelectedSlot(slot)}
-                  className={`h-11 px-4 rounded-xl text-xs font-bold uppercase border transition-colors flex items-center justify-between ${
-                    selectedSlot === slot
-                      ? 'border-brand-emerald bg-brand-emerald/10 text-brand-emerald'
-                      : 'border-slate-200 text-slate-600 hover:bg-slate-50'
-                  }`}
-                >
-                  <span>{slot}</span>
-                  <Clock className="w-4 h-4" />
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <Textarea
-            label="Objetivo de la mentoría"
-            placeholder="Describe brevemente tus dudas, qué deseas lograr en la sesión o los temas que te gustaría tratar con el mentor..."
-            value={objective}
-            onChange={(e) => setObjective(e.target.value)}
-          />
-        </div>
-      </Modal>
     </div>
   )
 }

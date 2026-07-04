@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import InteractiveTour from '@/components/InteractiveTour'
 
 export function ExalumnosLayoutClient({ children, role }: { children: React.ReactNode, role?: string }) {
   const [theme, setTheme] = useState<'light' | 'dark'>('light')
@@ -29,6 +30,7 @@ export function ExalumnosLayoutClient({ children, role }: { children: React.Reac
   return (
     <div className={`min-h-screen flex flex-col transition-colors duration-300 ${theme === 'dark' ? 'bg-negro-base exalumnos-theme-dark' : 'bg-cream exalumnos-theme-light'}`}>
       {children}
+      <InteractiveTour />
     </div>
   )
 }

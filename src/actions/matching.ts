@@ -132,9 +132,8 @@ export async function calcularScoreMentoria(
     busca_mentoria, busca_empleo, busca_pasantia, busca_financiamiento,
     ofrece_mentoria, ofrece_empleo, ofrece_pasantia, ofrece_donacion_dinero,
     visible_en_directorio,
-    users_areas_interes(catalogo_areas_interes(nombre)),
-    exalumnos(sector_industria),
-    estudiantes(proyecto_area_tematica)
+    exalumnos(sector_industria, areas_de_interes),
+    estudiantes(proyecto_area_tematica, areas_de_interes)
   `
 
   const [{ data: estudiante, error: errEst }, { data: exalumno, error: errEx }] =
@@ -161,7 +160,7 @@ export async function calcularScoreMentoria(
   if (!exalumno)   throw new Error(`Exalumno "${exalumnoId}" no encontrado.`)
 
   const mapAreas = (u: any) => {
-    const arr = u.users_areas_interes?.map((ua: any) => ua.catalogo_areas_interes?.nombre).filter(Boolean) || []
+    const arr = u.estudiantes?.[0]?.areas_de_interes || u.exalumnos?.[0]?.areas_de_interes || []
     return { 
       ...u, 
       areas_de_interes: arr,
@@ -337,7 +336,8 @@ export async function calcularScorePuesto(
       .select(`
           busca_empleo, 
           busca_pasantia,
-          users_areas_interes(catalogo_areas_interes(nombre))
+          exalumnos(sector_industria, areas_de_interes),
+          estudiantes(proyecto_area_tematica, areas_de_interes)
         `)
       .eq('id', estudianteId)
       .eq('rol', 'estudiante')
@@ -364,7 +364,7 @@ export async function calcularScorePuesto(
   if (!posicion)   throw new Error(`Posición "${posicionId}" no encontrada.`)
 
   const mapAreas = (u: any) => {
-    return u.users_areas_interes?.map((ua: any) => ua.catalogo_areas_interes?.nombre).filter(Boolean) || []
+    return u.estudiantes?.[0]?.areas_de_interes || u.exalumnos?.[0]?.areas_de_interes || u.areas_de_interes || []
   }
 
   // Si la posición no está activa (usa 'activa', no 'abierta'), score = 0

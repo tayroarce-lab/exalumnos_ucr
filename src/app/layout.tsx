@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { ProfileProvider } from '@/contexts/ProfileContext'
+import { CatalogsProvider } from '@/contexts/CatalogsContext'
 import GlobalLoadingOverlay from '@/components/GlobalLoadingOverlay'
 import { Barlow_Semi_Condensed, Work_Sans } from 'next/font/google'
 import './globals.css'
@@ -29,13 +30,15 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="es">
+    <html lang="es" className={`${barlow.variable} ${workSans.variable}`}>
       <body>
         <GlobalLoadingOverlay />
         <A11yToolbar />
-        <ProfileProvider>
-          {children}
-        </ProfileProvider>
+        <CatalogsProvider>
+          <ProfileProvider>
+            {children}
+          </ProfileProvider>
+        </CatalogsProvider>
       </body>
     </html>
   )
