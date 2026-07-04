@@ -262,7 +262,7 @@ export async function actualizarPerfilCompletoEstudiante(datos: any) {
       busca_pasantia: datos.busca_pasantia,
     }
 
-    const { error: usersError } = await supabase
+    const { error: usersError } = await adminClient
       .from('users')
       .update(userPayload)
       .eq('id', user.id)
@@ -300,10 +300,9 @@ export async function actualizarPerfilCompletoEstudiante(datos: any) {
       proyecto_beneficios_fotos: datos.proyecto_beneficios_fotos || [],
     }
 
-    const { error: estError } = await supabase
+    const { error: estError } = await adminClient
       .from('estudiantes')
-      .update(estudiantePayload)
-      .eq('user_id', user.id)
+      .upsert({ user_id: user.id, ...estudiantePayload }, { onConflict: 'user_id' })
 
     if (estError) {
       logError('students.ts/actualizarPerfilCompletoEstudiante', estError, { userId: user.id });
