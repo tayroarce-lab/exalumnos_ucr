@@ -659,15 +659,21 @@ export default function StudentOnboardingForm({
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Título del proyecto *</label>
                 <input type="text" name="proyecto_titulo" value={formData.proyecto_titulo} onChange={handleChange} required maxLength={200}
-                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none text-slate-900 bg-white" />
-                <p className="text-xs text-slate-500 mt-1 text-right">{formData.proyecto_titulo.length}/200</p>
+                  className={`w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none text-slate-900 bg-white ${errors.proyecto_titulo ? 'border-red-500' : 'border-slate-300'}`} />
+                <div className="flex justify-between mt-1">
+                  {errors.proyecto_titulo ? <p className="text-red-500 text-xs">{errors.proyecto_titulo}</p> : <div/>}
+                  <p className="text-xs text-slate-500 text-right">{formData.proyecto_titulo.length}/200</p>
+                </div>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Descripción del proyecto *</label>
                 <textarea name="proyecto_descripcion" value={formData.proyecto_descripcion} onChange={handleChange} required maxLength={1000} rows={4}
-                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none resize-none text-slate-900 bg-white" />
-                <p className="text-xs text-slate-500 mt-1 text-right">{formData.proyecto_descripcion.length}/1000</p>
+                  className={`w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-celeste/50 outline-none resize-none text-slate-900 bg-white ${errors.proyecto_descripcion ? 'border-red-500' : 'border-slate-300'}`} />
+                <div className="flex justify-between mt-1">
+                  {errors.proyecto_descripcion ? <p className="text-red-500 text-xs">{errors.proyecto_descripcion}</p> : <div/>}
+                  <p className="text-xs text-slate-500 text-right">{formData.proyecto_descripcion.length}/1000</p>
+                </div>
               </div>
 
               <div>
@@ -682,6 +688,7 @@ export default function StudentOnboardingForm({
                   </select>
                   <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
                 </div>
+                {errors.proyecto_tipo && <p className="text-red-500 text-xs mt-1">{errors.proyecto_tipo}</p>}
               </div>
 
               <div>
@@ -706,6 +713,7 @@ export default function StudentOnboardingForm({
                 <label className="block text-sm font-medium text-slate-700 mb-1">Porcentaje de avance: {formData.proyecto_porcentaje_avance}% *</label>
                 <input type="range" name="proyecto_porcentaje_avance" min="0" max="100" value={formData.proyecto_porcentaje_avance} onChange={handleChange}
                   className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-celeste" />
+                {errors.proyecto_porcentaje_avance && <p className="text-red-500 text-xs mt-1">{errors.proyecto_porcentaje_avance}</p>}
               </div>
 
               <div>
@@ -749,7 +757,8 @@ export default function StudentOnboardingForm({
                     <div>
                       <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Monto solicitado</label>
                       <input type="number" name="proyecto_valor_monto" value={formData.proyecto_valor_monto || ''} onChange={handleChange} min="0" placeholder="Ej: 500000"
-                        className="w-full h-11 px-4 border border-slate-200 rounded-xl focus:border-celeste focus:ring-1 focus:ring-celeste/50 outline-none bg-white text-sm" />
+                        className={`w-full h-11 px-4 border rounded-xl focus:border-celeste focus:ring-1 focus:ring-celeste/50 outline-none bg-white text-sm ${errors.proyecto_valor_monto ? 'border-red-500' : 'border-slate-200'}`} />
+                      {errors.proyecto_valor_monto && <p className="text-red-500 text-xs mt-1">{errors.proyecto_valor_monto}</p>}
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Moneda</label>
@@ -791,7 +800,7 @@ export default function StudentOnboardingForm({
                       <span className="text-xs text-slate-400 font-medium">Ninguna imagen cargada aún.</span>
                     )}
                   </div>
-                  {errors.proyecto_foto && <p className="text-red-500 text-xs mt-1">{errors.proyecto_foto}</p>}
+                  {errors.proyecto_foto_url && <p className="text-red-500 text-xs mt-1">{errors.proyecto_foto_url}</p>}
                   
                   {/* Vista previa de la imagen del proyecto */}
                   {formData.proyecto_foto_url && (
@@ -818,7 +827,7 @@ export default function StudentOnboardingForm({
                       <span className="text-xs text-slate-400 font-medium">Ningún documento adjunto aún.</span>
                     )}
                   </div>
-                  {errors.documento && <p className="text-red-500 text-xs mt-1">{errors.documento}</p>}
+                  {errors.proyecto_documento_url && <p className="text-red-500 text-xs mt-1">{errors.proyecto_documento_url}</p>}
                 </div>
 
                 {/* Beneficios para donadores */}
