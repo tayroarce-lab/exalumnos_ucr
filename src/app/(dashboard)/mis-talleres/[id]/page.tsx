@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Users, Calendar, MapPin, CheckCircle, XCircle } from 'lucide-react'
 import { getTallerById, getPostulacionesPorTaller, responderPostulacion } from '@/actions/talleres'
+import { toast } from 'sonner'
 import Card from '@/components/ui/card'
 import Button from '@/components/ui/button'
 
@@ -38,7 +39,7 @@ export default function DetalleTallerPage() {
       setPostulaciones(prev => prev.map(p => p.id === postulacionId ? { ...p, estado } : p))
     } catch (error) {
       console.error(error)
-      alert('Error al responder postulación')
+      toast.error('Error al responder postulación')
     }
   }
 

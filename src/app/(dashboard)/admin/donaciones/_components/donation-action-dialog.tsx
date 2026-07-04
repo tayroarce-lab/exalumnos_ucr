@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { DonationAdminView } from '@/types/donations';
 import { getSignedUrlAction } from '@/actions/storage';
+import { toast } from 'sonner';
 import '../../../../../styles/admin-matches.css';
 
 interface DonationActionDialogProps {
@@ -49,7 +50,7 @@ export function DonationActionDialog({ donation, isOpen, onClose, onProcess }: D
 
   const handleReject = async () => {
     if (!rejectionReason.trim()) {
-      alert('Debes proporcionar un motivo para rechazar la donación.');
+      toast.warning('Debes proporcionar un motivo para rechazar la donación.');
       return;
     }
     setIsProcessing(true);

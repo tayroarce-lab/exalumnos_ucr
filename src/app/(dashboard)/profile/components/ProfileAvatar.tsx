@@ -3,6 +3,7 @@
 import React, { useRef, useState } from 'react'
 import { Camera, Loader2 } from 'lucide-react'
 import { updateProfileImage } from '../actions'
+import { toast } from 'sonner'
 
 interface ProfileAvatarProps {
   avatarUrl: string | null | undefined
@@ -25,11 +26,13 @@ export default function ProfileAvatar({ avatarUrl, initials, isOwner }: ProfileA
       
       const res = await updateProfileImage(formData)
       if (!res.success) {
-        alert(res.error || 'Error al subir la foto de perfil')
+        toast.error(res.error || 'Error al subir la foto de perfil')
+      } else {
+        toast.success('Foto de perfil actualizada')
       }
     } catch (error) {
       console.error(error)
-      alert('Ocurrió un error inesperado al subir la foto')
+      toast.error('Ocurrió un error inesperado al subir la foto')
     } finally {
       setIsUploading(false)
       if (fileInputRef.current) {

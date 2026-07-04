@@ -6,6 +6,7 @@ import { useSupportQueriesRealtime } from '@/hooks/useSupportQueriesRealtime'
 import { SupportTable } from '@/components/admin/consultas-soporte/SupportTable'
 import { SupportModal } from '@/components/admin/consultas-soporte/SupportModal'
 import { HelpCircle, Clock, AlertCircle, CheckCircle, MessageSquare, Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
 import '@/styles/admin-dashboard.css'
 
 export default function AdminSupportQueriesPage() {
@@ -89,7 +90,7 @@ export default function AdminSupportQueriesPage() {
       setSelectedQuery(null)
     } catch (err: any) {
       console.error('Error al actualizar consulta:', err)
-      alert('Error al guardar los cambios: ' + (err.message || 'Error desconocido'))
+      toast.error('Error al guardar los cambios: ' + (err.message || 'Error desconocido'))
     } finally {
       setIsSaving(false)
     }

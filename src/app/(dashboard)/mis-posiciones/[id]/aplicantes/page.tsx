@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { ArrowLeft, Users, Mail, GraduationCap, Clock, AlertCircle, CheckCircle2, XCircle, Eye, ChevronDown, MapPin, FileText, Check } from 'lucide-react'
 import { obtenerPosicionPorId } from '@/actions/positions'
 import { getPositionApplications, updateApplicationStatus } from '@/actions/applications'
+import { toast } from 'sonner'
 import Card from '@/components/ui/card'
 import Modal from '@/components/ui/modal'
 import Button from '@/components/ui/button'
@@ -210,7 +211,7 @@ export default function AplicantesPage({ params }: AplicantesPageProps) {
       ))
       if (modalSeleccion.open) setModalSeleccion({ id: '', open: false })
     } else {
-      alert(result.error || 'Ocurrió un error al actualizar.')
+      toast.error(result.error || 'Ocurrió un error al actualizar.')
     }
     setActualizando(false)
   }

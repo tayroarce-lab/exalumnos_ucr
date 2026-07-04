@@ -295,9 +295,8 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
                 key={idx}
                 id={elementId}
                 href={item.href}
-                className={`text-xs uppercase tracking-wider font-bold px-4 py-2 rounded-xl transition-all duration-200 ${
-                  isActive ? config.linkActiveClass : `text-current/80 ${config.linkHoverClass}`
-                }`}
+                className={`text-xs uppercase tracking-wider font-bold px-4 py-2 rounded-xl transition-all duration-200 ${isActive ? config.linkActiveClass : `text-current/80 ${config.linkHoverClass}`
+                  }`}
               >
                 {item.name}
               </Link>
@@ -467,9 +466,8 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
 
       {/* Panel lateral derecho */}
       <div
-        className={`fixed top-0 right-0 h-full w-72 z-50 lg:hidden flex flex-col shadow-2xl transition-transform duration-300 ease-in-out ${config.drawerBg} ${
-          isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
+        className={`fixed top-0 right-0 h-full w-72 z-50 lg:hidden flex flex-col shadow-2xl transition-transform duration-300 ease-in-out ${config.drawerBg} ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
+          }`}
       >
         {/* Cabecera del drawer */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
@@ -507,9 +505,8 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
                 key={idx}
                 href={item.href}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold uppercase tracking-wide transition-all duration-200 text-white ${
-                  isActive ? config.drawerItemActive : config.drawerItemHover
-                }`}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold uppercase tracking-wide transition-all duration-200 text-white ${isActive ? config.drawerItemActive : config.drawerItemHover
+                  }`}
               >
                 {item.name}
               </Link>

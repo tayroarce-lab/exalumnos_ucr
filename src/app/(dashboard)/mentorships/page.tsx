@@ -166,10 +166,18 @@ export default function MentoriasPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { window.location.href = '/login'; return }
 
-      const rol = user.user_metadata?.rol || 'estudiante'
+      // Leer el rol real desde la tabla users (no user_metadata que puede estar desactualizado)
+      const { data: userData } = await supabase
+        .from('users')
+        .select('rol')
+        .eq('id', user.id)
+        .single()
+
+      const rol = userData?.rol ?? 'estudiante'
       const isExalumno = rol === 'exalumno'
 
-      const { data, error: fetchError } = await supabase
+      // Filtrar estrictamente por el FK correcto según el rol del usuario
+      let query = supabase
         .from('matches')
         .select(`
           id,
@@ -180,48 +188,45 @@ export default function MentoriasPage() {
           exalumno_id,
           estudiante_id,
           contraparte_ex:users!matches_exalumno_id_fkey (
-            id, nombre, apellidos, foto_url, rol, busca_mentoria
+            id, nombre, apellidos, foto_url, rol
           ),
           contraparte_est:users!matches_estudiante_id_fkey (
-            id, nombre, apellidos, foto_url, rol, busca_mentoria
+            id, nombre, apellidos, foto_url, rol
           )
         `)
-        .or(`exalumno_id.eq.${user.id},estudiante_id.eq.${user.id}`)
         .in('tipo_apoyo', ['mentoria', 'mentoría'])
-        .in('estado', ['contactado', 'activo'])
+        .in('estado', ['sugerido', 'contactado', 'activo', 'cerrado'])
         .order('score_match', { ascending: false })
+
+      // Filtrar solo MIS matches (no todos los de la tabla)
+      if (isExalumno) {
+        query = query.eq('exalumno_id', user.id)
+      } else {
+        query = query.eq('estudiante_id', user.id)
+      }
+
+      const { data, error: fetchError } = await query
 
       if (fetchError) throw new Error(fetchError.message)
 
-      const mappedData = (data ?? [])
-        .map((m: any) => {
-          // La "otra persona" depende del rol
-          const esElExalumno = m.exalumno_id === user.id
-          const contraparteRaw = esElExalumno
-            ? (Array.isArray(m.contraparte_est) ? m.contraparte_est[0] : m.contraparte_est)
-            : (Array.isArray(m.contraparte_ex)  ? m.contraparte_ex[0]  : m.contraparte_ex)
+      const mappedData = (data ?? []).map((m: any) => {
+        // La "otra persona" es siempre la contraparte (quien NO soy yo)
+        const contraparteRaw = isExalumno
+          ? (Array.isArray(m.contraparte_est) ? m.contraparte_est[0] : m.contraparte_est)
+          : (Array.isArray(m.contraparte_ex)  ? m.contraparte_ex[0]  : m.contraparte_ex)
 
-          return {
-            ...m,
-            contraparteRaw,
-            estudiante: contraparteRaw ? {
-              id:               contraparteRaw.id,
-              nombre:           contraparteRaw.nombre,
-              apellidos:        contraparteRaw.apellidos,
-              foto_url:         contraparteRaw.foto_url,
-              carrera_principal: null,
-              proyecto_titulo:  null,
-            } : null
-          }
-        })
-        .filter(m => {
-          if (!m.contraparteRaw) return false;
-          // Si el usuario logueado es exalumno, queremos que la contraparte sea estudiante y busque mentoría
-          if (isExalumno) {
-            return m.contraparteRaw.rol === 'estudiante' && m.contraparteRaw.busca_mentoria === true;
-          }
-          return true; // Si es estudiante, ve a exalumnos normalmente
-        });
+        return {
+          ...m,
+          estudiante: contraparteRaw ? {
+            id:                contraparteRaw.id,
+            nombre:            contraparteRaw.nombre,
+            apellidos:         contraparteRaw.apellidos,
+            foto_url:          contraparteRaw.foto_url,
+            carrera_principal: null,
+            proyecto_titulo:   null,
+          } : null,
+        }
+      }).filter(m => m.estudiante !== null)
 
       setMatches(mappedData as unknown as MatchReal[])
     } catch (e: unknown) {

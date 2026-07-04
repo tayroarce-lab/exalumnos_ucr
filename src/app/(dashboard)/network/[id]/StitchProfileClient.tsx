@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { getAvatarUrl } from '@/lib/utils';
 import { requestDirectConnection, cancelDirectConnection } from '@/actions/matches';
+import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 
 interface RecommendedProfile {
@@ -65,7 +66,7 @@ export default function StitchProfileClient({
       setStatus('contactado');
       router.refresh();
     } else {
-      alert(result.error || 'Error al conectar');
+      toast.error(result.error || 'Error al conectar');
     }
     setLoading(false);
   };
@@ -77,7 +78,7 @@ export default function StitchProfileClient({
       setStatus('none');
       router.refresh();
     } else {
-      alert(result.error || 'Error al cancelar la solicitud');
+      toast.error(result.error || 'Error al cancelar la solicitud');
     }
     setLoading(false);
   };
@@ -159,7 +160,7 @@ export default function StitchProfileClient({
                   if (profile.email) {
                     window.location.href = `mailto:${profile.email}`;
                   } else {
-                    alert('Este exalumno no ha configurado un correo electrónico público.');
+                    toast.info('Este exalumno no ha configurado un correo electrónico público.');
                   }
                 }}
                 className="flex items-center gap-2 bg-[#B34700] hover:bg-[#993E00] text-white px-6 py-2.5 rounded-full text-sm font-extrabold transition-colors shadow-sm tracking-wide"
