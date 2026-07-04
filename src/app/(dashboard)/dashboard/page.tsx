@@ -1,393 +1,356 @@
 'use client'
 
-import React from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import Card from '@/components/ui/card'
-import Button from '@/components/ui/button'
-import logoUCR from '@/images/Logo_UCR.png'
-import {
-  Users,
-  Briefcase,
-  Heart,
-  GraduationCap,
-  Calendar,
-  MapPin,
-  X
-} from 'lucide-react'
 import { useProfile } from '@/contexts/ProfileContext'
-import ProyectoDonacionesProgreso from '@/components/ProyectoDonacionesProgreso'
-import { getProyectoFileUrl } from '@/lib/utils'
+import { obtenerProyectosBuscandoApoyo } from '@/actions/students'
+import heroBannerImg from '@/images/hero_banner_exact.png'
+import {
+  GraduationCap, Briefcase, DollarSign, Bell, ChevronRight,
+  MapPin, Video, Type, Contrast, Mic, RotateCcw, Accessibility,
+  X, ArrowRight, Users, BookOpen, Globe
+} from 'lucide-react'
 
-// Aplica un gradiente dinámico via ref para evitar estilos inline en JSX
-function GradientBox({
-  from, to, className, children,
-}: {
-  from: string; to: string; className?: string; children?: React.ReactNode
-}) {
-  const ref = React.useRef<HTMLDivElement>(null)
-  React.useEffect(() => {
-    if (ref.current) {
-      ref.current.style.background = `linear-gradient(135deg, ${from}, ${to})`
-    }
-  }, [from, to])
-  return <div ref={ref} className={className}>{children}</div>
-}
+/* ─────────── Floating Accessibility Panel ─────────── */
+function AccessibilityPanel() {
+  const [open, setOpen] = useState(false)
+  const [fontSize, setFontSize] = useState<'normal' | 'large' | 'xl'>('normal')
+  const [highContrast, setHighContrast] = useState(false)
 
-export default function DashboardPage() {
-  const currentDate = new Date().toLocaleDateString('es-CR', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  })
-
-  const { user, profile } = useProfile()
-  const userName = profile?.full_name || user?.user_metadata?.full_name || 'Exalumno'
-
-  const [proyectosApoyo, setProyectosApoyo] = React.useState<any[]>([])
-  const [loadingProyectos, setLoadingProyectos] = React.useState(true)
-
-  React.useEffect(() => {
-    import('@/actions/students').then(({ obtenerProyectosBuscandoApoyo }) => {
-      obtenerProyectosBuscandoApoyo(3).then((res) => {
-        if (res.success && res.data) {
-          setProyectosApoyo(res.data)
-        }
-        setLoadingProyectos(false)
-      })
-    })
+  useEffect(() => {
+    const saved = JSON.parse(localStorage.getItem('a11y') || '{}')
+    if (saved.fontSize) setFontSize(saved.fontSize)
+    if (saved.highContrast) setHighContrast(saved.highContrast)
   }, [])
 
-  const quickSummary = [
-    {
-      label: 'Próximos eventos',
-      value: '3',
-      link: '/events',
-      linkLabel: 'Ver eventos',
-      icon: Users,
-      iconBg: 'bg-[#F34B26]/10 text-[#F34B26] border border-[#F34B26]/20',
-      valueBg: 'text-[#F34B26]'
-    },
-    {
-      label: 'Vacantes disponibles',
-      value: '3',
-      link: '/jobs',
-      linkLabel: 'Ver empleo',
-      icon: Briefcase,
-      iconBg: 'bg-[#FF9B18]/10 text-[#FF9B18] border border-[#FF9B18]/20',
-      valueBg: 'text-[#FF9B18]'
-    },
-    {
-      label: 'Fondos activos',
-      value: '2',
-      link: '/donations',
-      linkLabel: 'Ver donaciones',
-      icon: Heart,
-      iconBg: 'bg-[#E03A14]/10 text-[#E03A14] border border-[#E03A14]/20',
-      valueBg: 'text-[#E03A14]'
-    },
-    {
-      label: 'Mentores disponibles',
-      value: '3',
-      link: '/mentorships',
-      linkLabel: 'Ver mentorías',
-      icon: GraduationCap,
-      iconBg: 'bg-[#FF7A00]/10 text-[#FF7A00] border border-[#FF7A00]/20',
-      valueBg: 'text-[#FF7A00]'
-    }
-  ]
+  useEffect(() => {
+    const sizes = { normal: '16px', large: '18px', xl: '20px' }
+    document.documentElement.style.fontSize = sizes[fontSize]
+    document.documentElement.classList.toggle('high-contrast', highContrast)
+    localStorage.setItem('a11y', JSON.stringify({ fontSize, highContrast }))
+  }, [fontSize, highContrast])
 
-  const upcomingEvents = [
-    {
-      id: '1',
-      title: 'Encuentro Anual de Exalumnos',
-      location: 'Campus Rodrigo Facio',
-      time: '09:00 AM',
-      date: '24',
-      month: 'MAY',
-      gradientFrom: '#F34B26',
-      gradientTo: '#FF9B18',
-      virtual: false
-    },
-    {
-      id: '2',
-      title: 'Taller: Liderazgo e Innovación',
-      location: 'Modalidad virtual',
-      time: '04:00 PM',
-      date: '15',
-      month: 'JUN',
-      gradientFrom: '#FF9B18',
-      gradientTo: '#FFD000',
-      virtual: true
-    },
-    {
-      id: '3',
-      title: 'Feria de Empleo UCR',
-      location: 'Plaza 24 de Abril',
-      time: '10:00 AM',
-      date: '30',
-      month: 'JUN',
-      gradientFrom: '#E03A14',
-      gradientTo: '#F34B26',
-      virtual: false
-    }
-  ]
+  const reset = () => { setFontSize('normal'); setHighContrast(false) }
 
   return (
-    <div className="py-8 px-6 lg:px-10">
-      <div className="max-w-6xl mx-auto space-y-10">
+    <div className="fixed right-0 top-1/2 -translate-y-1/2 z-50 flex items-center">
+      {/* Trigger tab */}
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="bg-[#F34B26] text-white p-2 rounded-l-xl shadow-lg hover:bg-[#d93a1a] transition-colors"
+        title="Accesibilidad"
+      >
+        <Accessibility className="w-5 h-5" />
+      </button>
 
-        {/* Encabezado Principal */}
-        <div className="space-y-1 pt-2">
-          <h1 className="text-4xl font-extrabold uppercase font-display text-slate-850 tracking-wide">
-            Dashboard
-          </h1>
-          <p className="text-sm font-medium text-slate-600">
-            Bienvenido(a) de nuevo, <span className="font-bold text-[#F34B26]">{userName}</span>  · {currentDate}
-          </p>
+      {/* Panel */}
+      <div className={`bg-white border border-slate-200 rounded-l-2xl shadow-2xl overflow-hidden transition-all duration-300 ${open ? 'w-64 opacity-100' : 'w-0 opacity-0'}`}>
+        <div className="p-5 space-y-4 w-64">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-bold text-slate-800 text-sm">Accesibilidad</p>
+              <p className="text-xs text-slate-500">Personaliza tu experiencia</p>
+            </div>
+            <button onClick={() => setOpen(false)} className="text-slate-400 hover:text-slate-600">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Font size */}
+          <div className="flex items-center justify-between py-3 border-t border-slate-100">
+            <div className="flex items-center gap-2 text-sm font-medium text-slate-700">
+              <Type className="w-4 h-4 text-[#F34B26]" />
+              Tamaño de Texto
+            </div>
+            <div className="flex gap-1">
+              {(['normal', 'large', 'xl'] as const).map(s => (
+                <button key={s} onClick={() => setFontSize(s)}
+                  className={`w-7 h-7 rounded-lg text-xs font-bold transition-all ${fontSize === s ? 'bg-[#F34B26] text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}>
+                  {s === 'normal' ? 'A' : s === 'large' ? 'A+' : 'A++'}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Contrast */}
+          <button onClick={() => setHighContrast(h => !h)}
+            className={`w-full flex items-center justify-between px-3 py-3 rounded-xl border transition-all ${highContrast ? 'bg-[#F34B26]/10 border-[#F34B26] text-[#F34B26]' : 'border-slate-200 text-slate-700 hover:border-slate-300'}`}>
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <Contrast className="w-4 h-4" />
+              Contraste
+            </div>
+            <div className={`w-5 h-5 rounded-full flex items-center justify-center ${highContrast ? 'bg-[#F34B26]' : 'bg-slate-200'}`}>
+              {highContrast && <div className="w-2 h-2 rounded-full bg-white" />}
+            </div>
+          </button>
+
+          {/* Voice (decorative) */}
+          <div className="flex items-center justify-between py-3 border-t border-slate-100 text-sm font-medium text-slate-500">
+            <div className="flex items-center gap-2">
+              <Mic className="w-4 h-4" />
+              Voz
+            </div>
+            <ChevronRight className="w-4 h-4" />
+          </div>
+
+          <button onClick={reset}
+            className="w-full bg-[#F34B26] hover:bg-[#d93a1a] text-white text-sm font-bold py-2.5 rounded-xl transition-all active:scale-95">
+            <RotateCcw className="w-4 h-4 inline mr-2" />
+            Restablecer
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ─────────── Animated Counter ─────────── */
+function AnimatedNumber({ value, prefix = '', suffix = '' }: { value: number; prefix?: string; suffix?: string }) {
+  const [display, setDisplay] = useState(0)
+  const ref = useRef<HTMLSpanElement>(null)
+
+  useEffect(() => {
+    let start = 0
+    const end = value
+    const dur = 1200
+    const step = end / (dur / 16)
+    const timer = setInterval(() => {
+      start += step
+      if (start >= end) { setDisplay(end); clearInterval(timer) }
+      else setDisplay(Math.floor(start))
+    }, 16)
+    return () => clearInterval(timer)
+  }, [value])
+
+  return <span ref={ref}>{prefix}{display.toLocaleString()}{suffix}</span>
+}
+
+/* ─────────── Events Data ─────────── */
+const EVENTS = [
+  { id: '1', day: '15', month: 'NOV', title: 'Encuentro Anual de Exalumnos UCR', location: 'Auditorio Rodrigo Facio', virtual: false, img: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&q=80' },
+  { id: '2', day: '22', month: 'NOV', title: 'Networking de Negocios', location: 'Virtual (Zoom)', virtual: true, img: 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=600&q=80' },
+  { id: '3', day: '05', month: 'DIC', title: 'Conferencia: Liderazgo en la Industria', location: 'Restaurante El Mirador', virtual: false, img: 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=600&q=80' },
+]
+
+const NEWS = [
+  { id: '1', category: 'INVESTIGACIÓN', title: 'Nuevo hito en nanotecnología biomédica', excerpt: 'Investigadores de la UCR logran desarrollar un parche inteligente para la regeneración...', img: 'https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=200&q=80' },
+  { id: '2', category: 'VIDA ESTUDIANTIL', title: 'Inauguran nuevo Centro de Bienestar Estudiantil', excerpt: 'Un espacio dedicado a la salud mental y el desarrollo integral de la comunidad...', img: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=200&q=80' },
+]
+
+/* ─────────── Main Dashboard ─────────── */
+export default function DashboardPage() {
+  const { user, profile } = useProfile()
+  const userName = profile?.full_name || user?.user_metadata?.full_name || 'Exalumno'
+  const firstName = userName.split(' ')[0]
+
+  const [mentorias] = useState(4)
+  const [vacantes] = useState(2)
+
+  return (
+    <div className="min-h-screen bg-[#FAF6F1]">
+      <AccessibilityPanel />
+
+      {/* ─── HERO ─── */}
+      <section className="relative bg-[#FAF6F1] min-h-[380px] md:min-h-[420px] flex items-center overflow-hidden -ml-4 -mr-4 -mt-4 sm:-ml-6 sm:-mr-6 sm:-mt-6 lg:-ml-8 lg:-mr-8 lg:-mt-8 mb-8">
+        {/* Exact pre-rendered banner image covering the ENTIRE background from left to right */}
+        <div className="absolute inset-0 z-0 select-none pointer-events-none">
+          <Image
+            src={heroBannerImg}
+            alt="Hero Illustration UCR"
+            fill
+            className="object-cover object-right md:object-center"
+            priority
+          />
         </div>
 
-        {/* Banner Principal */}
-        <div className="rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-8 overflow-hidden relative shadow-md text-white bg-gradient-to-br from-[#E03A14] via-[#F34B26] to-[#FF9B18]">
-          <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-white/5 rounded-l-full hidden md:block" />
-          <div className="absolute right-1/4 top-1/4 w-20 h-20 bg-white/10 rounded-full blur-2xl" />
+        {/* Content Area */}
+        <div className="max-w-6xl mx-auto w-full px-6 lg:px-12 grid grid-cols-1 md:grid-cols-12 gap-8 items-center py-8 relative z-10">
 
-          <div className="space-y-4 md:max-w-md relative z-10">
-            <span className="inline-block text-[10px] font-bold bg-white/20 px-3 py-1 rounded-full uppercase tracking-widest">
-              Red de Exalumnos UCR
-            </span>
-            <h2 className="text-3xl font-black leading-tight uppercase font-display">
-              Conecta, participa y transforma.
-            </h2>
-            <p className="text-white/80 text-sm font-medium">
-              Sigue formando parte del cambio desde donde estés.
+          {/* Left Text Block */}
+          <div className="md:col-span-7 space-y-6 py-6">
+            <h1 className="text-4xl md:text-5xl font-black text-slate-800 leading-[1.1] tracking-tight font-display">
+              Conecta, Participa y<br />
+              Transforma
+            </h1>
+            <p className="text-slate-600 text-sm md:text-base leading-relaxed max-w-lg font-medium font-sans">
+              Como exalumno de la UCR, tu legado continúa. Sé mentor de nuevas generaciones, apoya proyectos de investigación o revive momentos en nuestros eventos exclusivos.
             </p>
-            <Link href="/jobs" className="inline-block pt-2">
-              <Button variant="primary" className="bg-white !text-black hover:bg-orange-50 hover:scale-105 active:scale-95 transition-all duration-300 font-bold uppercase tracking-wider text-xs px-6 shadow-md border-0">
-                Ver vacantes disponibles →
-              </Button>
-            </Link>
+            <div className="flex items-center gap-4 flex-wrap pt-2">
+              <Link href="/donations">
+                <button className="bg-[#E65C00] hover:bg-[#cc5200] text-white font-bold px-8 py-3.5 rounded-2xl transition-all shadow-md active:scale-95 text-sm">
+                  Donar Ahora
+                </button>
+              </Link>
+              <Link href="/mentorships">
+                <button className="border-2 border-[#E65C00]/80 text-[#E65C00] hover:bg-[#E65C00]/5 font-bold px-8 py-3.5 rounded-2xl transition-all active:scale-95 text-sm">
+                  Ser Voluntario
+                </button>
+              </Link>
+            </div>
           </div>
 
-          <div className="relative w-full md:w-[420px] h-60 shrink-0">
-            <Image
-              src={logoUCR}
-              alt="Logo UCR"
-              fill
-              style={{ objectFit: 'contain', filter: 'brightness(0) invert(1)' }}
-              priority
-            />
-          </div>
+          {/* Right Spacer column (holds layout space so text doesn't overlap the mascot) */}
+          <div className="md:col-span-5 h-[260px] md:h-full pointer-events-none" />
+
         </div>
+      </section>
 
-        {/* Resumen Rápido */}
-        <div className="space-y-4">
-          <h2 className="text-lg font-bold uppercase tracking-wider text-slate-800 font-display">
-            Resumen rápido
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {quickSummary.map((item, idx) => {
-              const Icon = item.icon
-              return (
-                <Card key={idx} hoverEffect={false} className="dashboard-card-hover flex flex-col items-center text-center p-6 space-y-4 bg-white border border-slate-100 shadow-sm rounded-2xl">
-                  <div className={`w-14 h-14 rounded-full ${item.iconBg} flex items-center justify-center shadow-sm shrink-0`}>
-                    <Icon className="w-6 h-6" />
-                  </div>
-                  <div className="space-y-1">
-                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
-                      {item.label}
-                    </span>
-                    <span className={`text-3xl font-black block ${item.valueBg}`}>
-                      {item.value}
-                    </span>
-                  </div>
-                  <Link href={item.link} className="text-xs font-bold text-[#F34B26] hover:text-[#C82A08] hover:underline uppercase tracking-wider block pt-1 transition-colors">
-                    {item.linkLabel} →
-                  </Link>
-                </Card>
-              )
-            })}
-          </div>
-        </div>
+      {/* ─── METRIC CARDS ─── */}
+      <section className="px-6 lg:px-16 py-12">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
 
-        {/* Proyectos Estudiantiles que Buscan Apoyo */}
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h2 className="text-lg font-bold uppercase tracking-wider text-slate-800 font-display">
-              Proyectos estudiantiles por apoyar
-            </h2>
-            <Link href="/directorio/estudiantes" className="text-xs font-bold text-[#F34B26] hover:text-[#C82A08] hover:underline uppercase tracking-wider transition-colors">
-              Ver todos en directorio →
-            </Link>
-          </div>
-
-          {loadingProyectos ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {[1, 2, 3].map((n) => (
-                <div key={n} className="bg-white border border-slate-100 rounded-3xl p-6 h-64 animate-pulse space-y-4">
-                  <div className="h-4 bg-slate-200 rounded w-2/3"></div>
-                  <div className="h-3 bg-slate-200 rounded w-1/2"></div>
-                  <div className="space-y-2 pt-4">
-                    <div className="h-3 bg-slate-200 rounded"></div>
-                    <div className="h-3 bg-slate-200 rounded w-5/6"></div>
-                  </div>
+          {/* Mentorías */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-all hover:-translate-y-1 group">
+            <div className="flex items-start justify-between mb-4">
+              <div className="p-3 bg-[#F34B26]/10 rounded-xl">
+                <GraduationCap className="w-6 h-6 text-[#F34B26]" />
+              </div>
+              <span className="text-3xl font-black text-[#F34B26]">
+                <AnimatedNumber value={mentorias} prefix="0" />
+              </span>
+            </div>
+            <h3 className="font-bold text-slate-800 text-lg">Mentorías<br />Brindadas</h3>
+            <p className="text-slate-500 text-xs mt-1">Has guiado a 4 estudiantes de Ingeniería y Artes este semestre.</p>
+            <div className="flex items-center gap-1 mt-4">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="w-7 h-7 rounded-full bg-gradient-to-br from-[#F34B26] to-[#FF9B18] border-2 border-white -ml-1 first:ml-0 flex items-center justify-center text-white text-[9px] font-bold shadow">
+                  {String.fromCharCode(64 + i)}
                 </div>
               ))}
+              <div className="w-7 h-7 rounded-full bg-slate-100 border-2 border-white -ml-1 flex items-center justify-center text-slate-500 text-[9px] font-bold shadow">+1</div>
             </div>
-          ) : proyectosApoyo.length === 0 ? (
-            <Card hoverEffect={false} className="p-8 text-center border-2 border-dashed border-slate-200 rounded-2xl bg-white/50">
-              <GraduationCap className="w-10 h-10 text-slate-350 mx-auto mb-3" />
-              <p className="text-slate-600 font-bold text-sm">No hay proyectos buscando apoyo actualmente</p>
-              <p className="text-slate-400 text-xs mt-1">Vuelve más tarde para descubrir nuevas iniciativas estudiantiles.</p>
-            </Card>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {proyectosApoyo.map((proj) => (
-                <Card key={proj.estudianteId} hoverEffect={true} className="flex flex-col bg-white border border-slate-100 rounded-3xl p-6 shadow-sm justify-between gap-5 hover:shadow-md transition-shadow">
-                  <div className="space-y-3.5">
-                    {/* Estudiante Cabecera */}
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full bg-slate-100 overflow-hidden flex items-center justify-center border border-slate-250 shrink-0">
-                        {proj.fotoUrl ? (
-                          <img src={getProyectoFileUrl(proj.fotoUrl) || ''} alt={proj.nombreCompleto} className="w-full h-full object-cover" />
-                        ) : (
-                          <span className="text-[#003B4F] font-black text-sm">{proj.nombreCompleto.charAt(0)}</span>
-                        )}
-                      </div>
-                      <div className="min-w-0">
-                        <h4 className="text-xs font-bold text-slate-800 truncate uppercase">{proj.nombreCompleto}</h4>
-                        <p className="text-[10px] text-slate-400 font-medium truncate">{proj.carrera} · Sede {proj.sede}</p>
-                      </div>
-                    </div>
+          </div>
 
-                    {/* Título & Desc del proyecto */}
-                    <div className="space-y-1">
-                      <h3 className="font-display font-extrabold text-sm text-[#003B4F] uppercase line-clamp-2 leading-snug" title={proj.proyectoTitulo}>
-                        {proj.proyectoTitulo}
-                      </h3>
-                      <p className="text-xs text-slate-500 line-clamp-3 leading-relaxed font-medium">
-                        {proj.proyectoDescripcion}
-                      </p>
-                    </div>
-
-                    {/* Tipos de Apoyo Solicitado */}
-                    <div className="flex items-center gap-1.5 flex-wrap pt-1">
-                      {proj.buscaFinanciamiento && (
-                        <span className="bg-emerald-50 text-emerald-700 text-[9px] font-bold px-2 py-0.5 rounded-lg border border-emerald-100 flex items-center gap-0.5">
-                          💰 Economía
-                        </span>
-                      )}
-                      {proj.buscaMentoria && (
-                        <span className="bg-blue-50 text-blue-700 text-[9px] font-bold px-2 py-0.5 rounded-lg border border-blue-100 flex items-center gap-0.5">
-                          🎓 Mentoría
-                        </span>
-                      )}
-                      {proj.buscaEmpleo && (
-                        <span className="bg-orange-50 text-orange-700 text-[9px] font-bold px-2 py-0.5 rounded-lg border border-orange-100 flex items-center gap-0.5">
-                          💼 Empleo
-                        </span>
-                      )}
-                      {proj.buscaPasantia && (
-                        <span className="bg-violet-50 text-violet-700 text-[9px] font-bold px-2 py-0.5 rounded-lg border border-violet-100 flex items-center gap-0.5">
-                          👜 Pasantía
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Si tiene meta financiera, mostrar mini barra de donaciones */}
-                    {proj.buscaFinanciamiento && proj.proyectoValorMonto && (
-                      <div className="space-y-1.5 pt-1.5 border-t border-slate-50">
-                        <ProyectoDonacionesProgreso 
-                          proyectoId={proj.estudianteId} 
-                          metaMonto={proj.proyectoValorMonto} 
-                          metaMoneda={proj.proyectoValorMoneda || 'USD'}
-                          mostrarBotonApoyar={false}
-                        />
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Acciones */}
-                  <div className="flex items-center gap-2.5 pt-3 border-t border-slate-100 mt-auto">
-                    <Link href={`/directorio/estudiantes/${proj.estudianteId}`} className="flex-1">
-                      <Button variant="secondary" className="w-full text-[11px] font-bold py-2 rounded-xl text-center flex items-center justify-center h-9">
-                        Detalles
-                      </Button>
-                    </Link>
-                    {proj.buscaFinanciamiento ? (
-                      <Link href={`/donations?proyecto_id=${proj.estudianteId}`} className="flex-1">
-                        <Button variant="primary" className="w-full text-[11px] font-bold py-2 rounded-xl text-center bg-[#F34B26] hover:bg-[#C82A08] text-white flex items-center justify-center h-9 border-0">
-                          Apoyar
-                        </Button>
-                      </Link>
-                    ) : (
-                      <Link href={`/directorio/estudiantes/${proj.estudianteId}`} className="flex-1">
-                        <Button variant="primary" className="w-full text-[11px] font-bold py-2 rounded-xl text-center bg-[#003B4F] hover:bg-[#002735] text-white flex items-center justify-center h-9 border-0">
-                          Ofrecer Apoyo
-                        </Button>
-                      </Link>
-                    )}
-                  </div>
-                </Card>
-              ))}
+          {/* Donaciones */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-all hover:-translate-y-1">
+            <div className="flex items-start justify-between mb-4">
+              <div className="p-3 bg-emerald-50 rounded-xl">
+                <DollarSign className="w-6 h-6 text-emerald-600" />
+              </div>
+              <span className="text-3xl font-black text-[#F34B26]">$1.2k</span>
             </div>
-          )}
+            <h3 className="font-bold text-slate-800 text-lg">Donaciones<br />Realizadas</h3>
+            <p className="text-slate-500 text-xs mt-1">Tu aporte ha impactado a 15 becados este año.</p>
+            <div className="mt-4 space-y-1.5">
+              <div className="flex justify-between text-xs text-slate-500 font-medium">
+                <span>Meta anual</span><span className="text-[#F34B26] font-bold">62%</span>
+              </div>
+              <div className="w-full bg-slate-100 rounded-full h-2.5">
+                <div className="bg-gradient-to-r from-[#F34B26] to-[#FF9B18] h-2.5 rounded-full transition-all duration-1000" style={{ width: '62%' }} />
+              </div>
+            </div>
+          </div>
+
+          {/* Vacantes */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-all hover:-translate-y-1 group">
+            <div className="flex items-start justify-between mb-4">
+              <div className="p-3 bg-blue-50 rounded-xl">
+                <Briefcase className="w-6 h-6 text-blue-600" />
+              </div>
+              <span className="text-3xl font-black text-[#F34B26]">
+                <AnimatedNumber value={vacantes} prefix="0" />
+              </span>
+            </div>
+            <h3 className="font-bold text-slate-800 text-lg">Publicar<br />Vacante</h3>
+            <p className="text-slate-500 text-xs mt-1">Comparte oportunidades con la nueva generación universitaria.</p>
+            <Link href="/jobs" className="inline-flex items-center gap-1 text-[#F34B26] text-xs font-bold mt-4 hover:gap-2 transition-all">
+              Gestionar vacantes <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
         </div>
+      </section>
 
-        {/* Próximos Eventos */}
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h2 className="text-lg font-bold uppercase tracking-wider text-slate-800 font-display">
-              Próximos eventos
-            </h2>
-            <Link href="/events" className="text-xs font-bold text-[#F34B26] hover:text-[#C82A08] hover:underline uppercase tracking-wider transition-colors">
-              Ver todos →
+      {/* ─── PRÓXIMOS EVENTOS ─── */}
+      <section className="px-6 lg:px-16 py-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-2xl font-black text-slate-900">Próximos Eventos</h2>
+              <p className="text-slate-500 text-sm mt-0.5">No pierdas la oportunidad de reconectar.</p>
+            </div>
+            <Link href="/events" className="text-[#F34B26] text-sm font-bold hover:underline flex items-center gap-1">
+              Ver todos <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
 
-          <Card hoverEffect={false} className="divide-y divide-slate-100 p-0 overflow-hidden border border-slate-150 rounded-2xl shadow-sm">
-            {upcomingEvents.map((event) => (
-              <div key={event.id} className="p-5 hover:bg-orange-50/10 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-5">
-                <div className="flex items-center gap-4">
-                  {/* Cuadro de Fecha con color real */}
-                  <GradientBox
-                    from={event.gradientFrom}
-                    to={event.gradientTo}
-                    className="w-14 h-14 rounded-xl text-white flex flex-col items-center justify-center shrink-0 shadow-md"
-                  >
-                    <span className="text-lg font-black font-display leading-none">{event.date}</span>
-                    <span className="text-[9px] font-bold tracking-wider leading-none mt-1">{event.month}</span>
-                  </GradientBox>
-
-                  <div className="space-y-1">
-                    <h4 className="text-sm font-bold text-slate-900 uppercase tracking-wide">
-                      {event.title}
-                    </h4>
-                    <p className="text-xs text-slate-600 font-semibold flex items-center gap-1.5">
-                      {event.virtual
-                        ? <Calendar className="w-3.5 h-3.5 text-[#F34B26] shrink-0" />
-                        : <MapPin className="w-3.5 h-3.5 text-[#F34B26] shrink-0" />
-                      }
-                      {event.location} · {event.time}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {EVENTS.map(ev => (
+              <Link key={ev.id} href={`/events/${ev.id}`} className="group block">
+                <div className="relative rounded-2xl overflow-hidden h-52 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                  <img src={ev.img} alt={ev.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                  {/* Date badge */}
+                  <div className="absolute top-3 left-3 bg-[#F34B26] text-white rounded-xl px-3 py-1.5 text-center shadow-lg">
+                    <div className="text-xl font-black leading-none">{ev.day}</div>
+                    <div className="text-[10px] font-bold uppercase tracking-wider opacity-90">{ev.month}</div>
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 p-4">
+                    <h4 className="text-white font-bold text-sm leading-snug">{ev.title}</h4>
+                    <p className="text-white/70 text-xs mt-1 flex items-center gap-1">
+                      {ev.virtual ? <Video className="w-3 h-3" /> : <MapPin className="w-3 h-3" />}
+                      {ev.location}
                     </p>
                   </div>
                 </div>
-
-                <Link href={`/events/${event.id}`}>
-                  <Button
-                    variant="secondary"
-                    className="border-[#F34B26] text-[#F34B26] hover:bg-orange-50/40 hover:scale-105 active:scale-95 transition-all duration-300 font-bold uppercase tracking-wider text-xs px-5 self-start sm:self-center"
-                  >
-                    Inscribirme
-                  </Button>
-                </Link>
-              </div>
+              </Link>
             ))}
-          </Card>
+          </div>
         </div>
+      </section>
 
-      </div>
+      {/* ─── ACTUALIDAD UNIVERSITARIA ─── */}
+      <section className="px-6 lg:px-16 py-12">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-2xl font-black text-slate-900 mb-6">Actualidad Universitaria</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+            {/* News list */}
+            <div className="lg:col-span-3 space-y-6">
+              {NEWS.map(n => (
+                <div key={n.id} className="flex gap-4 group cursor-pointer hover:bg-white/60 p-3 rounded-xl transition-all">
+                  <img src={n.img} alt={n.title} className="w-20 h-20 rounded-xl object-cover shrink-0 group-hover:scale-105 transition-transform" />
+                  <div>
+                    <span className="text-[#F34B26] text-[10px] font-black uppercase tracking-widest">{n.category}</span>
+                    <h4 className="font-bold text-slate-800 text-sm mt-1 leading-snug group-hover:text-[#F34B26] transition-colors">{n.title}</h4>
+                    <p className="text-slate-500 text-xs mt-1 leading-relaxed">{n.excerpt}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Sabías que */}
+            <div className="lg:col-span-2">
+              <div className="bg-white rounded-2xl p-6 h-full border border-slate-100 shadow-sm flex flex-col justify-between">
+                <div>
+                  <h3 className="text-xl font-black text-slate-900 mb-4">¿Sabías que...?</h3>
+                  <blockquote className="text-slate-600 text-sm leading-relaxed italic border-l-4 border-[#F34B26] pl-4">
+                    "El 40% de nuestros graduados este año contaron con el apoyo de un mentor alumni. Tu experiencia es el recurso más valioso que podemos ofrecer."
+                  </blockquote>
+                </div>
+                <div className="mt-6 flex items-center gap-3">
+                  <div className="w-10 h-10 bg-[#F34B26]/10 rounded-full flex items-center justify-center">
+                    <MapPin className="w-5 h-5 text-[#F34B26]" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-slate-700">Fundación Exalumnos UCR</p>
+                    <p className="text-xs text-slate-400">San José, Costa Rica</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+
+      {/* Float animation keyframe via style tag */}
+      <style>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-14px); }
+        }
+      `}</style>
     </div>
   )
 }

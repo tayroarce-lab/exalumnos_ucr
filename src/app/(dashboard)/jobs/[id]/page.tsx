@@ -17,7 +17,7 @@ interface JobDetailPageProps {
 }
 
 export default function JobDetailPage({ params }: JobDetailPageProps) {
-  const { id } = React.use(params)
+  const { id } = params
   const { user, profile } = useProfile()
 
   const [job, setJob] = useState<any>(null)
