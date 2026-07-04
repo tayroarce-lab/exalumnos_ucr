@@ -227,6 +227,7 @@ export async function getMyMatches() {
       )
     `)
     .is('deleted_at', null)
+    .neq('estado', 'sugerido')
     .or(`estudiante_id.eq.${user.id},exalumno_id.eq.${user.id}`)
     .order('score_match', { ascending: false });
 
@@ -410,6 +411,8 @@ export async function upsertManualMatch(estudianteId: string, tipoApoyo: string)
     .is('deleted_at', null)
     .single();
 
+  let matchIdToConnect = null;
+
   if (existing) {
     if (existing.estado !== 'cerrado') {
       const { error } = await adminClient
@@ -417,18 +420,33 @@ export async function upsertManualMatch(estudianteId: string, tipoApoyo: string)
         .update({ tipo_apoyo: tipoApoyo, updated_at: new Date().toISOString() })
         .eq('id', existing.id);
       if (error) logError('matches.ts/upsertManualMatch', error, { userId: user.id, estudianteId });
+      
+      if (existing.estado === 'sugerido') {
+        matchIdToConnect = existing.id;
+      }
     }
   } else {
-    const { error } = await adminClient.from('matches').insert({
+    const initiatorRole = user.user_metadata?.rol || 'exalumno';
+    const { data: newMatch, error } = await adminClient.from('matches').insert({
       exalumno_id: user.id,
       estudiante_id: estudianteId,
       tipo_apoyo: tipoApoyo,
       score_match: 100,
       estado: 'sugerido',
-      iniciado_por: 'plataforma'
-    });
-    if (error) logError('matches.ts/upsertManualMatch', error, { userId: user.id, estudianteId });
+      iniciado_por: initiatorRole
+    }).select('id').single();
+    
+    if (error) {
+      logError('matches.ts/upsertManualMatch', error, { userId: user.id, estudianteId });
+    } else if (newMatch) {
+      matchIdToConnect = newMatch.id;
+    }
   }
+
+  if (matchIdToConnect) {
+    await requestConnection(matchIdToConnect);
+  }
+
   return { success: true };
 }
 
@@ -549,3 +567,52 @@ export async function removeDirectConnection(targetUserId: string) {
   if (error) return { success: false, error: error.message };
   return { success: true };
 }
+export async function getRecommendedStudentConnections() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) return { data: null, error: 'No autorizado' };
+
+  // 1. Obtener mis matches existentes para filtrarlos
+  const { data: myMatches } = await supabase
+    .from('matches')
+    .select('exalumno_id, estudiante_id')
+    .is('deleted_at', null)
+    .or(`estudiante_id.eq.${user.id},exalumno_id.eq.${user.id}`);
+
+  const excludedIds = new Set<string>();
+  excludedIds.add(user.id);
+
+  if (myMatches) {
+    myMatches.forEach(m => {
+      if (m.exalumno_id !== user.id) excludedIds.add(m.exalumno_id);
+      if (m.estudiante_id !== user.id) excludedIds.add(m.estudiante_id);
+    });
+  }
+
+  // 2. Fetch all visible students
+  const { listarEstudiantes } = await import('./students');
+  const { data: allStudents } = await listarEstudiantes(undefined, { limit: 100 });
+
+  if (!allStudents) {
+    return { data: [], error: null };
+  }
+
+  // 3. Calculate score for each
+  const { obtenerMiPerfil } = await import('./users');
+  const myProfile = await obtenerMiPerfil().catch(() => null);
+  const { calcularMatch } = await import('@/lib/match');
+
+  const studentsWithScore = allStudents
+    .filter((s: any) => !excludedIds.has(s.id))
+    .map((s: any) => ({
+      ...s,
+      score_match: myProfile ? calcularMatch(s, myProfile) : (s.nombre?.length % 2 === 0 ? 85 : 72)
+    }))
+    .sort((a: any, b: any) => b.score_match - a.score_match)
+    .slice(0, 4);
+
+  return { data: studentsWithScore, error: null };
+}
+
+

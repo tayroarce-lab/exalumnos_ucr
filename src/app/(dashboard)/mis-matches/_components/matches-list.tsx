@@ -100,8 +100,8 @@ export function MatchesList({ initialMatches, currentUserId, currentUserRole }: 
   if (matches.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        <p className="text-gray-500 mb-4">Aún no tienes sugerencias de conexión.</p>
-        <p className="text-sm text-gray-400">Asegúrate de completar tu perfil al 100% para recibir mejores sugerencias.</p>
+        <p className="text-gray-500 mb-4">Aún no tienes conexiones activas.</p>
+        <p className="text-sm text-gray-400">Explora el directorio para conectar con estudiantes.</p>
       </div>
     );
   }

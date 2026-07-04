@@ -31,19 +31,9 @@ export default async function AdaptarCVPage({ params }: { params: Promise<{ id: 
     .maybeSingle();
 
   if (posError || !posData) {
-    // Fallback a MOCK_JOBS para propósitos de prueba con IDs '1', '2', '3'
-    if (['1', '2', '3'].includes(posicionId)) {
-      posicion = {
-        titulo: posicionId === '1' ? 'Desarrollador React Senior' : posicionId === '2' ? 'Analista de Datos Junior' : 'Diseñador UI/UX Senior',
-        descripcion_general: 'Buscamos un excelente profesional para unirse a nuestro equipo con las mejores prácticas y tecnologías modernas.',
-        habilidades_requeridas: ['React', 'TypeScript', 'Proactividad', 'Trabajo en equipo']
-      };
-    } else {
-      notFound();
-    }
-  } else {
-    posicion = posData;
+    notFound();
   }
+  posicion = posData;
 
   // Asegurar que el perfil exista y obtener los datos
   await getOrCreateCvProfile();

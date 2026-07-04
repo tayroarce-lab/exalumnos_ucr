@@ -16,17 +16,22 @@ export async function GET(request: Request) {
     // Dado que Supabase SQL puede ser complejo para GROUP BY en JS, traeremos los datos o usaremos RPC
     // Para simplificar, haremos múltiples queries filtrados por fecha
     
-    let donationsQuery = adminClient.from('donations').select('monto, moneda, estado, created_at, user_id');
-    let matchesQuery = adminClient.from('matches').select('estado, resultado, created_at');
-    // Asumiendo tabla 'users' o 'usuarios' o 'perfiles' (vamos a usar 'users' como mock si no existe la tabla real expuesta)
-    // Para usuarios, usaremos 'auth.users' u otra tabla pública si existe. 
-    // Usaremos 'perfiles' (común en Supabase) o 'usuarios'
-    let usersQuery = adminClient.from('users').select('rol, created_at, id, activo').is('deleted_at', null);
+    let donationsQuery = adminClient.from('donaciones').select('monto, moneda, estado, created_at, exalumno_id');
+    let matchesQuery = adminClient.from('matches').select('estado, resultado, created_at, estudiante_id');
+    let usersQuery = adminClient.from('users').select(`
+      rol, 
+      created_at, 
+      id, 
+      activo,
+      carrera_campus(
+        campus(nombre),
+        facultades(nombre)
+      )
+    `).is('deleted_at', null);
 
     if (startDate) {
       donationsQuery = donationsQuery.gte('created_at', startDate);
       matchesQuery = matchesQuery.gte('created_at', startDate);
-      // No filtramos los usuarios totales por fecha para que muestre el total histórico
     }
     if (endDate) {
       donationsQuery = donationsQuery.lte('created_at', endDate);
@@ -43,9 +48,9 @@ export async function GET(request: Request) {
       usersQuery
     ]);
 
-    if (usrError) {
-      console.error('Error fetching users for dashboard:', usrError);
-    }
+    if (usrError) console.error('Error fetching users:', usrError);
+    if (donError) console.error('Error fetching donaciones:', donError);
+    if (matError) console.error('Error fetching matches:', matError);
 
     // Procesar Datos
     const donacionesConfirmadas = (donations || []).filter(d => d.estado === 'confirmada');
@@ -61,22 +66,23 @@ export async function GET(request: Request) {
     const matchesActivos = (matches || []).filter(m => m.estado === 'activo').length;
     const matchesCerradosExitosamente = (matches || []).filter(m => m.estado === 'cerrado' && (m as any).resultado === 'exitoso').length;
 
-    // Distribución por carrera (tomada de matches como proxy o de los usuarios estudiantes)
+    // Distribución por carrera/facultad usando los datos reales de 'users'
     const distribucionCarrera: Record<string, number> = {};
-    (matches || []).forEach(m => {
-      const carrera = (m as any).estudiante_carrera || 'No especificada';
-      distribucionCarrera[carrera] = (distribucionCarrera[carrera] || 0) + 1;
+    const distribucionSede: Record<string, number> = {};
+
+    (users || []).forEach(u => {
+      const carreraCampus = u.carrera_campus as any;
+      if (carreraCampus) {
+        const facultadNombre = carreraCampus.facultades?.nombre || 'General';
+        distribucionCarrera[facultadNombre] = (distribucionCarrera[facultadNombre] || 0) + 1;
+        
+        const campusNombre = carreraCampus.campus?.nombre || 'Sede Central';
+        distribucionSede[campusNombre] = (distribucionSede[campusNombre] || 0) + 1;
+      }
     });
 
     const graficosCarrera = Object.entries(distribucionCarrera).map(([name, value]) => ({ name, value }));
-
-    // La columna sede no existe en users, se usa un mock de sedes
-    const graficosSede = [
-      { name: 'Rodrigo Facio', value: 120 },
-      { name: 'Occidente', value: 45 },
-      { name: 'Atlántico', value: 30 },
-      { name: 'Guanacaste', value: 25 },
-    ];
+    const graficosSede = Object.entries(distribucionSede).map(([name, value]) => ({ name, value }));
 
     // Estudiantes / Exalumnos Activos
     const estudiantesActivos = (users || []).filter(u => u.rol === 'estudiante' && u.activo).length;
@@ -85,8 +91,8 @@ export async function GET(request: Request) {
     // Donantes nuevos vs recurrentes
     const donacionesAgrupadas: Record<string, number> = {};
     (donations || []).forEach(d => {
-      if (d.user_id) {
-        donacionesAgrupadas[d.user_id] = (donacionesAgrupadas[d.user_id] || 0) + 1;
+      if (d.exalumno_id) {
+        donacionesAgrupadas[d.exalumno_id] = (donacionesAgrupadas[d.exalumno_id] || 0) + 1;
       }
     });
 

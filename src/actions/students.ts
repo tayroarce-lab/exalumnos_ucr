@@ -455,13 +455,14 @@ export async function listarEstudiantes(
     });
   }
 
-  if (opciones?.page && opciones?.limit) {
-    const from = (opciones.page - 1) * opciones.limit
-    const to = from + opciones.limit - 1
-    query = query.range(from, to)
-  } else if (opciones?.limit) {
-    query = query.limit(opciones.limit)
-  }
+  // REMOVIDO: Paginación en SQL para poder ordenar por score_match en memoria
+  // if (opciones?.page && opciones?.limit) {
+  //   const from = (opciones.page - 1) * opciones.limit
+  //   const to = from + opciones.limit - 1
+  //   query = query.range(from, to)
+  // } else if (opciones?.limit) {
+  //   query = query.limit(opciones.limit)
+  // }
 
   const { data, count, error } = await query
   if (error) {
@@ -485,19 +486,43 @@ export async function listarEstudiantes(
       console.error('Error fetching batch profiles in listarEstudiantes:', err);
     }
   }
-  
-  const mappedData = data?.map(d => {
+  const { obtenerMiPerfil } = await import('./users');
+  const perfilActual = await obtenerMiPerfil().catch(() => null);
+  const { calcularMatch } = await import('@/lib/match');
+
+  let mappedData = data?.map(d => {
     const est = Array.isArray(d.estudiantes) ? d.estudiantes[0] : d.estudiantes;
     const prof = profilesData.find(p => p.id === d.id);
-    return {
+    const result = {
       ...est,
       ...d,
       estudiantes: est,
       areas_de_interes: est?.areas_de_interes || [],
       foto_url: prof?.foto_url || d.foto_url,
-      banner_url: prof?.banner_url || null
+      banner_url: prof?.banner_url || null,
+      match_score: 0
     }
-  })
+    
+    if (perfilActual) {
+      result.match_score = calcularMatch(result, perfilActual);
+    }
+    
+    return result;
+  }) || [];
+
+  // Ordenar por score_match descendente
+  if (perfilActual) {
+    mappedData.sort((a, b) => (b.match_score || 0) - (a.match_score || 0));
+  }
+
+  // Aplicar paginación en memoria
+  if (opciones?.page && opciones?.limit) {
+    const from = (opciones.page - 1) * opciones.limit;
+    const to = from + opciones.limit;
+    mappedData = mappedData.slice(from, to);
+  } else if (opciones?.limit) {
+    mappedData = mappedData.slice(0, opciones.limit);
+  }
 
   return { data: mappedData, count: count || 0 }
 }

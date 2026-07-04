@@ -91,7 +91,19 @@ export default function ExalumnoOnboardingForm({
         anio_graduacion: initialData.anio_graduacion || (initialData.academic?.[0]?.anio ? parseInt(initialData.academic[0].anio) : new Date().getFullYear() - 1),
         sector_industria: Array.isArray(initialData.sector_industria) ? (initialData.sector_industria[0] || '') : (initialData.sector_industria || ''),
         habilidadesText: initialData.habilidades?.join(', ') || '',
-        hobbiesText: Array.isArray(initialData.hobbies) ? initialData.hobbies.join(', ') : (initialData.hobbiesText || '')
+        hobbiesText: Array.isArray(initialData.hobbies) ? initialData.hobbies.join(', ') : (initialData.hobbiesText || ''),
+        // Asegurar que los campos opcionales nunca sean null para evitar advertencias de componentes controlados
+        empresa_actual: initialData.empresa_actual || '',
+        cargo_actual: initialData.cargo_actual || '',
+        pais_ciudad: initialData.pais_ciudad || '',
+        linkedin_url: initialData.linkedin_url || '',
+        bio: initialData.bio || '',
+        foto_url: initialData.foto_url || '',
+        moneda_donacion: initialData.moneda_donacion || 'USD',
+        areas_de_interes: initialData.areas_de_interes || [],
+        horas_mes_mentoria: initialData.horas_mes_mentoria || 0,
+        monto_maximo_donacion: initialData.monto_maximo_donacion || 0,
+        anos_experiencia: initialData.anos_experiencia || 0,
       }));
     }
   }, [isEditMode, initialData]);
