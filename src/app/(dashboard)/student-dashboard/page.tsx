@@ -1,190 +1,393 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import Card from '@/components/ui/card'
-import Button from '@/components/ui/button'
-import logoUCR from '@/images/Logo_UCR.png'
+import mascotaEstudianteImg from '@/images/mascota_estudiante.png'
 import {
-  Briefcase,
-  GraduationCap,
+  Search,
   FileText,
-  Users,
-  BookOpen,
+  Monitor,
   ArrowRight,
-  Sparkles
+  Calendar,
+  Bell,
 } from 'lucide-react'
 import { useProfile } from '@/contexts/ProfileContext'
 
-export default function StudentDashboardPage() {
-  const currentDate = new Date().toLocaleDateString('es-CR', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  })
+/* ─────────── Datos de eventos mock ─────────── */
+const eventosMock = [
+  {
+    id: 1,
+    imagen: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&h=400&fit=crop',
+    fecha: '15 OCTUBRE',
+    tipo: 'PRESENCIAL',
+    titulo: 'Taller: Mejora tu Currículum',
+    descripcion: 'Secretos prácticos para destacar ante reclutadores internacionales.',
+  },
+  {
+    id: 2,
+    imagen: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&h=400&fit=crop',
+    fecha: '15 OCTUBRE',
+    tipo: 'VIRTUAL',
+    titulo: 'Taller de Vida Estudiantil',
+    descripcion: 'Herramientas esenciales para el equilibrio y bienestar personal.',
+  },
+  {
+    id: 3,
+    imagen: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&h=400&fit=crop',
+    fecha: '05 NOVIEMBRE',
+    tipo: 'CHARLA',
+    titulo: 'Charla: Becas de Posgrado',
+    descripcion: 'Información sobre convenios y financiamiento internacional.',
+  },
+]
 
+export default function StudentDashboardPage() {
   const { user, profile } = useProfile()
   const userName = profile?.full_name || user?.user_metadata?.nombre || 'Estudiante'
+
+  /* Estado para el card de Acceso Rápido seleccionado */
+  const [selectedCard, setSelectedCard] = useState<number | null>(null)
+
+  /* Estado para botón "Inscribirse" activo */
+  const [activeBtn, setActiveBtn] = useState<number | null>(null)
 
   const quickLinks = [
     {
       label: 'Buscar Empleos',
-      description: 'Explora vacantes publicadas por exalumnos UCR',
+      description: 'Explora ofertas laborales de las empresas más prestigiosas del país.',
       link: '/jobs',
-      icon: Briefcase,
-      iconBg: 'bg-gradient-to-tr from-celeste to-esmeralda',
-      color: 'text-esmeralda',
-      borderColor: 'border-celeste/20 hover:border-celeste/60',
-      shadowColor: 'hover:shadow-celeste/10',
+      icon: Search,
     },
     {
       label: 'Mis Aplicaciones',
-      description: 'Revisa el estado de tus postulaciones',
+      description: 'Monitorea el estado actual de tus procesos de selección de manera centralizada.',
       link: '/mis-aplicaciones',
       icon: FileText,
-      iconBg: 'bg-gradient-to-tr from-emerald-400 to-esmeralda',
-      color: 'text-emerald-700',
-      borderColor: 'border-emerald-100 hover:border-emerald-300',
-      shadowColor: 'hover:shadow-emerald-500/10',
     },
     {
-      label: 'Mentorías',
-      description: 'Conecta con exalumnos que pueden guiarte',
+      label: 'Solicitar Mentoría',
+      description: 'Recibe orientación directa de exalumnos expertos en tu campo laboral.',
       link: '/mentorships',
-      icon: GraduationCap,
-      iconBg: 'bg-gradient-to-tr from-violet-400 to-violet-600',
-      color: 'text-violet-700',
-      borderColor: 'border-violet-100 hover:border-violet-300',
-      shadowColor: 'hover:shadow-violet-500/10',
+      icon: Monitor,
     },
-    {
-      label: 'Red Alumni',
-      description: 'Descubre profesionales graduados de UCR',
-      link: '/network',
-      icon: Users,
-      iconBg: 'bg-gradient-to-tr from-amarillo to-naranja',
-      color: 'text-naranja',
-      borderColor: 'border-naranja/20 hover:border-naranja/40',
-      shadowColor: 'hover:shadow-naranja/10',
-    },
-  ]
-
-  const steps = [
-    ...(!profile?.perfil_completo ? [{ step: '01', title: 'Completa tu perfil', desc: 'Agrega tus habilidades y proyecto de graduación', link: '/completar-perfil' }] : []),
-    { step: profile?.perfil_completo ? '01' : '02', title: 'Explora vacantes', desc: 'Encuentra oportunidades según tu carrera', link: '/jobs' },
-    { step: profile?.perfil_completo ? '02' : '03', title: 'Solicita una mentoría', desc: 'Conéctate con un profesional UCR', link: '/mentorships' },
   ]
 
   return (
-    <div className="py-8 px-6 lg:px-10">
-      <div className="max-w-6xl mx-auto space-y-10">
+    <div className="min-h-screen" style={{ backgroundColor: '#F8F9FB' }}>
+      <div className="max-w-5xl mx-auto px-6 lg:px-8 py-6 space-y-12">
 
-        {/* Encabezado */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-slate-200/60 pb-6">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 text-celeste text-xs font-bold uppercase tracking-widest">
-              <Sparkles className="w-4 h-4 animate-pulse" />
-              <span>Portal de Crecimiento Profesional</span>
-            </div>
-            <h1 className="text-4xl font-extrabold uppercase font-display text-slate-800 tracking-wide">
-              Portal Estudiante
-            </h1>
-            <p className="text-sm font-medium text-slate-500">
-              Bienvenido(a), <span className="font-bold text-esmeralda">{userName}</span>  · {currentDate}
-            </p>
-          </div>
-        </div>
-
-        {/* Banner con Gradiente y Diseño Moderno */}
-        <div id="tour-welcome-banner" className="rounded-3xl p-8 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-8 overflow-hidden relative shadow-xl text-white bg-gradient-to-br from-esmeralda via-[#093e50] to-celeste transition-all duration-500 hover:shadow-celeste/20 group">
-          <div className="absolute right-0 top-0 bottom-0 w-1/2 bg-white/5 rounded-l-full hidden md:block transform translate-x-10 group-hover:translate-x-6 transition-transform duration-700" />
-          <div className="absolute right-1/4 top-1/4 w-32 h-32 bg-celeste/20 rounded-full blur-3xl group-hover:scale-125 transition-transform duration-700" />
-          <div className="absolute left-1/3 bottom-0 w-24 h-24 bg-white/5 rounded-full blur-xl" />
-          
-          <div className="space-y-5 md:max-w-md relative z-10">
-            <span className="inline-block text-[10px] font-bold bg-white/20 px-3 py-1 rounded-full uppercase tracking-widest backdrop-blur-sm">
-              Plataforma UCR · Estudiantes
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-black leading-tight uppercase font-display">
-              Tu camino profesional empieza aquí.
-            </h2>
-            <p className="text-white/80 text-sm font-medium leading-relaxed">
-              Conéctate directamente con exalumnos mentores, postula a vacantes exclusivas y consolida tu futuro.
-            </p>
-            <div className="pt-2">
-              <Link href="/jobs" className="inline-block">
-                <Button variant="primary" className="bg-white !text-black hover:bg-celeste hover:text-white font-bold uppercase tracking-wider text-xs px-6 py-3 shadow-lg hover:shadow-celeste/30 hover:scale-105 active:scale-95 transition-all duration-300">
-                  Ver vacantes disponibles →
-                </Button>
-              </Link>
-            </div>
-          </div>
-          
-          <div className="relative w-full md:w-[420px] h-60 shrink-0">
+        {/* ═══════════════════════════════════════════════════════════
+            HERO BANNER — Mascota + CTA (NO TOCAR)
+        ═══════════════════════════════════════════════════════════ */}
+        <section className="relative rounded-2xl overflow-hidden min-h-[340px] md:min-h-[400px]" style={{ backgroundColor: '#E8F4FD' }}>
+          {/* Mascot image */}
+          <div className="absolute inset-0 z-0 pointer-events-none select-none">
             <Image
-              src={logoUCR}
-              alt="Logo UCR"
+              src={mascotaEstudianteImg}
+              alt="Mascota UCR Estudiantes"
               fill
-              style={{ objectFit: 'contain', filter: 'brightness(0) invert(1)' }}
+              className="object-cover object-right-top"
+              style={{ objectPosition: '65% 20%' }}
               priority
             />
           </div>
-        </div>
 
-        {/* Accesos Rápidos */}
-        <div id="tour-quick-summary" className="space-y-5">
-          <h2 className="text-lg font-bold uppercase tracking-wider text-slate-800 font-display flex items-center gap-2">
-            <span className="w-2 h-6 bg-celeste rounded-full" />
-            Accesos rápidos
+          {/* Gradient overlay for readability */}
+          <div
+            className="absolute inset-0 z-[1] pointer-events-none"
+            style={{
+              background: 'linear-gradient(to right, #E8F4FDee 0%, #E8F4FDcc 40%, transparent 70%)',
+            }}
+          />
+
+          {/* Text content */}
+          <div className="relative z-10 flex flex-col justify-center px-10 md:px-14 py-14 md:py-16 max-w-lg h-full min-h-[340px] md:min-h-[400px]">
+            <h1
+              className="text-[2.4rem] md:text-[2.8rem] leading-[1.1] font-extrabold tracking-tight"
+              style={{ color: '#1A1A2E', fontFamily: "'Outfit', 'Inter', sans-serif" }}
+            >
+              Tu futuro empieza aquí
+            </h1>
+            <p
+              className="mt-4 text-[0.95rem] leading-relaxed max-w-sm"
+              style={{ color: '#3A3A4A' }}
+            >
+              Descubre oportunidades laborales y conéctate con
+              mentores que acelerarán tu carrera profesional.
+            </p>
+            <div className="mt-7">
+              <Link
+                href="/jobs"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-semibold text-white shadow-md hover:shadow-lg hover:scale-[1.03] active:scale-[0.97] transition-all duration-200"
+                style={{ backgroundColor: '#54BCEB' }}
+              >
+                Ver vacantes de empleo
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* ═══════════════════════════════════════════════════════════
+            ACCESO RÁPIDO — 3 tarjetas con borde celeste al seleccionar
+        ═══════════════════════════════════════════════════════════ */}
+        <section className="space-y-6">
+          <h2
+            className="text-xl font-bold"
+            style={{ color: '#1A1A2E', fontFamily: "'Outfit', 'Inter', sans-serif" }}
+          >
+            Acceso Rápido
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
             {quickLinks.map((item, idx) => {
               const Icon = item.icon
+              const isSelected = selectedCard === idx
               return (
-                <Link key={idx} href={item.link}>
-                  <Card hoverEffect className={`flex flex-col items-center text-center p-6 space-y-4 bg-white/90 backdrop-blur-sm border ${item.borderColor} shadow-sm hover:shadow-xl ${item.shadowColor} transition-all duration-300 rounded-2xl cursor-pointer group`}>
-                    <div className={`w-14 h-14 rounded-2xl ${item.iconBg} text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-all duration-300 shrink-0`}>
-                      <Icon className="w-6 h-6" />
+                <Link
+                  key={idx}
+                  href={item.link}
+                  className="group"
+                  onClick={() => setSelectedCard(idx)}
+                >
+                  <div
+                    className="bg-white rounded-xl p-6 h-full flex flex-col gap-4 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 cursor-pointer"
+                    style={{
+                      border: isSelected
+                        ? '2px solid #54BCEB'
+                        : '1px solid #E8EAF0',
+                      boxShadow: isSelected
+                        ? '0 0 0 3px rgba(84, 188, 235, 0.15)'
+                        : undefined,
+                    }}
+                  >
+                    {/* Icon */}
+                    <div
+                      className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
+                      style={{
+                        backgroundColor: isSelected ? '#EBF8FD' : '#F0F2F5',
+                      }}
+                    >
+                      <Icon
+                        className="w-5 h-5"
+                        style={{ color: isSelected ? '#54BCEB' : '#3A3A6A' }}
+                      />
                     </div>
+
+                    {/* Text */}
                     <div className="space-y-1.5 flex-1">
-                      <span className={`text-sm font-bold block ${item.color} tracking-wide group-hover:text-celeste transition-colors`}>{item.label}</span>
-                      <span className="text-[11px] text-slate-500 block leading-snug font-medium">{item.description}</span>
+                      <h3
+                        className="text-[0.9rem] font-bold transition-colors"
+                        style={{
+                          color: isSelected ? '#54BCEB' : '#1A1A2E',
+                        }}
+                      >
+                        {item.label}
+                      </h3>
+                      <p
+                        className="text-[0.8rem] leading-relaxed"
+                        style={{ color: '#6B7280' }}
+                      >
+                        {item.description}
+                      </p>
                     </div>
-                    <div className="pt-2">
-                      <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full bg-slate-50 group-hover:bg-celeste group-hover:text-white transition-colors duration-300`}>
-                        <ArrowRight className="w-4 h-4" />
-                      </span>
-                    </div>
-                  </Card>
+                  </div>
                 </Link>
               )
             })}
           </div>
-        </div>
+        </section>
 
-        {/* Pasos para comenzar */}
-        <div id="tour-upcoming-events" className="space-y-5">
-          <h2 className="text-lg font-bold uppercase tracking-wider text-slate-800 font-display flex items-center gap-2">
-            <span className="w-2 h-6 bg-esmeralda rounded-full" />
-            ¿Por dónde empezar?
+        {/* ═══════════════════════════════════════════════════════════
+            TU PROGRESO — Estadísticas + Imagen + Notificación
+        ═══════════════════════════════════════════════════════════ */}
+        <section className="space-y-6">
+          <h2
+            className="text-xl font-bold"
+            style={{ color: '#1A1A2E', fontFamily: "'Outfit', 'Inter', sans-serif" }}
+          >
+            Tu Progreso
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            {steps.map((s) => (
-              <Link key={s.step} href={s.link}>
-                <Card hoverEffect className="p-6 bg-white border border-slate-200/75 rounded-2xl shadow-sm hover:shadow-xl hover:border-celeste/30 transition-all duration-300 space-y-3 cursor-pointer group">
-                  <span className="text-4xl font-black text-celeste/20 font-display group-hover:text-celeste/40 transition-colors duration-300 block">{s.step}</span>
-                  <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wide group-hover:text-esmeralda transition-colors">{s.title}</h3>
-                  <p className="text-xs text-slate-500 leading-relaxed font-medium">{s.desc}</p>
-                </Card>
-              </Link>
-            ))}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Left: Stats + Notification */}
+            <div className="flex flex-col gap-5">
+              {/* Stats cards row */}
+              <div className="grid grid-cols-2 gap-4">
+                {/* Aplicaciones */}
+                <div
+                  className="bg-white rounded-xl p-5 flex flex-col gap-1"
+                  style={{ border: '1px solid #E8EAF0' }}
+                >
+                  <span
+                    className="text-3xl font-extrabold"
+                    style={{ color: '#54BCEB', fontFamily: "'Outfit', sans-serif" }}
+                  >
+                    12
+                  </span>
+                  <span
+                    className="text-[0.7rem] font-bold uppercase tracking-widest"
+                    style={{ color: '#6B7280' }}
+                  >
+                    Aplicaciones
+                  </span>
+                </div>
+                {/* Mentorías */}
+                <div
+                  className="bg-white rounded-xl p-5 flex flex-col gap-1"
+                  style={{ border: '1px solid #E8EAF0' }}
+                >
+                  <span
+                    className="text-3xl font-extrabold"
+                    style={{ color: '#54BCEB', fontFamily: "'Outfit', sans-serif" }}
+                  >
+                    03
+                  </span>
+                  <span
+                    className="text-[0.7rem] font-bold uppercase tracking-widest"
+                    style={{ color: '#6B7280' }}
+                  >
+                    Mentorías
+                  </span>
+                </div>
+              </div>
+
+              {/* Notification bar */}
+              <div
+                className="rounded-xl px-5 py-4 flex items-start gap-3"
+                style={{ backgroundColor: '#EBF8FD', borderLeft: '4px solid #54BCEB' }}
+              >
+                <Bell className="w-4 h-4 mt-0.5 shrink-0" style={{ color: '#54BCEB' }} />
+                <p className="text-[0.82rem] leading-snug" style={{ color: '#1A1A2E' }}>
+                  <span className="font-bold" style={{ color: '#54BCEB' }}>Actualización:</span>{' '}
+                  El mentor Luis G. ha revisado tu perfil profesional recientemente.
+                </p>
+              </div>
+            </div>
+
+            {/* Right: Decorative image */}
+            <div className="relative rounded-xl overflow-hidden min-h-[220px]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=700&h=450&fit=crop"
+                alt="Espacio de trabajo profesional"
+                className="w-full h-full object-cover rounded-xl"
+                style={{ minHeight: '220px' }}
+              />
+            </div>
           </div>
-        </div>
+        </section>
+
+        {/* ═══════════════════════════════════════════════════════════
+            EVENTOS PRÓXIMOS — 3 tarjetas con imágenes
+        ═══════════════════════════════════════════════════════════ */}
+        <section className="space-y-6 pb-10">
+          {/* Header row */}
+          <div className="flex items-center justify-between">
+            <h2
+              className="text-xl font-bold"
+              style={{ color: '#1A1A2E', fontFamily: "'Outfit', 'Inter', sans-serif" }}
+            >
+              Eventos Próximos
+            </h2>
+            <Link
+              href="/events"
+              className="inline-flex items-center gap-1.5 text-sm font-semibold hover:opacity-80 transition-opacity"
+              style={{ color: '#54BCEB' }}
+            >
+              Ver calendario
+              <Calendar className="w-4 h-4" />
+            </Link>
+          </div>
+
+          {/* Event cards grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {eventosMock.map((evento) => {
+              const isActive = activeBtn === evento.id
+              return (
+                <div
+                  key={evento.id}
+                  className="bg-white rounded-xl overflow-hidden flex flex-col transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5"
+                  style={{ border: '1px solid #E8EAF0' }}
+                >
+                  {/* Event image */}
+                  <div className="relative w-full h-44 overflow-hidden">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={evento.imagen}
+                      alt={evento.titulo}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+
+                  {/* Event content */}
+                  <div className="p-5 flex flex-col gap-3 flex-1">
+                    {/* Date + Type badge */}
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="text-[0.68rem] font-bold uppercase tracking-wider"
+                        style={{ color: '#54BCEB' }}
+                      >
+                        {evento.fecha}
+                      </span>
+                      <span style={{ color: '#D1D5DB' }}>·</span>
+                      <span
+                        className="text-[0.68rem] font-bold uppercase tracking-wider"
+                        style={{ color: '#54BCEB' }}
+                      >
+                        {evento.tipo}
+                      </span>
+                    </div>
+
+                    {/* Title */}
+                    <h3
+                      className="text-[0.95rem] font-bold leading-snug"
+                      style={{ color: '#1A1A2E' }}
+                    >
+                      {evento.titulo}
+                    </h3>
+
+                    {/* Description */}
+                    <p
+                      className="text-[0.8rem] leading-relaxed flex-1"
+                      style={{ color: '#6B7280' }}
+                    >
+                      {evento.descripcion}
+                    </p>
+
+                    {/* CTA Button */}
+                    <button
+                      onClick={() => setActiveBtn(evento.id)}
+                      className="mt-2 w-full py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 cursor-pointer"
+                      style={{
+                        backgroundColor: isActive ? '#54BCEB' : 'transparent',
+                        color: isActive ? '#FFFFFF' : '#1A1A2E',
+                        border: isActive ? '2px solid #54BCEB' : '2px solid #E8EAF0',
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!isActive) {
+                          e.currentTarget.style.borderColor = '#54BCEB'
+                          e.currentTarget.style.color = '#54BCEB'
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isActive) {
+                          e.currentTarget.style.borderColor = '#E8EAF0'
+                          e.currentTarget.style.color = '#1A1A2E'
+                        }
+                      }}
+                    >
+                      Inscribirse
+                    </button>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </section>
 
       </div>
     </div>
   )
 }
-
