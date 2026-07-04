@@ -266,3 +266,28 @@ export async function enviarEnlaceMagico(email: string, role: "estudiante" | "ex
 
   return { success: true }
 }
+
+export async function actualizarContrasena(password: string) {
+  try {
+    const supabase = await createClient()
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+    if (authError || !user) {
+      return { success: false, error: 'No estás autenticado.' }
+    }
+
+    if (password.length !== 8) {
+      return { success: false, error: 'La contraseña debe tener exactamente 8 caracteres.' }
+    }
+
+    const { error: updateError } = await supabase.auth.updateUser({ password })
+
+    if (updateError) {
+      return { success: false, error: translateSupabaseError(updateError.message) }
+    }
+
+    return { success: true }
+  } catch (err: any) {
+    return { success: false, error: 'Ocurrió un error inesperado al actualizar la contraseña.' }
+  }
+}
