@@ -32,7 +32,8 @@ const exalumnoSchema = z.object({
   bio: z.string().max(1000).optional(),
   habilidadesText: z.string().optional(),
   hobbiesText: z.string().optional(),
-  foto_url: z.string().optional()
+  foto_url: z.string().optional(),
+  phone: z.string().optional()
 });
 
 type ExalumnoFormData = z.infer<typeof exalumnoSchema>;
@@ -59,7 +60,8 @@ const defaultFormData: ExalumnoFormData = {
   bio: '',
   habilidadesText: '',
   hobbiesText: '',
-  foto_url: ''
+  foto_url: '',
+  phone: ''
 };
 
 export default function ExalumnoOnboardingForm({ 
@@ -96,6 +98,7 @@ export default function ExalumnoOnboardingForm({
         empresa_actual: initialData.empresa_actual || '',
         cargo_actual: initialData.cargo_actual || '',
         pais_ciudad: initialData.pais_ciudad || '',
+        phone: initialData.phone || '',
         linkedin_url: initialData.linkedin_url || '',
         bio: initialData.bio || '',
         foto_url: initialData.foto_url || '',
@@ -181,6 +184,7 @@ export default function ExalumnoOnboardingForm({
         sector_industria: validData.sector_industria,
         anos_experiencia: validData.anos_experiencia,
         pais_ciudad: validData.pais_ciudad,
+        phone: validData.phone,
         linkedin_url: validData.linkedin_url,
         areas_de_interes: validData.areas_de_interes,
         ofrece_mentoria: validData.ofrece_mentoria,
@@ -213,7 +217,7 @@ export default function ExalumnoOnboardingForm({
         const stepMapping: Record<string, number> = {
           foto_url: 1, bio: 1,
           carrera_ucr: 2, escuela_facultad: 2, anio_graduacion: 2,
-          empresa_actual: 3, cargo_actual: 3, sector_industria: 3, anos_experiencia: 3, pais_ciudad: 3, linkedin_url: 3,
+          empresa_actual: 3, cargo_actual: 3, sector_industria: 3, anos_experiencia: 3, pais_ciudad: 3, phone: 3, linkedin_url: 3,
           areas_de_interes: 4,
           ofrece_mentoria: 5, horas_mes_mentoria: 5, ofrece_empleo: 5, ofrece_pasantia: 5, ofrece_proyecto: 5, ofrece_donacion_dinero: 5,
           habilidadesText: 6
@@ -386,6 +390,13 @@ export default function ExalumnoOnboardingForm({
                 <input type="text" name="pais_ciudad" value={formData.pais_ciudad} onChange={handleChange}
                   className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-naranja/50 outline-none text-slate-900 bg-white"
                   placeholder="Ej: San José, Costa Rica" />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Número de Teléfono</label>
+                <input type="text" name="phone" value={formData.phone} onChange={handleChange}
+                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-naranja/50 outline-none text-slate-900 bg-white"
+                  placeholder="Ej: +506 8888-8888" />
               </div>
 
               <div>

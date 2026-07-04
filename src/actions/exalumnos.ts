@@ -11,6 +11,7 @@ export async function completarOnboardingExalumno(datos: {
   sector_industria?: string;
   anos_experiencia?: number;
   pais_ciudad?: string;
+  phone?: string;
   linkedin_url?: string;
   areas_de_interes: string[];
   ofrece_mentoria: boolean;
@@ -70,6 +71,7 @@ export async function completarOnboardingExalumno(datos: {
       sector_industria: datos.sector_industria ? [datos.sector_industria] : null,
       anos_experiencia: datos.anos_experiencia || null,
       pais_ciudad: datos.pais_ciudad || null,
+      phone: datos.phone || null,
       linkedin_url: datos.linkedin_url || null,
       areas_de_interes: datos.areas_de_interes,
       ofrece_mentoria: datos.ofrece_mentoria,
