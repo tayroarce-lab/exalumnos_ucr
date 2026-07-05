@@ -37,7 +37,7 @@ export const PendingDonationsTable: React.FC = () => {
           const user = Array.isArray(d.users) ? d.users[0] : d.users;
           const fullName = user ? `${user.nombre} ${user.apellidos || ''}`.trim() : 'Donante';
           const initials = user ? (user.nombre.charAt(0) + (user.apellidos?.charAt(0) || '')).toUpperCase() : 'D';
-          const currencySymbol = d.moneda === 'USD' ? '$' : '₡';
+          const currencySymbol = d.moneda === 'USD' ? '$' : '';
           return {
             id: d.id,
             donorName: fullName,

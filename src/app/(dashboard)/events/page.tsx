@@ -85,7 +85,7 @@ export default async function EventsPage() {
                   <div className="pt-4 border-t border-slate-200">
                     <Link href={`/events/${event.id}`} className="block">
                       <span className="block text-center text-xs font-bold text-[#F34B26] hover:text-[#C82A08] transition-colors uppercase tracking-wider pt-2 cursor-pointer">
-                        Ver Detalles →
+                        Ver Detalles 
                       </span>
                     </Link>
                   </div>

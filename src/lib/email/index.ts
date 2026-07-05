@@ -14,7 +14,7 @@ export async function notificarDonacionAprobada(toEmail: string, nombreEstudiant
   const html = getDonacionConfirmadaTemplate(nombreEstudiante, monto, moneda);
   return sendEmail({
     to: toEmail,
-    subject: '¡Han confirmado una donación para tu proyecto! 🎉',
+    subject: '¡Han confirmado una donación para tu proyecto! ',
     html
   });
 }
@@ -23,7 +23,7 @@ export async function notificarNuevaAplicacion(toEmail: string, nombreExalumno: 
   const html = getNuevaAplicacionTemplate(nombreExalumno, tituloPosicion, nombreEstudiante);
   return sendEmail({
     to: toEmail,
-    subject: 'Nueva aplicación a tu vacante 📄',
+    subject: 'Nueva aplicación a tu vacante ',
     html
   });
 }
@@ -32,7 +32,7 @@ export async function notificarNuevoMatch(toEmail: string, nombreUsuario: string
   const html = getNuevoMatchTemplate(nombreUsuario, tipoMatch);
   return sendEmail({
     to: toEmail,
-    subject: 'Nuevo Match sugerido en la plataforma 🤝',
+    subject: 'Nuevo Match sugerido en la plataforma ',
     html
   });
 }
@@ -41,7 +41,7 @@ export async function notificarSuspensionAdmin(toEmails: string[], nombreAdmin: 
   const html = getAlertaSuspensionTemplate(nombreAdmin, emailReportado, cantidadReportes);
   return sendEmail({
     to: toEmails,
-    subject: '⚠️ Alerta: Cuenta suspendida automáticamente',
+    subject: ' Alerta: Cuenta suspendida automáticamente',
     html
   });
 }
@@ -50,7 +50,7 @@ export async function notificarDonacionAtrasadaAdmin(toEmails: string[], nombreA
   const html = getRecordatorioDonacionTemplate(nombreAdmin, monto, moneda, emailExalumno, fechaTransferencia);
   return sendEmail({
     to: toEmails,
-    subject: '⏳ Acción requerida: Donación pendiente por más de 48h',
+    subject: ' Acción requerida: Donación pendiente por más de 48h',
     html
   });
 }
@@ -59,7 +59,7 @@ export async function notificarMatchAntiguoAdmin(toEmails: string[], nombreAdmin
   const html = getAlertaMatchAntiguoTemplate(nombreAdmin, emailExalumno, emailEstudiante, fechaCreacion);
   return sendEmail({
     to: toEmails,
-    subject: '🗓️ Seguimiento requerido: Match activo por más de 6 meses',
+    subject: ' Seguimiento requerido: Match activo por más de 6 meses',
     html
   });
 }
@@ -68,7 +68,7 @@ export async function notificarNuevaDonacionAdmin(toEmail: string, monto: number
   const html = getNuevaDonacionAdminTemplate(monto, moneda, proyecto, metodo);
   return sendEmail({
     to: toEmail,
-    subject: '🔔 Nueva Donación Pendiente de Revisión',
+    subject: ' Nueva Donación Pendiente de Revisión',
     html
   });
 }
@@ -77,7 +77,7 @@ export async function notificarEstadoDonacion(toEmail: string, nombreExalumno: s
   const html = getEstadoDonacionTemplate(nombreExalumno, estado, monto, moneda, motivoRechazo);
   return sendEmail({
     to: toEmail,
-    subject: estado === 'confirmada' ? '¡Tu donación ha sido confirmada! 🎉' : 'Actualización sobre tu donación',
+    subject: estado === 'confirmada' ? '¡Tu donación ha sido confirmada! ' : 'Actualización sobre tu donación',
     html
   });
 }

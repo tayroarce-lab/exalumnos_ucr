@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { createPortal } from 'react-dom';
@@ -144,518 +144,475 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
   const pasionesMatch = [...deportesData.slice(0,1), ...musicaData.slice(0,1), ...hobbiesData.slice(0,1)];
 
   return (
-    <div className="font-sans text-[#003B4F] max-w-xl mx-auto pb-12">
+    <div className="font-sans text-slate-900 max-w-7xl mx-auto pb-12">
+      {/* Layout: dos columnas en desktop/tablet, una en móvil */}
+      <div className="flex flex-col md:flex-row gap-6 items-start">
 
-      {/* ── SECCIÓN DE CABECERA UNIFICADA (DISEÑO BANNER) ────────────────── */}
-      <div className="bg-white border border-slate-200 shadow-sm rounded-2xl relative mb-6 overflow-hidden">
-        {/* Banner: imagen personalizada o gradiente predeterminado */}
-        <div className="h-32 md:h-36 w-full relative overflow-hidden bg-gradient-to-r from-[#004C63] to-[#54BCEB]">
-          {estudiante.banner_url && (
-            <img 
-              src={estudiante.banner_url} 
-              alt="Banner de Perfil" 
-              className="w-full h-full object-cover"
-            />
-          )}
-        </div>
+        {/* â•â•â• COLUMNA IZQUIERDA — Sidebar sticky â•â•â• */}
+        <div className="w-full md:w-[320px] lg:w-[360px] md:shrink-0 md:sticky md:top-6 space-y-6">
 
+          {/*  SECCIÓN DE CABECERA UNIFICADA (DISEÑO BANNER)  */}
+          <div className="bg-white border border-slate-200 shadow-sm rounded-2xl relative overflow-hidden">
+            {/* Banner: imagen personalizada o gradiente predeterminado */}
+            <div className="h-32 md:h-36 w-full relative overflow-hidden bg-slate-100">
+              {estudiante.banner_url && (
+                <img 
+                  src={estudiante.banner_url} 
+                  alt="Banner de Perfil" 
+                  className="w-full h-full object-cover"
+                />
+              )}
+            </div>
 
-        {/* Fila de Avatar e Información */}
-        <div className="px-6 pb-5 relative">
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 relative z-10 text-center sm:text-left">
-            {/* Contenedor de Avatar con borde blanco y margen negativo */}
-            <div className="-mt-14 sm:-mt-16 w-28 h-28 rounded-full p-1 bg-white border border-[#B3DCEE]/40 shadow-md overflow-hidden flex items-center justify-center shrink-0">
-              <div className="w-full h-full rounded-full bg-slate-100 p-0.5 overflow-hidden flex items-center justify-center">
-                {estudiante.foto_url ? (
-                  <img src={getAvatarUrl(estudiante.foto_url) as string} alt={estudiante.nombre} className="w-full h-full object-cover rounded-full" />
-                ) : (
-                  <span className="text-[#003B4F] font-black text-3xl">{iniciales}</span>
+            {/* Fila de Avatar e Información */}
+            <div className="px-6 pb-5 relative">
+              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 relative z-10 text-center sm:text-left">
+                {/* Contenedor de Avatar con borde blanco y margen negativo */}
+                <div className="-mt-14 sm:-mt-16 w-28 h-28 rounded-full p-1 bg-white border border-slate-200 shadow-sm overflow-hidden flex items-center justify-center shrink-0">
+                  <div className="w-full h-full rounded-full bg-slate-50 p-0.5 overflow-hidden flex items-center justify-center">
+                    {estudiante.foto_url ? (
+                      <img src={getAvatarUrl(estudiante.foto_url) as string} alt={estudiante.nombre} className="w-full h-full object-cover rounded-full" />
+                    ) : (
+                      <span className="text-slate-400 font-black text-3xl">{iniciales}</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Datos del estudiante */}
+                <div className="mt-4 sm:mt-3 flex-1 space-y-1 pb-1 sm:pb-2">
+                  <h1 className="text-2xl font-black text-slate-900 tracking-tight">{estudiante.nombre}</h1>
+                  {estudiante.carrera && <p className="text-xs font-bold text-slate-500">{estudiante.carrera}</p>}
+                  {estudiante.sede && (
+                    <p className="text-xs text-slate-400 font-medium flex items-center justify-center sm:justify-start gap-1">
+                      Sede de {estudiante.sede}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/*  CARD DE COMPATIBILIDAD  */}
+          <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+            <div className="flex justify-between items-center mb-3">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Compatibilidad</span>
+              <span className="text-lg font-black text-slate-900">{avance}%</span>
+            </div>
+            {/* Barra de Progreso */}
+            <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden mb-4">
+              <div 
+                className="bg-slate-900 h-2 rounded-full transition-all duration-700 ease-out" 
+                style={{ width: `${avance}%` }}
+              />
+            </div>
+            {/* Grid de Criterios */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2.5 gap-x-4 text-xs font-medium text-slate-600 mb-4">
+              <div className="flex items-center gap-2">
+                <IconCheckCircle size={14} className="text-slate-400" /> Carrera afín
+              </div>
+              <div className="flex items-center gap-2">
+                <IconCheckCircle size={14} className="text-slate-400" /> Ubicación
+              </div>
+              <div className="flex items-center gap-2">
+                <IconCheckCircle size={14} className="text-slate-400" /> Intereses comunes
+              </div>
+              <div className="flex items-center gap-2 text-slate-400">
+                <IconCrossCircle size={14} /> Disponibilidad horaria
+              </div>
+            </div>
+
+            {/*  PASIONES HUMANAS EN EL MATCH  */}
+            <div className="border-t border-slate-100 pt-4">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Intereses Compartidos</p>
+              <div className="flex flex-wrap gap-2">
+                {pasionesMatch.map((p, i) => (
+                  <span key={i} className="px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200 text-slate-700 text-[10px] font-semibold">
+                    {p}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/*  BOTONES DE ACCIÓN  */}
+          <div className="flex gap-3 w-full">
+            <button 
+              onClick={() => setShowMentoriaModal(true)}
+              className="flex-1 inline-flex justify-center items-center gap-2 rounded-xl text-sm font-bold bg-slate-900 hover:bg-slate-800 text-white py-3 px-4 transition-all duration-200 active:scale-95 cursor-pointer"
+            >
+              <IconMail size={16} /> Contactar
+            </button>
+            <button className="flex-1 inline-flex justify-center items-center gap-2 rounded-xl text-sm font-bold bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 py-3 px-4 shadow-sm transition-all duration-200 active:scale-95 cursor-pointer">
+              <IconShare size={16} /> Compartir
+            </button>
+          </div>
+
+          {/*  COLUMNAS OPORTUNIDADES E INTERESES  */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex flex-col justify-between">
+              <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Oportunidades</div>
+              <div className="text-xs font-semibold text-slate-700">
+                {getTagsApoyo().length > 0 ? getTagsApoyo().join(', ') : <span className="text-slate-400 italic font-normal">Sin registrar</span>}
+              </div>
+            </div>
+            <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex flex-col justify-between">
+              <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Intereses</div>
+              <div className="text-xs font-semibold text-slate-700">
+                {blandas.length > 0 ? blandas.slice(0, 3).join(', ') : <span className="text-slate-400 italic font-normal">Sin registrar</span>}
+              </div>
+            </div>
+          </div>
+
+          {/*  EXPEDIENTE ACADÉMICO  */}
+          <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-5">Expediente Académico</h3>
+            <div className="grid grid-cols-2 gap-y-5 gap-x-4">
+              <div>
+                <p className="text-[10px] font-medium text-slate-500 mb-1">Carné</p>
+                <p className="text-sm font-bold text-slate-900">{estudiante.carnet_ucr || (estudiante.anio_ingreso ? `B${estudiante.anio_ingreso}${getDeterministicSuffix(estudiante.user_id || estudiante.nombre)}` : '—')}</p>
+              </div>
+              <div>
+                <p className="text-[10px] font-medium text-slate-500 mb-1">Sede</p>
+                <p className="text-sm font-bold text-slate-900">{estudiante.sede || '—'}</p>
+              </div>
+              <div>
+                <p className="text-[10px] font-medium text-slate-500 mb-1">Nivel Actual</p>
+                <p className="text-sm font-bold text-slate-900">{estudiante.nivel_academico || '—'}</p>
+              </div>
+              <div>
+                <p className="text-[10px] font-medium text-slate-500 mb-1">Año Ingreso</p>
+                <p className="text-sm font-bold text-slate-900">{estudiante.anio_ingreso || '—'}</p>
+              </div>
+            </div>
+          </div>
+
+          {/*  PRIVACIDAD  */}
+          <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Información Privada</h4>
+              <IconLock size={14} className="text-slate-400" />
+            </div>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-slate-500 font-medium">Nivel de Beca</span>
+                <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                  {isAdmin ? (estudiante.beca_socioeconomica || '—') : <span className="text-slate-400 font-normal">Restringido</span>}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-slate-500 font-medium">Promedio Ponderado</span>
+                <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                  {isAdmin ? (estudiante.promedio_ponderado || '—') : <span className="text-slate-400 font-normal">Restringido</span>}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/*  ACCIONES PARA MENTORES  */}
+          {(estudiante.busca_mentoria || estudiante.busca_financiamiento) && (
+            <div className="bg-slate-50 rounded-2xl p-5 border border-slate-200">
+              <p className="text-[10px] font-bold text-slate-500 text-center uppercase tracking-widest mb-4">Acciones de Apoyo</p>
+              <div className="flex flex-col gap-3">
+                {estudiante.busca_mentoria && (
+                  <button 
+                    onClick={() => setShowMentoriaModal(true)}
+                    className="w-full inline-flex justify-center items-center gap-2 rounded-xl text-sm font-bold bg-white text-slate-900 hover:bg-slate-100 py-3 px-4 shadow-sm transition-all duration-200 active:scale-95 cursor-pointer border border-slate-200"
+                  >
+                    Ofrecer Mentoría
+                  </button>
+                )}
+                {estudiante.busca_financiamiento && (
+                  <button 
+                    onClick={() => setShowApoyarModal(true)}
+                    className="w-full inline-flex justify-center items-center gap-2 rounded-xl text-sm font-bold bg-slate-900 text-white hover:bg-slate-800 py-3 px-4 shadow-sm transition-all duration-200 active:scale-95 cursor-pointer"
+                  >
+                    Apoyar Proyecto
+                  </button>
                 )}
               </div>
             </div>
+          )}
 
-            {/* Datos del estudiante */}
-            <div className="mt-4 sm:mt-3 flex-1 space-y-1 pb-1 sm:pb-2">
-              <h1 className="text-2xl font-black text-[#003B4F] tracking-tight">{estudiante.nombre}</h1>
-              {estudiante.carrera && <p className="text-xs font-extrabold text-[#1F8BB6]">{estudiante.carrera}</p>}
-              {estudiante.sede && (
-                <p className="text-xs text-slate-500 font-semibold flex items-center justify-center sm:justify-start gap-1">
-                  <span>📍</span> Sede de {estudiante.sede}
-                </p>
+        </div>{/* fin sidebar izquierdo */}
+
+
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+            COLUMNA DERECHA — Contenido principal
+            â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+        <div className="flex-1 min-w-0 space-y-6">
+
+          {/*  CARD PROYECTO TFG  */}
+          <div className="bg-white rounded-2xl p-6 sm:p-8 md:p-10 border border-slate-200 shadow-sm">
+            <div className="flex items-center gap-2 mb-6">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Proyecto de Graduación</span>
+              <span className="w-1 h-1 rounded-full bg-slate-300"></span>
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{areaTematica}</span>
+            </div>
+            
+            <h2 className="text-2xl md:text-3xl font-black text-slate-900 leading-tight mb-6 tracking-tight">
+              {tituloProyecto}
+            </h2>
+            
+            {/* Imagen de Proyecto si existe */}
+            {estudiante.proyecto_foto_url && (
+              <div className="rounded-xl overflow-hidden mb-8 max-h-64 w-full bg-slate-50 border border-slate-100">
+                <img 
+                  src={getProyectoFileUrl(estudiante.proyecto_foto_url) || ''} 
+                  alt={tituloProyecto}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
+            
+            {/* Progreso Minimalista */}
+            <div className="space-y-2 mb-8">
+              <div className="flex justify-between text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                <span>Avance Académico</span>
+                <span className="text-slate-900">{progresoProyecto}%</span>
+              </div>
+              <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden">
+                <div 
+                  className="bg-slate-900 h-1 rounded-full transition-all duration-700 ease-out" 
+                  style={{ width: `${progresoProyecto}%` }}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-4 mb-8">
+              <h5 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Descripción</h5>
+              <p className="text-sm md:text-base text-slate-600 font-normal leading-relaxed whitespace-pre-wrap">
+                {descripcionProyecto}
+              </p>
+            </div>
+
+            {estudiante.proyecto_beneficios && (
+              <div className="space-y-4 mb-8">
+                <h5 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Beneficios para Patrocinadores</h5>
+                <p className="text-sm md:text-base text-slate-600 font-normal leading-relaxed whitespace-pre-wrap">{estudiante.proyecto_beneficios}</p>
+                {estudiante.proyecto_beneficios_fotos && estudiante.proyecto_beneficios_fotos.length > 0 && (
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+                    {estudiante.proyecto_beneficios_fotos.map((fotoUrl, idx) => (
+                      <div key={idx} className="rounded-xl overflow-hidden aspect-square bg-slate-50 border border-slate-100">
+                        <img 
+                          src={getProyectoFileUrl(fotoUrl) || ''} 
+                          alt={`Recompensa ${idx + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Tipos de apoyo */}
+            {(estudiante.busca_financiamiento || estudiante.busca_mentoria || estudiante.busca_empleo || estudiante.busca_pasantia) && (
+              <div className="space-y-4 mb-8">
+                <h5 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Apoyo Solicitado</h5>
+                <div className="flex flex-wrap gap-3">
+                  {estudiante.busca_financiamiento && (
+                    <span className="px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold">
+                      Económico
+                    </span>
+                  )}
+                  {estudiante.busca_mentoria && (
+                    <span className="px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold">
+                      Mentoría
+                    </span>
+                  )}
+                  {estudiante.busca_empleo && (
+                    <span className="px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold">
+                      Empleo
+                    </span>
+                  )}
+                  {estudiante.busca_pasantia && (
+                    <span className="px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold">
+                      Pasantía
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Financiamiento Colectivo */}
+            {estudiante.busca_financiamiento && estudiante.proyecto_valor_monto && (
+              <div className="space-y-4 mb-8">
+                <h5 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Meta de Financiamiento</h5>
+                <ProyectoDonacionesProgreso 
+                  proyectoId={estudiante.user_id} 
+                  metaMonto={estudiante.proyecto_valor_monto} 
+                  metaMoneda={estudiante.proyecto_valor_moneda || 'USD'} 
+                  mostrarBotonApoyar={false} 
+                />
+              </div>
+            )}
+
+            {/* Enlaces y Acciones */}
+            <div className="flex flex-col gap-4 mt-8 pt-8 border-t border-slate-100">
+              {(estudiante.proyecto_documento_url || estudiante.proyecto_video_url) && (
+                <div className="flex flex-wrap gap-6 mb-4">
+                  {estudiante.proyecto_documento_url && (
+                    <a 
+                      href={getProyectoFileUrl(estudiante.proyecto_documento_url) || '#'}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm font-semibold text-slate-900 hover:text-slate-500 transition-colors"
+                    >
+                       Ver Documentación â†—
+                    </a>
+                  )}
+                  {estudiante.proyecto_video_url && (
+                    <a 
+                      href={estudiante.proyecto_video_url.startsWith('http') ? estudiante.proyecto_video_url : `https://${estudiante.proyecto_video_url}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm font-semibold text-slate-900 hover:text-slate-500 transition-colors"
+                    >
+                       Ver Video Pitch â†—
+                    </a>
+                  )}
+                </div>
+              )}
+
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  onClick={() => setShowProyectoModal(true)}
+                  className="flex-1 py-3.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-900 text-sm font-bold transition-all active:scale-95 shadow-sm"
+                >
+                  Ver en Detalle
+                </button>
+                
+                {(estudiante.busca_financiamiento || estudiante.busca_mentoria || estudiante.busca_empleo || estudiante.busca_pasantia) && (
+                  <button
+                    onClick={() => setShowApoyarModal(true)}
+                    className="flex-1 py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold shadow-sm transition-all active:scale-95"
+                  >
+                    Ofrecer Apoyo 
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/*  MI PRESENTACIÓN  */}
+          <div className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-sm">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-5">Presentación Personal</p>
+            <p className="text-sm md:text-base text-slate-600 font-normal leading-relaxed">
+              {estudiante.sobre_mi ||
+                <span className="italic text-slate-400">El estudiante aún no ha redactado su presentación personal.</span>
+              }
+            </p>
+          </div>
+
+          {/*  HABILIDADES TÉCNICAS  */}
+          <div className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-sm">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-5">Habilidades Técnicas</p>
+            <div className="flex flex-wrap gap-2">
+              {habilidadesTecnicasData.length > 0 ? (
+                habilidadesTecnicasData.map((h, i) => (
+                  <span key={i} className="px-3.5 py-1.5 rounded-full bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold">
+                    {h}
+                  </span>
+                ))
+              ) : (
+                <span className="text-sm text-slate-400 italic">No ha registrado habilidades técnicas.</span>
               )}
             </div>
           </div>
-        </div>
-      </div>      {/* ── CARD DE COMPATIBILIDAD ─────────────────────────── */}
-      <div className="bg-[#EAF5FA]/90 backdrop-blur-sm rounded-2xl p-5 border border-[#B3DCEE] shadow-sm mb-6">
-        <div className="flex justify-between items-center mb-3">
-          <span className="text-xs font-bold text-[#1A5B75] uppercase tracking-wider">Compatibilidad</span>
-          <span className="text-lg font-black text-[#1A5B75]">{avance}%</span>
-        </div>
-        {/* Barra de Progreso */}
-        <div className="w-full bg-[#E0F2FE] rounded-full h-2.5 overflow-hidden shadow-inner mb-4">
-          <div 
-            className="bg-[#1A5B75] h-2.5 rounded-full transition-all duration-700 ease-out" 
-            style={{ width: `${avance}%` }}
-          />
-        </div>
-        {/* Grid de Criterios */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2.5 gap-x-4 text-xs font-bold text-[#1A5B75] mb-4">
-          <div className="flex items-center gap-2">
-            <IconCheckCircle /> Carrera afín
-          </div>
-          <div className="flex items-center gap-2">
-            <IconCheckCircle /> Ubicación
-          </div>
-          <div className="flex items-center gap-2">
-            <IconCheckCircle /> Intereses comunes
-          </div>
-          <div className="flex items-center gap-2 text-red-500">
-            <IconCrossCircle /> Disponibilidad horaria
-          </div>
-        </div>
 
-        {/* ── PASIONES HUMANAS EN EL MATCH ── */}
-        <div className="border-t border-[#B3DCEE]/60 pt-4">
-          <p className="text-[10px] font-black text-[#1A5B75] uppercase tracking-widest mb-3">Intereses Compartidos</p>
-          <div className="flex flex-wrap gap-2">
-            {pasionesMatch.map((p, i) => (
-              <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-[#54BCEB]/30 text-[#003B4F] text-[11px] font-bold shadow-sm">
-                {i === 0 ? '⚽' : i === 1 ? '🎵' : '📸'} {p}
-              </span>
-            ))}
+          {/*  VIDA MÁS ALLÁ DEL AULA  */}
+          <div className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-sm">
+            <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-6">Vida Más Allá del Aula</h3>
+
+            {estudiante.sobre_mi_personal && (
+              <div className="mb-8">
+                <p className="text-[10px] font-medium text-slate-500 uppercase tracking-widest mb-3">En mis propias palabras</p>
+                <p className="text-sm text-slate-600 font-normal leading-relaxed italic border-l-2 border-slate-200 pl-4 py-1">
+                  &ldquo;{estudiante.sobre_mi_personal}&rdquo;
+                </p>
+              </div>
+            )}
+
+            <div className="space-y-6">
+              {deportesData.length > 0 && (
+                <div>
+                  <p className="text-[10px] font-medium text-slate-500 uppercase tracking-widest mb-3">Deportes & Actividad Física</p>
+                  <div className="flex flex-wrap gap-2">
+                    {deportesData.map((d, i) => (
+                      <span key={i} className="px-3 py-1.5 rounded-full bg-white border border-slate-200 text-slate-600 text-xs font-medium">{d}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {musicaData.length > 0 && (
+                <div>
+                  <p className="text-[10px] font-medium text-slate-500 uppercase tracking-widest mb-3">Música & Artes</p>
+                  <div className="flex flex-wrap gap-2">
+                    {musicaData.map((m, i) => (
+                      <span key={i} className="px-3 py-1.5 rounded-full bg-white border border-slate-200 text-slate-600 text-xs font-medium">{m}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {hobbiesData.length > 0 && (
+                <div>
+                  <p className="text-[10px] font-medium text-slate-500 uppercase tracking-widest mb-3">Pasatiempos & Hobbies</p>
+                  <div className="flex flex-wrap gap-2">
+                    {hobbiesData.map((h, i) => (
+                      <span key={i} className="px-3 py-1.5 rounded-full bg-white border border-slate-200 text-slate-600 text-xs font-medium">{h}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {idiomasData.length > 0 && (
+                <div>
+                  <p className="text-[10px] font-medium text-slate-500 uppercase tracking-widest mb-3">Idiomas</p>
+                  <div className="flex flex-wrap gap-2">
+                    {idiomasData.map((lang, i) => (
+                      <span key={i} className="px-3 py-1.5 rounded-full bg-white border border-slate-200 text-slate-600 text-xs font-medium">{lang}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      </div>
 
-      {/* ── BOTONES DE ACCIÓN ──────────────────────────────── */}
-      <div className="flex gap-4 w-full mb-6">
-        <button 
-          onClick={() => setShowMentoriaModal(true)}
-          className="w-1/2 inline-flex justify-center items-center gap-2 rounded-xl text-sm font-bold bg-[#B43B06] hover:bg-[#9E3405] text-white py-3.5 px-4 shadow transition-all duration-200 active:scale-95 cursor-pointer"
-        >
-          <IconMail /> Contactar
-        </button>
-        <button className="w-1/2 inline-flex justify-center items-center gap-2 rounded-xl text-sm font-bold bg-white border border-[#1A5B75]/20 hover:border-[#1A5B75]/40 text-[#1A5B75] py-3.5 px-4 shadow-sm transition-all duration-200 active:scale-95 cursor-pointer">
-          <IconShare /> Compartir Perfil
-        </button>
-      </div>
-
-      {/* ── CARD PROYECTO TFG ─────────────────────────────── */}
-      <div className="bg-white rounded-2xl p-6 border border-[#B3DCEE]/60 shadow-sm mb-6">
-        <div className="flex justify-between items-start gap-2 mb-3">
-          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Proyecto de Graduación</span>
-          <span className="text-[10px] font-bold text-[#1A5B75] bg-[#E0F2FE] px-2.5 py-1 rounded-full shadow-sm">
-            {areaTematica}
-          </span>
-        </div>
-        {/* Imagen de Proyecto si existe */}
-        {estudiante.proyecto_foto_url && (
-          <div className="rounded-xl overflow-hidden border border-[#B3DCEE]/30 mb-4 max-h-48 w-full relative">
-            <img 
-              src={getProyectoFileUrl(estudiante.proyecto_foto_url) || ''} 
-              alt={tituloProyecto}
-              className="w-full h-full object-cover"
-            />
-          </div>
-        )}
-        <h2 className="text-lg font-black text-[#B43B06] mb-3 uppercase">
-          {tituloProyecto}
-        </h2>
-        <p className="text-sm text-slate-600 leading-relaxed font-medium mb-5">
-          {descripcionProyecto}
-        </p>
-
-        {estudiante.proyecto_beneficios && (
-          <div className="bg-slate-50/50 p-4 rounded-xl border border-slate-100 mb-5 space-y-2">
-            <h5 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Beneficios para Donadores</h5>
-            <p className="text-xs text-slate-600 leading-relaxed whitespace-pre-wrap">{estudiante.proyecto_beneficios}</p>
-            {estudiante.proyecto_beneficios_fotos && estudiante.proyecto_beneficios_fotos.length > 0 && (
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 mt-2">
-                {estudiante.proyecto_beneficios_fotos.map((fotoUrl, idx) => (
-                  <div key={idx} className="rounded-xl overflow-hidden border border-slate-200 shadow-sm aspect-square relative bg-slate-100">
-                    <img 
-                      src={getProyectoFileUrl(fotoUrl) || ''} 
-                      alt={`Recompensa ${idx + 1}`}
-                      className="w-full h-full object-cover"
-                    />
+          {/*  TRAYECTORIA ESTUDIANTIL  */}
+          {estudiante.actividades_extracurriculares && estudiante.actividades_extracurriculares.length > 0 && (
+            <div className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-sm">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-6">Trayectoria Estudiantil</p>
+              <div className="space-y-0 divide-y divide-slate-100">
+                {estudiante.actividades_extracurriculares.map((act, index) => (
+                  <div key={index} className="flex items-center gap-4 py-4 first:pt-0 last:pb-0">
+                    <div className="w-1.5 h-1.5 rounded-full bg-slate-300 shrink-0"></div>
+                    <p className="text-sm text-slate-700 font-medium">{act}</p>
                   </div>
                 ))}
               </div>
-            )}
-          </div>
-        )}
-
-        {estudiante.proyecto_valor_monto != null && (
-          <div className="mb-4 inline-flex items-center gap-2 bg-emerald-50 border border-emerald-100 px-3 py-1.5 rounded-xl">
-            <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Valor Monetario:</span>
-            <span className="text-sm font-black text-emerald-700">
-              {estudiante.proyecto_valor_moneda === 'USD' ? '$' : '₡'}
-              {estudiante.proyecto_valor_monto.toLocaleString('es-CR')}
-            </span>
-          </div>
-        )}
-
-        {/* Barra de financiamiento colectivo si busca financiamiento */}
-        {estudiante.busca_financiamiento && estudiante.proyecto_valor_monto && (
-          <div className="mb-5">
-            <ProyectoDonacionesProgreso 
-              proyectoId={estudiante.user_id} 
-              metaMonto={estudiante.proyecto_valor_monto} 
-              metaMoneda={estudiante.proyecto_valor_moneda || 'USD'} 
-              mostrarBotonApoyar={true} 
-            />
-          </div>
-        )}
-
-        <div className="flex flex-col sm:flex-row gap-2 mb-5">
-          {estudiante.proyecto_documento_url && (
-            <a 
-              href={getProyectoFileUrl(estudiante.proyecto_documento_url) || '#'}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1 flex items-center justify-center text-[11px] bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 px-3 py-2 rounded-xl font-bold transition-colors"
-            >
-              📄 Ver Documento
-            </a>
+            </div>
           )}
-          {estudiante.proyecto_video_url && (
-            <a 
-              href={estudiante.proyecto_video_url.startsWith('http') ? estudiante.proyecto_video_url : `https://${estudiante.proyecto_video_url}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1 flex items-center justify-center text-[11px] bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 px-3 py-2 rounded-xl font-bold transition-colors"
-            >
-              ▶️ Ver Video
-            </a>
+
+          {/*  ESTUDIANTES RELACIONADOS  */}
+          {estudiantesRelacionados.length > 0 && (
+            <div className="mt-12 pt-8 border-t border-slate-200">
+              <h2 className="text-xl font-black text-slate-900 mb-1 tracking-tight">Otros perfiles similares</h2>
+              {estudiante.carrera && (
+                <p className="text-sm text-slate-500 mb-6 font-medium">
+                  Estudiantes de <strong className="text-slate-900">{estudiante.carrera}</strong>.
+                </p>
+              )}
+              <GrillaEstudiantes estudiantes={estudiantesRelacionados} />
+            </div>
           )}
-        </div>
-        
-        <div className="pt-4 border-t border-slate-100">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Progreso del Proyecto</span>
-            <span className="text-xs font-black text-[#F34B26]">{progresoProyecto}%</span>
-          </div>
-          <div className="w-full bg-[#FAF9E6] dark:bg-slate-900 rounded-full h-2 overflow-hidden shadow-inner">
-            <div 
-              className="bg-gradient-to-r from-[#F34B26] to-[#FF9B18] h-2 rounded-full transition-all duration-700 ease-out" 
-              style={{ width: `${progresoProyecto}%` }}
-            />
-          </div>
-        </div>
 
-        {/* Avance Financiero si busca financiamiento */}
-        {estudiante.busca_financiamiento && estudiante.proyecto_valor_monto && (
-          <div className="pt-4 border-t border-slate-100 mt-4">
-            <h5 className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-              💰 Financiamiento Colectivo
-            </h5>
-            <ProyectoDonacionesProgreso 
-              proyectoId={estudiante.user_id} 
-              metaMonto={estudiante.proyecto_valor_monto} 
-              metaMoneda={estudiante.proyecto_valor_moneda || 'USD'}
-              mostrarBotonApoyar={false}
-            />
-          </div>
-        )}
+        </div>{/* fin columna derecha */}
 
-        {/* Botón de apoyo al proyecto */}
-        {(estudiante.busca_financiamiento || estudiante.busca_mentoria || estudiante.busca_empleo || estudiante.busca_pasantia) && (
-          <div className="mt-5 pt-4 border-t border-slate-100">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Este estudiante busca</p>
-            <div className="flex flex-wrap gap-2 mb-4">
-              {estudiante.busca_financiamiento && (
-                <span className="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2.5 py-1 rounded-lg border border-emerald-100">💰 Apoyo Económico</span>
-              )}
-              {estudiante.busca_mentoria && (
-                <span className="bg-blue-50 text-blue-700 text-[10px] font-bold px-2.5 py-1 rounded-lg border border-blue-100">🎓 Mentoría Técnica</span>
-              )}
-              {estudiante.busca_empleo && (
-                <span className="bg-orange-50 text-orange-700 text-[10px] font-bold px-2.5 py-1 rounded-lg border border-orange-100">💼 Oportunidad de Empleo</span>
-              )}
-              {estudiante.busca_pasantia && (
-                <span className="bg-violet-50 text-violet-700 text-[10px] font-bold px-2.5 py-1 rounded-lg border border-violet-100">👜 Pasantía</span>
-              )}
-            </div>
-            <button
-              onClick={() => setShowApoyarModal(true)}
-              className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-xl bg-[#003B4F] hover:bg-[#1A5B75] text-white text-sm font-bold shadow-md transition-all active:scale-95 cursor-pointer"
-            >
-              <IconHand /> Ofrecer Apoyo a este Estudiante
-            </button>
-          </div>
-        )}
+      </div>{/* fin layout dos columnas */}
 
-        <div className="mt-4 flex">
-          <button
-            onClick={() => setShowProyectoModal(true)}
-            className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-xl bg-[#F34B26] hover:bg-[#C82A08] text-white text-sm font-bold shadow-sm transition-all active:scale-95 cursor-pointer"
-          >
-            Ver Detalles del Proyecto Completo
-          </button>
-        </div>
-      </div>
-
-      {/* ── COLUMNAS OPORTUNIDADES E INTERESES ──────────────── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 mb-2">
-            <span>👜</span> Oportunidades
-          </div>
-          <div className="text-xs font-semibold text-slate-400 italic">
-            {getTagsApoyo().length > 0 ? getTagsApoyo().join(', ') : 'Sin registrar'}
-          </div>
-        </div>
-
-        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 mb-2">
-            <span>❤️</span> Intereses
-          </div>
-          <div className="text-xs font-semibold text-slate-400 italic">
-            {blandas.length > 0 ? blandas.join(', ') : 'Sin registrar'}
-          </div>
-        </div>
-      </div>
-
-      {/* ── EXPEDIENTE ACADÉMICO (DARK SLATE) ───────────────── */}
-      <div className="rounded-2xl bg-[#2D3328] p-6 text-white shadow-md relative overflow-hidden mb-6">
-        <div className="absolute right-4 bottom-4 opacity-10 pointer-events-none text-white">
-          <svg width="100" height="100" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/>
-            <path d="M4 12v6.59l8 4.36 8-4.36V12l-8 4.36-8-4.36z"/>
-          </svg>
-        </div>
-        <h3 className="font-extrabold text-xs tracking-widest text-slate-300 uppercase pb-4 mb-5 border-b border-white/10 flex items-center gap-2">
-          <span>🎓</span> Expediente Académico
-        </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-5 gap-x-4 relative z-10">
-          <div>
-            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Carné</p>
-            <p className="text-sm font-extrabold text-white">{estudiante.carnet_ucr || (estudiante.anio_ingreso ? `B${estudiante.anio_ingreso}${getDeterministicSuffix(estudiante.user_id || estudiante.nombre)}` : 'No disponible')}</p>
-          </div>
-          <div>
-            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Sede</p>
-            <p className="text-sm font-extrabold text-white">{estudiante.sede || 'No disponible'}</p>
-          </div>
-          <div>
-            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Nivel Actual</p>
-            <p className="text-sm font-extrabold text-white">{estudiante.nivel_academico || 'No disponible'}</p>
-          </div>
-          <div>
-            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Año de Ingreso</p>
-            <p className="text-sm font-extrabold text-white">{estudiante.anio_ingreso || 'No disponible'}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* ── VIDA MÁS ALLÁ DEL AULA ────────────────────────── */}
-      <div className="bg-gradient-to-br from-[#FFF8F0] to-[#FAF9E6] rounded-2xl p-6 border border-[#E84F26]/10 shadow-sm mb-6 relative overflow-hidden">
-        {/* Watermark decorativo */}
-        <div className="absolute top-3 right-4 text-5xl opacity-10 pointer-events-none select-none">🌟</div>
-        <h3 className="text-lg font-black text-[#003B4F] mb-1 flex items-center gap-2">
-          <span>🎨</span> Vida Más Allá del Aula
-        </h3>
-        <p className="text-xs text-slate-400 font-medium mb-4">Lo que me apasiona fuera de los libros</p>
-
-        {/* Descripción extendida del estudiante sobre intereses humanos */}
-        {estudiante.sobre_mi_personal && (
-          <div className="bg-white/80 rounded-xl p-4 border border-[#E84F26]/10 mb-5">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">
-              ✍️ En mis propias palabras
-            </p>
-            <p className="text-sm text-slate-600 leading-relaxed font-medium italic">
-              {estudiante.sobre_mi_personal}
-            </p>
-          </div>
-        )}
-
-        <div className="space-y-4">
-          {/* Deportes */}
-          <div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">⚽ Deportes & Actividad Física</p>
-            <div className="flex flex-wrap gap-2">
-              {deportesData.map((d, i) => (
-                <span key={i} className="px-3 py-1.5 rounded-full bg-[#E84F26]/10 text-[#B43B06] text-xs font-bold border border-[#E84F26]/20">
-                  {d}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Música */}
-          <div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">🎵 Música & Artes</p>
-            <div className="flex flex-wrap gap-2">
-              {musicaData.map((m, i) => (
-                <span key={i} className="px-3 py-1.5 rounded-full bg-[#8B5CF6]/10 text-[#6D28D9] text-xs font-bold border border-[#8B5CF6]/20">
-                  {m}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Hobbies */}
-          <div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">✨ Pasatiempos & Hobbies</p>
-            <div className="flex flex-wrap gap-2">
-              {hobbiesData.map((h, i) => (
-                <span key={i} className="px-3 py-1.5 rounded-full bg-[#10B981]/10 text-[#065F46] text-xs font-bold border border-[#10B981]/20">
-                  {h}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Idiomas */}
-          <div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">🌐 Idiomas</p>
-            <div className="flex flex-wrap gap-2">
-              {idiomasData.map((lang, i) => (
-                <span key={i} className="px-3 py-1.5 rounded-full bg-[#1A5B75]/10 text-[#1A5B75] text-xs font-bold border border-[#1A5B75]/20">
-                  {lang}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ── MI PRESENTACIÓN ──────────────────────────────────── */}
-      <div className="bg-white rounded-2xl p-6 border border-slate-200/60 shadow-sm mb-6 relative overflow-hidden">
-        {/* Barra lateral de acento tricolor */}
-        <div className="absolute top-0 left-0 w-1.5 h-full rounded-l-2xl bg-[#54BCEB]" />
-        <div className="pl-3">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-7 h-7 rounded-full bg-[#E0F2FE] flex items-center justify-center flex-shrink-0">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1A5B75" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-              </svg>
-            </div>
-            <h3 className="text-sm font-black text-[#003B4F] uppercase tracking-wider">Mi Presentación</h3>
-          </div>
-          <p className="text-sm text-slate-600 leading-relaxed font-medium">
-            {estudiante.sobre_mi ||
-              <span className="italic text-slate-400">El estudiante aún no ha redactado su presentación personal.</span>
-            }
-          </p>
-        </div>
-      </div>
-
-      {/* ── HABILIDADES TÉCNICAS ───────────────────────────── */}
-      <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm mb-6">
-        <h3 className="text-lg font-black text-[#003B4F] mb-4 flex items-center gap-2">
-          <span>💻</span> Habilidades Técnicas
-        </h3>
-        <div className="flex flex-wrap gap-2">
-          {habilidadesTecnicasData.length > 0 ? (
-            habilidadesTecnicasData.map((h, i) => (
-              <span key={i} className="px-3.5 py-2 rounded-xl bg-[#E0F2FE]/70 text-[#003B4F] text-xs font-bold border border-[#54BCEB]/30 shadow-sm">
-                {h}
-              </span>
-            ))
-          ) : (
-            <span className="text-xs text-slate-400 italic">No ha registrado habilidades técnicas.</span>
-          )}
-        </div>
-      </div>
-
-      {/* ── PRIVACIDAD ─────────────────────────────────────── */}
-      <div className="bg-[#FFFBF7]/90 backdrop-blur-sm rounded-2xl p-5 border border-red-100 shadow-sm mb-6">
-        <div className="flex items-center gap-2 mb-3">
-          <IconLock color="#dc2626" size={16} />
-          <h4 className="font-extrabold text-sm text-[#003B4F]">Privacidad</h4>
-        </div>
-        <p className="text-xs text-slate-500 leading-relaxed font-medium mb-5">
-          Para proteger la integridad del estudiante, la información sensible como el nivel de beca y detalles socioeconómicos están restringidos.
-        </p>
-        <div className="space-y-3">
-          <div className="flex justify-between items-center py-2 border-t border-slate-100/60">
-            <span className="text-xs text-slate-500 font-semibold">Nivel de Beca</span>
-            <span className="text-xs font-bold text-[#003B4F] flex items-center gap-1.5">
-              {isAdmin ? (estudiante.beca_socioeconomica || 'No registrado') : 'Restringido'} <IconLock color="#b0c4d8" size={12} />
-            </span>
-          </div>
-          <div className="flex justify-between items-center py-2 border-t border-slate-100/60">
-            <span className="text-xs text-slate-500 font-semibold">Promedio Ponderado</span>
-            <span className="text-xs font-bold text-[#003B4F] flex items-center gap-1.5">
-              {isAdmin ? (estudiante.promedio_ponderado || 'No registrado') : 'Restringido'} <IconLock color="#b0c4d8" size={12} />
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* ── TRAYECTORIA ESTUDIANTIL ────────────────────────── */}
-      {estudiante.actividades_extracurriculares && estudiante.actividades_extracurriculares.length > 0 && (
-        <div className="bg-white rounded-2xl p-6 border-l-4 border-l-[#1F8BB6] border border-slate-200/80 shadow-sm mb-6">
-          <h3 className="text-lg font-black text-[#003B4F] mb-4 flex items-center gap-2">
-            <span>🚌</span> Trayectoria Estudiantil
-          </h3>
-          <div className="space-y-4">
-            {estudiante.actividades_extracurriculares.map((act, index) => (
-              <div key={index} className="flex items-start gap-3">
-                <div className="p-2.5 rounded-xl bg-[#E0F2FE] text-[#1F8BB6] mt-0.5 flex-shrink-0">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
-                    <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"/>
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-[#003B4F]">{act}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ── ACCIONES PARA MENTORES (DASHED GREEN) ───────────── */}
-      {(estudiante.busca_mentoria || estudiante.busca_financiamiento) && (
-        <div className="rounded-2xl border-2 border-dashed border-[#8E9F7F]/40 bg-[#F4F9EE] p-5 mb-6">
-          <p className="text-[10px] font-black text-[#5C6E4F] text-center uppercase tracking-widest mb-4">Acciones para Mentores</p>
-          <div className="flex flex-col gap-3">
-            {estudiante.busca_mentoria && (
-              <button 
-                onClick={() => setShowMentoriaModal(true)}
-                className="w-full inline-flex justify-center items-center gap-2 rounded-xl text-sm font-bold bg-white text-[#1A5B75] hover:bg-slate-50 h-12 px-4 shadow transition-all duration-200 active:scale-95 cursor-pointer border border-[#1A5B75]/10"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/>
-                </svg>
-                Ofrecer Mentoría
-              </button>
-            )}
-            {estudiante.busca_financiamiento && (
-              <button 
-                onClick={() => setShowApoyarModal(true)}
-                className="w-full inline-flex justify-center items-center gap-2 rounded-xl text-sm font-bold bg-white text-[#B43B06] hover:bg-slate-50 h-12 px-4 shadow transition-all duration-200 active:scale-95 cursor-pointer border border-[#B43B06]/10"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M4.5 16.5c-1.5 1.25-2.5 3.5-2.5 3.5s2.25-1 3.5-2.5M15 9l-9 9m9-9A6.5 6.5 0 1 0 5.8 4.2L15 9zm0 0l6-6"/>
-                </svg>
-                Apoyar Proyecto
-              </button>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* ── ESTUDIANTES RELACIONADOS ── */}
-      {estudiantesRelacionados.length > 0 && (
-        <div className="mt-12 pt-8 border-t border-slate-200/60">
-          <h2 className="text-2xl font-black text-[#003B4F] mb-1">Otros estudiantes que podrían interesarte</h2>
-          {estudiante.carrera && (
-            <p className="text-sm text-slate-500 mb-6 font-medium">
-              Estudiantes de <strong className="text-[#003B4F] font-bold">{estudiante.carrera}</strong>.
-            </p>
-          )}
-          <GrillaEstudiantes estudiantes={estudiantesRelacionados} />
-        </div>
-      )}
-
-      {/* ── MODAL MENTORÍA ── */}
+      {/*  MODAL MENTORÍA  */}
       {showMentoriaModal && typeof document !== 'undefined' && createPortal(
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-6 md:p-8 w-full max-w-md border border-slate-200/80 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-2xl p-6 md:p-8 w-full max-w-md border border-slate-200 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
             <button 
               onClick={() => setShowMentoriaModal(false)}
               className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors text-2xl font-bold cursor-pointer"
@@ -663,27 +620,27 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
               &times;
             </button>
             <div className="mb-6">
-              <h2 className="text-xl font-black text-[#003B4F] mb-1">Ofrecer Mentoría</h2>
+              <h2 className="text-xl font-black text-slate-900 mb-1">Ofrecer Mentoría</h2>
               <p className="text-xs text-slate-500 font-medium">
-                Has seleccionado ofrecer mentoría a <strong className="text-[#003B4F] font-bold">{estudiante.nombre}</strong>.
+                Has seleccionado ofrecer mentoría a <strong className="text-slate-900 font-bold">{estudiante.nombre}</strong>.
               </p>
             </div>
             
-            <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-4 mb-6 space-y-3.5">
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-6 space-y-3.5">
               <div>
                 <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Carrera</p>
-                <p className="text-xs font-bold text-[#003B4F]">{nd(estudiante.carrera)}</p>
+                <p className="text-xs font-bold text-slate-900">{nd(estudiante.carrera)}</p>
               </div>
               <div>
                 <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Especialización Principal</p>
-                <p className="text-xs font-bold text-[#003B4F]">{especializacion}</p>
+                <p className="text-xs font-bold text-slate-900">{especializacion}</p>
               </div>
               <div>
                 <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Áreas de Interés</p>
                 <div className="flex flex-wrap gap-1.5">
                   {estudiante.areas_de_interes && estudiante.areas_de_interes.length > 0 ? (
                     estudiante.areas_de_interes.map((a, i) => (
-                      <span key={i} className="px-2.5 py-1 rounded-lg border border-slate-200 bg-white text-[#003B4F] text-[10px] font-bold shadow-sm">
+                      <span key={i} className="px-2.5 py-1 rounded-lg border border-slate-200 bg-white text-slate-700 text-[10px] font-bold shadow-sm">
                         {a}
                       </span>
                     ))
@@ -699,16 +656,16 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
             </p>
 
             <div className="border-t border-slate-100 pt-5">
-              <p className="text-[10px] font-black text-[#003B4F] uppercase tracking-wider mb-3">Información de Contacto</p>
+              <p className="text-[10px] font-black text-slate-900 uppercase tracking-wider mb-3">Información de Contacto</p>
               {estudiante.url_linkedin || estudiante.url_portfolio ? (
                 <div className="flex gap-3">
                   {estudiante.url_linkedin && (
-                    <a href={estudiante.url_linkedin} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#0a66c2] text-white text-xs font-bold flex-1 shadow-sm active:scale-95">
+                    <a href={estudiante.url_linkedin} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-xs font-bold flex-1 shadow-sm active:scale-95 transition-colors">
                       LinkedIn
                     </a>
                   )}
                   {estudiante.url_portfolio && (
-                    <a href={estudiante.url_portfolio} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#003B4F] text-white text-xs font-bold flex-1 shadow-sm active:scale-95">
+                    <a href={estudiante.url_portfolio} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-900 hover:bg-slate-50 text-xs font-bold flex-1 shadow-sm active:scale-95 transition-colors">
                       Portafolio
                     </a>
                   )}
@@ -723,7 +680,7 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
             <div className="flex justify-end mt-6 pt-4 border-t border-slate-100">
               <button 
                 onClick={() => setShowMentoriaModal(false)}
-                className="px-4 py-2 rounded-xl border-2 border-slate-200 hover:border-slate-300 text-slate-500 hover:text-slate-700 text-xs font-bold transition-all duration-200 cursor-pointer"
+                className="px-4 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold transition-all duration-200 cursor-pointer"
               >
                 Cerrar
               </button>
@@ -733,10 +690,10 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
         document.body
       )}
 
-      {/* ── MODAL APÓYAR PROYECTO ── */}
+      {/*  MODAL APÓYAR PROYECTO  */}
       {showApoyarModal && typeof document !== 'undefined' && createPortal(
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[9998] flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-6 md:p-8 w-full max-w-md border border-slate-200/80 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-2xl p-6 md:p-8 w-full max-w-md border border-slate-200 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setShowApoyarModal(false)}
               className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors text-2xl font-bold cursor-pointer"
@@ -744,27 +701,27 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
               &times;
             </button>
             <div className="mb-6">
-              <h2 className="text-xl font-black text-[#003B4F] mb-1">Apoyar Proyecto</h2>
+              <h2 className="text-xl font-black text-slate-900 mb-1">Apoyar Proyecto</h2>
               <p className="text-xs text-slate-500 font-medium">
-                Estás a punto de apoyar a <strong className="text-[#003B4F] font-bold">{estudiante.nombre}</strong> en su proyecto.
+                Estás a punto de apoyar a <strong className="text-slate-900 font-bold">{estudiante.nombre}</strong> en su proyecto.
               </p>
             </div>
 
-            <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-4 mb-6 space-y-3.5">
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-6 space-y-3.5">
               <div>
                 <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Carrera</p>
-                <p className="text-xs font-bold text-[#003B4F]">{nd(estudiante.carrera)}</p>
+                <p className="text-xs font-bold text-slate-900">{nd(estudiante.carrera)}</p>
               </div>
               <div>
                 <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Especialización Principal</p>
-                <p className="text-xs font-bold text-[#003B4F]">{especializacion}</p>
+                <p className="text-xs font-bold text-slate-900">{especializacion}</p>
               </div>
               <div>
                 <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Áreas de Interés</p>
                 <div className="flex flex-wrap gap-1.5">
                   {estudiante.areas_de_interes && estudiante.areas_de_interes.length > 0 ? (
                     estudiante.areas_de_interes.map((a, i) => (
-                      <span key={i} className="px-2.5 py-1 rounded-lg border border-slate-200 bg-white text-[#003B4F] text-[10px] font-bold shadow-sm">
+                      <span key={i} className="px-2.5 py-1 rounded-lg border border-slate-200 bg-white text-slate-700 text-[10px] font-bold shadow-sm">
                         {a}
                       </span>
                     ))
@@ -780,16 +737,16 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
             </p>
 
             <div className="border-t border-slate-100 pt-5 mb-6">
-              <p className="text-[10px] font-black text-[#003B4F] uppercase tracking-wider mb-3">Redes de Contacto</p>
+              <p className="text-[10px] font-black text-slate-900 uppercase tracking-wider mb-3">Redes de Contacto</p>
               {estudiante.url_linkedin || estudiante.url_portfolio ? (
                 <div className="flex gap-3">
                   {estudiante.url_linkedin && (
-                    <a href={estudiante.url_linkedin} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#0a66c2] text-white text-xs font-bold flex-1 shadow-sm active:scale-95">
+                    <a href={estudiante.url_linkedin} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-xs font-bold flex-1 shadow-sm active:scale-95 transition-colors">
                       LinkedIn
                     </a>
                   )}
                   {estudiante.url_portfolio && (
-                    <a href={estudiante.url_portfolio} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#E84F26] text-white text-xs font-bold flex-1 shadow-sm active:scale-95">
+                    <a href={estudiante.url_portfolio} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-900 hover:bg-slate-50 text-xs font-bold flex-1 shadow-sm active:scale-95 transition-colors">
                       Portafolio
                     </a>
                   )}
@@ -802,14 +759,14 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
             </div>
 
             <div className="border-t border-slate-100 pt-5 mb-6">
-              <p className="text-[10px] font-black text-[#003B4F] uppercase tracking-wider mb-3">Apoyo Financiero</p>
-              <div className="bg-orange-50 border border-orange-100 rounded-xl p-4 space-y-3">
+              <p className="text-[10px] font-black text-slate-900 uppercase tracking-wider mb-3">Apoyo Financiero</p>
+              <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
                 <p className="text-xs text-slate-600 font-medium">
                   Puedes realizar una donación directa para apoyar la trayectoria de este estudiante a través de la pasarela de pagos.
                 </p>
                 <Link 
                   href={`/donations?proyecto_id=${estudiante.user_id}`}
-                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-[#F34B26] hover:bg-[#C82A08] text-white text-sm font-bold shadow-sm transition-all active:scale-95"
+                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold shadow-sm transition-all active:scale-95"
                 >
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line>
@@ -822,7 +779,7 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
             <div className="flex justify-end pt-4 border-t border-slate-100">
               <button 
                 onClick={() => setShowApoyarModal(false)} 
-                className="px-4 py-2 rounded-xl border-2 border-slate-200 hover:border-slate-300 text-slate-500 hover:text-slate-700 text-xs font-bold transition-all duration-200 cursor-pointer"
+                className="px-4 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold transition-all duration-200 cursor-pointer"
               >
                 Cerrar
               </button>
@@ -847,3 +804,4 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
     </div>
   );
 }
+

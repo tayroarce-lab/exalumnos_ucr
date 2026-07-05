@@ -33,7 +33,7 @@ export default function InteractiveTour() {
       // Paso 1: Bienvenida
       tour.addStep({
         id: 'welcome',
-        title: isStudent ? '🎓 ¡BIENVENIDO AL PORTAL ESTUDIANTE!' : '✨ ¡BIENVENIDO A TU PORTAL ALUMNI!',
+        title: isStudent ? ' ¡BIENVENIDO AL PORTAL ESTUDIANTE!' : ' ¡BIENVENIDO A TU PORTAL ALUMNI!',
         text: isStudent
           ? 'Este es tu portal para buscar empleo, solicitar mentorías y acelerar tu crecimiento profesional con el apoyo de exalumnos.'
           : 'Esta plataforma te permite conectar con estudiantes con beca socioeconómica, ofrecer mentorías, proponer vacantes y mucho más.',
@@ -60,7 +60,7 @@ export default function InteractiveTour() {
           element: '#tour-welcome-banner',
           on: 'bottom'
         },
-        title: '📢 EVENTOS Y ACCIONES CLAVE',
+        title: ' EVENTOS Y ACCIONES CLAVE',
         text: 'Desde este banner principal puedes acceder rápidamente a las vacantes de empleo disponibles y ver convocatorias destacadas.',
         buttons: [
           {
@@ -85,7 +85,7 @@ export default function InteractiveTour() {
           element: '#tour-quick-summary',
           on: 'top'
         },
-        title: isStudent ? '⚡ ACCESOS RÁPIDOS' : '📊 RESUMEN RÁPIDO',
+        title: isStudent ? ' ACCESOS RÁPIDOS' : ' RESUMEN RÁPIDO',
         text: isStudent
           ? 'Aquí tienes acceso directo a tus aplicaciones de empleo, mentorías solicitadas y a la red de contactos.'
           : 'Consulta en tiempo real la cantidad de mentorías, empleos, eventos y fondos de donación activos.',
@@ -112,7 +112,7 @@ export default function InteractiveTour() {
           element: '#tour-upcoming-events',
           on: 'top'
         },
-        title: isStudent ? '🚀 ¿POR DÓNDE EMPEZAR?' : '📅 PRÓXIMOS EVENTOS',
+        title: isStudent ? ' ¿POR DÓNDE EMPEZAR?' : ' PRÓXIMOS EVENTOS',
         text: isStudent
           ? 'Sigue estos pasos numerados para completar tu perfil y postularte a las primeras oportunidades.'
           : 'Descubre los talleres, charlas y ferias de empleo programadas por la comunidad. Inscríbete con un solo clic.',
@@ -139,7 +139,7 @@ export default function InteractiveTour() {
           element: '#tour-nav-inicio',
           on: 'bottom'
         },
-        title: '🏠 INICIO',
+        title: ' INICIO',
         text: 'Regresa al Dashboard principal de tu portal en cualquier momento.',
         buttons: [
           {
@@ -164,7 +164,7 @@ export default function InteractiveTour() {
           element: '#tour-nav-directorios',
           on: 'bottom'
         },
-        title: '👥 DIRECTORIOS',
+        title: ' DIRECTORIOS',
         text: 'Explora y conecta con estudiantes o graduados de la comunidad UCR.',
         buttons: [
           {
@@ -189,7 +189,7 @@ export default function InteractiveTour() {
           element: '#tour-nav-mentorias',
           on: 'bottom'
         },
-        title: '🤝 MENTORÍAS',
+        title: ' MENTORÍAS',
         text: isStudent
           ? 'Solicita acompañamiento profesional de exalumnos experimentados.'
           : 'Regístrate como mentor para guiar a estudiantes activos.',
@@ -216,7 +216,7 @@ export default function InteractiveTour() {
           element: '#tour-nav-matches',
           on: 'bottom'
         },
-        title: '⚡ MATCHES',
+        title: ' MATCHES',
         text: 'Revisa tus conexiones de mentoría aprobadas y activas.',
         buttons: [
           {
@@ -241,7 +241,7 @@ export default function InteractiveTour() {
           element: '#tour-nav-eventos',
           on: 'bottom'
         },
-        title: '📅 EVENTOS',
+        title: ' EVENTOS',
         text: 'Consulta charlas, talleres y ferias programadas.',
         buttons: [
           {
@@ -266,7 +266,7 @@ export default function InteractiveTour() {
           element: '#tour-nav-empleos',
           on: 'bottom'
         },
-        title: '💼 EMPLEOS',
+        title: ' EMPLEOS',
         text: isStudent
           ? 'Explora y postula a oportunidades laborales exclusivas.'
           : 'Publica ofertas de trabajo o pasantías para la comunidad.',
@@ -293,7 +293,7 @@ export default function InteractiveTour() {
           element: '#tour-user-menu',
           on: 'bottom'
         },
-        title: '⚙️ TU PERFIL Y CONFIGURACIÓN',
+        title: ' TU PERFIL Y CONFIGURACIÓN',
         text: 'Administra tu cuenta, actualiza tu hoja de vida/proyecto y repite este tour cuando lo necesites.',
         buttons: [
           {

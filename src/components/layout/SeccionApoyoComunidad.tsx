@@ -138,7 +138,7 @@ export default function SeccionApoyoComunidad() {
                         />
                         <div className="absolute inset-0 flex items-center justify-center bg-black/25 group-hover/video:bg-black/35 transition-colors duration-300">
                           <div className="w-12 h-12 rounded-full bg-[#FF9B18] text-white flex items-center justify-center shadow-lg transition-transform duration-300 group-hover/video:scale-110">
-                            <span className="text-xl ml-1">▶</span>
+                            <span className="text-xl ml-1"></span>
                           </div>
                         </div>
                       </div>
@@ -167,7 +167,7 @@ export default function SeccionApoyoComunidad() {
                     style={{ color: item.colorAcento }}
                   >
                     <span className="hover:underline">{item.textoEnlace}</span>
-                    <span className="transition-transform duration-200 group-hover:translate-x-1">▶</span>
+                    <span className="transition-transform duration-200 group-hover:translate-x-1"></span>
                   </button>
                 ) : (
                   <Link 
@@ -195,7 +195,7 @@ export default function SeccionApoyoComunidad() {
               className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/90 hover:scale-110 hover:rotate-90 transition-all duration-300"
               aria-label="Cerrar video"
             >
-              ✕
+              
             </button>
             
             {/* Contenedor del video HTML5 nativo */}

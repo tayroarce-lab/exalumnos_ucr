@@ -36,7 +36,7 @@ export default function Paginacion({ paginaActual, totalPaginas, onChange }: Pag
         disabled={paginaActual === 1}
         className="px-3.5 py-2 text-sm font-medium rounded-xl border border-white/10 text-white bg-white/10 hover:bg-white/20 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200"
       >
-        ← Anterior
+         Anterior
       </button>
 
       {getVisiblePages().map((pagina) => (
@@ -58,7 +58,7 @@ export default function Paginacion({ paginaActual, totalPaginas, onChange }: Pag
         disabled={paginaActual === totalPaginas}
         className="px-3.5 py-2 text-sm font-medium rounded-xl border border-white/10 text-white bg-white/10 hover:bg-white/20 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200"
       >
-        Siguiente →
+        Siguiente 
       </button>
     </div>
   );

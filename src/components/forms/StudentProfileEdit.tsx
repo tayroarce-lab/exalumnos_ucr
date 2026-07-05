@@ -552,7 +552,7 @@ export default function StudentProfileEdit() {
                   </label>
                   {item.isDisabled && item.reason && (
                     <span className="text-[11px] font-semibold text-rose-500 mt-1 ml-2">
-                      ⚠️ {item.reason}
+                       {item.reason}
                     </span>
                   )}
                 </div>

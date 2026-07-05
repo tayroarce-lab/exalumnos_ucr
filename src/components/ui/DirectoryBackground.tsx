@@ -7,7 +7,7 @@ export default function DirectoryBackground() {
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-      {/* ── Formas de fondo y círculos decorativos ── */}
+      {/*  Formas de fondo y círculos decorativos  */}
       <div className="deco-circulo-grande-bg opacity-30" />
       <div className="deco-circulo-medio-bg opacity-25" />
 
@@ -21,7 +21,7 @@ export default function DirectoryBackground() {
         </svg>
       </div>
 
-      {/* ── Iconos educativos flotantes ── */}
+      {/*  Iconos educativos flotantes  */}
 
       {/* Birrete de graduación — arriba izquierda */}
       <div className="deco-icono deco-gorro-graduacion opacity-40">

@@ -6,7 +6,8 @@ import {
   MapPin, Briefcase, GraduationCap, Mail, Linkedin, Twitter, 
   Instagram, Lock, CheckCircle2, Volume2, Bell, Send, 
   MoreHorizontal, Plus, Check, MessageSquare, ExternalLink, 
-  FileText, Shield, Star, Award, Heart, Sparkles, X, ChevronRight
+  FileText, Shield, Star, Award, Heart, Sparkles, X, ChevronRight,
+  Handshake
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { getAvatarUrl } from '@/lib/utils'
@@ -368,7 +369,7 @@ export default function LinkedInProfileClient({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="border border-slate-100 rounded-lg p-3.5 bg-slate-50/50 flex gap-3">
                 <div className="w-9 h-9 rounded-lg bg-orange-100 flex items-center justify-center shrink-0 text-orange-600 font-bold">
-                  🎓
+                  <GraduationCap className="w-5 h-5" />
                 </div>
                 <div>
                   <h4 className="text-xs font-bold text-slate-800">UCR Alumni Network</h4>
@@ -377,7 +378,7 @@ export default function LinkedInProfileClient({
               </div>
               <div className="border border-slate-100 rounded-lg p-3.5 bg-slate-50/50 flex gap-3">
                 <div className="w-9 h-9 rounded-lg bg-emerald-100 flex items-center justify-center shrink-0 text-emerald-600 font-bold">
-                  🤝
+                  <Handshake className="w-5 h-5" />
                 </div>
                 <div>
                   <h4 className="text-xs font-bold text-slate-800">Apoyo a la Comunidad</h4>
@@ -418,7 +419,7 @@ export default function LinkedInProfileClient({
                 <div className="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-100 px-3.5 py-1.5 rounded-lg">
                   <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Presupuesto Estimado:</span>
                   <span className="text-sm font-black text-emerald-700">
-                    {profile.proyecto_valor_moneda === 'USD' ? '$' : '₡'}
+                    {profile.proyecto_valor_moneda === 'USD' ? '$' : ''}
                     {profile.proyecto_valor_monto.toLocaleString('es-CR')}
                   </span>
                 </div>
@@ -472,13 +473,13 @@ export default function LinkedInProfileClient({
 
                       <button
                         onClick={() => toggleValidateSkill(skill)}
-                        className={`text-xs font-bold px-4 py-1.5 rounded-full transition-all border shrink-0 ${
+                        className={`text-xs font-bold px-4 py-1.5 rounded-full transition-all border shrink-0 flex items-center justify-center gap-1 ${
                           val.userHasValidated 
                             ? 'bg-[#0A66C2] text-white border-[#0A66C2] hover:bg-[#004182]' 
                             : 'border-slate-500 text-slate-600 hover:bg-slate-50'
                         }`}
                       >
-                        {val.userHasValidated ? 'Validado ✓' : 'Validar'}
+                        {val.userHasValidated ? <><CheckCircle2 className="w-3 h-3" /> Validado</> : 'Validar'}
                       </button>
                     </div>
                   )

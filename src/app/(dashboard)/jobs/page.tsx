@@ -267,7 +267,7 @@ export default function JobsPage() {
                   onClick={() => setSelectedSectors(prev => prev.filter(s => s !== sec))}
                   className="bg-slate-100 hover:bg-red-50 hover:text-red-500 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded-full transition-colors"
                 >
-                  {sec} ✕
+                  {sec} 
                 </button>
               ))}
             </div>
@@ -324,7 +324,7 @@ export default function JobsPage() {
                       </div>
                       <Link href={`/jobs/${job.id}`}>
                         <span className="text-xs font-bold text-[#F34B26] hover:text-[#C82A08] transition-colors uppercase tracking-wider cursor-pointer">
-                          Ver Detalles →
+                          Ver Detalles 
                         </span>
                       </Link>
                     </div>

@@ -16,7 +16,7 @@ import {
 import ProyectoDonacionesProgreso from '@/components/ProyectoDonacionesProgreso'
 import { getProyectoFileUrl } from '@/lib/utils'
 
-/* ─────────── Floating Accessibility Panel ─────────── */
+/*  Floating Accessibility Panel  */
 function AccessibilityPanel() {
   const [open, setOpen] = useState(false)
   const [fontSize, setFontSize] = useState<'normal' | 'large' | 'xl'>('normal')
@@ -109,7 +109,7 @@ function AccessibilityPanel() {
   )
 }
 
-/* ─────────── Animated Counter ─────────── */
+/*  Animated Counter  */
 function AnimatedNumber({ value, prefix = '', suffix = '' }: { value: number; prefix?: string; suffix?: string }) {
   const [display, setDisplay] = useState(0)
   const ref = useRef<HTMLSpanElement>(null)
@@ -130,7 +130,7 @@ function AnimatedNumber({ value, prefix = '', suffix = '' }: { value: number; pr
   return <span ref={ref}>{prefix}{display.toLocaleString()}{suffix}</span>
 }
 
-/* ─────────── Utils ─────────── */
+/*  Utils  */
 function parseEventDate(dateString: string) {
   if (!dateString) return { day: '00', month: '---' }
   try {
@@ -145,7 +145,7 @@ function parseEventDate(dateString: string) {
   }
 }
 
-/* ─────────── Main Dashboard ─────────── */
+/*  Main Dashboard  */
 export default function DashboardPage() {
   const { user, profile } = useProfile()
   const userName = profile?.full_name || user?.user_metadata?.full_name || 'Exalumno'
@@ -184,17 +184,19 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-[#FAF6F1]">
       <AccessibilityPanel />
 
-      {/* ─── HERO ─── */}
-      <section className="relative bg-[#FAF6F1] min-h-[380px] md:min-h-[420px] flex items-center overflow-hidden -ml-4 -mr-4 -mt-4 sm:-ml-6 sm:-mr-6 sm:-mt-6 lg:-ml-8 lg:-mr-8 lg:-mt-8 mb-8">
+      {/*  HERO  */}
+      <section className="relative bg-[#001f2b] min-h-[380px] md:min-h-[420px] flex items-center overflow-hidden -ml-4 -mr-4 -mt-4 sm:-ml-6 sm:-mr-6 sm:-mt-6 lg:-ml-8 lg:-mr-8 lg:-mt-8 mb-8">
         {/* Exact pre-rendered banner image covering the ENTIRE background from left to right */}
         <div className="absolute inset-0 z-0 select-none pointer-events-none">
           <Image
             src={heroBannerImg}
             alt="Hero Illustration UCR"
             fill
-            className="object-cover object-right md:object-center"
+            className="object-cover object-right md:object-center opacity-80"
             priority
           />
+          {/* Gradient Overlay for Readability */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#00151d] via-[#00151d]/70 to-transparent" />
         </div>
 
         {/* Content Area */}
@@ -202,21 +204,21 @@ export default function DashboardPage() {
 
           {/* Left Text Block */}
           <div className="md:col-span-7 space-y-6 py-6">
-            <h1 className="text-4xl md:text-5xl font-black text-slate-800 leading-[1.1] tracking-tight font-display">
+            <h1 className="text-4xl md:text-5xl font-black text-white leading-[1.1] tracking-tight font-display drop-shadow-md">
               Conecta, Participa y<br />
-              Transforma
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-300">Transforma</span>
             </h1>
-            <p className="text-slate-600 text-sm md:text-base leading-relaxed max-w-lg font-medium font-sans">
+            <p className="text-slate-300 text-sm md:text-base leading-relaxed max-w-lg font-medium font-sans">
               Como exalumno de la UCR, tu legado continúa. Sé mentor de nuevas generaciones, apoya proyectos de investigación o revive momentos en nuestros eventos exclusivos.
             </p>
             <div className="flex items-center gap-4 flex-wrap pt-2">
               <Link href="/donations">
-                <button className="bg-[#E65C00] hover:bg-[#cc5200] text-white font-bold px-8 py-3.5 rounded-2xl transition-all shadow-md active:scale-95 text-sm">
+                <button className="bg-[#E65C00] hover:bg-[#cc5200] text-white font-bold px-8 py-3.5 rounded-2xl transition-all shadow-lg shadow-[#E65C00]/20 active:scale-95 text-sm border border-transparent">
                   Donar Ahora
                 </button>
               </Link>
               <Link href="/mentorships">
-                <button className="border-2 border-[#E65C00]/80 text-[#E65C00] hover:bg-[#E65C00]/5 font-bold px-8 py-3.5 rounded-2xl transition-all active:scale-95 text-sm">
+                <button className="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white font-bold px-8 py-3.5 rounded-2xl transition-all active:scale-95 text-sm">
                   Ser Voluntario
                 </button>
               </Link>
@@ -229,7 +231,7 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      {/* ─── METRIC CARDS ─── */}
+      {/*  METRIC CARDS  */}
       <section className="px-6 lg:px-16 py-12">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
 
@@ -294,7 +296,7 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      {/* ─── CONEXIONES RECOMENDADAS ─── */}
+      {/*  CONEXIONES RECOMENDADAS  */}
       <section className="px-6 lg:px-16 py-8">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between mb-6">
@@ -344,7 +346,7 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      {/* ─── PRÓXIMOS EVENTOS ─── */}
+      {/*  PRÓXIMOS EVENTOS  */}
       <section className="px-6 lg:px-16 py-4">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between mb-6">
@@ -393,7 +395,7 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      {/* ─── ACTUALIDAD UNIVERSITARIA ─── */}
+      {/*  ACTUALIDAD UNIVERSITARIA  */}
       <section className="px-6 lg:px-16 py-12">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-2xl font-black text-slate-900 mb-6">Actualidad Universitaria</h2>

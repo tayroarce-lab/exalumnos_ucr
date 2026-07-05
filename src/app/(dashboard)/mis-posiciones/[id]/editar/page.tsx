@@ -447,7 +447,7 @@ export default function EditJobPage() {
                             : 'bg-white text-slate-600 border-slate-200 hover:border-brand-blue hover:text-brand-blue'
                         }`}
                       >
-                        {isSelected && <span className="mr-1">✓</span>}
+                        {isSelected && <span className="mr-1"></span>}
                         {sector}
                       </button>
                     )

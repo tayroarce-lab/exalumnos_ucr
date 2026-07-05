@@ -146,7 +146,7 @@ export default function ModalOfrecerApoyo({
           </h2>
           {tituloProyecto && (
             <p className="text-white/60 text-xs font-medium mt-1 line-clamp-1">
-              📘 {tituloProyecto}
+               {tituloProyecto}
             </p>
           )}
         </div>

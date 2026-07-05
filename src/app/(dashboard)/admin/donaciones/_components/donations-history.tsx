@@ -82,7 +82,7 @@ export function DonationsHistory({ donations, onFilterChange }: DonationsHistory
       <div className="donations-totals">
         <div className="donations-total-card">
           <span className="donations-total-label">Total Confirmado (CRC)</span>
-          <span className="donations-total-value">₡ {totals.crc.toLocaleString('es-CR')}</span>
+          <span className="donations-total-value"> {totals.crc.toLocaleString('es-CR')}</span>
         </div>
         <div className="donations-total-card">
           <span className="donations-total-label">Total Confirmado (USD)</span>

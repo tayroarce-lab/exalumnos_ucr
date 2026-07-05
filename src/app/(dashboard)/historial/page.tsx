@@ -28,7 +28,7 @@ interface Donacion {
 // Removemos mapFondoIdToName ya que viene pre-formateado del Server Action
 
 function formatCurrency(val: number, moneda: 'CRC' | 'USD') {
-  if (moneda === 'CRC') return `₡${val.toLocaleString('es-CR')}`
+  if (moneda === 'CRC') return `${val.toLocaleString('es-CR')}`
   return `$${val.toLocaleString('en-US', { minimumFractionDigits: 2 })}`
 }
 
@@ -54,7 +54,7 @@ function EstadoBadge({ estado }: { estado: EstadoDonacion }) {
 
 function DonacionCard({ d, isStudent }: { d: Donacion, isStudent?: boolean }) {
   const [open, setOpen] = useState(false)
-  const metodoLabel = d.metodo === 'sinpe' ? '📱 SINPE Móvil' : '🏦 Transferencia Bancaria'
+  const metodoLabel = d.metodo === 'sinpe' ? ' SINPE Móvil' : ' Transferencia Bancaria'
 
   return (
     <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
@@ -117,7 +117,7 @@ function DonacionCard({ d, isStudent }: { d: Donacion, isStudent?: boolean }) {
               {!isStudent && (
                 <Link href="/donations">
                   <Button variant="primary" className="mt-2 bg-rose-600 hover:bg-rose-700 text-xs font-bold uppercase tracking-wider px-4 py-2">
-                    Reintentar donación →
+                    Reintentar donación 
                   </Button>
                 </Link>
               )}

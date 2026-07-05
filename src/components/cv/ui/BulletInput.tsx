@@ -47,7 +47,7 @@ export function BulletInput({ value, onChange, onRemove, placeholder, disabled }
         });
       } else {
         toast({
-          title: '✨ Viñeta mejorada',
+          title: ' Viñeta mejorada',
           description: 'El texto ha sido optimizado para ATS.',
         });
       }

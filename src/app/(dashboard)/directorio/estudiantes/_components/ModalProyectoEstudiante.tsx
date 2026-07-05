@@ -135,7 +135,7 @@ export default function ModalProyectoEstudiante({ estudiante, onClose, onOfrecer
           {/* Beneficios para patrocinadores */}
           {estudiante.proyecto_beneficios && (
             <div className="bg-amber-50/50 p-5 rounded-2xl border border-amber-100 space-y-3">
-              <h5 className="text-xs font-bold text-amber-700 uppercase tracking-wider">🎁 Beneficios para Patrocinadores</h5>
+              <h5 className="text-xs font-bold text-amber-700 uppercase tracking-wider"> Beneficios para Patrocinadores</h5>
               <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">
                 {estudiante.proyecto_beneficios}
               </p>
@@ -178,22 +178,22 @@ export default function ModalProyectoEstudiante({ estudiante, onClose, onOfrecer
               <div className="flex flex-wrap gap-2">
                 {estudiante.busca_financiamiento && (
                   <span className="bg-emerald-100 text-emerald-800 text-xs font-semibold px-2.5 py-1 rounded-lg flex items-center gap-1">
-                    💰 Apoyo Económico
+                    Apoyo Económico
                   </span>
                 )}
                 {estudiante.busca_mentoria && (
                   <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-1 rounded-lg flex items-center gap-1">
-                    🎓 Mentoría Técnica
+                    Mentoría Técnica
                   </span>
                 )}
                 {estudiante.busca_empleo && (
                   <span className="bg-orange-100 text-orange-800 text-xs font-semibold px-2.5 py-1 rounded-lg flex items-center gap-1">
-                    💼 Empleo
+                    Empleo
                   </span>
                 )}
                 {estudiante.busca_pasantia && (
                   <span className="bg-violet-100 text-violet-800 text-xs font-semibold px-2.5 py-1 rounded-lg flex items-center gap-1">
-                    👜 Pasantía
+                    Pasantía
                   </span>
                 )}
               </div>
@@ -253,7 +253,7 @@ export default function ModalProyectoEstudiante({ estudiante, onClose, onOfrecer
               onClick={onOfrecerApoyo}
               className="flex-1 py-3 rounded-xl bg-[#003B4F] hover:bg-[#1A5B75] text-white text-xs font-bold shadow-md transition-all active:scale-95 cursor-pointer"
             >
-              Ofrecer Apoyo →
+              Ofrecer Apoyo
             </button>
           )}
           {!onOfrecerApoyo && estudiante.busca_financiamiento && (
@@ -261,7 +261,7 @@ export default function ModalProyectoEstudiante({ estudiante, onClose, onOfrecer
               href={`/donations?proyecto_id=${estudiante.user_id}`}
               className="flex-1 text-center py-3 rounded-xl bg-[#F34B26] hover:bg-[#C82A08] text-white text-xs font-bold shadow-md transition-all active:scale-95"
             >
-              💰 Apoyar Económicamente →
+              Apoyar Económicamente
             </Link>
           )}
         </div>

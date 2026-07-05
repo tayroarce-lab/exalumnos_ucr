@@ -6,6 +6,7 @@
   position: relative;
   overflow: hidden;
   padding: 2rem;
+  background-color: #F7F9FB;
 }
 
 .register-container {
@@ -22,7 +23,7 @@
 
 .register-left {
   flex: 1;
-  background: linear-gradient(160deg, #54BCEB 0%, #0284C7 100%);
+  background-color: #004C63;
   color: #ffffff;
   padding: 3rem;
   display: flex;
@@ -30,29 +31,6 @@
   justify-content: space-between;
   position: relative;
   overflow: hidden;
-}
-
-/* Abstract circles for background decoration */
-.register-left::before, .register-left::after {
-  content: '';
-  position: absolute;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.register-left::before {
-  width: 400px;
-  height: 400px;
-  top: -100px;
-  left: -100px;
-}
-
-.register-left::after {
-  width: 500px;
-  height: 500px;
-  bottom: -150px;
-  right: -150px;
 }
 
 .register-brand {

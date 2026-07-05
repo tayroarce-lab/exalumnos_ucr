@@ -265,7 +265,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
 
   return (
     <>
-      {/* ───────────────────── BARRA PRINCIPAL ───────────────────── */}
+      {/*  BARRA PRINCIPAL  */}
       <header className={`h-20 w-full ${config.bgClass} flex items-center justify-between px-4 lg:px-8 shrink-0 transition-all duration-300 backdrop-blur-sm z-30 relative`}>
 
         {/* Logo */}
@@ -455,7 +455,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
         </div>
       </header>
 
-      {/* ───────────────────── DRAWER MÓVIL ───────────────────── */}
+      {/*  DRAWER MÓVIL  */}
       {/* Overlay oscuro */}
       {isMobileMenuOpen && (
         <div

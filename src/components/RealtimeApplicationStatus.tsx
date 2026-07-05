@@ -122,7 +122,7 @@ export default function RealtimeApplicationStatus() {
                 href={`/jobs`}
                 className="inline-block mt-2 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline"
               >
-                Ver mis aplicaciones →
+                Ver mis aplicaciones 
               </a>
             </div>
 

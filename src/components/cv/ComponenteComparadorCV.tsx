@@ -183,7 +183,7 @@ export default function ComponenteComparadorCV({ posicionId, posicionDetalle, cv
                 )}
 
                 <div className="bg-yellow-50 text-yellow-800 text-xs p-2 rounded border border-yellow-100 mb-3 italic">
-                  💡 {sug.justificacionReclutador}
+                   {sug.justificacionReclutador}
                 </div>
 
                 {!estado && !isEditing[uniqueId] && (

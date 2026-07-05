@@ -116,7 +116,6 @@ body {
   min-height: 100vh;
 }
 
-/* Layout split: 50% izquierda celeste /* ── CONTENEDOR PRINCIPAL ── */
 .seccion-hero-split {
   display: flex;
   min-height: 100vh;
@@ -124,31 +123,6 @@ body {
   position: relative;
   background: linear-gradient(135deg, #0284C7 25%, #F34B26 75%) fixed;
   overflow: hidden;
-}
-
-/* Círculos decorativos del fondo */
-.seccion-hero-split::before,
-.seccion-hero-split::after {
-  content: '';
-  position: absolute;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  pointer-events: none;
-}
-
-.seccion-hero-split::before {
-  width: 500px;
-  height: 500px;
-  top: -150px;
-  left: -100px;
-}
-
-.seccion-hero-split::after {
-  width: 600px;
-  height: 600px;
-  bottom: -200px;
-  right: -150px;
 }
 
 /* ── LADO IZQUIERDO ── */
@@ -166,7 +140,7 @@ body {
 .auth-bg-fixed {
   position: absolute;
   inset: 0;
-  background-color: #FDECC8;
+  background-color: #F7F9FB;
   overflow: hidden;
   z-index: 0;
 }
@@ -179,7 +153,7 @@ body {
   width: 290px;
   height: 290px;
   border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.11);
+  border: 2px solid rgba(255, 255, 255, 0.12);
   pointer-events: none;
   animation: rotar-lento 36s linear infinite;
 }
@@ -192,7 +166,7 @@ body {
   right: 28px;
   bottom: 28px;
   border-radius: 50%;
-  border: 1.5px solid rgba(255, 255, 255, 0.06);
+  border: 1.5px solid rgba(255, 255, 255, 0.08);
 }
 
 /* Círculo medio — zona media */
@@ -203,7 +177,7 @@ body {
   width: 120px;
   height: 120px;
   border-radius: 50%;
-  border: 1.5px solid rgba(255, 255, 255, 0.08);
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
   pointer-events: none;
   animation: rotar-inverso 22s linear infinite;
 }
@@ -301,7 +275,7 @@ body {
   right: 28%;
   width: 78px;
   height: 78px;
-  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.38) 2px, transparent 2px);
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.25) 2px, transparent 2px);
   background-size: 15px 15px;
   pointer-events: none;
   z-index: 0;
@@ -316,7 +290,7 @@ body {
   right: 30%;
   width: 65px;
   height: 65px;
-  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.26) 2px, transparent 2px);
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.2) 2px, transparent 2px);
   background-size: 13px 13px;
   pointer-events: none;
   z-index: 0;
@@ -364,7 +338,7 @@ body {
 .hero-descripcion-split {
   font-family: var(--fuente-principal);
   font-size: 1.25rem;
-  color: rgba(255, 255, 255, 0.95);
+  color: #F8FAFC;
   line-height: 1.65;
   max-width: 480px;
   margin-bottom: 2rem;
@@ -479,7 +453,7 @@ body {
 .imagen-girasol-animada {
   -webkit-mask-image: conic-gradient(black var(--sweep-angle), transparent var(--sweep-angle));
   mask-image: conic-gradient(black var(--sweep-angle), transparent var(--sweep-angle));
-  animation: none;
+  animation: sweep-angle-anim 2.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   opacity: 1;
 }
 
@@ -495,7 +469,13 @@ body {
     rgba(255, 255, 255, 1) var(--sweep-angle),
     transparent var(--sweep-angle)
   );
-  animation: none;
+  animation: sweep-angle-anim 2.4s cubic-bezier(0.22, 1, 0.36, 1) forwards,
+             luz-fade-out 0.5s ease-out 2.2s forwards;
+}
+
+@keyframes luz-fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
 }
 
 @keyframes anim-fade-out {
@@ -520,39 +500,39 @@ body {
 /* ── KEYFRAMES ANIMACIONES LOOP (decoraciones) ── */
 @keyframes flotar-deco {
   0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
 }
 
 @keyframes flotar-deco-2 {
   0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
 }
 
 @keyframes flotar-deco-3 {
   0%, 100% { transform: translate(0, 0); }
-  33% { transform: translate(0, 0); }
-  66% { transform: translate(0, 0); }
+  33% { transform: translate(4px, -7px); }
+  66% { transform: translate(-3px, -5px); }
 }
 
 @keyframes mover-deco {
   0%, 100% { transform: translate(0, 0) rotate(0deg); }
-  25% { transform: translate(0, 0) rotate(0deg); }
-  75% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(4px, -6px) rotate(4deg); }
+  75% { transform: translate(-3px, -8px) rotate(-3deg); }
 }
 
 @keyframes rotar-lento {
   from { transform: rotate(0deg); }
-  to { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 @keyframes rotar-inverso {
   from { transform: rotate(0deg); }
-  to { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
 }
 
 @keyframes pulsar-deco {
   0%, 100% { transform: scale(1); opacity: 0.65; }
-  50% { transform: scale(1); opacity: 0.65; }
+  50% { transform: scale(1.15); opacity: 1; }
 }
 
 @keyframes parpadear-deco {
@@ -609,18 +589,16 @@ body {
 /* Hover específico para Facebook y LinkedIn (Celeste) y Instagram y YouTube (Amarillo) */
 .footer-red-icono[aria-label="Facebook"]:hover,
 .footer-red-icono[aria-label="LinkedIn"]:hover {
-  background: rgba(84, 188, 235, 0.15);
+  background: rgba(84, 188, 235, 0.12);
   color: #54BCEB;
-  border-color: #54BCEB;
-  transform: translateY(-4px) scale(1.05);
+  border-color: rgba(84, 188, 235, 0.4);
 }
 
 .footer-red-icono[aria-label="Instagram"]:hover,
 .footer-red-icono[aria-label="YouTube"]:hover {
-  background: rgba(255, 155, 24, 0.15);
+  background: rgba(255, 155, 24, 0.12);
   color: #FF9B18;
-  border-color: #FF9B18;
-  transform: translateY(-4px) scale(1.05);
+  border-color: rgba(255, 155, 24, 0.4);
 }
 
 .footer-titulo-col {

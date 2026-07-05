@@ -61,14 +61,14 @@ export default async function PerfilEstudiantePage({ params }: { params: { id: s
       {/* Fondo alegre decorado */}
       <DirectoryBackground />
 
-      <div className="max-w-xl mx-auto space-y-0 relative z-10">
+      <div className="max-w-7xl mx-auto space-y-0 relative z-10">
         {/* Breadcrumb */}
         <div className="mb-6">
           <Link
             href="/directorio/estudiantes"
             className="inline-flex items-center text-sm font-bold text-[#1F8BB6] hover:text-[#003B4F] transition-colors"
           >
-            ← Volver a Directorio
+             Volver a Directorio
           </Link>
         </div>
 
