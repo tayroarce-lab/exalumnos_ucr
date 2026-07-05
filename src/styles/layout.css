@@ -121,7 +121,7 @@ body {
   min-height: 100vh;
   width: 100%;
   position: relative;
-  background-color: #004C63;
+  background-color: #F7F9FB;
   overflow: hidden;
 }
 
@@ -140,7 +140,7 @@ body {
 .auth-bg-fixed {
   position: absolute;
   inset: 0;
-  background-color: #FDECC8;
+  background-color: #F7F9FB;
   overflow: hidden;
   z-index: 0;
 }
@@ -325,7 +325,7 @@ body {
   font-family: var(--fuente-titulo);
   font-size: 2.5rem;
   font-weight: 800;
-  color: #FFFFFF;
+  color: #003B4F;
   line-height: 1.15;
   margin-top: auto;
   margin-bottom: 1.25rem;
@@ -338,7 +338,7 @@ body {
 .hero-descripcion-split {
   font-family: var(--fuente-principal);
   font-size: 1.25rem;
-  color: rgba(255, 255, 255, 0.95);
+  color: #4A5568;
   line-height: 1.65;
   max-width: 480px;
   margin-bottom: 2rem;
