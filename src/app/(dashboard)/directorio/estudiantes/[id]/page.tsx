@@ -68,7 +68,7 @@ export default async function PerfilEstudiantePage({ params }: { params: { id: s
             href="/directorio/estudiantes"
             className="inline-flex items-center text-sm font-bold text-[#1F8BB6] hover:text-[#003B4F] transition-colors"
           >
-            ← Volver a Directorio
+             Volver a Directorio
           </Link>
         </div>
 

@@ -814,7 +814,7 @@ export default function StudentOnboardingForm({
                     </label>
                     {formData.proyecto_foto_url ? (
                       <div className="flex items-center justify-between p-3 bg-emerald-50 border border-emerald-100 rounded-xl text-emerald-800 text-xs font-medium gap-2 max-w-full overflow-hidden shrink-0">
-                        <span className="truncate">🖼️ Imagen del proyecto subida</span>
+                        <span className="truncate"> Imagen del proyecto subida</span>
                         <button type="button" onClick={() => setFormData(p => ({ ...p, proyecto_foto_url: '' }))} className="text-rose-500 hover:text-rose-700 font-bold ml-2">Remover</button>
                       </div>
                     ) : (
@@ -841,7 +841,7 @@ export default function StudentOnboardingForm({
                     </label>
                     {formData.proyecto_documento_url ? (
                       <div className="flex items-center justify-between p-3 bg-emerald-50 border border-emerald-100 rounded-xl text-emerald-800 text-xs font-medium gap-2 max-w-full overflow-hidden shrink-0">
-                        <span className="truncate">📄 {formData.proyecto_documento_url.split('/').pop()}</span>
+                        <span className="truncate"> {formData.proyecto_documento_url.split('/').pop()}</span>
                         <button type="button" onClick={() => setFormData(p => ({ ...p, proyecto_documento_url: '' }))} className="text-rose-500 hover:text-rose-700 font-bold ml-2">Remover</button>
                       </div>
                     ) : (
@@ -1002,7 +1002,7 @@ export default function StudentOnboardingForm({
                   </label>
                   {item.isDisabled && item.reason && (
                     <span className="text-[11px] font-semibold text-rose-500 mt-1 ml-2">
-                      ⚠️ {item.reason}
+                       {item.reason}
                     </span>
                   )}
                 </div>

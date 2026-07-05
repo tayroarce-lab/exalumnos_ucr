@@ -91,22 +91,22 @@ export default function TarjetaEstudiante({ estudiante }: { estudiante: Estudian
             <div className="flex flex-wrap gap-1.5 mt-2">
               {estudiante.busca_financiamiento && (
                 <span className="bg-emerald-50 text-emerald-700 text-[9px] font-bold px-2 py-0.5 rounded-lg border border-emerald-100 flex items-center gap-0.5" title="Apoyo Económico">
-                  💰 Económico
+                   Económico
                 </span>
               )}
               {estudiante.busca_mentoria && (
                 <span className="bg-blue-50 text-blue-700 text-[9px] font-bold px-2 py-0.5 rounded-lg border border-blue-100 flex items-center gap-0.5" title="Mentoría">
-                  🎓 Mentoría
+                   Mentoría
                 </span>
               )}
               {estudiante.busca_empleo && (
                 <span className="bg-orange-50 text-orange-700 text-[9px] font-bold px-2 py-0.5 rounded-lg border border-orange-100 flex items-center gap-0.5" title="Empleo">
-                  💼 Empleo
+                   Empleo
                 </span>
               )}
               {estudiante.busca_pasantia && (
                 <span className="bg-violet-50 text-violet-700 text-[9px] font-bold px-2 py-0.5 rounded-lg border border-violet-100 flex items-center gap-0.5" title="Pasantía">
-                  👜 Pasantía
+                   Pasantía
                 </span>
               )}
             </div>

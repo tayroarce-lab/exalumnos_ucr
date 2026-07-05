@@ -105,7 +105,7 @@ export default async function GiveBackPage() {
                   </div>
                   <Link href={`/give-back/${opp.id}`}>
                     <span className="block text-center text-xs font-bold text-blue-700 hover:text-blue-900 transition-colors uppercase tracking-wider pt-2 cursor-pointer">
-                      Ver Detalles →
+                      Ver Detalles 
                     </span>
                   </Link>
                 </div>

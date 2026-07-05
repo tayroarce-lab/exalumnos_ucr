@@ -72,7 +72,7 @@ export async function getDashboardMetrics() {
   try {
     const { adminClient } = await getAuthenticatedAdmin();
 
-    // 1. Donaciones confirmadas → totales CRC / USD y proyectos con donación
+    // 1. Donaciones confirmadas  totales CRC / USD y proyectos con donación
     const { data: donaciones } = await adminClient
       .from('donations')
       .select('monto, moneda, proyecto_id').is('deleted_at', null)

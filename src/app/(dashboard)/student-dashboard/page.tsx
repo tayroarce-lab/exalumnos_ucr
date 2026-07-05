@@ -16,7 +16,7 @@ import {
 import { useProfile } from '@/contexts/ProfileContext'
 import { createClient } from '@/lib/supabase/client'
 
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Utils â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* â”â”â”â”â”â”â”â”â”â”â” Utils â”â”â”â”â”â”â”â”â”â”â” */
 function parseEventDateStr(dateString: string) {
   if (!dateString) return '---'
   try {
@@ -123,7 +123,7 @@ export default function StudentDashboardPage() {
       <div className="max-w-5xl mx-auto px-6 lg:px-8 py-6 space-y-12">
 
         {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-            HERO BANNER â€” Mascota + CTA (NO TOCAR)
+            HERO BANNER â” Mascota + CTA (NO TOCAR)
         â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         <section className="relative rounded-2xl overflow-hidden min-h-[340px] md:min-h-[400px]" style={{ backgroundColor: '#E8F4FD' }}>
           {/* Mascot image */}
@@ -175,7 +175,7 @@ export default function StudentDashboardPage() {
         </section>
 
         {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-            ACCESO RÃPIDO â€” 3 tarjetas con borde celeste al seleccionar
+            ACCESO RÃPIDO â” 3 tarjetas con borde celeste al seleccionar
         â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         <section className="space-y-6">
           <h2
@@ -245,7 +245,7 @@ export default function StudentDashboardPage() {
         </section>
 
         {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-            TU PROGRESO â€” EstadÃ­sticas reales + NotificaciÃ³n real
+            TU PROGRESO â” EstadÃ­sticas reales + NotificaciÃ³n real
         â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         <section className="space-y-6">
           <h2
@@ -309,7 +309,7 @@ export default function StudentDashboardPage() {
                 </Link>
               </div>
 
-              {/* Notification bar â€” real o estado vacÃ­o */}
+              {/* Notification bar â” real o estado vacÃ­o */}
               {loadingStats ? (
                 <div className="rounded-xl px-5 py-4 bg-slate-100 animate-pulse h-14" />
               ) : ultimaNotificacion ? (
@@ -350,7 +350,7 @@ export default function StudentDashboardPage() {
         </section>
 
         {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-            EVENTOS PRÃ“XIMOS â€” 3 tarjetas con imÃ¡genes
+            EVENTOS PRÃ“XIMOS â” 3 tarjetas con imÃ¡genes
         â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         <section className="space-y-6 pb-10">
           {/* Header row */}

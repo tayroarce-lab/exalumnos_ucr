@@ -15,7 +15,7 @@ import { TarjetaEstudiante, type EstudiantePublico } from './StudentCard';
 import { AREAS_INTERES } from '@/constants/interestAreas';
 import { SEDES_UCR } from '@/constants/ucrAcademicData';
 
-// ─── CATÁLOGOS LOCALES ──────────────────────────────────────────────────────
+//  CATÁLOGOS LOCALES 
 
 const CARRERAS_UCR = [
   'Ingeniería Informática', 'Ingeniería Industrial', 'Medicina',
@@ -33,7 +33,7 @@ const TIPOS_APOYO = [
   'Pasantía'
 ];
 
-// ─── ESTADO DE FILTROS ───────────────────────────────────────────────────────
+//  ESTADO DE FILTROS 
 
 interface EstadoFiltros {
   busqueda: string;
@@ -50,7 +50,7 @@ const FILTROS_VACIOS: EstadoFiltros = {
   areasInteres: [], tiposApoyo: [], tipoProyecto: '', sede: '',
 };
 
-// ─── SUB-COMPONENTE: SelectorMultiple ────────────────────────────────────────
+//  SUB-COMPONENTE: SelectorMultiple 
 
 interface PropsSelectorMultiple {
   id: string;
@@ -125,7 +125,7 @@ function SelectorMultiple({ id, etiqueta, opciones, seleccionados, alCambiar }: 
   );
 }
 
-// ─── COMPONENTE PRINCIPAL ────────────────────────────────────────────────────
+//  COMPONENTE PRINCIPAL 
 
 // [VERDE - FUNCION: DirectorioEstudiantes]
 // Vista principal del directorio público de proyectos estudiantiles UCR.
@@ -270,7 +270,7 @@ export default function DirectorioEstudiantes() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
-      {/* ── ENCABEZADO ── */}
+      {/*  ENCABEZADO  */}
       <div className="border-b border-slate-800 bg-slate-900/60 backdrop-blur-sm sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -292,7 +292,7 @@ export default function DirectorioEstudiantes() {
 
       <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
 
-        {/* ── BARRA DE BÚSQUEDA RÁPIDA ── */}
+        {/*  BARRA DE BÚSQUEDA RÁPIDA  */}
         <div className="flex flex-col sm:flex-row gap-3 relative">
           <div className="relative flex-1">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
@@ -319,7 +319,7 @@ export default function DirectorioEstudiantes() {
           </button>
         </div>
 
-        {/* ── PANEL DE FILTROS ── */}
+        {/*  PANEL DE FILTROS  */}
         <div className={`bg-slate-900/50 border border-slate-800 rounded-2xl p-4 sm:block ${mostrarFiltros ? 'block' : 'hidden'}`}>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3">
             <div className="flex items-center gap-2">
@@ -435,7 +435,7 @@ export default function DirectorioEstudiantes() {
           </div>
         </div>
 
-        {/* ── CUADRÍCULA DE TARJETAS ── */}
+        {/*  CUADRÍCULA DE TARJETAS  */}
         {cargando ? (
           <div className="flex flex-col items-center justify-center py-24 gap-4">
             <div className="w-10 h-10 border-4 border-slate-700 border-t-blue-500 rounded-full animate-spin"></div>

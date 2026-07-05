@@ -38,7 +38,7 @@ function mapFondoIdToName(id: string) {
 // HELPERS
 // ============================================================
 function formatCurrency(val: number, moneda: 'CRC' | 'USD') {
-  if (moneda === 'CRC') return `₡${val.toLocaleString('es-CR')}`
+  if (moneda === 'CRC') return `${val.toLocaleString('es-CR')}`
   return `$${val.toLocaleString('en-US', { minimumFractionDigits: 2 })}`
 }
 
@@ -70,7 +70,7 @@ function EstadoBadge({ estado }: { estado: EstadoDonacion }) {
 // ============================================================
 function DonacionCard({ d }: { d: Donacion }) {
   const [open, setOpen] = useState(false)
-  const metodoLabel = d.metodo === 'sinpe' ? '📱 SINPE Móvil' : '🏦 Transferencia Bancaria'
+  const metodoLabel = d.metodo === 'sinpe' ? ' SINPE Móvil' : ' Transferencia Bancaria'
 
   return (
     <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
@@ -132,7 +132,7 @@ function DonacionCard({ d }: { d: Donacion }) {
               <p className="text-xs text-rose-700 font-medium">{d.motivo_rechazo}</p>
               <Link href="/donations">
                 <Button variant="primary" className="mt-2 bg-rose-600 hover:bg-rose-700 text-xs font-bold uppercase tracking-wider px-4 py-2">
-                  Reintentar donación →
+                  Reintentar donación 
                 </Button>
               </Link>
             </div>
@@ -217,7 +217,7 @@ export default function DonationsHistoryPage() {
             { label: 'Aceptadas', value: totales.confirmadas, color: 'text-emerald-700', bg: 'bg-emerald-50', border: 'border-emerald-200' },
             { label: 'En espera', value: totales.pendientes, color: 'text-amber-700', bg: 'bg-amber-50', border: 'border-amber-200' },
             { label: 'Rechazadas', value: totales.rechazadas, color: 'text-rose-700', bg: 'bg-rose-50', border: 'border-rose-200' },
-            { label: 'Total aportado', value: `₡${totales.totalCRC.toLocaleString()}`, color: 'text-blue-700', bg: 'bg-blue-50', border: 'border-blue-200' },
+            { label: 'Total aportado', value: `${totales.totalCRC.toLocaleString()}`, color: 'text-blue-700', bg: 'bg-blue-50', border: 'border-blue-200' },
           ].map(({ label, value, color, bg, border }) => (
             <div key={label} className={`${bg} ${border} border rounded-2xl p-4 text-center space-y-1`}>
               <p className={`text-xl font-black ${color}`}>{value}</p>
@@ -230,9 +230,9 @@ export default function DonationsHistoryPage() {
         <div className="flex items-center gap-2 flex-wrap">
           {([
             { v: 'todas', label: 'Todas' },
-            { v: 'confirmada', label: '✅ Aceptadas' },
-            { v: 'pendiente', label: '⏳ En espera' },
-            { v: 'rechazada', label: '❌ Rechazadas' },
+            { v: 'confirmada', label: ' Aceptadas' },
+            { v: 'pendiente', label: ' En espera' },
+            { v: 'rechazada', label: ' Rechazadas' },
           ] as { v: EstadoDonacion | 'todas'; label: string }[]).map(({ v, label }) => (
             <button
               key={v}

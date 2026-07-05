@@ -75,7 +75,7 @@ function TarjetaAplicante({ aplicacion, onCambiarEstado }: {
               {/* Compatibilidad */}
               {aplicacion.compatibility_score !== undefined && aplicacion.compatibility_score !== null && (
                 <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700">
-                  ⚡ {Math.round(aplicacion.compatibility_score)}% Match
+                   {Math.round(aplicacion.compatibility_score)}% Match
                 </span>
               )}
             </div>

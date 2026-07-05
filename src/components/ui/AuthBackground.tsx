@@ -4,7 +4,7 @@ export default function AuthBackground() {
 
   return (
     <div className="auth-bg-fixed">
-      {/* ── Formas de fondo ── */}
+      {/*  Formas de fondo  */}
       <div className="deco-circulo-grande-bg" />
       <div className="deco-circulo-medio-bg" />
 
@@ -17,7 +17,7 @@ export default function AuthBackground() {
         </svg>
       </div>
 
-      {/* ── Iconos educativos flotantes ── */}
+      {/*  Iconos educativos flotantes  */}
 
       {/* Birrete de graduación — arriba izquierda */}
       <div className="deco-icono deco-gorro-graduacion">

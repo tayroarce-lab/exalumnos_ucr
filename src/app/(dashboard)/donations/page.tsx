@@ -96,7 +96,7 @@ const INITIAL_FORM: FormDonacion = {
 }
 
 function formatCurrency(val: number, moneda: 'CRC' | 'USD') {
-  if (moneda === 'CRC') return `₡${val.toLocaleString('es-CR')}`
+  if (moneda === 'CRC') return `${val.toLocaleString('es-CR')}`
   return `$${val.toLocaleString('en-US', { minimumFractionDigits: 2 })}`
 }
 
@@ -140,13 +140,13 @@ function FondoCard({
       {pct !== null && (
         <div className="space-y-1.5">
           <div className="flex justify-between text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-            <span>₡{fondo.raised.toLocaleString('es-CR')} recaudados</span>
+            <span>{fondo.raised.toLocaleString('es-CR')} recaudados</span>
             <span className="text-[#F34B26]">{pct}%</span>
           </div>
           <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
             <ProgressFill value={pct} />
           </div>
-          <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">{fondo.donors} donantes · Meta: ₡{fondo.meta.toLocaleString('es-CR')}</p>
+          <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">{fondo.donors} donantes · Meta: {fondo.meta.toLocaleString('es-CR')}</p>
         </div>
       )}
     </button>
@@ -433,7 +433,7 @@ export default function DonationsPage() {
                   onChange={(e: React.ChangeEvent<HTMLSelectElement>) => update('moneda', e.target.value as 'CRC' | 'USD')}
                   className="w-full h-11 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-[#F34B26] focus:ring-2 focus:ring-[#F34B26]/10 transition-all"
                 >
-                  <option value="CRC">₡ CRC</option>
+                  <option value="CRC"> CRC</option>
                   <option value="USD">$ USD</option>
                 </select>
               </div>
@@ -641,7 +641,7 @@ export default function DonationsPage() {
             disabled={step === 1 || isSaving}
             className="font-bold uppercase tracking-wider text-xs px-5"
           >
-            ← Atrás
+             Atrás
           </Button>
 
           {step < STEPS.length ? (
@@ -650,7 +650,7 @@ export default function DonationsPage() {
               onClick={nextStep}
               className="bg-[#F34B26] hover:bg-[#C82A08] font-bold uppercase tracking-wider text-xs px-6"
             >
-              Continuar →
+              Continuar 
             </Button>
           ) : (
             <Button

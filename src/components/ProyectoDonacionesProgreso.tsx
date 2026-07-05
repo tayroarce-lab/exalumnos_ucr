@@ -52,7 +52,7 @@ export default function ProyectoDonacionesProgreso({
     return null;
   }
 
-  const symbol = metaMoneda === 'USD' ? '$' : '₡';
+  const symbol = metaMoneda === 'USD' ? '$' : '';
   const formatMonto = (monto: number) => {
     return monto.toLocaleString('es-CR', {
       maximumFractionDigits: metaMoneda === 'USD' ? 2 : 0,

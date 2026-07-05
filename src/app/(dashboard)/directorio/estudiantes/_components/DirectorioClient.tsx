@@ -145,7 +145,7 @@ export default function DirectorioClient({
               : "bg-white/95 border border-white/20 text-slate-800 hover:bg-white"
           }`}
         >
-          🔍 Todos los Estudiantes
+           Todos los Estudiantes
         </button>
         <button
           onClick={() => {
@@ -165,7 +165,7 @@ export default function DirectorioClient({
               : "bg-white/95 border border-white/20 text-slate-800 hover:bg-white"
           }`}
         >
-          💡 Proyectos Buscando Apoyo (Cualquier Tipo)
+           Proyectos Buscando Apoyo (Cualquier Tipo)
         </button>
       </div>
 

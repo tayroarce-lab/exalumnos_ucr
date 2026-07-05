@@ -4,7 +4,8 @@ import React, { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import {
   Briefcase, Plus, Edit3, Trash2, PauseCircle, PlayCircle,
-  Users, Clock, MapPin, CheckCircle2, AlertCircle, Eye
+  Users, Clock, MapPin, CheckCircle2, AlertCircle, Eye,
+  ClipboardList, Handshake
 } from 'lucide-react'
 import { obtenerMisPosiciones, actualizarEstadoPosicion, eliminarPosicionLogica } from '@/actions/positions'
 import { useProfile } from '@/contexts/ProfileContext'
@@ -21,10 +22,10 @@ const ESTADO_CONFIG: Record<string, { label: string; bg: string; text: string; d
   cubierta:{ label: 'Cubierta', bg: 'bg-blue-50',    text: 'text-blue-700',    dot: 'bg-blue-500'    },
 }
 
-const TIPO_CONFIG: Record<string, { label: string; icon: string }> = {
-  empleo:   { label: 'Empleo',   icon: '💼' },
-  pasantia: { label: 'Pasantía', icon: '📋' },
-  proyecto: { label: 'Proyecto', icon: '🤝' },
+const TIPO_CONFIG: Record<string, { label: string; icon: React.ReactNode }> = {
+  empleo:   { label: 'Empleo',   icon: <Briefcase size={22} /> },
+  pasantia: { label: 'Pasantía', icon: <ClipboardList size={22} /> },
+  proyecto: { label: 'Proyecto', icon: <Handshake size={22} /> },
 }
 
 export default function MisPosicionesPage() {

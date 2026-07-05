@@ -6,11 +6,12 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import {
   Handshake, GraduationCap, Briefcase, MessageCircle, Check,
-  X, Users, Clock, Star, BookOpen, ChevronDown, ChevronUp, User
+  X, Users, Clock, Star, BookOpen, ChevronDown, ChevronUp, User,
+  AlertTriangle
 } from 'lucide-react'
 import Card from '@/components/ui/card'
 
-// ─── TIPOS ──────────────────────────────────────────────────────────────────
+//  TIPOS 
 type EstadoMatch = 'sugerido' | 'contactado' | 'activo' | 'cerrado'
 
 interface Estudiante {
@@ -31,7 +32,7 @@ interface MatchReal {
   estudiante: Estudiante | null
 }
 
-// ─── CONFIG DE ESTADO ────────────────────────────────────────────────────────
+//  CONFIG DE ESTADO 
 const ESTADO_CONFIG: Record<EstadoMatch, { label: string; clase: string }> = {
   sugerido:   { label: 'Sugerido',   clase: 'bg-[#F34B26]/10 text-[#F34B26] border border-[#F34B26]/20'       },
   contactado: { label: 'Contactado', clase: 'bg-amber-500/15 text-amber-700 border border-amber-300'    },
@@ -46,7 +47,7 @@ function getScoreColor(score: number) {
   return 'from-slate-400 to-slate-500'
 }
 
-// ─── TARJETA DE MATCH ────────────────────────────────────────────────────────
+//  TARJETA DE MATCH 
 function TarjetaMatch({ match, onAccion }: {
   match: MatchReal
   onAccion: (id: string, accion: 'aceptar' | 'rechazar' | 'contactar') => Promise<void>
@@ -99,8 +100,8 @@ function TarjetaMatch({ match, onAccion }: {
               {estadoConf.label}
             </span>
             {match.tipo_apoyo && (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 border border-blue-200 capitalize">
-                {match.tipo_apoyo === 'mentoria' ? '🎓 Mentoría' : match.tipo_apoyo === 'empleo' ? '💼 Empleo' : '👥 Pasantía'}
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 border border-blue-200 capitalize inline-flex items-center gap-1">
+                {match.tipo_apoyo === 'mentoria' ? <><GraduationCap size={12} /> Mentoría</> : match.tipo_apoyo === 'empleo' ? <><Briefcase size={12} /> Empleo</> : <><Users size={12} /> Pasantía</>}
               </span>
             )}
             <span className="text-[10px] text-slate-400 flex items-center gap-1">
@@ -151,7 +152,7 @@ function TarjetaMatch({ match, onAccion }: {
   )
 }
 
-// ─── PÁGINA PRINCIPAL ────────────────────────────────────────────────────────
+//  PÁGINA PRINCIPAL 
 export default function MentoriasPage() {
   const [matches, setMatches] = useState<MatchReal[]>([])
   const [cargando, setCargando] = useState(true)
@@ -281,7 +282,7 @@ export default function MentoriasPage() {
             </p>
           </div>
           <Link href="/network" className="text-xs font-bold text-[#F34B26] hover:text-[#C82A08] hover:underline uppercase tracking-wider">
-            Ver directorio completo →
+            Ver directorio completo 
           </Link>
         </div>
 
@@ -301,7 +302,8 @@ export default function MentoriasPage() {
 
         {error && (
           <div className="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
-            ⚠️ {error} — Asegúrate de tener conexión y un perfil actualizado.
+            <AlertTriangle className="w-5 h-5 shrink-0" />
+            <span>{error} — Asegúrate de tener conexión y un perfil actualizado.</span>
           </div>
         )}
 

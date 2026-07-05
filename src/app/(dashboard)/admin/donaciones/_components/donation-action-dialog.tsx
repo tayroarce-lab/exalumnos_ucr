@@ -99,7 +99,7 @@ export function DonationActionDialog({ donation, isOpen, onClose, onProcess }: D
             )}
             {comprobanteUrl && (
               <a href={comprobanteUrl} target="_blank" rel="noreferrer" className="admin-dialog-comprobante-link">
-                Abrir comprobante completo ↗
+                Abrir comprobante completo 
               </a>
             )}
           </div>

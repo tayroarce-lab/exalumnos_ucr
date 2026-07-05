@@ -7,7 +7,7 @@ import { Briefcase, Clock, CheckCircle, XCircle, Eye, AlertCircle, RefreshCw, Sp
 import { getMyApplications } from '@/actions/applications'
 import { ApplicationStatus, STATUS_MESSAGES } from '@/types/applications'
 
-// ─── HELPERS VISUALES ────────────────────────────────────────────────────────
+//  HELPERS VISUALES 
 
 function getBadgeEstado(status: ApplicationStatus) {
   switch (status) {
@@ -44,7 +44,7 @@ function formatearFecha(isoString: string) {
   })
 }
 
-// ─── COMPONENTE PRINCIPAL ────────────────────────────────────────────────────
+//  COMPONENTE PRINCIPAL 
 
 export default function MisAplicacionesPage() {
   const { user } = useProfile()

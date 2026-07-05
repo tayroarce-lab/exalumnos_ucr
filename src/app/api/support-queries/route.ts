@@ -5,7 +5,7 @@ import { insertSupportQuery, fetchSupportQueries, updateSupportQuery } from '@/l
 import { notifyAllAdmins } from '@/lib/notify-admins'
 
 // GET /api/support-queries
-// Admin → todas las consultas. Cualquier usuario → solo las suyas (por email).
+// Admin  todas las consultas. Cualquier usuario  solo las suyas (por email).
 export async function GET() {
   try {
     const supabaseUser = await createClient()

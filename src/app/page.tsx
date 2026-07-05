@@ -58,10 +58,10 @@ function BarraNavegacion() {
 function SeccionHeroSplit() {
   return (
     <section className="seccion-hero-split">
-      {/* ══ LADO IZQUIERDO ══ */}
+      {/*  LADO IZQUIERDO  */}
       <div className="hero-lado-izquierdo">
 
-        {/* ── Formas de fondo ── */}
+        {/*  Formas de fondo  */}
         <div className="deco-circulo-grande-bg" />
         <div className="deco-circulo-medio-bg" />
 
@@ -74,7 +74,7 @@ function SeccionHeroSplit() {
           </svg>
         </div>
 
-        {/* ── Iconos educativos flotantes ── */}
+        {/*  Iconos educativos flotantes  */}
 
         {/* Birrete de graduación — arriba izquierda */}
         <div className="deco-icono deco-gorro-graduacion">
@@ -203,7 +203,7 @@ function SeccionHeroSplit() {
         </Link>
       </div>
 
-      {/* ══ LADO DERECHO ══ */}
+      {/*  LADO DERECHO  */}
       <div className="hero-lado-derecho">
         <Image
           src={fondoUCR}

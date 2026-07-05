@@ -40,7 +40,7 @@ export async function generarPdfAtsFriendly(perfil: DatosPerfilUCR): Promise<Buf
       const fontRegular = 'Helvetica';
       const fontBold = 'Helvetica-Bold';
 
-      // ── 1. ENCABEZADO (Header) ──
+      //  1. ENCABEZADO (Header) 
       doc.font(fontBold).fontSize(16).text(perfil.nombre.toUpperCase(), { align: 'center' });
       doc.moveDown(0.2);
       
@@ -59,7 +59,7 @@ export async function generarPdfAtsFriendly(perfil: DatosPerfilUCR): Promise<Buf
         doc.moveDown(0.5);
       };
 
-      // ── 2. EDUCACIÓN ──
+      //  2. EDUCACIÓN 
       // Se omite secundaria por regla de negocio en modelos.
       if (perfil.educacion && perfil.educacion.length > 0) {
         agregarTituloSeccion('Educación');
@@ -74,7 +74,7 @@ export async function generarPdfAtsFriendly(perfil: DatosPerfilUCR): Promise<Buf
         }
       }
 
-      // ── 3. EXPERIENCIA PROFESIONAL (STAR) ──
+      //  3. EXPERIENCIA PROFESIONAL (STAR) 
       if (perfil.experiencia && perfil.experiencia.length > 0) {
         agregarTituloSeccion('Experiencia Laboral');
         for (const exp of perfil.experiencia) {
@@ -93,7 +93,7 @@ export async function generarPdfAtsFriendly(perfil: DatosPerfilUCR): Promise<Buf
         }
       }
 
-      // ── 4. PROYECTOS ACADÉMICOS ──
+      //  4. PROYECTOS ACADÉMICOS 
       if (perfil.proyectos && perfil.proyectos.length > 0) {
         agregarTituloSeccion('Proyectos Destacados');
         for (const proy of perfil.proyectos) {
@@ -105,7 +105,7 @@ export async function generarPdfAtsFriendly(perfil: DatosPerfilUCR): Promise<Buf
         }
       }
 
-      // ── 5. HABILIDADES ──
+      //  5. HABILIDADES 
       if (perfil.habilidades) {
         agregarTituloSeccion('Habilidades Técnicas y Blandas');
         if (perfil.habilidades.habilidades_tecnicas.length > 0) {

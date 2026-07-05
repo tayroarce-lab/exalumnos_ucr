@@ -288,7 +288,7 @@ export async function crearDonacion(data: CrearDonacionInput) {
     const donorName2 = (await supabase.from('users').select('nombre').eq('id', user.id).single()).data?.nombre || 'Un exalumno'
     await notifyAllAdmins({
       titulo: 'Nueva donación pendiente',
-      mensaje: `${donorName2} envió una donación de ${data.moneda === 'CRC' ? '₡' : '$'}${data.monto.toLocaleString()} para ${projectName}. Requiere revisión.`,
+      mensaje: `${donorName2} envió una donación de ${data.moneda === 'CRC' ? '' : '$'}${data.monto.toLocaleString()} para ${projectName}. Requiere revisión.`,
       tipo: 'donacion_admin',
       link: '/admin/donaciones'
     })
@@ -487,7 +487,7 @@ export async function obtenerInsigniasDonador(alumniId: string) {
         id: 'padrino_inicial',
         name: 'Padrino/Madrina Inicial',
         description: 'Ha realizado 1 donación confirmada para apoyar el futuro académico.',
-        icon: '🥉',
+        icon: '',
         color: 'badge-donacion-bronze'
       });
     }
@@ -497,7 +497,7 @@ export async function obtenerInsigniasDonador(alumniId: string) {
         id: 'mecenas_ucr',
         name: 'Mecenas de la UCR',
         description: 'Ha realizado 3 o más donaciones confirmadas para incentivar la investigación.',
-        icon: '🥈',
+        icon: '',
         color: 'badge-donacion-silver'
       });
     }
@@ -507,7 +507,7 @@ export async function obtenerInsigniasDonador(alumniId: string) {
         id: 'socio_benefactor',
         name: 'Socio Benefactor',
         description: 'Socio de honor con 5 o más donaciones confirmadas para el desarrollo universitario.',
-        icon: '🥇',
+        icon: '',
         color: 'badge-donacion-gold'
       });
     }
@@ -516,8 +516,8 @@ export async function obtenerInsigniasDonador(alumniId: string) {
       badges.push({
         id: 'gran_patrocinador',
         name: 'Gran Patrocinador',
-        description: 'Realizó una aportación individual destacada de más de $200 USD (o ₡104,000 CRC).',
-        icon: '💎',
+        description: 'Realizó una aportación individual destacada de más de $200 USD (o 104,000 CRC).',
+        icon: '',
         color: 'badge-donacion-diamond animate-pulse'
       });
     }

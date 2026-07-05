@@ -16,7 +16,7 @@ import {
 import ProyectoDonacionesProgreso from '@/components/ProyectoDonacionesProgreso'
 import { getProyectoFileUrl } from '@/lib/utils'
 
-/* ─────────── Floating Accessibility Panel ─────────── */
+/*  Floating Accessibility Panel  */
 function AccessibilityPanel() {
   const [open, setOpen] = useState(false)
   const [fontSize, setFontSize] = useState<'normal' | 'large' | 'xl'>('normal')
@@ -109,7 +109,7 @@ function AccessibilityPanel() {
   )
 }
 
-/* ─────────── Animated Counter ─────────── */
+/*  Animated Counter  */
 function AnimatedNumber({ value, prefix = '', suffix = '' }: { value: number; prefix?: string; suffix?: string }) {
   const [display, setDisplay] = useState(0)
   const ref = useRef<HTMLSpanElement>(null)
@@ -130,7 +130,7 @@ function AnimatedNumber({ value, prefix = '', suffix = '' }: { value: number; pr
   return <span ref={ref}>{prefix}{display.toLocaleString()}{suffix}</span>
 }
 
-/* ─────────── Utils ─────────── */
+/*  Utils  */
 function parseEventDate(dateString: string) {
   if (!dateString) return { day: '00', month: '---' }
   try {
@@ -145,7 +145,7 @@ function parseEventDate(dateString: string) {
   }
 }
 
-/* ─────────── Main Dashboard ─────────── */
+/*  Main Dashboard  */
 export default function DashboardPage() {
   const { user, profile } = useProfile()
   const userName = profile?.full_name || user?.user_metadata?.full_name || 'Exalumno'
@@ -184,7 +184,7 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-[#FAF6F1]">
       <AccessibilityPanel />
 
-      {/* ─── HERO ─── */}
+      {/*  HERO  */}
       <section className="relative bg-[#FAF6F1] min-h-[380px] md:min-h-[420px] flex items-center overflow-hidden -ml-4 -mr-4 -mt-4 sm:-ml-6 sm:-mr-6 sm:-mt-6 lg:-ml-8 lg:-mr-8 lg:-mt-8 mb-8">
         {/* Exact pre-rendered banner image covering the ENTIRE background from left to right */}
         <div className="absolute inset-0 z-0 select-none pointer-events-none">
@@ -229,7 +229,7 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      {/* ─── METRIC CARDS ─── */}
+      {/*  METRIC CARDS  */}
       <section className="px-6 lg:px-16 py-12">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
 
@@ -294,7 +294,7 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      {/* ─── CONEXIONES RECOMENDADAS ─── */}
+      {/*  CONEXIONES RECOMENDADAS  */}
       <section className="px-6 lg:px-16 py-8">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between mb-6">
@@ -344,7 +344,7 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      {/* ─── PRÓXIMOS EVENTOS ─── */}
+      {/*  PRÓXIMOS EVENTOS  */}
       <section className="px-6 lg:px-16 py-4">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between mb-6">
@@ -393,7 +393,7 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      {/* ─── ACTUALIDAD UNIVERSITARIA ─── */}
+      {/*  ACTUALIDAD UNIVERSITARIA  */}
       <section className="px-6 lg:px-16 py-12">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-2xl font-black text-slate-900 mb-6">Actualidad Universitaria</h2>

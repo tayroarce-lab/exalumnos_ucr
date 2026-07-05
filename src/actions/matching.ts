@@ -9,9 +9,9 @@
  * ya no existen.
  *
  * Algoritmos implementados:
- *   1. calcularScoreMentoria()   — Score Estudiante ↔ Exalumno (máx. 100 pts)
+ *   1. calcularScoreMentoria()   — Score Estudiante  Exalumno (máx. 100 pts)
  *   2. generarMatchesMentoria()  — Genera todos los matches de mentoría en lote
- *   3. calcularScorePuesto()     — Score Estudiante ↔ Posición (máx. 100 pts)
+ *   3. calcularScorePuesto()     — Score Estudiante  Posición (máx. 100 pts)
  *   4. generarScoresPuestos()    — Persiste scores para todos los pares activos
  */
 
@@ -19,7 +19,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 
-// ─── Tipos de retorno ─────────────────────────────────────────────────────────
+//  Tipos de retorno 
 
 export interface DesgloseMentoria {
   carrera: number       // 0 | 25
@@ -56,7 +56,7 @@ export interface ResultadoScoresPuestos {
   errores: string[]
 }
 
-// ─── Funciones auxiliares de cálculo ────────────────────────────────────────
+//  Funciones auxiliares de cálculo 
 
 /**
  * Calcula qué proporción de los elementos de `referencia` están contenidos
@@ -87,7 +87,7 @@ function incluidoEnArray(
   return arr.map((s) => s.toLowerCase().trim()).includes(valorNorm)
 }
 
-// ─── Tipo de perfil del usuario desde public.users ───────────────────────────
+//  Tipo de perfil del usuario desde public.users 
 
 interface PerfilUsuario {
   id: string
@@ -108,7 +108,7 @@ interface PerfilUsuario {
   visible_en_directorio: boolean
 }
 
-// ─── Algoritmo 1: Mentoría (Estudiante ↔ Exalumno) ───────────────────────────
+//  Algoritmo 1: Mentoría (Estudiante  Exalumno) 
 
 /**
  * Calcula el score de compatibilidad de mentoría entre un estudiante y un exalumno.
@@ -117,7 +117,7 @@ interface PerfilUsuario {
  * Criterios de puntuación (total máximo: 100 puntos):
  *   - Misma carrera principal (carrera_principal_id)    = 25 pts
  *   - Intersección proporcional de áreas de interés     = máx. 25 pts
- *   - Sector exalumno ∩ área proyecto estudiante        = 20 pts
+ *   - Sector exalumno  área proyecto estudiante        = 20 pts
  *   - Al menos un tipo de apoyo coincide                = 20 pts
  *   - Hobbies en común                                  = máx. 10 pts
  */
@@ -172,20 +172,20 @@ export async function calcularScoreMentoria(
   const est = mapAreas(estudiante) as PerfilUsuario
   const exal = mapAreas(exalumno) as PerfilUsuario
 
-  // ── Criterio 1: Misma carrera principal — 25 puntos ─────────────────────
+  //  Criterio 1: Misma carrera principal — 25 puntos 
   const puntosCarrera =
     est.carrera_principal_id !== null &&
       exal.carrera_principal_id !== null &&
       est.carrera_principal_id === exal.carrera_principal_id
       ? 25 : 0
 
-  // ── Criterio 2: Intersección proporcional de áreas de interés — máx. 25 pts
+  //  Criterio 2: Intersección proporcional de áreas de interés — máx. 25 pts
   const areasEst: string[] = est.areas_de_interes ?? []
   const areasExal: string[] = exal.areas_de_interes ?? []
   const ratioAreas = interseccionProporcional(areasEst, areasExal)
   const puntosAreas = Math.round(ratioAreas * 25)
 
-  // ── Criterio 3: Sector exalumno ∩ área proyecto estudiante — 20 pts ─────
+  //  Criterio 3: Sector exalumno  área proyecto estudiante — 20 pts 
   const sectoresExal: string[] = exal.sector_industria ?? []
   const proyectoAreaEst: string | null = est.proyecto_area_tematica
   let puntosSector = 0
@@ -193,7 +193,7 @@ export async function calcularScoreMentoria(
     puntosSector = incluidoEnArray(proyectoAreaEst, sectoresExal) ? 20 : 0
   }
 
-  // ── Criterio 4: Al menos un tipo de apoyo coincide — 20 puntos ──────────
+  //  Criterio 4: Al menos un tipo de apoyo coincide — 20 puntos 
   const hayCoincidenciaApoyo =
     (exal.ofrece_mentoria && est.busca_mentoria) ||
     (exal.ofrece_empleo && est.busca_empleo) ||
@@ -201,7 +201,7 @@ export async function calcularScoreMentoria(
     (exal.ofrece_donacion_dinero && est.busca_financiamiento)
   const puntosTipoApoyo = hayCoincidenciaApoyo ? 20 : 0
 
-  // ── Criterio 5: Hobbies en común — máx. 10 puntos ──────────
+  //  Criterio 5: Hobbies en común — máx. 10 puntos 
   const hobbiesEst: string[] = est.hobbies ?? []
   const hobbiesExal: string[] = exal.hobbies ?? []
   const ratioHobbies = interseccionProporcional(hobbiesEst, hobbiesExal)
@@ -222,7 +222,7 @@ export async function calcularScoreMentoria(
 }
 
 /**
- * Genera y persiste en la tabla `matches` todos los pares Estudiante ↔ Exalumno
+ * Genera y persiste en la tabla `matches` todos los pares Estudiante  Exalumno
  * cuyo score de mentoría supere el `umbralMinimo`. Evita duplicados.
  * Lee directamente de public.users filtrando por rol y deleted_at.
  */
@@ -293,13 +293,13 @@ export async function generarMatchesMentoria(
         })
 
         if (errInsert) {
-          errores.push(`Error insertando ${est.id} ↔ ${ex.id}: ${errInsert.message}`)
+          errores.push(`Error insertando ${est.id}  ${ex.id}: ${errInsert.message}`)
         } else {
           insertados++
         }
       } catch (err) {
         const mensaje = err instanceof Error ? err.message : String(err)
-        errores.push(`Error calculando score ${est.id} ↔ ${ex.id}: ${mensaje}`)
+        errores.push(`Error calculando score ${est.id}  ${ex.id}: ${mensaje}`)
       }
     }
   }
@@ -308,16 +308,16 @@ export async function generarMatchesMentoria(
   return { insertados, errores }
 }
 
-// ─── Algoritmo 2: Compatibilidad de Puestos (Estudiante ↔ Posición) ──────────
+//  Algoritmo 2: Compatibilidad de Puestos (Estudiante  Posición) 
 
 /**
  * Calcula el score de compatibilidad entre un estudiante y una posición publicada.
  * Lee de public.users + public.curriculums (tabla renombrada en migración 20260608).
  *
  * Criterios de puntuación (total máximo: 100 puntos):
- *   - Área de interés estudiante ⊆ sector de la posición     = 35 pts
- *   - Habilidades técnicas CV ∩ habilidades requeridas (prop) = máx. 35 pts
- *   - Áreas de interés ∩ sector de la posición (proporcional) = máx. 20 pts
+ *   - Área de interés estudiante  sector de la posición     = 35 pts
+ *   - Habilidades técnicas CV  habilidades requeridas (prop) = máx. 35 pts
+ *   - Áreas de interés  sector de la posición (proporcional) = máx. 20 pts
  *   - Tipo de apoyo buscado coincide con tipo de posición     = 10 pts
  */
 export async function calcularScorePuesto(
@@ -376,7 +376,7 @@ export async function calcularScorePuesto(
   const sectorPos: string[] = posicion.sector ?? []
   const habilidadesReq: string[] = posicion.habilidades_requeridas ?? []
 
-  // Extraer claves del JSONB { "React": "avanzado", ... } → ["React", ...]
+  // Extraer claves del JSONB { "React": "avanzado", ... }  ["React", ...]
   const habilidadesCvRaw: unknown = cvData?.habilidades_tecnicas ?? {}
   let habilidadesCvArray: string[] = []
   if (Array.isArray(habilidadesCvRaw)) {
@@ -385,18 +385,18 @@ export async function calcularScorePuesto(
     habilidadesCvArray = Object.keys(habilidadesCvRaw as Record<string, unknown>)
   }
 
-  // ── Criterio 1: Área de interés estudiante ⊆ sector posición — 35 pts ───
+  //  Criterio 1: Área de interés estudiante  sector posición — 35 pts 
   const puntosAreaSector = areasEst.some((a) => incluidoEnArray(a, sectorPos)) ? 35 : 0
 
-  // ── Criterio 2: Habilidades CV ∩ habilidades requeridas — máx. 35 pts ───
+  //  Criterio 2: Habilidades CV  habilidades requeridas — máx. 35 pts 
   const ratioHabilidades = interseccionProporcional(habilidadesReq, habilidadesCvArray)
   const puntosHabilidades = Math.round(ratioHabilidades * 35)
 
-  // ── Criterio 3: Áreas de interés ∩ sector posición — máx. 20 pts ────────
+  //  Criterio 3: Áreas de interés  sector posición — máx. 20 pts 
   const ratioAreas = interseccionProporcional(areasEst, sectorPos)
   const puntosAreas = Math.round(ratioAreas * 20)
 
-  // ── Criterio 4: Tipo de apoyo buscado coincide — 10 pts ─────────────────
+  //  Criterio 4: Tipo de apoyo buscado coincide — 10 pts 
   const puntosTipoApoyo =
     (posicion.tipo === 'empleo' && estudiante.busca_empleo) ||
       (posicion.tipo === 'pasantia' && estudiante.busca_pasantia)
@@ -417,7 +417,7 @@ export async function calcularScorePuesto(
 
 /**
  * Calcula y PERSISTE los scores de compatibilidad para todos los pares
- * Estudiante activo ↔ Posición activa que superen el `umbralMinimo`.
+ * Estudiante activo  Posición activa que superen el `umbralMinimo`.
  * CORREGIDO: ahora sí inserta en la tabla `matches` (a diferencia de la
  * versión anterior que solo contaba sin persistir).
  */
@@ -472,13 +472,13 @@ export async function generarScoresPuestos(
           )
 
         if (errUpsert) {
-          errores.push(`Error persistiendo ${est.id} ↔ ${pos.id}: ${errUpsert.message}`)
+          errores.push(`Error persistiendo ${est.id}  ${pos.id}: ${errUpsert.message}`)
         } else {
           procesados++
         }
       } catch (err) {
         const mensaje = err instanceof Error ? err.message : String(err)
-        errores.push(`Error en par estudiante:${est.id} ↔ posición:${pos.id}: ${mensaje}`)
+        errores.push(`Error en par estudiante:${est.id}  posición:${pos.id}: ${mensaje}`)
       }
     }
   }

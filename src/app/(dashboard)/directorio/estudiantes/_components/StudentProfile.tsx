@@ -146,7 +146,7 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
   return (
     <div className="font-sans text-[#003B4F] max-w-xl mx-auto pb-12">
 
-      {/* ── SECCIÓN DE CABECERA UNIFICADA (DISEÑO BANNER) ────────────────── */}
+      {/*  SECCIÓN DE CABECERA UNIFICADA (DISEÑO BANNER)  */}
       <div className="bg-white border border-slate-200 shadow-sm rounded-2xl relative mb-6 overflow-hidden">
         {/* Banner: imagen personalizada o gradiente predeterminado */}
         <div className="h-32 md:h-36 w-full relative overflow-hidden bg-gradient-to-r from-[#004C63] to-[#54BCEB]">
@@ -180,13 +180,13 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
               {estudiante.carrera && <p className="text-xs font-extrabold text-[#1F8BB6]">{estudiante.carrera}</p>}
               {estudiante.sede && (
                 <p className="text-xs text-slate-500 font-semibold flex items-center justify-center sm:justify-start gap-1">
-                  <span>📍</span> Sede de {estudiante.sede}
+                  <span></span> Sede de {estudiante.sede}
                 </p>
               )}
             </div>
           </div>
         </div>
-      </div>      {/* ── CARD DE COMPATIBILIDAD ─────────────────────────── */}
+      </div>      {/*  CARD DE COMPATIBILIDAD  */}
       <div className="bg-[#EAF5FA]/90 backdrop-blur-sm rounded-2xl p-5 border border-[#B3DCEE] shadow-sm mb-6">
         <div className="flex justify-between items-center mb-3">
           <span className="text-xs font-bold text-[#1A5B75] uppercase tracking-wider">Compatibilidad</span>
@@ -215,20 +215,20 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
           </div>
         </div>
 
-        {/* ── PASIONES HUMANAS EN EL MATCH ── */}
+        {/*  PASIONES HUMANAS EN EL MATCH  */}
         <div className="border-t border-[#B3DCEE]/60 pt-4">
           <p className="text-[10px] font-black text-[#1A5B75] uppercase tracking-widest mb-3">Intereses Compartidos</p>
           <div className="flex flex-wrap gap-2">
             {pasionesMatch.map((p, i) => (
               <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-[#54BCEB]/30 text-[#003B4F] text-[11px] font-bold shadow-sm">
-                {i === 0 ? '⚽' : i === 1 ? '🎵' : '📸'} {p}
+                {i === 0 ? '' : i === 1 ? '' : ''} {p}
               </span>
             ))}
           </div>
         </div>
       </div>
 
-      {/* ── BOTONES DE ACCIÓN ──────────────────────────────── */}
+      {/*  BOTONES DE ACCIÓN  */}
       <div className="flex gap-4 w-full mb-6">
         <button 
           onClick={() => setShowMentoriaModal(true)}
@@ -241,7 +241,7 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
         </button>
       </div>
 
-      {/* ── CARD PROYECTO TFG ─────────────────────────────── */}
+      {/*  CARD PROYECTO TFG  */}
       <div className="bg-white rounded-2xl p-6 border border-[#B3DCEE]/60 shadow-sm mb-6">
         <div className="flex justify-between items-start gap-2 mb-3">
           <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Proyecto de Graduación</span>
@@ -290,7 +290,7 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
           <div className="mb-4 inline-flex items-center gap-2 bg-emerald-50 border border-emerald-100 px-3 py-1.5 rounded-xl">
             <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Valor Monetario:</span>
             <span className="text-sm font-black text-emerald-700">
-              {estudiante.proyecto_valor_moneda === 'USD' ? '$' : '₡'}
+              {estudiante.proyecto_valor_moneda === 'USD' ? '$' : ''}
               {estudiante.proyecto_valor_monto.toLocaleString('es-CR')}
             </span>
           </div>
@@ -316,7 +316,7 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
               rel="noopener noreferrer"
               className="flex-1 flex items-center justify-center text-[11px] bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 px-3 py-2 rounded-xl font-bold transition-colors"
             >
-              📄 Ver Documento
+               Ver Documento
             </a>
           )}
           {estudiante.proyecto_video_url && (
@@ -326,7 +326,7 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
               rel="noopener noreferrer"
               className="flex-1 flex items-center justify-center text-[11px] bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 px-3 py-2 rounded-xl font-bold transition-colors"
             >
-              ▶️ Ver Video
+               Ver Video
             </a>
           )}
         </div>
@@ -348,7 +348,7 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
         {estudiante.busca_financiamiento && estudiante.proyecto_valor_monto && (
           <div className="pt-4 border-t border-slate-100 mt-4">
             <h5 className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-              💰 Financiamiento Colectivo
+               Financiamiento Colectivo
             </h5>
             <ProyectoDonacionesProgreso 
               proyectoId={estudiante.user_id} 
@@ -365,16 +365,16 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Este estudiante busca</p>
             <div className="flex flex-wrap gap-2 mb-4">
               {estudiante.busca_financiamiento && (
-                <span className="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2.5 py-1 rounded-lg border border-emerald-100">💰 Apoyo Económico</span>
+                <span className="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2.5 py-1 rounded-lg border border-emerald-100"> Apoyo Económico</span>
               )}
               {estudiante.busca_mentoria && (
-                <span className="bg-blue-50 text-blue-700 text-[10px] font-bold px-2.5 py-1 rounded-lg border border-blue-100">🎓 Mentoría Técnica</span>
+                <span className="bg-blue-50 text-blue-700 text-[10px] font-bold px-2.5 py-1 rounded-lg border border-blue-100"> Mentoría Técnica</span>
               )}
               {estudiante.busca_empleo && (
-                <span className="bg-orange-50 text-orange-700 text-[10px] font-bold px-2.5 py-1 rounded-lg border border-orange-100">💼 Oportunidad de Empleo</span>
+                <span className="bg-orange-50 text-orange-700 text-[10px] font-bold px-2.5 py-1 rounded-lg border border-orange-100"> Oportunidad de Empleo</span>
               )}
               {estudiante.busca_pasantia && (
-                <span className="bg-violet-50 text-violet-700 text-[10px] font-bold px-2.5 py-1 rounded-lg border border-violet-100">👜 Pasantía</span>
+                <span className="bg-violet-50 text-violet-700 text-[10px] font-bold px-2.5 py-1 rounded-lg border border-violet-100"> Pasantía</span>
               )}
             </div>
             <button
@@ -396,11 +396,11 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
         </div>
       </div>
 
-      {/* ── COLUMNAS OPORTUNIDADES E INTERESES ──────────────── */}
+      {/*  COLUMNAS OPORTUNIDADES E INTERESES  */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
         <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between">
           <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 mb-2">
-            <span>👜</span> Oportunidades
+            <span></span> Oportunidades
           </div>
           <div className="text-xs font-semibold text-slate-400 italic">
             {getTagsApoyo().length > 0 ? getTagsApoyo().join(', ') : 'Sin registrar'}
@@ -409,7 +409,7 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
 
         <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between">
           <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 mb-2">
-            <span>❤️</span> Intereses
+            <span></span> Intereses
           </div>
           <div className="text-xs font-semibold text-slate-400 italic">
             {blandas.length > 0 ? blandas.join(', ') : 'Sin registrar'}
@@ -417,7 +417,7 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
         </div>
       </div>
 
-      {/* ── EXPEDIENTE ACADÉMICO (DARK SLATE) ───────────────── */}
+      {/*  EXPEDIENTE ACADÉMICO (DARK SLATE)  */}
       <div className="rounded-2xl bg-[#2D3328] p-6 text-white shadow-md relative overflow-hidden mb-6">
         <div className="absolute right-4 bottom-4 opacity-10 pointer-events-none text-white">
           <svg width="100" height="100" viewBox="0 0 24 24" fill="currentColor">
@@ -426,7 +426,7 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
           </svg>
         </div>
         <h3 className="font-extrabold text-xs tracking-widest text-slate-300 uppercase pb-4 mb-5 border-b border-white/10 flex items-center gap-2">
-          <span>🎓</span> Expediente Académico
+          <span></span> Expediente Académico
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-5 gap-x-4 relative z-10">
           <div>
@@ -448,12 +448,12 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
         </div>
       </div>
 
-      {/* ── VIDA MÁS ALLÁ DEL AULA ────────────────────────── */}
+      {/*  VIDA MÁS ALLÁ DEL AULA  */}
       <div className="bg-gradient-to-br from-[#FFF8F0] to-[#FAF9E6] rounded-2xl p-6 border border-[#E84F26]/10 shadow-sm mb-6 relative overflow-hidden">
         {/* Watermark decorativo */}
-        <div className="absolute top-3 right-4 text-5xl opacity-10 pointer-events-none select-none">🌟</div>
+        <div className="absolute top-3 right-4 text-5xl opacity-10 pointer-events-none select-none"></div>
         <h3 className="text-lg font-black text-[#003B4F] mb-1 flex items-center gap-2">
-          <span>🎨</span> Vida Más Allá del Aula
+          <span></span> Vida Más Allá del Aula
         </h3>
         <p className="text-xs text-slate-400 font-medium mb-4">Lo que me apasiona fuera de los libros</p>
 
@@ -461,7 +461,7 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
         {estudiante.sobre_mi_personal && (
           <div className="bg-white/80 rounded-xl p-4 border border-[#E84F26]/10 mb-5">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">
-              ✍️ En mis propias palabras
+               En mis propias palabras
             </p>
             <p className="text-sm text-slate-600 leading-relaxed font-medium italic">
               {estudiante.sobre_mi_personal}
@@ -472,7 +472,7 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
         <div className="space-y-4">
           {/* Deportes */}
           <div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">⚽ Deportes & Actividad Física</p>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5"> Deportes & Actividad Física</p>
             <div className="flex flex-wrap gap-2">
               {deportesData.map((d, i) => (
                 <span key={i} className="px-3 py-1.5 rounded-full bg-[#E84F26]/10 text-[#B43B06] text-xs font-bold border border-[#E84F26]/20">
@@ -484,7 +484,7 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
 
           {/* Música */}
           <div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">🎵 Música & Artes</p>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5"> Música & Artes</p>
             <div className="flex flex-wrap gap-2">
               {musicaData.map((m, i) => (
                 <span key={i} className="px-3 py-1.5 rounded-full bg-[#8B5CF6]/10 text-[#6D28D9] text-xs font-bold border border-[#8B5CF6]/20">
@@ -496,7 +496,7 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
 
           {/* Hobbies */}
           <div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">✨ Pasatiempos & Hobbies</p>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5"> Pasatiempos & Hobbies</p>
             <div className="flex flex-wrap gap-2">
               {hobbiesData.map((h, i) => (
                 <span key={i} className="px-3 py-1.5 rounded-full bg-[#10B981]/10 text-[#065F46] text-xs font-bold border border-[#10B981]/20">
@@ -508,7 +508,7 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
 
           {/* Idiomas */}
           <div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">🌐 Idiomas</p>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5"> Idiomas</p>
             <div className="flex flex-wrap gap-2">
               {idiomasData.map((lang, i) => (
                 <span key={i} className="px-3 py-1.5 rounded-full bg-[#1A5B75]/10 text-[#1A5B75] text-xs font-bold border border-[#1A5B75]/20">
@@ -520,7 +520,7 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
         </div>
       </div>
 
-      {/* ── MI PRESENTACIÓN ──────────────────────────────────── */}
+      {/*  MI PRESENTACIÓN  */}
       <div className="bg-white rounded-2xl p-6 border border-slate-200/60 shadow-sm mb-6 relative overflow-hidden">
         {/* Barra lateral de acento tricolor */}
         <div className="absolute top-0 left-0 w-1.5 h-full rounded-l-2xl bg-[#54BCEB]" />
@@ -541,10 +541,10 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
         </div>
       </div>
 
-      {/* ── HABILIDADES TÉCNICAS ───────────────────────────── */}
+      {/*  HABILIDADES TÉCNICAS  */}
       <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm mb-6">
         <h3 className="text-lg font-black text-[#003B4F] mb-4 flex items-center gap-2">
-          <span>💻</span> Habilidades Técnicas
+          <span></span> Habilidades Técnicas
         </h3>
         <div className="flex flex-wrap gap-2">
           {habilidadesTecnicasData.length > 0 ? (
@@ -559,7 +559,7 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
         </div>
       </div>
 
-      {/* ── PRIVACIDAD ─────────────────────────────────────── */}
+      {/*  PRIVACIDAD  */}
       <div className="bg-[#FFFBF7]/90 backdrop-blur-sm rounded-2xl p-5 border border-red-100 shadow-sm mb-6">
         <div className="flex items-center gap-2 mb-3">
           <IconLock color="#dc2626" size={16} />
@@ -584,11 +584,11 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
         </div>
       </div>
 
-      {/* ── TRAYECTORIA ESTUDIANTIL ────────────────────────── */}
+      {/*  TRAYECTORIA ESTUDIANTIL  */}
       {estudiante.actividades_extracurriculares && estudiante.actividades_extracurriculares.length > 0 && (
         <div className="bg-white rounded-2xl p-6 border-l-4 border-l-[#1F8BB6] border border-slate-200/80 shadow-sm mb-6">
           <h3 className="text-lg font-black text-[#003B4F] mb-4 flex items-center gap-2">
-            <span>🚌</span> Trayectoria Estudiantil
+            <span></span> Trayectoria Estudiantil
           </h3>
           <div className="space-y-4">
             {estudiante.actividades_extracurriculares.map((act, index) => (
@@ -608,7 +608,7 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
         </div>
       )}
 
-      {/* ── ACCIONES PARA MENTORES (DASHED GREEN) ───────────── */}
+      {/*  ACCIONES PARA MENTORES (DASHED GREEN)  */}
       {(estudiante.busca_mentoria || estudiante.busca_financiamiento) && (
         <div className="rounded-2xl border-2 border-dashed border-[#8E9F7F]/40 bg-[#F4F9EE] p-5 mb-6">
           <p className="text-[10px] font-black text-[#5C6E4F] text-center uppercase tracking-widest mb-4">Acciones para Mentores</p>
@@ -639,7 +639,7 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
         </div>
       )}
 
-      {/* ── ESTUDIANTES RELACIONADOS ── */}
+      {/*  ESTUDIANTES RELACIONADOS  */}
       {estudiantesRelacionados.length > 0 && (
         <div className="mt-12 pt-8 border-t border-slate-200/60">
           <h2 className="text-2xl font-black text-[#003B4F] mb-1">Otros estudiantes que podrían interesarte</h2>
@@ -652,7 +652,7 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
         </div>
       )}
 
-      {/* ── MODAL MENTORÍA ── */}
+      {/*  MODAL MENTORÍA  */}
       {showMentoriaModal && typeof document !== 'undefined' && createPortal(
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl p-6 md:p-8 w-full max-w-md border border-slate-200/80 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
@@ -733,7 +733,7 @@ export default function StudentProfile({ estudiante, estudiantesRelacionados }: 
         document.body
       )}
 
-      {/* ── MODAL APÓYAR PROYECTO ── */}
+      {/*  MODAL APÓYAR PROYECTO  */}
       {showApoyarModal && typeof document !== 'undefined' && createPortal(
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[9998] flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl p-6 md:p-8 w-full max-w-md border border-slate-200/80 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">

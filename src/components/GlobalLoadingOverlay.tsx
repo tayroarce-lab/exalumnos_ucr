@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import '@/styles/globalOverlay.css';
 import { Star, BookOpen, Triangle, Award, Microscope, Atom, Pencil, GraduationCap } from 'lucide-react';
 
-// ─── Color Utilities ─────────────────────────────────────────────────────────
+//  Color Utilities 
 
 function parseRgb(color: string): [number, number, number] | null {
   const m = color.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
@@ -86,7 +86,7 @@ function detectPageColors(): string[] {
   return sorted.slice(0, 3).length > 0 ? sorted.slice(0, 3) : ['#003D73'];
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
+//  Component 
 
 export default function GlobalLoadingOverlay() {
   const [isLoading, setIsLoading] = useState(false);

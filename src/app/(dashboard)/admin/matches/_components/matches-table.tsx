@@ -147,7 +147,7 @@ export function MatchesTable() {
                               {match.estado.charAt(0).toUpperCase() + match.estado.slice(1)}
                             </span>
                             {isAlertable && (
-                              <span className="matches-alert-badge">⚠ +6 meses activo</span>
+                              <span className="matches-alert-badge"> +6 meses activo</span>
                             )}
                           </div>
                         </td>

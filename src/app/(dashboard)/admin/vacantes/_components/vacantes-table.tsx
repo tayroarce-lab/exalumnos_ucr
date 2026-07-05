@@ -199,7 +199,7 @@ export function VacantesTable({ initialVacantes }: VacantesTableProps) {
                   <td>
                     {vacante.fecha_limite ? (
                       <span className={isExpired(vacante.fecha_limite) ? 'vacantes-deadline-expired' : 'vacantes-deadline-ok'}>
-                        {isExpired(vacante.fecha_limite) ? '⚠ ' : ''}
+                        {isExpired(vacante.fecha_limite) ? ' ' : ''}
                         {new Date(vacante.fecha_limite).toLocaleDateString('es-CR')}
                       </span>
                     ) : (

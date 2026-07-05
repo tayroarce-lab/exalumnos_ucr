@@ -169,14 +169,14 @@ export function MatchesList({ initialMatches, currentUserId, currentUserRole }: 
               {yaSolicite && (
                 <div className="flex flex-col gap-2">
                   <Button disabled variant="secondary" className="w-full opacity-70">
-                    ✓ Solicitud Enviada
+                     Solicitud Enviada
                   </Button>
                   <button
                     onClick={() => handleCancelRequest(match.id, match.exalumno_id, match.estudiante_id, currentUserId)}
                     disabled={loadingId === match.id}
                     className="w-full text-xs font-bold text-red-500 hover:text-red-700 hover:bg-red-50 border border-red-200 rounded-xl py-2 transition-all duration-150 disabled:opacity-40"
                   >
-                    {loadingId === match.id ? 'Cancelando...' : '✕ Cancelar solicitud'}
+                    {loadingId === match.id ? 'Cancelando...' : ' Cancelar solicitud'}
                   </button>
                 </div>
               )}
