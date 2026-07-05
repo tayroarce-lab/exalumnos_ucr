@@ -13,14 +13,14 @@
 }
 
 
-/* Change white cards to Turquoise (#004C63) in Exalumnos Dark Mode */
+/* Change white cards to near-black (#1E1E1E) in Exalumnos Dark Mode */
 .exalumnos-theme-dark .bg-white,
 .exalumnos-theme-dark .bg-white\/95,
 .exalumnos-theme-dark .bg-white\/90,
 .exalumnos-theme-dark .bg-white\/85,
 .exalumnos-theme-dark .bg-white\/80 {
-  background-color: #004C63 !important;
-  border-color: #003B4C !important;
+  background-color: #1E1E1E !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
 }
 
 /* Ensure the beige directory background turns dark */
@@ -28,7 +28,7 @@
   background-color: #0b1120 !important;
 }
 
-/* Ensure text is legible on the Turquoise background */
+/* Ensure text is legible on the dark background */
 .exalumnos-theme-dark .bg-white,
 .exalumnos-theme-dark .bg-white .text-slate-900,
 .exalumnos-theme-dark .bg-white .text-slate-850,
@@ -39,12 +39,12 @@
   color: #FFFFFF !important;
 }
 
-/* Make nested cards inside the turquoise background look good */
+/* Make nested cards inside the dark background look good */
 .exalumnos-theme-dark .bg-white .bg-slate-50,
 .exalumnos-theme-dark .bg-white .bg-slate-100,
 .exalumnos-theme-dark .bg-white .bg-slate-200 {
-  background-color: rgba(255, 255, 255, 0.1) !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
+  background-color: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
 }
 
 .exalumnos-theme-dark .bg-white .text-slate-700,
@@ -105,7 +105,7 @@
 
 /* Ajustes de legibilidad para desplegables (select option) */
 .exalumnos-theme-dark select option {
-  background-color: #004C63 !important;
+  background-color: #1E1E1E !important;
   color: #FFFFFF !important;
 }
 

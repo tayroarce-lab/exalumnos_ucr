@@ -116,39 +116,13 @@ body {
   min-height: 100vh;
 }
 
-/* Layout split: 50% izquierda celeste /* ── CONTENEDOR PRINCIPAL ── */
 .seccion-hero-split {
   display: flex;
   min-height: 100vh;
   width: 100%;
   position: relative;
-  background: linear-gradient(135deg, #0284C7 25%, #F34B26 75%) fixed;
+  background-color: #004C63;
   overflow: hidden;
-}
-
-/* Círculos decorativos del fondo */
-.seccion-hero-split::before,
-.seccion-hero-split::after {
-  content: '';
-  position: absolute;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  pointer-events: none;
-}
-
-.seccion-hero-split::before {
-  width: 500px;
-  height: 500px;
-  top: -150px;
-  left: -100px;
-}
-
-.seccion-hero-split::after {
-  width: 600px;
-  height: 600px;
-  bottom: -200px;
-  right: -150px;
 }
 
 /* ── LADO IZQUIERDO ── */
@@ -609,18 +583,16 @@ body {
 /* Hover específico para Facebook y LinkedIn (Celeste) y Instagram y YouTube (Amarillo) */
 .footer-red-icono[aria-label="Facebook"]:hover,
 .footer-red-icono[aria-label="LinkedIn"]:hover {
-  background: rgba(84, 188, 235, 0.15);
+  background: rgba(84, 188, 235, 0.12);
   color: #54BCEB;
-  border-color: #54BCEB;
-  transform: translateY(-4px) scale(1.05);
+  border-color: rgba(84, 188, 235, 0.4);
 }
 
 .footer-red-icono[aria-label="Instagram"]:hover,
 .footer-red-icono[aria-label="YouTube"]:hover {
-  background: rgba(255, 155, 24, 0.15);
+  background: rgba(255, 155, 24, 0.12);
   color: #FF9B18;
-  border-color: #FF9B18;
-  transform: translateY(-4px) scale(1.05);
+  border-color: rgba(255, 155, 24, 0.4);
 }
 
 .footer-titulo-col {
