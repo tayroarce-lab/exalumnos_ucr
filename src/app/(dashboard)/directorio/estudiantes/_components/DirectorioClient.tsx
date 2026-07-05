@@ -82,26 +82,26 @@ export default function DirectorioClient({
   return (
     <div className="w-full flex flex-col">
       {/* Encabezado con Botón de Filtro al extremo derecho */}
-      <div className="pt-2 pb-6 flex items-center justify-between border-b border-white/20 mb-8 w-full">
+      <div className="pt-2 pb-6 flex items-center justify-between border-b border-slate-200 mb-8 w-full">
         <div>
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold uppercase font-display text-white tracking-wide drop-shadow-sm">Directorio de Estudiantes</h1>
-          <p className="text-xs sm:text-sm text-slate-100 font-medium">Encuentra proyectos innovadores que necesitan tu apoyo.</p>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold uppercase font-display text-slate-900 tracking-wide">Directorio de Estudiantes</h1>
+          <p className="text-xs sm:text-sm text-slate-500 font-medium">Encuentra proyectos innovadores que necesitan tu apoyo.</p>
         </div>
         <div className="flex items-center gap-3">
           <button
             onClick={() => setShowFiltersModal(true)}
-            className="h-11 px-5 flex items-center justify-center gap-2 bg-[#003B4F] hover:bg-[#002735] text-white rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all whitespace-nowrap self-start md:self-center"
+            className="h-11 px-5 flex items-center justify-center gap-2 bg-[#003B4F] hover:bg-[#002735] text-white rounded-xl text-sm font-medium shadow-sm transition-all whitespace-nowrap self-start md:self-center"
           >
             <SlidersHorizontal className="w-4 h-4" />
             Filtros
             {activeFilterCount > 0 && (
-              <span className="w-5 h-5 bg-[#F34B26] text-white text-[10px] font-extrabold rounded-full flex items-center justify-center ml-1">{activeFilterCount}</span>
+              <span className="w-5 h-5 bg-[#F34B26] text-white text-[10px] font-bold rounded-full flex items-center justify-center ml-1">{activeFilterCount}</span>
             )}
           </button>
           <div className="hidden sm:block">
             <Link 
               href="/directorio/estudiantes/todos"
-              className="text-sm font-bold text-white hover:text-[#54BCEB] transition-colors duration-200 flex items-center gap-1 bg-white/10 border border-white/20 px-4 py-2.5 rounded-xl shadow-sm hover:shadow hover:bg-white/20 h-11"
+              className="text-sm font-medium text-slate-700 hover:text-slate-900 transition-colors duration-200 flex items-center gap-1 bg-white border border-slate-200 px-4 py-2.5 rounded-xl shadow-sm hover:bg-slate-50 h-11"
             >
               Ver todos
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
@@ -112,7 +112,7 @@ export default function DirectorioClient({
 
       {/* Buscador a Ancho Completo */}
       <div className="relative mb-8">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-200" />
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
         <input
           type="text"
           placeholder="Buscar por nombre, apellidos o proyecto..."
@@ -121,7 +121,7 @@ export default function DirectorioClient({
             setBusqueda(e.target.value);
             setPagina(1);
           }}
-          className="w-full h-12 pl-11 pr-4 bg-[#003B4F]/40 border border-white/20 rounded-xl text-sm text-white focus:outline-none focus:border-white focus:ring-2 focus:ring-white/20 transition-all placeholder:text-slate-200 shadow-sm"
+          className="w-full h-12 pl-11 pr-4 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-slate-300 focus:ring-4 focus:ring-slate-100 transition-all placeholder:text-slate-400 shadow-sm"
         />
       </div>
 
@@ -139,10 +139,10 @@ export default function DirectorioClient({
             });
             setPagina(1);
           }}
-          className={`px-4 py-2.5 text-xs font-bold rounded-xl transition-all shadow-sm cursor-pointer ${
+          className={`px-4 py-2.5 text-xs font-medium rounded-xl transition-all cursor-pointer ${
             filtros.tipos_apoyo.length === 0
-              ? "bg-[#003B4F] text-white hover:bg-[#002735]"
-              : "bg-white/95 border border-white/20 text-slate-800 hover:bg-white"
+              ? "bg-[#003B4F] text-white shadow-sm"
+              : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
           }`}
         >
            Todos los Estudiantes
@@ -159,10 +159,10 @@ export default function DirectorioClient({
             });
             setPagina(1);
           }}
-          className={`px-4 py-2.5 text-xs font-bold rounded-xl transition-all shadow-sm cursor-pointer ${
+          className={`px-4 py-2.5 text-xs font-medium rounded-xl transition-all cursor-pointer ${
             filtros.tipos_apoyo.length > 0
-              ? "bg-[#003B4F] text-white hover:bg-[#002735]"
-              : "bg-white/95 border border-white/20 text-slate-800 hover:bg-white"
+              ? "bg-[#003B4F] text-white shadow-sm"
+              : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
           }`}
         >
            Proyectos Buscando Apoyo (Cualquier Tipo)
@@ -189,10 +189,10 @@ export default function DirectorioClient({
 
       {/* Grilla principal */}
       <main className="flex-1 w-full">
-        <div className="mb-4 flex items-center justify-between text-sm text-[#003B4F] bg-white/90 backdrop-blur px-4 py-2.5 rounded-xl border border-orange-200/50 shadow-sm font-medium">
-          <p>Mostrando <span className="font-extrabold text-[#003B4F]">{totalItems}</span> estudiantes</p>
+        <div className="mb-4 flex items-center justify-between text-sm text-slate-600 px-1 font-medium">
+          <p>Mostrando <span className="font-bold text-slate-900">{totalItems}</span> estudiantes</p>
           {isPending && (
-            <span className="text-[#F34B26] text-xs font-bold animate-pulse flex items-center gap-1.5">
+            <span className="text-slate-500 text-xs font-medium animate-pulse flex items-center gap-1.5">
               <svg className="animate-spin h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
               Actualizando...
             </span>

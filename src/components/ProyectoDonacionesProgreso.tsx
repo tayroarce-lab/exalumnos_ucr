@@ -10,6 +10,7 @@ interface Props {
   metaMonto: number | null;
   metaMoneda: string | null;
   mostrarBotonApoyar?: boolean;
+  variant?: 'default' | 'compact';
 }
 
 export default function ProyectoDonacionesProgreso({
@@ -17,6 +18,7 @@ export default function ProyectoDonacionesProgreso({
   metaMonto,
   metaMoneda = 'USD',
   mostrarBotonApoyar = false,
+  variant = 'default',
 }: Props) {
   const [progreso, setProgreso] = useState<{ totalAcumulado: number; porcentaje: number; donantesUnicos: number } | null>(null);
   const [loading, setLoading] = useState(true);
@@ -40,6 +42,14 @@ export default function ProyectoDonacionesProgreso({
   }, [proyectoId, metaMonto, metaMoneda]);
 
   if (loading) {
+    if (variant === 'compact') {
+      return (
+        <div className="space-y-2 animate-pulse mt-2">
+          <div className="h-2 bg-slate-200 dark:bg-slate-800 w-1/3 rounded" />
+          <div className="h-3 bg-slate-200 dark:bg-slate-800 w-full rounded" />
+        </div>
+      );
+    }
     return (
       <div className="space-y-2 animate-pulse bg-slate-50 dark:bg-slate-900/30 p-5 rounded-2xl border border-slate-100 dark:border-slate-800/40">
         <div className="h-4 bg-slate-200 dark:bg-slate-800 w-1/3 rounded" />
@@ -59,6 +69,29 @@ export default function ProyectoDonacionesProgreso({
       minimumFractionDigits: 0
     });
   };
+
+  if (variant === 'compact') {
+    return (
+      <div className="space-y-2 pt-1 w-full">
+        <div className="flex justify-between items-center mb-1">
+          <span className="text-[10px] font-medium text-slate-400 uppercase tracking-widest flex items-center gap-1">
+            <Heart className="w-2.5 h-2.5 text-[#54BCEB]" fill="#54BCEB" /> Donaciones
+          </span>
+          <span className="text-[11px] font-bold text-[#003B4F]">{progreso.porcentaje}%</span>
+        </div>
+        <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+          <div 
+            className="h-full rounded-full bg-gradient-to-r from-celeste via-[#38bdf8] to-[#FF9B18] transition-all duration-1000 ease-out" 
+            style={{ width: `${progreso.porcentaje}%` }}
+          />
+        </div>
+        <div className="flex justify-between text-[9px] font-bold text-slate-500 uppercase tracking-wider">
+          <span>{symbol}{formatMonto(progreso.totalAcumulado)} rec.</span>
+          <span>Meta: {symbol}{formatMonto(metaMonto)}</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-slate-50 dark:bg-slate-900/30 border border-slate-200/60 dark:border-slate-800/40 p-5 sm:p-6 rounded-3xl space-y-4 shadow-sm relative overflow-hidden transition-all hover:shadow-md">
