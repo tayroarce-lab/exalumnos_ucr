@@ -49,7 +49,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .animate-fade-in {
-  animation: fade-in 0.2s ease-out;
+  animation: fade-in 0.15s ease-out;
 }
 
 .animate-spin-slow {
@@ -69,7 +69,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .animate-slide-up {
-  animation: slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: slide-up 0.15s ease-out;
 }
 
 /* Estilo premium de scroll */
@@ -81,11 +81,11 @@ h1, h2, h3, h4, h5, h6 {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
+  background: #E2E8F0;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8;
+  background: #CBD5E1;
 }
 
 /* -------------------------------------------------------
@@ -98,17 +98,16 @@ h1, h2, h3, h4, h5, h6 {
     rgba(255, 255, 255, 0.2) 0%,
     rgba(255, 255, 255, 0.05) 100%
   );
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(4px);
   border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .dashboard-card-hover {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.15s ease-out;
 }
 .dashboard-card-hover:hover {
-  transform: translateY(-4px) scale(1.01);
-  box-shadow: 0 12px 30px -10px rgba(243, 75, 38, 0.15);
-  border-color: rgba(243, 75, 38, 0.25);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: #54BCEB;
 }
 
 /* --------- GLOBAL A11Y CLASSES --------- */

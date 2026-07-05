@@ -15,7 +15,7 @@
 
 .admin-chart-card {
   background: var(--admin-bg-card);
-  border-radius: 16px;
+  border-radius: 6px;
   padding: 32px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02), 0 4px 16px rgba(0, 0, 0, 0.03);
   border: 1px solid var(--admin-border-color);
@@ -26,7 +26,7 @@
 
 .admin-chart-card:hover {
   border-color: var(--admin-border-hover);
-  box-shadow: 0 8px 20px rgba(84, 188, 235, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .admin-chart-header {

@@ -126,7 +126,7 @@ main:has(.admin-layout) > div {
 
 .admin-date-select {
   padding: 10px 36px 10px 42px;
-  border-radius: 12px;
+  border-radius: 6px;
   border: 1px solid var(--admin-border-color);
   background-color: var(--admin-bg-card);
   color: var(--admin-text-primary);
@@ -156,19 +156,18 @@ main:has(.admin-layout) > div {
   padding: 10px 20px;
   background-color: var(--admin-accent-celeste);
   color: #001324;
-  border-radius: 12px;
+  border-radius: 9999px;
   font-size: 14px;
   font-weight: 700;
   border: none;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 4px 12px rgba(84, 188, 235, 0.15);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .admin-export-btn:hover {
   background-color: var(--admin-accent-celeste-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(84, 188, 235, 0.25);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .admin-export-btn:active {
@@ -190,11 +189,11 @@ main:has(.admin-layout) > div {
   align-items: center;
   height: 320px;
   background: var(--admin-bg-card);
-  border-radius: 16px;
+  border-radius: 6px;
   border: 1px solid var(--admin-border-color);
   color: var(--admin-text-secondary);
   gap: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
 .admin-error-state {
