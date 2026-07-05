@@ -121,7 +121,7 @@ body {
   min-height: 100vh;
   width: 100%;
   position: relative;
-  background-color: #F7F9FB;
+  background: linear-gradient(135deg, #FFF3E8 0%, #FEF9F0 35%, #EBF7FD 70%, #D4EFFA 100%);
   overflow: hidden;
 }
 
@@ -153,7 +153,7 @@ body {
   width: 290px;
   height: 290px;
   border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.11);
+  border: 2px solid rgba(243, 75, 38, 0.12);
   pointer-events: none;
   animation: rotar-lento 36s linear infinite;
 }
@@ -166,7 +166,7 @@ body {
   right: 28px;
   bottom: 28px;
   border-radius: 50%;
-  border: 1.5px solid rgba(255, 255, 255, 0.06);
+  border: 1.5px solid rgba(243, 75, 38, 0.06);
 }
 
 /* Círculo medio — zona media */
@@ -177,7 +177,7 @@ body {
   width: 120px;
   height: 120px;
   border-radius: 50%;
-  border: 1.5px solid rgba(255, 255, 255, 0.08);
+  border: 1.5px solid rgba(84, 188, 235, 0.18);
   pointer-events: none;
   animation: rotar-inverso 22s linear infinite;
 }
@@ -275,7 +275,7 @@ body {
   right: 28%;
   width: 78px;
   height: 78px;
-  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.38) 2px, transparent 2px);
+  background-image: radial-gradient(circle, rgba(243, 75, 38, 0.25) 2px, transparent 2px);
   background-size: 15px 15px;
   pointer-events: none;
   z-index: 0;
@@ -290,7 +290,7 @@ body {
   right: 30%;
   width: 65px;
   height: 65px;
-  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.26) 2px, transparent 2px);
+  background-image: radial-gradient(circle, rgba(84, 188, 235, 0.3) 2px, transparent 2px);
   background-size: 13px 13px;
   pointer-events: none;
   z-index: 0;
@@ -453,7 +453,7 @@ body {
 .imagen-girasol-animada {
   -webkit-mask-image: conic-gradient(black var(--sweep-angle), transparent var(--sweep-angle));
   mask-image: conic-gradient(black var(--sweep-angle), transparent var(--sweep-angle));
-  animation: sweep-angle-anim 2.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: sweep-angle-anim 2.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   opacity: 1;
 }
 
@@ -469,7 +469,13 @@ body {
     rgba(255, 255, 255, 1) var(--sweep-angle),
     transparent var(--sweep-angle)
   );
-  animation: sweep-angle-anim 2.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: sweep-angle-anim 2.4s cubic-bezier(0.22, 1, 0.36, 1) forwards,
+             luz-fade-out 0.5s ease-out 2.2s forwards;
+}
+
+@keyframes luz-fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
 }
 
 @keyframes anim-fade-out {

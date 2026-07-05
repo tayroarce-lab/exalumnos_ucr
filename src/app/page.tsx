@@ -79,7 +79,7 @@ function SeccionHeroSplit() {
         {/* Birrete de graduación — arriba izquierda */}
         <div className="deco-icono deco-gorro-graduacion">
           <svg width="58" height="58" viewBox="0 0 24 24" fill="none"
-            stroke="rgba(0,0,0,0.15)" strokeWidth="1.3"
+            stroke="rgba(243,75,38,0.55)" strokeWidth="1.3"
             strokeLinecap="round" strokeLinejoin="round">
             <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
             <path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5" />
@@ -89,7 +89,7 @@ function SeccionHeroSplit() {
         {/* Libro abierto — derecha media */}
         <div className="deco-icono deco-libro">
           <svg width="52" height="52" viewBox="0 0 24 24" fill="none"
-            stroke="rgba(0,0,0,0.15)" strokeWidth="1.8"
+            stroke="rgba(84,188,235,0.6)" strokeWidth="1.8"
             strokeLinecap="round" strokeLinejoin="round">
             <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
             <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
@@ -99,7 +99,7 @@ function SeccionHeroSplit() {
         {/* Lápiz — arriba derecha */}
         <div className="deco-icono deco-lapiz">
           <svg width="42" height="42" viewBox="0 0 24 24" fill="none"
-            stroke="rgba(0,0,0,0.2)" strokeWidth="1.8"
+            stroke="rgba(0,60,80,0.4)" strokeWidth="1.8"
             strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 20h9" />
             <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
@@ -109,14 +109,14 @@ function SeccionHeroSplit() {
         {/* Átomo — esquina superior derecha, girando */}
         <div className="deco-icono deco-atomo">
           <svg width="88" height="88" viewBox="0 0 24 24" fill="none" strokeLinecap="round">
-            <circle cx="12" cy="12" r="1.5" fill="rgba(0,0,0,0.15)" />
+            <circle cx="12" cy="12" r="1.5" fill="rgba(243,75,38,0.45)" />
             <ellipse cx="12" cy="12" rx="10" ry="4"
-              stroke="rgba(0,0,0,0.15)" strokeWidth="1.5" />
+              stroke="rgba(243,75,38,0.35)" strokeWidth="1.5" />
             <ellipse cx="12" cy="12" rx="10" ry="4"
-              stroke="rgba(0,0,0,0.15)" strokeWidth="1.5"
+              stroke="rgba(84,188,235,0.35)" strokeWidth="1.5"
               transform="rotate(60 12 12)" />
             <ellipse cx="12" cy="12" rx="10" ry="4"
-              stroke="rgba(0,0,0,0.15)" strokeWidth="1.5"
+              stroke="rgba(0,76,99,0.35)" strokeWidth="1.5"
               transform="rotate(120 12 12)" />
           </svg>
         </div>
@@ -124,7 +124,7 @@ function SeccionHeroSplit() {
         {/* Diploma / Medalla — abajo derecha */}
         <div className="deco-icono deco-diploma">
           <svg width="48" height="48" viewBox="0 0 24 24" fill="none"
-            stroke="rgba(0,0,0,0.15)" strokeWidth="1.8"
+            stroke="rgba(255,155,24,0.55)" strokeWidth="1.8"
             strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="8" r="6" />
             <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" />
@@ -134,11 +134,11 @@ function SeccionHeroSplit() {
         {/* Brújula / Compás — abajo izquierda */}
         <div className="deco-icono deco-brujula">
           <svg width="50" height="50" viewBox="0 0 24 24" fill="none"
-            stroke="rgba(0,0,0,0.12)" strokeWidth="1.3"
+            stroke="rgba(84,188,235,0.5)" strokeWidth="1.3"
             strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="10" />
             <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"
-              fill="rgba(0,0,0,0.05)" stroke="rgba(0,0,0,0.15)" strokeWidth="1.2" />
+              fill="rgba(84,188,235,0.12)" stroke="rgba(84,188,235,0.5)" strokeWidth="1.2" />
           </svg>
         </div>
 
@@ -157,7 +157,7 @@ function SeccionHeroSplit() {
         {/* Estrella amarilla */}
         <div className="deco-icono deco-estrella">
           <svg width="30" height="30" viewBox="0 0 24 24"
-            fill="rgba(0,0,0,0.08)" stroke="rgba(0,0,0,0.18)" strokeWidth="1.2">
+            fill="rgba(255,155,24,0.35)" stroke="rgba(243,75,38,0.5)" strokeWidth="1.2">
             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
           </svg>
         </div>
@@ -165,7 +165,7 @@ function SeccionHeroSplit() {
         {/* Estrella blanca pequeña */}
         <div className="deco-icono deco-estrella-2">
           <svg width="18" height="18" viewBox="0 0 24 24"
-            fill="rgba(0,0,0,0.08)" stroke="rgba(0,0,0,0.12)" strokeWidth="1.5">
+            fill="rgba(84,188,235,0.3)" stroke="rgba(84,188,235,0.5)" strokeWidth="1.5">
             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
           </svg>
         </div>
@@ -186,8 +186,8 @@ function SeccionHeroSplit() {
         <div className="deco-triangulo-acento">
           <svg width="52" height="46" viewBox="0 0 52 46" fill="none">
             <polygon points="26,2 50,44 2,44"
-              stroke="rgba(0,0,0,0.12)" strokeWidth="2"
-              fill="rgba(0,0,0,0.02)" />
+              stroke="rgba(243,75,38,0.4)" strokeWidth="2"
+              fill="rgba(243,75,38,0.06)" />
           </svg>
         </div>
 
