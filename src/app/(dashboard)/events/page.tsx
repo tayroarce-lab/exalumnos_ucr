@@ -43,19 +43,23 @@ export default async function EventsPage() {
                 hoverEffect={true}
                 className="flex flex-col justify-between p-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
               >
-                {/* Cabecera con gradiente real */}
+                {/* Cabecera con imagen */}
                 <div
-                  className="h-44 w-full relative flex items-end justify-start p-5 text-white"
-                  style={{
-                    background: `linear-gradient(135deg, ${gradient.from}, ${gradient.to})`
-                  }}
+                  className="h-44 w-full relative flex items-end justify-start p-5 text-white overflow-hidden group/image"
                 >
+                  {/* Imagen de fondo */}
+                  <img 
+                    src={event.category === 'Virtual' ? 'https://images.unsplash.com/photo-1591115765373-5207764f72e7?w=800&auto=format&fit=crop' : 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&auto=format&fit=crop'} 
+                    alt={event.title}
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover/image:scale-110"
+                  />
                   {/* Overlay oscuro para legibilidad */}
-                  <div className="absolute inset-0 bg-black/20" />
-                  <span className="absolute top-4 left-4 bg-white/25 backdrop-blur-md text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider z-10">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
+                  
+                  <span className="absolute top-4 left-4 bg-white/20 backdrop-blur-md text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider z-10 border border-white/30">
                     {event.category || 'Evento'}
                   </span>
-                  <h3 className="relative z-10 font-display font-extrabold text-base uppercase tracking-wide leading-snug drop-shadow-md">
+                  <h3 className="relative z-10 font-display font-extrabold text-base uppercase tracking-wide leading-snug drop-shadow-lg">
                     {event.title}
                   </h3>
                 </div>

@@ -224,15 +224,26 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
                   >
                     Aplicar Ahora
                   </Button>
-                  <Link href={`/jobs/${id}/adaptar`} className="w-full">
+                  {hasCV === false ? (
                     <Button
+                      onClick={() => setShowNoCVNotice(true)}
                       variant="secondary"
                       className="w-full h-12 text-sm uppercase tracking-wider font-bold mt-3 border-emerald-200 text-emerald-700 hover:bg-emerald-50 bg-white"
                     >
                       <Sparkles className="w-4 h-4 mr-2 inline" />
                       Adaptar CV con IA
                     </Button>
-                  </Link>
+                  ) : (
+                    <Link href={`/jobs/${id}/adaptar`} className="w-full">
+                      <Button
+                        variant="secondary"
+                        className="w-full h-12 text-sm uppercase tracking-wider font-bold mt-3 border-emerald-200 text-emerald-700 hover:bg-emerald-50 bg-white"
+                      >
+                        <Sparkles className="w-4 h-4 mr-2 inline" />
+                        Adaptar CV con IA
+                      </Button>
+                    </Link>
+                  )}
                 </>
               )}
               <span className="text-[10px] text-slate-400 block font-semibold uppercase">

@@ -95,8 +95,8 @@ export default function JobsPage() {
     return matchesSearch && matchesSkills
   })
 
-  // Mostrar banner si: es estudiante, no tiene CV, y no lo ha cerrado
-  const showCVBanner = isStudent && hasCV === false && !bannerDismissed
+  // Mostrar banner si: no tiene CV, y no lo ha cerrado
+  const showCVBanner = hasCV === false && !bannerDismissed
 
   return (
     <div className="bg-transparent min-h-screen py-10 px-6 lg:px-10 relative overflow-hidden transition-colors duration-300">

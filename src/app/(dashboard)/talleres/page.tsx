@@ -113,7 +113,7 @@ export default function DirectorioTalleresPage() {
                 
                 <div className="p-4 border-t border-slate-100 bg-slate-50">
                   <Link href={`/talleres/${taller.id}`} className="block w-full">
-                    <Button className="w-full bg-white hover:bg-slate-100 text-blue-600 border border-blue-200 shadow-sm rounded-xl">
+                    <Button variant="secondary" className="w-full shadow-sm rounded-xl border-blue-200 hover:bg-blue-50 transition-colors">
                       Ver Detalles
                     </Button>
                   </Link>
