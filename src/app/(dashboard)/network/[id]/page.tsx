@@ -166,11 +166,6 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
   const initials = displayName.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase();
   const showContactInfo = isAdmin || connectionStatus === 'activo' || (user && profile.id === user.id);
 
-  const getAvatarUrl = (path: string | null) => {
-    if (!path) return null;
-    if (path.startsWith('http')) return path;
-    return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/${path}`;
-  };
 
   return (
     <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8 font-sans">
@@ -203,7 +198,7 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
             <div className="absolute -top-14 sm:-top-16 border-4 border-white rounded-full bg-white shadow-sm">
               {profile.foto_url ? (
                 <img
-                  src={getAvatarUrl(profile.foto_url) as string}
+                  src={getAvatarUrl(profile.foto_url, profile.full_name) as string}
                   alt={displayName}
                   className="w-28 h-28 sm:w-32 sm:h-32 rounded-full object-cover"
                 />
@@ -509,7 +504,7 @@ export default async function NetworkProfilePage({ params }: { params: { id: str
                         <div className="flex items-center gap-3">
                           {rec.foto_url ? (
                             <img
-                              src={getAvatarUrl(rec.foto_url) as string}
+                              src={getAvatarUrl(rec.foto_url, rec.full_name) as string}
                               alt={rec.full_name}
                               className="w-10 h-10 rounded-full object-cover shrink-0"
                             />

@@ -241,6 +241,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
         { name: 'Mentorías', href: '/mentorships' },
         { name: 'Matches', href: '/mis-matches' },
         { name: 'Eventos', href: '/events' },
+        { name: 'Empleos', href: '/jobs' },
         { name: 'Talleres', href: '/talleres' },
         { name: 'Consultas y Soporte', href: '/consultas-soporte' }
       ]
