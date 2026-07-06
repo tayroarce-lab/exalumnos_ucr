@@ -33,13 +33,18 @@ export async function crearPosicion(data: CrearPosicionInput) {
   }
 
   // 1. Validar "perfil completo" antes de publicar
-  const { data: exalumno, error: exalumnoError } = await supabase
-    .from('exalumnos')
-    .select('perfil_completo')
-    .eq('user_id', user.id)
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('es_exalumno, carrera_principal')
+    .eq('id', user.id)
     .single()
 
-  if (exalumnoError || !exalumno || !exalumno.perfil_completo) {
+  if (profileError || !profile) {
+    throw new Error('No se encontró el perfil de exalumno')
+  }
+
+  const isProfileComplete = profile.es_exalumno || Boolean(profile.carrera_principal)
+  if (!isProfileComplete) {
     throw new Error('Debes completar tu perfil antes de publicar una posición')
   }
 
@@ -186,9 +191,10 @@ export async function obtenerPosicionPorId(id: string) {
     .from('posiciones')
     .select('*, exalumno:users!posiciones_exalumno_id_fkey(nombre, foto_url)').is('deleted_at', null)
     .eq('id', id)
-    .single()
+    .maybeSingle()
 
   if (error) throw new Error(error.message)
+  if (!data) throw new Error('La vacante solicitada no existe o fue eliminada.')
   return data
 }
 

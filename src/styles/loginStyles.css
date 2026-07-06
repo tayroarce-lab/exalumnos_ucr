@@ -11,6 +11,7 @@
   overflow: hidden;
   padding: 2rem;
   font-family: 'Inter', sans-serif;
+  background-color: #F7F9FB;
 }
 
 .login-container {
@@ -18,10 +19,9 @@
   width: 100%;
   max-width: 960px;
   background-color: #ffffff;
-  border-radius: 16px;
+  border-radius: 6px;
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
   position: relative;
   z-index: 1;
 }
@@ -29,7 +29,7 @@
 /* --- PANEL IZQUIERDO (decorativo) --- */
 .login-left {
   flex: 1;
-  background: linear-gradient(135deg, #0284C7 50%, #F34B26 50%);
+  background-color: #004C63;
   color: #ffffff;
   padding: 3.5rem;
   display: flex;
@@ -38,30 +38,6 @@
   position: relative;
   overflow: hidden;
   min-height: 540px;
-}
-
-/* Círculos decorativos */
-.login-left::before,
-.login-left::after {
-  content: '';
-  position: absolute;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-.login-left::before {
-  width: 380px;
-  height: 380px;
-  top: -100px;
-  left: -80px;
-}
-
-.login-left::after {
-  width: 460px;
-  height: 460px;
-  bottom: -140px;
-  right: -120px;
 }
 
 .login-brand {
@@ -122,7 +98,7 @@
 .login-feature-icon {
   width: 36px;
   height: 36px;
-  border-radius: 8px;
+  border-radius: 4px;
   background: rgba(255, 255, 255, 0.16);
   display: flex;
   align-items: center;
@@ -198,7 +174,7 @@
   width: 100%;
   padding: 0.85rem 1rem 0.85rem 2.85rem;
   border: 1.5px solid #e2e8f0;
-  border-radius: 10px;
+  border-radius: 4px;
   font-size: 0.95rem;
   font-family: 'Inter', sans-serif;
   color: #1e293b;
@@ -229,7 +205,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
+  border-radius: 4px;
   transition: color 0.2s ease, background-color 0.2s ease;
 }
 
@@ -241,7 +217,7 @@
 /* Mensaje de error/éxito */
 .login-message {
   padding: 0.85rem 1.15rem;
-  border-radius: 10px;
+  border-radius: 4px;
   font-size: 0.875rem;
   margin-bottom: 1rem;
   display: flex;
@@ -280,7 +256,7 @@
   background: linear-gradient(135deg, #54BCEB 0%, #0284C7 100%);
   color: #ffffff;
   border: none;
-  border-radius: 10px;
+  border-radius: 9999px;
   font-size: 1rem;
   font-weight: 600;
   font-family: 'Inter', sans-serif;
@@ -289,15 +265,12 @@
   align-items: center;
   justify-content: center;
   gap: 0.6rem;
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-              opacity 0.2s ease;
+  transition: opacity 0.15s ease-out;
   margin-top: 0.5rem;
 }
 
 .login-submit-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(84, 188, 235, 0.3);
+  opacity: 0.9;
 }
 
 .login-submit-btn:active:not(:disabled) {

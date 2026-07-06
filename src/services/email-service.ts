@@ -30,7 +30,7 @@ function buildEmailTemplate(title: string, body: string): string {
           <tr>
             <td style="background-color:#0A2540; padding:28px 40px; text-align:center;">
               <h1 style="margin:0; color:#ffffff; font-size:20px; font-weight:700; letter-spacing:0.5px;">
-                🎓 Fundación Exalumnos UCR
+                 Fundación Exalumnos UCR
               </h1>
               <p style="margin:6px 0 0; color:#94a3b8; font-size:13px;">Red de Apoyo Estudiantil</p>
             </td>
@@ -73,14 +73,14 @@ export async function sendDonationVerificationEmail(
   projectName: string
 ) {
   const formattedAmount = currency === 'CRC'
-    ? `₡ ${amount.toLocaleString('es-CR')}`
+    ? ` ${amount.toLocaleString('es-CR')}`
     : `$ ${amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
 
   try {
     await resend.emails.send({
       from: FROM_ADDRESS,
       to: donorEmail,
-      subject: '⏳ Tu donación está siendo verificada — Fundación Exalumnos UCR',
+      subject: ' Tu donación está siendo verificada — Fundación Exalumnos UCR',
       html: buildEmailTemplate('Donación en Verificación', `
         <h2 style="margin:0 0 8px; color:#0A2540; font-size:22px;">¡Gracias por tu apoyo, ${donorName}!</h2>
         <p style="color:#64748b; font-size:15px; margin:0 0 24px;">Hemos recibido tu reporte de donación para el proyecto: <strong>${projectName}</strong>.</p>
@@ -121,7 +121,7 @@ export async function sendDonationConfirmationEmails(
   studentName?: string | null
 ) {
   const formattedAmount = currency === 'CRC'
-    ? `₡ ${amount.toLocaleString('es-CR')}`
+    ? ` ${amount.toLocaleString('es-CR')}`
     : `$ ${amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
 
   try {
@@ -129,7 +129,7 @@ export async function sendDonationConfirmationEmails(
     await resend.emails.send({
       from: FROM_ADDRESS,
       to: donorEmail,
-      subject: '✅ Tu donación fue confirmada — Fundación Exalumnos UCR',
+      subject: ' Tu donación fue confirmada — Fundación Exalumnos UCR',
       html: buildEmailTemplate('Donación Confirmada', `
         <h2 style="margin:0 0 8px; color:#0A2540; font-size:22px;">¡Gracias por tu generosidad, ${donorName}!</h2>
         <p style="color:#64748b; font-size:15px; margin:0 0 24px;">Tu donación ha sido verificada y confirmada exitosamente.</p>
@@ -158,7 +158,7 @@ export async function sendDonationConfirmationEmails(
       await resend.emails.send({
         from: FROM_ADDRESS,
         to: studentEmail,
-        subject: '🎉 ¡Recibiste una donación confirmada! — Fundación Exalumnos UCR',
+        subject: ' ¡Recibiste una donación confirmada! — Fundación Exalumnos UCR',
         html: buildEmailTemplate('Donación Recibida', `
           <h2 style="margin:0 0 8px; color:#0A2540; font-size:22px;">¡Buenas noticias, ${studentName}!</h2>
           <p style="color:#64748b; font-size:15px; margin:0 0 24px;">Una donación para tu proyecto ha sido confirmada por la Fundación.</p>
@@ -203,7 +203,7 @@ export async function sendDonationRejectionEmail(
     await resend.emails.send({
       from: FROM_ADDRESS,
       to: donorEmail,
-      subject: '⚠️ Problema con tu reporte de donación — Fundación Exalumnos UCR',
+      subject: ' Problema con tu reporte de donación — Fundación Exalumnos UCR',
       html: buildEmailTemplate('Revisión Requerida', `
         <h2 style="margin:0 0 8px; color:#0A2540; font-size:22px;">Hola, ${donorName}</h2>
         <p style="color:#64748b; font-size:15px; margin:0 0 24px;">
@@ -257,7 +257,7 @@ export async function sendMatchNotificationEmails(
     const resultAlumni = await resend.emails.send({
       from: FROM_ADDRESS,
       to: (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV) ? 'tarcebfwd@gmail.com' : alumniEmail,
-      subject: '🤝 Nuevo match sugerido para ti — Fundación Exalumnos UCR',
+      subject: ' Nuevo match sugerido para ti — Fundación Exalumnos UCR',
       html: buildEmailTemplate('Nuevo Match', `
         <h2 style="margin:0 0 8px; color:#0A2540; font-size:22px;">¡Tienes un nuevo match, ${alumniName}!</h2>
         <p style="color:#64748b; font-size:15px; margin:0 0 24px;">
@@ -291,7 +291,7 @@ export async function sendMatchNotificationEmails(
     const resultEst = await resend.emails.send({
       from: FROM_ADDRESS,
       to: (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV) ? 'tarcebfwd@gmail.com' : studentEmail,
-      subject: '✨ ¡Un exalumno quiere apoyarte! — Fundación Exalumnos UCR',
+      subject: ' ¡Un exalumno quiere apoyarte! — Fundación Exalumnos UCR',
       html: buildEmailTemplate('Nuevo Match', `
         <h2 style="margin:0 0 8px; color:#0A2540; font-size:22px;">¡Buenas noticias, ${studentName}!</h2>
         <p style="color:#64748b; font-size:15px; margin:0 0 24px;">
@@ -344,17 +344,17 @@ export async function sendMatchStatusUpdateEmail(
   const isSuccess = resultado === 'exitoso';
 
   const subject = isActive
-    ? `🟢 Tu match está ahora activo, ${recipientName} — Fundación Exalumnos UCR`
+    ? ` Tu match está ahora activo, ${recipientName} — Fundación Exalumnos UCR`
     : isSuccess
-    ? `🏆 Match completado exitosamente, ${recipientName} — Fundación Exalumnos UCR`
-    : `📋 Actualización de tu match, ${recipientName} — Fundación Exalumnos UCR`;
+    ? ` Match completado exitosamente, ${recipientName} — Fundación Exalumnos UCR`
+    : ` Actualización de tu match, ${recipientName} — Fundación Exalumnos UCR`;
 
   const body = isActive
     ? `
       <h2 style="margin:0 0 8px; color:#0A2540; font-size:22px;">¡Tu match está activo, ${recipientName}!</h2>
       <p style="color:#64748b; font-size:15px; margin:0 0 24px;">La conexión ha sido confirmada y está en marcha.</p>
       <div style="background:#ecfdf5; border:1px solid #a7f3d0; border-radius:12px; padding:16px; margin:0 0 24px;">
-        <p style="margin:0; font-size:14px; color:#065f46; font-weight:600;">Estado: Activo ✅</p>
+        <p style="margin:0; font-size:14px; color:#065f46; font-weight:600;">Estado: Activo </p>
       </div>
       <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:12px; padding:20px; margin:0 0 24px;">
         <p style="margin:0 0 4px; font-size:13px; color:#3b82f6; font-weight:600; text-transform:uppercase;">Datos de Contacto</p>
@@ -368,7 +368,7 @@ export async function sendMatchStatusUpdateEmail(
       <p style="color:#64748b; font-size:15px; margin:0 0 24px;">Tu match ha sido cerrado por la Fundación.</p>
       <div style="background:${isSuccess ? '#ecfdf5' : '#fef2f2'}; border:1px solid ${isSuccess ? '#a7f3d0' : '#fca5a5'}; border-radius:12px; padding:16px; margin:0 0 24px;">
         <p style="margin:0; font-size:14px; color:${isSuccess ? '#065f46' : '#991b1b'}; font-weight:600;">
-          Resultado: ${isSuccess ? '¡Exitoso! 🏆' : 'Cancelado'}
+          Resultado: ${isSuccess ? '¡Exitoso! ' : 'Cancelado'}
         </p>
       </div>
       ${isSuccess ? '<p style="color:#475569; font-size:14px;">¡Felicidades por completar este proceso de apoyo!</p>' : '<p style="color:#475569; font-size:14px;">Si tienes dudas sobre el cierre, comunícate con nosotros.</p>'}
@@ -407,7 +407,7 @@ export async function sendAdminDonationAlert(
     await resend.emails.send({
       from: FROM_ADDRESS,
       to: adminEmail,
-      subject: `⚠️ ${pendingCount} donación(es) llevan +24h sin revisar — Acción requerida`,
+      subject: ` ${pendingCount} donación(es) llevan +24h sin revisar — Acción requerida`,
       html: buildEmailTemplate('Alerta Administrativa', `
         <h2 style="margin:0 0 8px; color:#0A2540; font-size:22px;">Alerta: Donaciones pendientes</h2>
         <p style="color:#64748b; font-size:15px; margin:0 0 24px;">
@@ -453,8 +453,8 @@ export async function sendReportNotificationEmail(
   motivo: string
 ) {
   const subject = tipo === 'nuevo' 
-    ? '⚠️ Nuevo reporte de perfil requiere revisión' 
-    : '📢 Actualización sobre el estado de tu cuenta';
+    ? ' Nuevo reporte de perfil requiere revisión' 
+    : ' Actualización sobre el estado de tu cuenta';
 
   const body = tipo === 'nuevo'
     ? `
@@ -488,3 +488,54 @@ export async function sendReportNotificationEmail(
   }
 }
 
+export async function sendTallerApprovalEmail(toEmail: string, tallerTitulo: string, isApproved: boolean) {
+  try {
+    const estado = isApproved ? 'aprobado' : 'rechazado';
+    const message = isApproved 
+      ? '¡Felicidades! Tu taller ha sido aprobado y ya está disponible para que los estudiantes se postulen.'
+      : 'Lo sentimos, tu taller ha sido rechazado por un administrador. Puedes ponerte en contacto con soporte para más detalles.';
+    
+    await resend.emails.send({
+      from: 'Fundación Exalumnos UCR <onboarding@resend.dev>',
+      to: [toEmail],
+      subject: `Actualización sobre tu taller: ${tallerTitulo}`,
+      html: `
+        <h2>Actualización sobre tu taller</h2>
+        <p>Hola,</p>
+        <p>El estado de tu taller <strong>${tallerTitulo}</strong> ha cambiado a <strong>${estado}</strong>.</p>
+        <p>${message}</p>
+        <br />
+        <p>Atentamente,</p>
+        <p>El equipo de la Fundación Exalumnos UCR</p>
+      `,
+    });
+  } catch (error) {
+    console.error('Error enviando email de taller (aprobacion):', error);
+  }
+}
+
+export async function sendTallerApplicationResultEmail(toEmail: string, tallerTitulo: string, isAccepted: boolean) {
+  try {
+    const estado = isAccepted ? 'aceptada' : 'rechazada';
+    const message = isAccepted
+      ? '¡Felicidades! Has sido aceptado en el taller. Pronto recibirás más detalles sobre el mismo.'
+      : 'Lo sentimos, tu postulación al taller no ha sido seleccionada en esta ocasión.';
+
+    await resend.emails.send({
+      from: 'Fundación Exalumnos UCR <onboarding@resend.dev>',
+      to: [toEmail],
+      subject: `Resultado de postulación al taller: ${tallerTitulo}`,
+      html: `
+        <h2>Actualización sobre tu postulación</h2>
+        <p>Hola,</p>
+        <p>Tu postulación al taller <strong>${tallerTitulo}</strong> ha sido <strong>${estado}</strong>.</p>
+        <p>${message}</p>
+        <br />
+        <p>Atentamente,</p>
+        <p>El equipo de la Fundación Exalumnos UCR</p>
+      `,
+    });
+  } catch (error) {
+    console.error('Error enviando email de taller (resultado):', error);
+  }
+}

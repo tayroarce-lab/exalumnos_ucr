@@ -8,6 +8,7 @@ import { Mail, Lock, ShieldCheck, KeyRound, Loader2, ArrowLeft } from 'lucide-re
 import AuthBackground from '@/components/ui/AuthBackground';
 import logoUCR from '@/images/Logo_UCR.png';
 import '@/styles/loginStyles.css';
+import { solicitarCodigoRecuperacion, restablecerPasswordConCodigo } from '@/actions/auth';
 
 export default function RecuperarPasswordPage() {
   const router = useRouter();
@@ -31,19 +32,14 @@ export default function RecuperarPasswordPage() {
     setMessage(null);
 
     try {
-      const res = await fetch('/api/auth/solicitar-codigo', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
-      });
-      const data = await res.json();
+      const result = await solicitarCodigoRecuperacion(email);
 
-      if (!res.ok) {
-        throw new Error(data.error || 'Error al solicitar el código');
+      if (!result.success) {
+        throw new Error(result.error);
       }
 
       setMessage({ text: 'Se ha enviado un código a tu correo. Tienes 5 minutos para usarlo.', type: 'success' });
-      setTipoUsuario(data.tipo);
+      setTipoUsuario(result.tipo as any);
       setFase(2);
     } catch (err: any) {
       setMessage({ text: err.message, type: 'error' });
@@ -67,15 +63,10 @@ export default function RecuperarPasswordPage() {
     setMessage(null);
 
     try {
-      const res = await fetch('/api/auth/reset-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, codigo, nuevaPassword: password })
-      });
-      const data = await res.json();
+      const result = await restablecerPasswordConCodigo(email, codigo, password);
 
-      if (!res.ok) {
-        throw new Error(data.error || 'Error al restablecer la contraseña');
+      if (!result.success) {
+        throw new Error(result.error);
       }
 
       setMessage({ text: '¡Contraseña actualizada con éxito! Redirigiendo al login...', type: 'success' });

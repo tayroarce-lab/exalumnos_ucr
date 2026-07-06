@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { Bell, ChevronDown, User, LogOut, Briefcase, Menu, X, Clock, Sun, Moon } from 'lucide-react'
+import { Bell, ChevronDown, User, LogOut, Briefcase, Menu, X, Clock, Sun, Moon, BookOpen, Sparkles } from 'lucide-react'
 import { useProfile } from '@/contexts/ProfileContext'
 import { createClient } from '@/lib/supabase/client'
 import logoUCR from '@/images/Logo_UCR.png'
@@ -107,29 +107,52 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
   }, [isMobileMenuOpen])
 
   // Estado para notificaciones
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      title: 'Nueva vacante publicada',
-      desc: 'Se publicó "Desarrollador React" en tu área.',
-      time: 'Hace 10 min',
-      link: '/jobs'
-    },
-    {
-      id: 2,
-      title: 'Solicitud de mentoría',
-      desc: 'Gabriel Brenes solicitó una sesión contigo.',
-      time: 'Hace 2 horas',
-      link: '/mentorships'
-    },
-    {
-      id: 3,
-      title: 'Donación recibida',
-      desc: 'Tu donación al Fondo de Becas ha sido procesada.',
-      time: 'Ayer',
-      link: '/donations'
+  const [notifications, setNotifications] = useState<any[]>([])
+
+  useEffect(() => {
+    if (!user?.id) return
+
+    const supabase = createClient()
+
+    const fetchNotifs = async () => {
+      const { data } = await supabase
+        .from('notificaciones')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(20)
+      if (data) setNotifications(data)
     }
-  ])
+    fetchNotifs()
+
+    const channel = supabase
+      .channel('notificaciones_navbar')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notificaciones', filter: `user_id=eq.${user.id}` }, (payload) => {
+        setNotifications((prev) => [payload.new, ...prev])
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'notificaciones', filter: `user_id=eq.${user.id}` }, (payload) => {
+        setNotifications((prev) => prev.map(n => n.id === payload.new.id ? payload.new : n))
+      })
+      .subscribe()
+
+    return () => { supabase.removeChannel(channel) }
+  }, [user?.id])
+
+  const unreadCount = notifications.filter(n => !n.leida).length
+
+  const handleMarkAsRead = async (id: string) => {
+    const supabase = createClient()
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, leida: true } : n))
+    await supabase.from('notificaciones').update({ leida: true }).eq('id', id)
+    setIsNotificationsOpen(false)
+  }
+
+  const markAllAsRead = async () => {
+    if (!user?.id) return
+    const supabase = createClient()
+    setNotifications(prev => prev.map(n => ({ ...n, leida: true })))
+    await supabase.from('notificaciones').update({ leida: true }).eq('user_id', user.id).eq('leida', false)
+  }
 
   const name = profile?.full_name || user?.user_metadata?.nombre || user?.user_metadata?.full_name || 'Usuario'
   const initials = name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase()
@@ -148,9 +171,9 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
   }
 
   // Lógica de contexto: Admin, Estudiantes, Exalumnos
-  const isAdmin = pathname?.startsWith('/admin') || user?.user_metadata?.rol === 'admin'
-  const isStudentUser = user?.user_metadata?.rol === 'estudiante' || profile?.es_exalumno === false || user?.email?.endsWith('@ucr.ac.cr')
-  const isStudent = pathname?.startsWith('/student-dashboard') || (isStudentUser && user?.user_metadata?.rol !== 'exalumno')
+  const userRole = profile?.rol || user?.user_metadata?.rol || (profile?.es_exalumno === false ? 'estudiante' : 'exalumno')
+  const isAdmin = pathname?.startsWith('/admin') || userRole === 'admin'
+  const isStudent = userRole === 'estudiante'
 
   // Dashboard de inicio según rol
   const dashboardHref = isAdmin ? '/admin' : isStudent ? '/student-dashboard' : '/dashboard'
@@ -172,8 +195,12 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
       { name: 'Mentorías', href: '/mentorships' },
       { name: 'Matches', href: '/mis-matches' },
       { name: 'Eventos', href: '/events' },
-      { name: 'Empleos', href: '/jobs' }
+      { name: 'Empleos', href: '/jobs' },
+      { name: 'Talleres', href: '/mis-talleres' },
+      { name: 'Consultas y Soporte', href: '/consultas-soporte' }
     ]
+
+
   }
 
   if (isAdmin) {
@@ -189,11 +216,12 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
       userCircleBg: 'bg-white/20 text-white',
       menuItems: [
         { name: 'Inicio', href: '/admin/dashboard' },
-        { name: 'Reportes', href: '/admin/reportes' },
+        { name: 'Consultas y Soporte', href: '/admin/consultas-soporte' },
         { name: 'Usuarios', href: '/admin/usuarios' },
         { name: 'Matches', href: '/admin/matches' },
         { name: 'Donaciones', href: '/admin/donaciones' },
-        { name: 'Vacantes', href: '/admin/vacantes' }
+        { name: 'Vacantes', href: '/admin/vacantes' },
+        { name: 'Talleres', href: '/admin/talleres' }
       ]
     }
   } else if (isStudent) {
@@ -213,7 +241,9 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
         { name: 'Mentorías', href: '/mentorships' },
         { name: 'Matches', href: '/mis-matches' },
         { name: 'Eventos', href: '/events' },
-        { name: 'Empleos', href: '/jobs' }
+        { name: 'Empleos', href: '/jobs' },
+        { name: 'Talleres', href: '/talleres' },
+        { name: 'Consultas y Soporte', href: '/consultas-soporte' }
       ]
     }
   }
@@ -236,37 +266,38 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
 
   return (
     <>
-      {/* ───────────────────── BARRA PRINCIPAL ───────────────────── */}
-      <header className={`h-16 w-full ${config.bgClass} flex items-center justify-between px-4 lg:px-8 shrink-0 transition-all duration-300 backdrop-blur-sm z-30 relative`}>
+      {/*  BARRA PRINCIPAL  */}
+      <header className={`h-20 w-full ${config.bgClass} flex items-center justify-between px-4 lg:px-8 shrink-0 transition-all duration-300 backdrop-blur-sm z-30 relative`}>
 
         {/* Logo */}
         <div className="flex items-center">
-          <Link href="/" className="flex items-center gap-3 active:scale-95 transition-transform">
+          <Link href={user ? dashboardHref : '/'} className="flex items-center gap-3 active:scale-95 transition-transform">
             <Image
               src={logoUCR}
               alt="Logo UCR"
-              width={180}
-              height={64}
-              style={{ objectFit: 'contain', filter: config.logoFilter }}
-              className="h-12 w-auto transition-all duration-300"
+              width={240}
+              height={80}
+              style={{ objectFit: 'contain', filter: config.logoFilter, width: 'auto', height: 'auto' }}
+              className="h-16 w-auto transition-all duration-300"
             />
           </Link>
         </div>
 
         {/* Navegación desktop */}
-        <nav className="hidden lg:flex items-center gap-2">
+        <nav id="tour-navbar-links" className="hidden lg:flex items-center gap-2">
           {config.menuItems.map((item, idx) => {
             const isExactOnly = item.name === 'Inicio'
             const isActive = isExactOnly
               ? pathname === item.href
               : pathname === item.href || pathname?.startsWith(item.href + '/')
+            const elementId = `tour-nav-${item.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}`
             return (
               <Link
                 key={idx}
+                id={elementId}
                 href={item.href}
-                className={`text-xs uppercase tracking-wider font-bold px-4 py-2 rounded-xl transition-all duration-200 ${
-                  isActive ? config.linkActiveClass : `text-current/80 ${config.linkHoverClass}`
-                }`}
+                className={`text-xs uppercase tracking-wider font-bold px-4 py-2 rounded-xl transition-all duration-200 ${isActive ? config.linkActiveClass : `text-current/80 ${config.linkHoverClass}`
+                  }`}
               >
                 {item.name}
               </Link>
@@ -299,35 +330,45 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
               aria-label="Notificaciones"
             >
               <Bell className="w-5 h-5" />
-              {notifications.length > 0 && (
+              {unreadCount > 0 && (
                 <span className={`absolute top-1 right-1 w-4 h-4 ${config.badgeClass} text-[9px] font-bold rounded-full flex items-center justify-center animate-pulse`}>
-                  {notifications.length}
+                  {unreadCount}
                 </span>
               )}
             </button>
 
             {isNotificationsOpen && (
               <div className="absolute right-0 mt-2 w-80 bg-white border border-slate-200 rounded-2xl shadow-xl py-2 z-50 text-slate-800 animate-in fade-in slide-in-from-top-2 duration-200">
-                <div className="px-4 py-2 border-b border-slate-100 font-semibold text-slate-800 uppercase tracking-wide text-xs">
-                  Notificaciones
+                <div className="px-4 py-2 border-b border-slate-100 flex justify-between items-center">
+                  <span className="font-semibold text-slate-800 uppercase tracking-wide text-xs">Notificaciones</span>
+                  {unreadCount > 0 && (
+                    <button onClick={markAllAsRead} className="text-[10px] text-blue-600 hover:text-blue-800 font-medium">
+                      Marcar todas como leídas
+                    </button>
+                  )}
                 </div>
                 <div className="max-h-60 overflow-y-auto">
                   {notifications.length > 0 ? (
-                    notifications.map((notif) => (
-                      <Link
-                        key={notif.id}
-                        href={notif.link}
-                        onClick={() => {
-                          setIsNotificationsOpen(false)
-                          setNotifications(prev => prev.filter(n => n.id !== notif.id))
-                        }}
-                        className="block px-4 py-3 border-b border-slate-50 hover:bg-slate-50 transition-colors cursor-pointer"
-                      >
-                        <p className="text-xs font-semibold text-slate-800">{notif.title}</p>
-                        <p className="text-xs text-slate-500 mt-0.5">{notif.desc}</p>
-                        <span className="text-[10px] text-slate-400 mt-1 block">{notif.time}</span>
-                      </Link>
-                    ))
+                    notifications.map((notif) => {
+                      const timeStr = new Date(notif.created_at).toLocaleDateString('es-CR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+                      return (
+                        <div key={notif.id} className={`block px-4 py-3 border-b border-slate-50 transition-colors ${notif.leida ? 'opacity-70 bg-white' : 'bg-blue-50/50 hover:bg-slate-50'}`}>
+                          {notif.link ? (
+                            <Link href={notif.link} onClick={() => handleMarkAsRead(notif.id)} className="block cursor-pointer">
+                              <p className={`text-xs text-slate-800 ${notif.leida ? 'font-medium' : 'font-bold'}`}>{notif.titulo}</p>
+                              <p className="text-xs text-slate-500 mt-0.5">{notif.mensaje}</p>
+                              <span className="text-[10px] text-slate-400 mt-1 block">{timeStr}</span>
+                            </Link>
+                          ) : (
+                            <div onClick={() => handleMarkAsRead(notif.id)} className="block cursor-pointer">
+                              <p className={`text-xs text-slate-800 ${notif.leida ? 'font-medium' : 'font-bold'}`}>{notif.titulo}</p>
+                              <p className="text-xs text-slate-500 mt-0.5">{notif.mensaje}</p>
+                              <span className="text-[10px] text-slate-400 mt-1 block">{timeStr}</span>
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })
                   ) : (
                     <div className="px-4 py-6 text-center text-xs text-slate-500 font-medium">
                       No tienes notificaciones nuevas
@@ -339,7 +380,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
           </div>
 
           {/* Perfil (solo desktop) */}
-          <div className="relative hidden lg:block">
+          <div id="tour-user-menu" className="relative hidden lg:block">
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               className="flex items-center gap-2 hover:bg-current/10 p-1.5 rounded-xl transition-all active:scale-95 focus:outline-none"
@@ -367,7 +408,13 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
                   <User className="w-4 h-4 text-slate-400" />
                   <span>Mi Perfil</span>
                 </Link>
-                <Link href="/mis-posiciones" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-600 hover:bg-slate-50 hover:text-brand-blue transition-colors">
+                {isStudent && (
+                  <Link href="/profile/edit?step=4" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-600 hover:bg-slate-50 hover:text-brand-blue transition-colors">
+                    <BookOpen className="w-4 h-4 text-slate-400" />
+                    <span>Mi Proyecto</span>
+                  </Link>
+                )}
+                <Link href={isStudent ? "/mis-aplicaciones" : "/mis-posiciones"} onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-600 hover:bg-slate-50 hover:text-brand-blue transition-colors">
                   <Briefcase className="w-4 h-4 text-slate-400" />
                   <span>{isStudent ? 'Mis Postulaciones' : 'Mis Posiciones'}</span>
                 </Link>
@@ -376,6 +423,18 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
                     <Clock className="w-4 h-4 text-slate-400" />
                     <span>Ver mi Historial</span>
                   </Link>
+                )}
+                {!isAdmin && (
+                  <button
+                    onClick={() => {
+                      setIsDropdownOpen(false)
+                      window.dispatchEvent(new CustomEvent('start-interactive-tour'))
+                    }}
+                    className="w-full flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-600 hover:bg-slate-50 hover:text-[#F34B26] transition-colors text-left"
+                  >
+                    <Sparkles className="w-4 h-4 text-[#F34B26]" />
+                    <span>Tour Interactivo</span>
+                  </button>
                 )}
                 <div className="border-t border-slate-100 my-1"></div>
                 <button onClick={handleLogout} className="w-full flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider text-rose-600 hover:bg-rose-50 transition-colors text-left">
@@ -397,7 +456,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
         </div>
       </header>
 
-      {/* ───────────────────── DRAWER MÓVIL ───────────────────── */}
+      {/*  DRAWER MÓVIL  */}
       {/* Overlay oscuro */}
       {isMobileMenuOpen && (
         <div
@@ -408,9 +467,8 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
 
       {/* Panel lateral derecho */}
       <div
-        className={`fixed top-0 right-0 h-full w-72 z-50 lg:hidden flex flex-col shadow-2xl transition-transform duration-300 ease-in-out ${config.drawerBg} ${
-          isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
+        className={`fixed top-0 right-0 h-full w-72 z-50 lg:hidden flex flex-col shadow-2xl transition-transform duration-300 ease-in-out ${config.drawerBg} ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
+          }`}
       >
         {/* Cabecera del drawer */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
@@ -448,9 +506,8 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
                 key={idx}
                 href={item.href}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold uppercase tracking-wide transition-all duration-200 text-white ${
-                  isActive ? config.drawerItemActive : config.drawerItemHover
-                }`}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold uppercase tracking-wide transition-all duration-200 text-white ${isActive ? config.drawerItemActive : config.drawerItemHover
+                  }`}
               >
                 {item.name}
               </Link>
@@ -468,13 +525,23 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
             <User className="w-4 h-4 opacity-70" />
             Mi Perfil
           </Link>
+          {isStudent && (
+            <Link
+              href="/profile/edit?step=4"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold uppercase tracking-wide text-white transition-all duration-200 ${config.drawerItemHover}`}
+            >
+              <BookOpen className="w-4 h-4 opacity-70" />
+              Mi Proyecto
+            </Link>
+          )}
           <Link
-            href="/mis-posiciones"
+            href={isStudent ? "/mis-aplicaciones" : "/mis-posiciones"}
             onClick={() => setIsMobileMenuOpen(false)}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold uppercase tracking-wide text-white transition-all duration-200 ${config.drawerItemHover}`}
           >
             <Briefcase className="w-4 h-4 opacity-70" />
-            Mis Posiciones
+            {isStudent ? 'Mis Postulaciones' : 'Mis Posiciones'}
           </Link>
           {!isAdmin && (
             <Link

@@ -1,42 +1,8 @@
-'use client'
-
 import React from 'react'
 import Link from 'next/link'
 import Card from '@/components/ui/card'
 import { Users, GraduationCap } from 'lucide-react'
-
-const MOCK_OPPORTUNITIES = [
-  {
-    id: '1',
-    title: 'Voluntariado: Charla de Orientación Vocacional',
-    category: 'Orientación',
-    categoryColor: 'bg-blue-100 text-blue-700',
-    iconBg: 'bg-blue-100 text-blue-700',
-    desc: 'Comparte tu trayectoria y asesora a estudiantes de primer ingreso sobre los desafíos y realidades del mercado laboral actual.',
-    duration: '2 horas de sesión única',
-    icon: GraduationCap
-  },
-  {
-    id: '2',
-    title: 'Jurado Evaluador para Proyectos de Graduación',
-    category: 'Evaluación',
-    categoryColor: 'bg-indigo-100 text-indigo-700',
-    iconBg: 'bg-indigo-100 text-indigo-700',
-    desc: 'Únete como jurado externo para calificar y retroalimentar los Trabajos Finales de Graduación (TFG) de los estudiantes avanzados.',
-    duration: '4 horas distribuidas en 2 semanas',
-    icon: AwardIcon
-  },
-  {
-    id: '3',
-    title: 'Apoyo a Proyectos de TFG Estudiantiles',
-    category: 'Proyecto Universitario',
-    categoryColor: 'bg-emerald-100 text-emerald-700',
-    iconBg: 'bg-emerald-100 text-emerald-700',
-    desc: 'Brinda apoyo técnico o acceso a datos mock/empresariales para estudiantes que requieren soporte industrial en su tesis.',
-    duration: 'Frecuencia variable',
-    icon: Users
-  }
-]
+import { createClient } from '@/lib/supabase/server'
 
 function AwardIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -58,7 +24,33 @@ function AwardIcon(props: React.SVGProps<SVGSVGElement>) {
   )
 }
 
-export default function GiveBackPage() {
+function getCategoryConfig(category: string) {
+  if (category === 'Orientación') {
+    return {
+      categoryColor: 'bg-blue-100 text-blue-700',
+      iconBg: 'bg-blue-100 text-blue-700',
+      icon: GraduationCap
+    }
+  }
+  if (category === 'Evaluación') {
+    return {
+      categoryColor: 'bg-indigo-100 text-indigo-700',
+      iconBg: 'bg-indigo-100 text-indigo-700',
+      icon: AwardIcon
+    }
+  }
+  return {
+    categoryColor: 'bg-emerald-100 text-emerald-700',
+    iconBg: 'bg-emerald-100 text-emerald-700',
+    icon: Users
+  }
+}
+
+export default async function GiveBackPage() {
+  const supabase = await createClient()
+  const { data: opportunities, error } = await supabase.from('opportunities').select('*')
+  const displayOpps = opportunities || []
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-100 to-white py-10 px-6 lg:px-10 relative overflow-hidden">
       {/* Decorativos de fondo */}
@@ -78,19 +70,21 @@ export default function GiveBackPage() {
 
         {/* Grid de Oportunidades */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {MOCK_OPPORTUNITIES.map((opp) => {
-            const IconComponent = opp.icon
+          {displayOpps.map((opp) => {
+            const config = getCategoryConfig(opp.category)
+            const IconComponent = config.icon
+            
             return (
               <Card key={opp.id} hoverEffect={true} className="flex flex-col justify-between space-y-6 bg-white border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 rounded-2xl p-6">
                 <div className="space-y-3">
                   {/* Ícono */}
-                  <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${opp.iconBg}`}>
+                  <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${config.iconBg}`}>
                     <IconComponent className="w-5 h-5" />
                   </div>
 
                   {/* Badge de categoría */}
-                  <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider inline-block ${opp.categoryColor}`}>
-                    {opp.category}
+                  <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider inline-block ${config.categoryColor}`}>
+                    {opp.category || 'Oportunidad'}
                   </span>
 
                   {/* Título */}
@@ -100,7 +94,7 @@ export default function GiveBackPage() {
 
                   {/* Descripción */}
                   <p className="text-sm text-slate-600 leading-relaxed">
-                    {opp.desc}
+                    {opp.description}
                   </p>
                 </div>
 
@@ -111,7 +105,7 @@ export default function GiveBackPage() {
                   </div>
                   <Link href={`/give-back/${opp.id}`}>
                     <span className="block text-center text-xs font-bold text-blue-700 hover:text-blue-900 transition-colors uppercase tracking-wider pt-2 cursor-pointer">
-                      Ver Detalles →
+                      Ver Detalles 
                     </span>
                   </Link>
                 </div>
@@ -119,6 +113,12 @@ export default function GiveBackPage() {
             )
           })}
         </div>
+        
+        {displayOpps.length === 0 && (
+          <div className="text-center py-10 text-slate-500">
+            No hay oportunidades disponibles en este momento.
+          </div>
+        )}
       </div>
     </div>
   )

@@ -6,40 +6,36 @@ import '@/styles/loadingSpinner.css';
 import '@/styles/cycleWisdom.css';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import CycleWisdomOption3 from '@/components/CycleWisdomOption3';
-import { User, Mail, Lock, AlertCircle, ArrowRight, CheckCircle2, Clock, GraduationCap } from 'lucide-react';
+import { User, Mail, Lock, AlertCircle, ArrowRight, CheckCircle2, Clock, GraduationCap, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import logoUCR from '@/images/Logo_UCR.png';
 import { createClient } from '@/lib/supabase/client';
 import { registrarExalumno } from '@/actions/auth';
+import { CARRERAS_UCR, CARRERA_TO_ESCUELA } from '@/constants/catalogs';
 
 export default function Register() {
   const [tipoRegistro, setTipoRegistro] = useState<'estudiante' | 'exalumno'>('estudiante');
 
-  // ── Estado Estudiante (flujo OTP) ──
+  //  Estado Estudiante (flujo OTP) 
   const [estudianteData, setEstudianteData] = useState({ nombre: '', apellidos: '', correo: '' });
   const [estError, setEstError] = useState('');
 
-  // ── Estado Exalumno (flujo email+password) ──
+  //  Estado Exalumno (flujo email+password) 
   const [exalumnoData, setExalumnoData] = useState({
     nombre: '',
     correo: '',
     password: '',
-    facultadId: '',
-    carreras: [] as number[],
+    carreras: [] as string[],
     anioGraduacion: ''
   });
   const [exError, setExError] = useState('');
   const [terminosAceptados, setTerminosAceptados] = useState(false);
 
-  // ── Catálogos ──
-  const [facultadesOpts, setFacultadesOpts] = useState<{ id: number; nombre: string }[]>([]);
-  const [carrerasOpts, setCarrerasOpts] = useState<{ id: number; nombre: string; facultad_id: number | null }[]>([]);
-
-  // ── Diálogo UCR ──
+  //  Diálogo UCR 
   const [showUcrDialog, setShowUcrDialog] = useState(false);
 
-  // ── General ──
+  //  General 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMode, setSuccessMode] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
@@ -54,29 +50,8 @@ export default function Register() {
     return () => clearTimeout(timer);
   }, [resendTimer]);
 
-  // Cargar facultades y carreras
-  useEffect(() => {
-    const fetchCatalogos = async () => {
-      try {
-        const supabase = createClient();
 
-        const { data: fData } = await supabase.from('facultades').select('id, nombre').order('nombre');
-        if (fData && fData.length > 0) {
-          setFacultadesOpts(fData);
-        }
-
-        const { data: cData } = await supabase.from('carreras').select('id, nombre, facultad_id').order('nombre');
-        if (cData && cData.length > 0) {
-          setCarrerasOpts(cData);
-        }
-      } catch (err) {
-        console.error("Error fetching catálogos:", err);
-      }
-    };
-    fetchCatalogos();
-  }, []);
-
-  // ── Detección correo @ucr.ac.cr para exalumno ──
+  //  Detección correo @ucr.ac.cr para exalumno 
   const handleExalumnoCorreoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const correo = e.target.value;
     setExalumnoData({ ...exalumnoData, correo });
@@ -88,7 +63,7 @@ export default function Register() {
     }
   };
 
-  // ── Submit Estudiante (OTP) ──
+  //  Submit Estudiante (OTP) 
   const handleEstudianteSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setEstError('');
@@ -110,8 +85,8 @@ export default function Register() {
       const { error } = await supabase.auth.signInWithOtp({
         email: estudianteData.correo,
         options: {
-          emailRedirectTo: `${window.location.origin}/completar-perfil`,
-          data: { nombre: estudianteData.nombre, apellidos: estudianteData.apellidos }
+          emailRedirectTo: `${window.location.origin}/auth/callback?next=/completar-perfil`,
+          data: { nombre: estudianteData.nombre, apellidos: estudianteData.apellidos, rol: 'estudiante', tipo: 'estudiante' }
         }
       });
       if (error) throw error;
@@ -119,13 +94,16 @@ export default function Register() {
       setSuccessMsg('estudiante');
       setResendTimer(60);
     } catch (err: any) {
-      setEstError(err.message || 'Error al enviar el enlace mágico.');
+      console.error("Supabase Auth Error:", err);
+      // Supabase a veces devuelve errores sin .message cuando es un 500 del servidor
+      const errorMessage = err.message || (err.status === 500 ? 'Fallo interno del servidor (posible error de SMTP al enviar correo).' : 'Error al enviar el enlace mágico.');
+      setEstError(typeof err === 'object' && !err.message ? JSON.stringify(err) : errorMessage);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // ── Submit Exalumno (email+password) ──
+  //  Submit Exalumno (email+password) 
   const handleExalumnoSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setExError('');
@@ -171,33 +149,27 @@ export default function Register() {
     }
   };
 
-  // ── Helpers de carreras ──
+  //  Helpers de carreras 
   const handleAddCarrera = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedId = parseInt(e.target.value);
-    if (!selectedId) return;
-    if (!exalumnoData.carreras.includes(selectedId)) {
-      setExalumnoData({ ...exalumnoData, carreras: [...exalumnoData.carreras, selectedId] });
+    const selected = e.target.value;
+    if (!selected) return;
+    if (!exalumnoData.carreras.includes(selected)) {
+      setExalumnoData({ ...exalumnoData, carreras: [...exalumnoData.carreras, selected] });
     }
     e.target.value = "";
   };
 
-  const removeCarrera = (idToRemove: number) => {
+  const removeCarrera = (cToRemove: string) => {
     setExalumnoData({
       ...exalumnoData,
-      carreras: exalumnoData.carreras.filter(id => id !== idToRemove)
+      carreras: exalumnoData.carreras.filter(c => c !== cToRemove)
     });
   };
 
-  const getCarreraName = (id: number) => {
-    const option = carrerasOpts.find(c => c.id === id);
-    return option ? option.nombre : `Carrera ${id}`;
-  };
+  // Extraer las facultades únicas basadas en las carreras seleccionadas
+  const derivedFaculties = Array.from(new Set(exalumnoData.carreras.map(c => CARRERA_TO_ESCUELA[c]).filter(Boolean)));
 
-  const filteredCarreras = exalumnoData.facultadId
-    ? carrerasOpts.filter(c => c.facultad_id === parseInt(exalumnoData.facultadId) || c.facultad_id === null)
-    : carrerasOpts;
-
-  // ── Reenviar enlace (solo estudiante) ──
+  //  Reenviar enlace (solo estudiante) 
   const handleResend = async () => {
     if (resendTimer > 0) return;
     setEstError('');
@@ -207,8 +179,8 @@ export default function Register() {
       const { error } = await supabase.auth.signInWithOtp({
         email: estudianteData.correo,
         options: {
-          emailRedirectTo: `${window.location.origin}/completar-perfil`,
-          data: { nombre: estudianteData.nombre, apellidos: estudianteData.apellidos }
+          emailRedirectTo: `${window.location.origin}/auth/callback?next=/completar-perfil`,
+          data: { nombre: estudianteData.nombre, apellidos: estudianteData.apellidos, rol: 'estudiante', tipo: 'estudiante' }
         }
       });
       if (error) throw error;
@@ -220,9 +192,9 @@ export default function Register() {
     }
   };
 
-  // ═══════════════════════════════════════════
+  // 
   // PANTALLA DE ÉXITO
-  // ═══════════════════════════════════════════
+  // 
   if (successMode) {
     if (successMsg === 'estudiante') {
       return (
@@ -273,28 +245,33 @@ export default function Register() {
     );
   }
 
-  // ═══════════════════════════════════════════
+  // 
   // FORMULARIO PRINCIPAL
-  // ═══════════════════════════════════════════
+  // 
   return (
     <div className={`register-container ${tipoRegistro}`}>
-      <div className="register-left">
-        <div className="register-logo-container">
+      <div className="register-left relative">
+        {/* Botón Volver al Inicio */}
+        <Link href="/" className="absolute top-6 left-6 flex items-center gap-2 text-white/80 hover:text-white transition-colors text-sm font-semibold z-20 bg-black/10 hover:bg-black/20 px-4 py-2 rounded-full backdrop-blur-md border border-white/10">
+          <ArrowLeft size={16} /> Volver al inicio
+        </Link>
+
+        <div className="register-logo-container mt-8">
           <Link href="/">
             <Image src={logoUCR} alt="Logo Alumni UCR" width={320} height={105} className="register-brand-logo object-contain cursor-pointer" priority />
           </Link>
         </div>
         <div className="register-hero-text mt-6">
           {tipoRegistro === 'estudiante' ? (
-            <>
+            <div key="hero-estudiante">
               <h2>Comienza tu camino de regreso.</h2>
               <p>Únete a la red de egresados más grande. Conecta con mentores, descubre oportunidades y mantén vivo el espíritu universitario.</p>
-            </>
+            </div>
           ) : (
-            <>
+            <div key="hero-exalumno">
               <h2>El camino de regreso.</h2>
               <p>Reconecta con tus raíces, expande tu red profesional y apoya a la próxima generación de graduados de la UCR.</p>
-            </>
+            </div>
           )}
         </div>
         <div className="toggle-register-type">
@@ -332,7 +309,7 @@ export default function Register() {
 
         {tipoRegistro === 'estudiante' ? (
           <>
-            {/* ═══ FORMULARIO ESTUDIANTE (OTP) ═══ */}
+            {/*  FORMULARIO ESTUDIANTE (OTP)  */}
             <div className="register-info-box">
               <Mail className="info-icon" size={20} />
               <div>
@@ -387,7 +364,7 @@ export default function Register() {
           </>
         ) : (
           <>
-            {/* ═══ FORMULARIO EXALUMNO (email+password) ═══ */}
+            {/*  FORMULARIO EXALUMNO (email+password)  */}
             <div className="register-info-box">
               <GraduationCap className="info-icon" size={20} />
               <div>
@@ -443,37 +420,33 @@ export default function Register() {
               <div className="section-title mt-6">INFORMACIÓN ACADÉMICA</div>
 
               <div className="form-group">
-                <label>Facultad / Escuela</label>
-                <select className="select-input" value={exalumnoData.facultadId} onChange={e => setExalumnoData({ ...exalumnoData, facultadId: e.target.value })}>
-                  <option value="">Todas las facultades (Mostrar todo)</option>
-                  {facultadesOpts.length > 0 ? (
-                    facultadesOpts.map(f => (
-                      <option key={f.id} value={f.id}>{f.nombre}</option>
-                    ))
-                  ) : (
-                    <>
-                      <option value="1">Ingeniería (Demo)</option>
-                      <option value="2">Ciencias Sociales (Demo)</option>
-                    </>
-                  )}
-                </select>
-              </div>
-
-              <div className="form-group">
                 <label>Carrera(s)</label>
                 <select className="select-input" onChange={handleAddCarrera} defaultValue="">
                   <option value="" disabled>Seleccione una carrera para agregar...</option>
-                  {filteredCarreras.map(c => (
-                    <option key={c.id} value={c.id}>{c.nombre}</option>
+                  {CARRERAS_UCR.filter(c => !exalumnoData.carreras.includes(c)).map(c => (
+                    <option key={c} value={c}>{c}</option>
                   ))}
                 </select>
                 <div className="selected-carreras-container mt-2">
-                  {exalumnoData.carreras.map(cId => (
-                    <span key={cId} className="carrera-pill">
-                      {getCarreraName(cId)}
-                      <button type="button" onClick={() => removeCarrera(cId)} className="pill-remove-btn">&times;</button>
+                  {exalumnoData.carreras.map(c => (
+                    <span key={c} className="carrera-pill">
+                      {c}
+                      <button type="button" onClick={() => removeCarrera(c)} className="pill-remove-btn">&times;</button>
                     </span>
                   ))}
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>Facultad / Escuela (Asignado automáticamente)</label>
+                <div className="w-full p-2.5 border border-slate-300 rounded-lg bg-slate-100 min-h-[44px] flex flex-wrap gap-1 items-center">
+                  {derivedFaculties.length > 0 ? (
+                    derivedFaculties.map((f, i) => (
+                      <span key={i} className="text-sm text-slate-700 bg-slate-200 px-2 py-0.5 rounded-md">{f}</span>
+                    ))
+                  ) : (
+                    <span className="text-sm text-slate-400">Seleccione una carrera primero</span>
+                  )}
                 </div>
               </div>
 

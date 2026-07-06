@@ -5,6 +5,7 @@ import { FileText, MapPin, GraduationCap, Check, X } from 'lucide-react'
 import { AlumniApplicationView, ApplicationStatus } from '@/types/applications'
 import ApplicationStatusBadge from './ApplicationStatusBadge'
 import { getAvatarUrl } from '@/lib/utils'
+import { toast } from 'sonner'
 
 interface ApplicantCardProps {
   application: AlumniApplicationView
@@ -118,7 +119,7 @@ export default function ApplicantCard({ application, onStatusUpdate, isUpdating 
           {cv ? (
             <button 
               className="flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-800 transition"
-              onClick={() => alert('La visualización de CV requerirá integrar un visor de versiones de CV en una ruta específica.')}
+              onClick={() => toast.info('La visualización de CV estará disponible próximamente.')}
             >
               <FileText size={16} />
               Ver CV ({cv.nombre_version})

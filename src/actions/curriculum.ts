@@ -17,7 +17,7 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
-// ─── Constantes de Negocio ───────────────────────────────────────────────────
+//  Constantes de Negocio 
 
 /** Máximo de viñetas (bullets) permitidas por entrada de experiencia. */
 const MAX_BULLETS_POR_EXPERIENCIA = 5
@@ -28,7 +28,7 @@ const MAX_CARACTERES_POR_BULLET = 120
 /** Máximo de versiones de CV que un estudiante puede guardar en total. */
 const MAX_VERSIONES_POR_CURRICULUM = 10
 
-// ─── Schemas de Validación (Zod) ─────────────────────────────────────────────
+//  Schemas de Validación (Zod) 
 
 const ExperienciaSchema = z.object({
   curriculum_id: z.string().uuid({ message: 'curriculum_id debe ser un UUID válido.' }),
@@ -99,7 +99,7 @@ const VersionCurriculumSchema = z.object({
 
 export type VersionCurriculumInput = z.infer<typeof VersionCurriculumSchema>
 
-// ─── Tipos de retorno ─────────────────────────────────────────────────────────
+//  Tipos de retorno 
 
 export interface CurriculumBase {
   id: string
@@ -122,7 +122,7 @@ export interface VersionCurriculumRow {
   created_at: string
 }
 
-// ─── Validador de Reglas de Negocio ──────────────────────────────────────────
+//  Validador de Reglas de Negocio 
 
 /**
  * Valida las reglas de negocio sobre el array de bullets de una experiencia.
@@ -151,7 +151,7 @@ function validarBullets(bullets: string[]): void {
   }
 }
 
-// ─── Helpers de autenticación ─────────────────────────────────────────────────
+//  Helpers de autenticación 
 
 /**
  * Obtiene el usuario autenticado de la sesión actual.
@@ -171,7 +171,7 @@ async function obtenerUsuarioAutenticado() {
   return { supabase, user }
 }
 
-// ─── Curriculum Base ──────────────────────────────────────────────────────────
+//  Curriculum Base 
 
 /**
  * Obtiene el curriculum del estudiante autenticado.
@@ -260,7 +260,7 @@ export async function actualizarCurriculumPrincipal(datos: {
   revalidatePath('/dashboard/estudiante/curriculum')
 }
 
-// ─── Experiencia ──────────────────────────────────────────────────────────────
+//  Experiencia 
 
 /**
  * Inserta una nueva entrada de experiencia en el curriculum.
@@ -281,7 +281,7 @@ export async function insertarExperiencia(
 
   const datos = parsed.data
 
-  // ── Validación de reglas de negocio sobre bullets ─────────────────────
+  //  Validación de reglas de negocio sobre bullets 
   validarBullets(datos.bullets)
 
   const { supabase } = await obtenerUsuarioAutenticado()
@@ -430,7 +430,7 @@ export async function eliminarExperiencia(experienciaId: string): Promise<void> 
   revalidatePath('/dashboard/estudiante/curriculum')
 }
 
-// ─── Certificaciones ──────────────────────────────────────────────────────────
+//  Certificaciones 
 
 /**
  * Inserta una nueva certificación en el curriculum del estudiante autenticado.
@@ -522,16 +522,16 @@ export async function eliminarCertificacion(certificacionId: string): Promise<vo
   revalidatePath('/dashboard/estudiante/curriculum')
 }
 
-// ─── Versiones de Curriculum ──────────────────────────────────────────────────
+//  Versiones de Curriculum 
 
 /**
  * Guarda una nueva versión adaptada del CV para una posición específica.
  *
- * ── REGLA DE NEGOCIO CRÍTICA ──────────────────────────────────────────────
+ *  REGLA DE NEGOCIO CRÍTICA 
  * Un estudiante puede tener un máximo de MAX_VERSIONES_POR_CURRICULUM (10)
  * versiones de CV guardadas en total para su curriculum.
  * Si ya llegó al tope, se bloquea la inserción y se lanza un error controlado.
- * ──────────────────────────────────────────────────────────────────────────
+ * 
  *
  * @param input - Datos de la versión adaptada a guardar.
  * @returns El ID de la versión creada.
@@ -563,7 +563,7 @@ export async function guardarVersionCurriculum(
     )
   }
 
-  // ── Verificar el límite de versiones ANTES de insertar ────────────────
+  //  Verificar el límite de versiones ANTES de insertar 
   const { count, error: errCount } = await supabase
     .from('curriculum_versiones')
     .select('id', { count: 'exact', head: true })

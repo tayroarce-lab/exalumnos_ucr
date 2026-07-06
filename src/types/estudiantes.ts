@@ -3,11 +3,16 @@ export interface EstudianteDirectorio {
   user_id: string;
   nombre: string;
   foto_url: string | null;
-  // Carrera y sede vienen de users_carreras → carrera_campus → carreras/campus
+  banner_url?: string | null;
+  // Carrera y sede vienen de users_carreras  carrera_campus  carreras/campus
   carrera: string;
   sede: string;
   escuela_facultad?: string;
   anio_ingreso?: number | null;
+  carnet_ucr?: string | null;
+  nivel_academico?: string | null;
+  promedio_ponderado?: number | null;
+  beca_socioeconomica?: string | null;
   // Proyecto: en la BD actual solo existe proyecto_graduacion_resumen en curriculums
   proyecto_titulo?: string | null;
   proyecto_descripcion?: string | null;
@@ -18,10 +23,14 @@ export interface EstudianteDirectorio {
   proyecto_valor_moneda?: string | null;
   proyecto_video_url?: string | null;
   proyecto_documento_url?: string | null;
+  proyecto_foto_url?: string | null;
   proyecto_activo?: boolean | null;
   proyecto_necesidades?: string[] | null;
+  proyecto_beneficios?: string | null;
+  proyecto_beneficios_fotos?: string[] | null;
   // Currículum
   sobre_mi?: string | null;
+  sobre_mi_personal?: string | null;
   url_linkedin?: string | null;
   url_portfolio?: string | null;
   habilidades?: string[] | null;

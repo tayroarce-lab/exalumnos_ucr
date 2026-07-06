@@ -1,7 +1,7 @@
 
 :root {
   /* Paleta oficial */
-  --esmeralda: #003B4F;
+  --esmeralda: #004C63;
   /* Azul oscuro de los botones y textos de la cabecera */
   --celeste: #54BCEB;
   --amarillo: #FF9B18;
@@ -13,11 +13,11 @@
   --gris-fondo: #F7F9FB;
   --gris-texto: #4A5568;
   --gris-borde: #E2E8F0;
-  --azul-oscuro-footer: #001C29;
+  --azul-oscuro-footer: #004C63;
 
   /* Fuentes */
-  --fuente-principal: 'Inter', sans-serif;
-  --fuente-titulo: 'Outfit', sans-serif;
+  --fuente-principal: var(--font-work-sans), 'Work Sans', sans-serif;
+  --fuente-titulo: var(--font-barlow), 'Barlow Semi Condensed', sans-serif;
 }
 
 /* Reset básico */
@@ -75,19 +75,18 @@ body {
   padding: 0.7rem 1.6rem;
   font-size: 0.95rem;
   font-weight: 700;
-  border-radius: 8px;
+  border-radius: 9999px;
   cursor: pointer;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.6rem;
-  transition: background-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: background-color 0.15s ease-out;
 }
 
 .boton-signin:hover {
   background-color: #001020;
-  transform: translateY(-1px);
 }
 
 .boton-register {
@@ -97,19 +96,17 @@ body {
   padding: 0.7rem 1.6rem;
   font-size: 0.95rem;
   font-weight: 700;
-  border-radius: 8px;
+  border-radius: 9999px;
   cursor: pointer;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: background-color 0.15s ease-out, opacity 0.15s ease-out;
 }
 
 .boton-register:hover {
   background-color: #0ea5e9;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);
 }
 
 /* --- HERO SPLIT --- */
@@ -119,22 +116,22 @@ body {
   min-height: 100vh;
 }
 
-/* Layout split: 50% izquierda celeste / 50% derecha imagen */
 .seccion-hero-split {
   display: flex;
-  flex-direction: row;
-  flex: 1;
   min-height: 100vh;
+  width: 100%;
+  position: relative;
+  background: linear-gradient(135deg, #0284C7 25%, #F34B26 75%) fixed;
+  overflow: hidden;
 }
 
 /* ── LADO IZQUIERDO ── */
 .hero-lado-izquierdo {
   flex: 0.85;
-  background-color: #4BBDE8;
+  background-color: transparent;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  padding: 4rem 4.5rem;
+  padding: 10rem 4.5rem 4rem 4.5rem;
   position: relative;
   overflow: hidden;
 }
@@ -143,7 +140,7 @@ body {
 .auth-bg-fixed {
   position: absolute;
   inset: 0;
-  background-color: #FDECC8;
+  background-color: #F7F9FB;
   overflow: hidden;
   z-index: 0;
 }
@@ -156,7 +153,7 @@ body {
   width: 290px;
   height: 290px;
   border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.11);
+  border: 2px solid rgba(255, 255, 255, 0.12);
   pointer-events: none;
   animation: rotar-lento 36s linear infinite;
 }
@@ -169,7 +166,7 @@ body {
   right: 28px;
   bottom: 28px;
   border-radius: 50%;
-  border: 1.5px solid rgba(255, 255, 255, 0.06);
+  border: 1.5px solid rgba(255, 255, 255, 0.08);
 }
 
 /* Círculo medio — zona media */
@@ -180,7 +177,7 @@ body {
   width: 120px;
   height: 120px;
   border-radius: 50%;
-  border: 1.5px solid rgba(255, 255, 255, 0.08);
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
   pointer-events: none;
   animation: rotar-inverso 22s linear infinite;
 }
@@ -278,7 +275,7 @@ body {
   right: 28%;
   width: 78px;
   height: 78px;
-  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.38) 2px, transparent 2px);
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.25) 2px, transparent 2px);
   background-size: 15px 15px;
   pointer-events: none;
   z-index: 0;
@@ -293,7 +290,7 @@ body {
   right: 30%;
   width: 65px;
   height: 65px;
-  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.26) 2px, transparent 2px);
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.2) 2px, transparent 2px);
   background-size: 13px 13px;
   pointer-events: none;
   z-index: 0;
@@ -326,74 +323,55 @@ body {
 /* Título principal */
 .hero-titulo-split {
   font-family: var(--fuente-titulo);
-  font-size: 2.8rem;
+  font-size: 2.5rem;
   font-weight: 800;
-  color: #ffffff;
+  color: #FFFFFF;
   line-height: 1.15;
-  letter-spacing: -0.5px;
-  margin-bottom: 1.5rem;
+  margin-top: auto;
+  margin-bottom: 1.25rem;
   white-space: pre-line;
   position: relative;
   z-index: 1;
 }
 
-/* Descripción */
+/* Descripción / Subtítulo */
 .hero-descripcion-split {
-  font-size: 0.95rem;
-  font-weight: 400;
-  color: rgba(255, 255, 255, 0.92);
+  font-family: var(--fuente-principal);
+  font-size: 1.25rem;
+  color: #F8FAFC;
   line-height: 1.65;
-  max-width: 380px;
-  margin-bottom: 2.5rem;
+  max-width: 480px;
+  margin-bottom: 2rem;
   position: relative;
   z-index: 1;
 }
 
 /* Botón "Unirse a la Red" — naranja-rojo como en la imagen */
 .boton-unirse-red {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  background-color: #E84F26;
-  color: #ffffff;
+  display: inline-block;
+  align-self: flex-start;
+  padding: 1rem 2rem;
+  background-color: var(--naranja);
+  color: #FFFFFF;
+  font-weight: 600;
+  border-radius: 9999px;
   text-decoration: none;
-  font-family: var(--fuente-principal);
-  font-size: 0.95rem;
-  font-weight: 700;
-  padding: 0.85rem 2rem;
-  border-radius: 6px;
   width: fit-content;
   position: relative;
   z-index: 1;
-  transition: background-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+  margin-bottom: auto;
+  transition: background-color 0.15s ease-out;
 }
 
 .boton-unirse-red:hover {
   background-color: #c93f1a;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(232, 79, 38, 0.45);
 }
 
 /* ── LADO DERECHO ── */
 .hero-lado-derecho {
   flex: 1.15;
   position: relative;
-  overflow: hidden;
-}
-
-/* Overlay con degradado: celeste del lado izquierdo → oscuro sobre la imagen */
-.hero-lado-derecho::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to right,
-    #4BBDE8 0%,
-    rgba(75, 189, 232, 0.60) 8%,
-    rgba(0, 25, 50, 0.55) 28%,
-    rgba(0, 10, 25, 0.78) 100%
-  );
-  z-index: 1;
+  background-color: transparent;
 }
 
 /* Logo UCR centrado sobre la imagen del campus */
@@ -407,17 +385,17 @@ body {
   align-items: center;
   justify-content: center;
   width: 80%;
-  animation: logo-zoom-in 5s ease-in-out forwards;
+  animation: none;
 }
 
 @keyframes logo-zoom-in {
   0% {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0.1);
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
   }
   100% {
     opacity: 1;
-    transform: translate(-50%, -50%) scale(1.35);
+    transform: translate(-50%, -50%) scale(1);
   }
 }
 
@@ -457,28 +435,56 @@ body {
   }
 }
 
-.cabecera {
-  animation: anim-slide-down 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+@property --sweep-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
 }
 
-.hero-lado-izquierdo {
-  animation: anim-fade-in 0.8s ease both;
+@keyframes sweep-angle-anim {
+  0% {
+    --sweep-angle: 0deg;
+  }
+  100% {
+    --sweep-angle: 360deg;
+  }
 }
 
-.hero-titulo-split {
-  animation: anim-slide-right 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
-  animation-delay: 0.1s;
+.imagen-girasol-animada {
+  -webkit-mask-image: conic-gradient(black var(--sweep-angle), transparent var(--sweep-angle));
+  mask-image: conic-gradient(black var(--sweep-angle), transparent var(--sweep-angle));
+  animation: sweep-angle-anim 2.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  opacity: 1;
 }
 
-.hero-descripcion-split {
-  animation: anim-slide-right 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
-  animation-delay: 0.22s;
+.luz-dorada-barrido {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: conic-gradient(
+    transparent calc(var(--sweep-angle) - 60deg),
+    rgba(255, 150, 0, 0.4) calc(var(--sweep-angle) - 20deg),
+    rgba(255, 215, 0, 0.9) calc(var(--sweep-angle) - 3deg),
+    rgba(255, 255, 255, 1) var(--sweep-angle),
+    transparent var(--sweep-angle)
+  );
+  animation: sweep-angle-anim 2.4s cubic-bezier(0.22, 1, 0.36, 1) forwards,
+             luz-fade-out 0.5s ease-out 2.2s forwards;
 }
 
-.boton-unirse-red {
-  animation: anim-slide-right 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
-  animation-delay: 0.34s;
+@keyframes luz-fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
 }
+
+@keyframes anim-fade-out {
+  to { opacity: 0; }
+}
+
+
+
+
 
 .hero-lado-derecho {
   animation: anim-fade-in 1.2s ease both;
@@ -490,114 +496,55 @@ body {
   animation-delay: 0.5s;
 }
 
+
 /* ── KEYFRAMES ANIMACIONES LOOP (decoraciones) ── */
 @keyframes flotar-deco {
-
-  0%,
-  100% {
-    transform: translateY(0px);
-  }
-
-  50% {
-    transform: translateY(-16px);
-  }
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
 }
 
 @keyframes flotar-deco-2 {
-
-  0%,
-  100% {
-    transform: translateY(0px);
-  }
-
-  50% {
-    transform: translateY(14px);
-  }
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
 }
 
 @keyframes flotar-deco-3 {
-
-  0%,
-  100% {
-    transform: translate(0, 0);
-  }
-
-  33% {
-    transform: translate(7px, -11px);
-  }
-
-  66% {
-    transform: translate(-5px, 7px);
-  }
+  0%, 100% { transform: translate(0, 0); }
+  33% { transform: translate(4px, -7px); }
+  66% { transform: translate(-3px, -5px); }
 }
 
 @keyframes mover-deco {
-
-  0%,
-  100% {
-    transform: translate(0, 0) rotate(0deg);
-  }
-
-  25% {
-    transform: translate(8px, -8px) rotate(6deg);
-  }
-
-  75% {
-    transform: translate(-5px, 5px) rotate(-4deg);
-  }
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(4px, -6px) rotate(4deg); }
+  75% { transform: translate(-3px, -8px) rotate(-3deg); }
 }
 
 @keyframes rotar-lento {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 @keyframes rotar-inverso {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(-360deg);
-  }
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
 }
 
 @keyframes pulsar-deco {
-
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 0.65;
-  }
-
-  50% {
-    transform: scale(1.28);
-    opacity: 1;
-  }
+  0%, 100% { transform: scale(1); opacity: 0.65; }
+  50% { transform: scale(1.15); opacity: 1; }
 }
 
 @keyframes parpadear-deco {
-
-  0%,
-  100% {
-    opacity: 0.20;
-  }
-
-  50% {
-    opacity: 0.70;
-  }
+  0%, 100% { opacity: 0.20; }
+  50% { opacity: 0.20; }
 }
 
 /* ── FOOTER ── */
 .footer-principal {
-  background-color: #00111f;
-  border-top: 1px solid rgba(84, 188, 235, 0.12);
-  padding: 4.5rem 0 0;
+  background-color: #004C63; /* Esmeralda oficial */
+  border-top: 4px solid #54BCEB; /* Borde celeste como acento institucional angular sutil */
+  padding: 5rem 0 0;
   font-family: var(--fuente-principal);
 }
 
@@ -612,115 +559,123 @@ body {
 }
 
 .footer-descripcion {
-  color: rgba(255, 255, 255, 0.50);
-  font-size: 0.875rem;
-  line-height: 1.78;
-  margin-top: 1.25rem;
-  max-width: 290px;
+  color: rgba(255, 255, 255, 0.85); /* Accesibilidad AA */
+  font-size: 0.9rem;
+  line-height: 1.8;
+  margin-top: 1.5rem;
+  max-width: 320px;
 }
 
 .footer-redes {
   display: flex;
-  gap: 0.65rem;
-  margin-top: 1.5rem;
+  gap: 0.85rem;
+  margin-top: 1.75rem;
 }
 
 .footer-red-icono {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.07);
-  color: rgba(255, 255, 255, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.09);
+  width: 42px;
+  height: 42px;
+  border-radius: 50%; /* Comunidad = círculo */
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   text-decoration: none;
-  transition: background 0.25s ease, color 0.25s ease, transform 0.25s ease, border-color 0.25s ease;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.footer-red-icono:hover {
-  background: rgba(84, 188, 235, 0.18);
+/* Hover específico para Facebook y LinkedIn (Celeste) y Instagram y YouTube (Amarillo) */
+.footer-red-icono[aria-label="Facebook"]:hover,
+.footer-red-icono[aria-label="LinkedIn"]:hover {
+  background: rgba(84, 188, 235, 0.12);
   color: #54BCEB;
-  border-color: rgba(84, 188, 235, 0.30);
-  transform: translateY(-3px);
+  border-color: rgba(84, 188, 235, 0.4);
+}
+
+.footer-red-icono[aria-label="Instagram"]:hover,
+.footer-red-icono[aria-label="YouTube"]:hover {
+  background: rgba(255, 155, 24, 0.12);
+  color: #FF9B18;
+  border-color: rgba(255, 155, 24, 0.4);
 }
 
 .footer-titulo-col {
   font-family: var(--fuente-titulo);
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.38);
+  font-size: 0.9rem;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.95); /* Contraste AA excelente */
   text-transform: uppercase;
-  letter-spacing: 1.8px;
-  margin-bottom: 1.25rem;
+  letter-spacing: 2px;
+  margin-bottom: 1.5rem;
 }
 
 .footer-lista {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 0.72rem;
+  gap: 0.85rem;
 }
 
 .footer-enlace {
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(255, 255, 255, 0.80);
   text-decoration: none;
-  font-size: 0.875rem;
-  transition: color 0.2s ease, padding-left 0.2s ease;
+  font-size: 0.925rem;
+  transition: all 0.25s ease;
   display: inline-block;
 }
 
 .footer-enlace:hover {
   color: #54BCEB;
-  padding-left: 4px;
+  padding-left: 6px;
 }
 
 .footer-contacto-lista {
-  gap: 0.9rem !important;
+  gap: 1rem !important;
 }
 
 .footer-contacto-lista li {
   display: flex;
   align-items: flex-start;
-  gap: 0.65rem;
-  color: rgba(255, 255, 255, 0.55);
-  font-size: 0.875rem;
-  line-height: 1.5;
+  gap: 0.75rem;
+  color: rgba(255, 255, 255, 0.80);
+  font-size: 0.925rem;
+  line-height: 1.6;
 }
 
 .footer-contacto-lista svg {
   color: #54BCEB;
   flex-shrink: 0;
-  margin-top: 2px;
+  margin-top: 3px;
 }
 
 .footer-inferior {
-  margin-top: 3.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  padding: 1.5rem 4rem;
+  margin-top: 4rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.10);
+  padding: 2rem 4rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
 .footer-inferior p {
-  color: rgba(255, 255, 255, 0.28);
-  font-size: 0.80rem;
+  color: rgba(255, 255, 255, 0.60);
+  font-size: 0.85rem;
 }
 
 .footer-inferior-links {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  color: rgba(255, 255, 255, 0.20);
-  font-size: 0.80rem;
+  color: rgba(255, 255, 255, 0.30);
+  font-size: 0.85rem;
 }
 
 .footer-enlace-inferior {
-  color: rgba(255, 255, 255, 0.30);
+  color: rgba(255, 255, 255, 0.60);
   text-decoration: none;
-  font-size: 0.80rem;
+  font-size: 0.85rem;
   transition: color 0.2s ease;
 }
 

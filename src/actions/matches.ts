@@ -5,6 +5,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { MatchAdminView, MatchFilters } from '@/types/matches';
 import { sendMatchStatusUpdateEmail } from '@/services/email-service';
 import { logError } from '@/lib/logger';
+import { notifyAllAdmins } from '@/lib/notify-admins';
 
 export async function getMatches(filters?: MatchFilters): Promise<{ data: MatchAdminView[] | null; error: string | null }> {
   const supabase = await createClient();
@@ -47,11 +48,11 @@ export async function getMatches(filters?: MatchFilters): Promise<{ data: MatchA
   if (filters?.tipo_apoyo && filters.tipo_apoyo !== 'todos') {
     query = query.eq('tipo_apoyo', filters.tipo_apoyo);
   }
-  
+
   if (filters?.fecha_inicio) {
     query = query.gte('created_at', filters.fecha_inicio);
   }
-  
+
   if (filters?.fecha_fin) {
     query = query.lte('created_at', filters.fecha_fin);
   }
@@ -66,13 +67,13 @@ export async function getMatches(filters?: MatchFilters): Promise<{ data: MatchA
   // Extraer las carreras en una segunda consulta ya que no hay foreign key directa desde matches hacia estudiantes
   const estudianteIds = data ? data.map(m => m.estudiante_id) : [];
   let carrerasMap: Record<string, string> = {};
-  
+
   if (estudianteIds.length > 0) {
     const { data: estudiantesData } = await adminClient
       .from('estudiantes')
       .select('user_id, carrera')
       .in('user_id', estudianteIds);
-      
+
     if (estudiantesData) {
       estudiantesData.forEach(e => {
         carrerasMap[e.user_id] = e.carrera;
@@ -138,6 +139,8 @@ export async function updateMatch(
     const { data } = await adminClient
       .from('matches')
       .select(`
+        exalumno_id,
+        estudiante_id,
         exalumno:users!matches_exalumno_id_fkey(nombre, email),
         estudiante:users!matches_estudiante_id_fkey(nombre, email)
       `)
@@ -154,8 +157,38 @@ export async function updateMatch(
 
       if (exEmail && exNombre) await sendMatchStatusUpdateEmail(exEmail, exNombre, estado, resultado, estNombre, estEmail);
       if (estEmail && estNombre) await sendMatchStatusUpdateEmail(estEmail, estNombre, estado, resultado, exNombre, exEmail);
-      
+
       console.log('Finished sending active status emails');
+
+      const { createNotification } = await import('@/actions/notifications');
+      const titulo = estado === 'activo' ? 'Conexión aceptada' : 'Conexión declinada';
+
+      // Notify Exalumno
+      await createNotification({
+        user_id: matchDetails.exalumno_id,
+        titulo,
+        mensaje: `La conexión con el estudiante ${estNombre} ha sido ${estado === 'activo' ? 'aceptada' : 'declinada'}.`,
+        tipo: 'mentoria',
+        link: '/mis-matches'
+      });
+
+      // Notify Estudiante
+      await createNotification({
+        user_id: matchDetails.estudiante_id,
+        titulo,
+        mensaje: `La conexión con el exalumno ${exNombre} ha sido ${estado === 'activo' ? 'aceptada' : 'declinada'}.`,
+        tipo: 'mentoria',
+        link: '/mis-matches'
+      });
+
+      // Notify Admins
+      await notifyAllAdmins({
+        titulo: estado === 'activo' ? 'Match activado' : 'Match cerrado',
+        mensaje: `La conexión entre ${exNombre} y ${estNombre} ha cambiado a estado: ${estado}.`,
+        tipo: 'match_admin',
+        link: '/admin/matches'
+      });
+
     } else {
       console.error('Failed to retrieve matchDetails for email');
     }
@@ -194,9 +227,9 @@ export async function getMyMatches() {
       )
     `)
     .is('deleted_at', null)
+    .neq('estado', 'sugerido')
     .or(`estudiante_id.eq.${user.id},exalumno_id.eq.${user.id}`)
-    .order('score_match', { ascending: false })
-    .limit(5);
+    .order('score_match', { ascending: false });
 
   if (error) {
     logError('matches.ts/getMyMatches', error, { userId: user.id });
@@ -208,7 +241,7 @@ export async function getMyMatches() {
   if (finalData.length === 0 && user.user_metadata?.rol === 'estudiante') {
     const { generarMatchesMentoria } = await import('./matching');
     await generarMatchesMentoria(1, user.id);
-    
+
     // Fetch again
     const { data: newData, error: newError } = await supabase
       .from('matches')
@@ -233,12 +266,11 @@ export async function getMyMatches() {
       `)
       .is('deleted_at', null)
       .or(`estudiante_id.eq.${user.id},exalumno_id.eq.${user.id}`)
-      .order('score_match', { ascending: false })
-      .limit(5);
+      .order('score_match', { ascending: false });
 
-      if (newData) {
-        finalData = newData;
-      }
+    if (newData) {
+      finalData = newData;
+    }
   }
 
   const formattedData = finalData.map((m: any) => {
@@ -263,7 +295,7 @@ export async function requestConnection(matchId: string) {
   if (!user) {
     return { success: false, error: 'No autorizado' };
   }
-  
+
   if (user.user_metadata?.rol === 'admin' || user.user_metadata?.tipo === 'admin') {
     return { success: false, error: 'Acceso denegado: Los administradores no pueden solicitar conexiones' };
   }
@@ -273,7 +305,7 @@ export async function requestConnection(matchId: string) {
 
   // Marcar como contactado e iniciado por el usuario actual
   const initiatorRole = user.user_metadata?.rol || 'estudiante';
-  
+
   const { error } = await adminClient
     .from('matches')
     .update({
@@ -293,6 +325,8 @@ export async function requestConnection(matchId: string) {
   const { data: matchData } = await supabase
     .from('matches')
     .select(`
+      exalumno_id,
+      estudiante_id,
       score_match,
       tipo_apoyo,
       exalumno:users!matches_exalumno_id_fkey(nombre, email),
@@ -307,7 +341,7 @@ export async function requestConnection(matchId: string) {
     const exEmail = Array.isArray(matchDetails.exalumno) ? matchDetails.exalumno[0]?.email : matchDetails.exalumno?.email;
     const estNombre = Array.isArray(matchDetails.estudiante) ? matchDetails.estudiante[0]?.nombre : matchDetails.estudiante?.nombre;
     const estEmail = Array.isArray(matchDetails.estudiante) ? matchDetails.estudiante[0]?.email : matchDetails.estudiante?.email;
-    
+
     console.log('Sending notification email. Details:', { exEmail, exNombre, estEmail, estNombre, tipo_apoyo: matchDetails.tipo_apoyo, score_match: matchDetails.score_match });
 
     // Si fue el estudiante quien inició, enviamos al exalumno
@@ -315,6 +349,26 @@ export async function requestConnection(matchId: string) {
       const { sendMatchNotificationEmails } = await import('@/services/email-service');
       await sendMatchNotificationEmails(exEmail, exNombre, estEmail || '', estNombre, matchDetails.tipo_apoyo, matchDetails.score_match);
       console.log('Finished sendMatchNotificationEmails');
+
+      const { createNotification } = await import('@/actions/notifications');
+      const targetUserId = initiatorRole === 'estudiante' ? matchDetails.exalumno_id : matchDetails.estudiante_id;
+      const initiatorName = initiatorRole === 'estudiante' ? estNombre : exNombre;
+
+      await createNotification({
+        user_id: targetUserId,
+        titulo: 'Nueva solicitud de mentoría',
+        mensaje: `Has recibido una solicitud de conexión de ${initiatorName}.`,
+        tipo: 'mentoria',
+        link: '/mis-matches'
+      });
+
+      // Notify Admins of new connection request
+      await notifyAllAdmins({
+        titulo: 'Nueva solicitud de conexión',
+        mensaje: `${initiatorName} solicitó una conexión de mentoría.`,
+        tipo: 'match_admin',
+        link: '/admin/matches'
+      });
     } else {
       console.error('Missing data for email:', { exEmail, exNombre, estNombre });
     }
@@ -357,6 +411,8 @@ export async function upsertManualMatch(estudianteId: string, tipoApoyo: string)
     .is('deleted_at', null)
     .single();
 
+  let matchIdToConnect = null;
+
   if (existing) {
     if (existing.estado !== 'cerrado') {
       const { error } = await adminClient
@@ -364,18 +420,33 @@ export async function upsertManualMatch(estudianteId: string, tipoApoyo: string)
         .update({ tipo_apoyo: tipoApoyo, updated_at: new Date().toISOString() })
         .eq('id', existing.id);
       if (error) logError('matches.ts/upsertManualMatch', error, { userId: user.id, estudianteId });
+      
+      if (existing.estado === 'sugerido') {
+        matchIdToConnect = existing.id;
+      }
     }
   } else {
-    const { error } = await adminClient.from('matches').insert({
+    const initiatorRole = user.user_metadata?.rol || 'exalumno';
+    const { data: newMatch, error } = await adminClient.from('matches').insert({
       exalumno_id: user.id,
       estudiante_id: estudianteId,
       tipo_apoyo: tipoApoyo,
       score_match: 100,
       estado: 'sugerido',
-      iniciado_por: 'plataforma'
-    });
-    if (error) logError('matches.ts/upsertManualMatch', error, { userId: user.id, estudianteId });
+      iniciado_por: initiatorRole
+    }).select('id').single();
+    
+    if (error) {
+      logError('matches.ts/upsertManualMatch', error, { userId: user.id, estudianteId });
+    } else if (newMatch) {
+      matchIdToConnect = newMatch.id;
+    }
   }
+
+  if (matchIdToConnect) {
+    await requestConnection(matchIdToConnect);
+  }
+
   return { success: true };
 }
 
@@ -397,7 +468,7 @@ export async function requestDirectConnection(targetUserId: string) {
   const initiatorRole = user.user_metadata?.rol || 'estudiante';
   let estudianteId = user.id;
   let exalumnoId = targetUserId;
-  
+
   if (initiatorRole === 'exalumno') {
     exalumnoId = user.id;
     estudianteId = targetUserId;
@@ -435,3 +506,113 @@ export async function requestDirectConnection(targetUserId: string) {
 
   return await requestConnection(matchId);
 }
+
+
+export async function cancelDirectConnection(targetUserId: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) return { success: false, error: 'No autorizado' };
+
+  const { createAdminClient } = await import('@/lib/supabase/admin');
+  const adminClient = createAdminClient();
+
+  const { data: match } = await adminClient
+    .from('matches')
+    .select('id')
+    .or(`and(estudiante_id.eq.${user.id},exalumno_id.eq.${targetUserId}),and(estudiante_id.eq.${targetUserId},exalumno_id.eq.${user.id})`)
+    .eq('estado', 'contactado')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (!match) return { success: false, error: 'No se encontró una solicitud pendiente' };
+
+  const { error } = await adminClient
+    .from('matches')
+    .update({ estado: 'sugerido', iniciado_por: 'plataforma', updated_at: new Date().toISOString() })
+    .eq('id', match.id);
+
+  if (error) return { success: false, error: error.message };
+  return { success: true };
+}
+
+export async function removeDirectConnection(targetUserId: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) return { success: false, error: 'No autorizado' };
+
+  const { createAdminClient } = await import('@/lib/supabase/admin');
+  const adminClient = createAdminClient();
+
+  const { data: match } = await adminClient
+    .from('matches')
+    .select('id')
+    .or(`and(estudiante_id.eq.${user.id},exalumno_id.eq.${targetUserId}),and(estudiante_id.eq.${targetUserId},exalumno_id.eq.${user.id})`)
+    .in('estado', ['activo', 'contactado'])
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (!match) return { success: false, error: 'No se encontró una conexión activa para eliminar' };
+
+  // En lugar de hacer soft delete, la regresamos a sugerido para que puedan conectar en el futuro si lo desean.
+  // O podemos hacer delete() para borrar la fila completamente.
+  const { error } = await adminClient
+    .from('matches')
+    .delete()
+    .eq('id', match.id);
+
+  if (error) return { success: false, error: error.message };
+  return { success: true };
+}
+export async function getRecommendedStudentConnections() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) return { data: null, error: 'No autorizado' };
+
+  // 1. Obtener mis matches existentes para filtrarlos
+  const { data: myMatches } = await supabase
+    .from('matches')
+    .select('exalumno_id, estudiante_id')
+    .is('deleted_at', null)
+    .or(`estudiante_id.eq.${user.id},exalumno_id.eq.${user.id}`);
+
+  const excludedIds = new Set<string>();
+  excludedIds.add(user.id);
+
+  if (myMatches) {
+    myMatches.forEach(m => {
+      if (m.exalumno_id !== user.id) excludedIds.add(m.exalumno_id);
+      if (m.estudiante_id !== user.id) excludedIds.add(m.estudiante_id);
+    });
+  }
+
+  // 2. Fetch all visible students
+  const { listarEstudiantes } = await import('./students');
+  const { data: allStudents } = await listarEstudiantes(undefined, { limit: 100 });
+
+  if (!allStudents) {
+    return { data: [], error: null };
+  }
+
+  // 3. Calculate score for each
+  const { obtenerMiPerfil } = await import('./users');
+  const myProfile = await obtenerMiPerfil().catch(() => null);
+  const { calcularMatch } = await import('@/lib/match');
+
+  const studentsWithScore = allStudents
+    .filter((s: any) => !excludedIds.has(s.id))
+    .map((s: any) => ({
+      ...s,
+      score_match: myProfile ? calcularMatch(s, myProfile) : (s.nombre?.length % 2 === 0 ? 85 : 72)
+    }))
+    .sort((a: any, b: any) => b.score_match - a.score_match)
+    .slice(0, 4);
+
+  return { data: studentsWithScore, error: null };
+}
+
+

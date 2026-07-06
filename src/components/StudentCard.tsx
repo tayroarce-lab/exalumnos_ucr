@@ -13,7 +13,7 @@ import { BookOpen, MapPin, Tag, Handshake } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { getAvatarUrl } from '@/lib/utils';
 
-// ⚠️ TIPO PÚBLICO — Ausencia de beca/promedio/socioeconómico es intencional y obligatoria
+//  TIPO PÚBLICO — Ausencia de beca/promedio/socioeconómico es intencional y obligatoria
 export interface EstudiantePublico {
   id: string;
   nombreCompleto: string;
@@ -87,7 +87,7 @@ export function TarjetaEstudiante({ estudiante, isAdmin, alOfrecerApoyo }: Props
       {/* Brillo de fondo al hacer hover */}
       <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-600/5 to-violet-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
 
-      {/* ── CABECERA: Avatar + Nombre + Carrera + Sede ── */}
+      {/*  CABECERA: Avatar + Nombre + Carrera + Sede  */}
       <div className="flex items-start gap-3 relative">
         <div className="relative flex-shrink-0">
           {fotoPerfil && !imgError ? (
@@ -119,7 +119,7 @@ export function TarjetaEstudiante({ estudiante, isAdmin, alOfrecerApoyo }: Props
         </span>
       </div>
 
-      {/* ── PROYECTO ── */}
+      {/*  PROYECTO  */}
       <div className="bg-slate-700/30 rounded-xl p-3 border border-slate-700/40 relative">
         <div className="flex items-center gap-1.5 mb-1.5">
           <BookOpen className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
@@ -131,7 +131,7 @@ export function TarjetaEstudiante({ estudiante, isAdmin, alOfrecerApoyo }: Props
         </span>
       </div>
 
-      {/* ── BARRA DE PROGRESO ANIMADA ── */}
+      {/*  BARRA DE PROGRESO ANIMADA  */}
       <div>
         <div className="flex justify-between items-center mb-1.5">
           <span className="text-xs text-slate-400 font-medium">Avance del proyecto</span>
@@ -142,7 +142,7 @@ export function TarjetaEstudiante({ estudiante, isAdmin, alOfrecerApoyo }: Props
         </div>
       </div>
 
-      {/* ── ÁREAS DE INTERÉS (chips) ── */}
+      {/*  ÁREAS DE INTERÉS (chips)  */}
       {areasInteres.length > 0 && (
         <div>
           <div className="flex items-center gap-1.5 mb-2">
@@ -165,7 +165,7 @@ export function TarjetaEstudiante({ estudiante, isAdmin, alOfrecerApoyo }: Props
         </div>
       )}
 
-      {/* ── TIPO DE APOYO BUSCADO (chips diferenciados) ── */}
+      {/*  TIPO DE APOYO BUSCADO (chips diferenciados)  */}
       {tiposApoyoBuscado.length > 0 && (
         <div>
           <div className="flex items-center gap-1.5 mb-2">
@@ -185,7 +185,7 @@ export function TarjetaEstudiante({ estudiante, isAdmin, alOfrecerApoyo }: Props
         </div>
       )}
 
-      {/* ── BOTÓN OFRECER APOYO ── */}
+      {/*  BOTÓN OFRECER APOYO  */}
       {!isAdmin && (
         <button
           type="button"

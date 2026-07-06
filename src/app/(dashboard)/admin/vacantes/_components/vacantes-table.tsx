@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Search, Loader2 } from 'lucide-react';
 import { actualizarEstadoVacanteAdmin, eliminarPosicionAdmin } from '@/actions/admin';
+import { toast } from 'sonner';
 import '../../../../../styles/admin-table.css';
 import '../../../../../styles/admin-vacantes.css';
 
@@ -56,7 +57,7 @@ export function VacantesTable({ initialVacantes }: VacantesTableProps) {
         prev.map(v => v.id === id ? { ...v, estado: nuevoEstado } : v)
       );
     } catch (err: any) {
-      alert(`Error al actualizar vacante: ${err.message}`);
+      toast.error(`Error al actualizar vacante: ${err.message}`);
     } finally {
       setLoadingId(null);
     }
@@ -72,7 +73,7 @@ export function VacantesTable({ initialVacantes }: VacantesTableProps) {
       await eliminarPosicionAdmin(id);
       setVacantes(prev => prev.filter(v => v.id !== id));
     } catch (err: any) {
-      alert(`Error al eliminar vacante: ${err.message}`);
+      toast.error(`Error al eliminar vacante: ${err.message}`);
     } finally {
       setLoadingId(null);
     }
@@ -198,7 +199,7 @@ export function VacantesTable({ initialVacantes }: VacantesTableProps) {
                   <td>
                     {vacante.fecha_limite ? (
                       <span className={isExpired(vacante.fecha_limite) ? 'vacantes-deadline-expired' : 'vacantes-deadline-ok'}>
-                        {isExpired(vacante.fecha_limite) ? '⚠ ' : ''}
+                        {isExpired(vacante.fecha_limite) ? ' ' : ''}
                         {new Date(vacante.fecha_limite).toLocaleDateString('es-CR')}
                       </span>
                     ) : (

@@ -1,0 +1,443 @@
+﻿C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\admin.ts:75: // 1. Donaciones confirmadas → totales CRC / USD y proyectos con donación
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\admin.ts:267: // listarTodasLasVacantes — lista todas las posiciones sin importar el estado
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\admin.ts:292: // actualizarEstadoVacanteAdmin — permite al admin cambiar estado de cualquier vacante
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\admin.ts:310: // eliminarPosicionAdmin — permite al admin eliminar una posición
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\curriculum.ts:20: // ─── Constantes de Negocio ───────────────────────────────────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\curriculum.ts:31: // ─── Schemas de Validación (Zod) ─────────────────────────────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\curriculum.ts:102: // ─── Tipos de retorno ─────────────────────────────────────────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\curriculum.ts:125: // ─── Validador de Reglas de Negocio ──────────────────────────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\curriculum.ts:154: // ─── Helpers de autenticación ─────────────────────────────────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\curriculum.ts:174: // ─── Curriculum Base ──────────────────────────────────────────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\curriculum.ts:263: // ─── Experiencia ──────────────────────────────────────────────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\curriculum.ts:284: // ── Validación de reglas de negocio sobre bullets ─────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\curriculum.ts:433: // ─── Certificaciones ──────────────────────────────────────────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\curriculum.ts:525: // ─── Versiones de Curriculum ──────────────────────────────────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\curriculum.ts:530: * ── REGLA DE NEGOCIO CRÍTICA ──────────────────────────────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\curriculum.ts:534: * ──────────────────────────────────────────────────────────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\curriculum.ts:566: // ── Verificar el límite de versiones ANTES de insertar ────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\donations.ts:291: mensaje: `${donorName2} envió una donación de ${data.moneda === 'CRC' ? '₡' : '$'}${data.monto.toLocaleString()} para ${projectName}. Requiere revisión.`,
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\donations.ts:490: icon: '🥉',
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\donations.ts:500: icon: '🥈',
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\donations.ts:510: icon: '🥇',
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\donations.ts:519: description: 'Realizó una aportación individual destacada de más de $200 USD (o ₡104,000 CRC).',
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\donations.ts:520: icon: '💎',
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\matching.ts:12: *   1. calcularScoreMentoria()   — Score Estudiante ↔ Exalumno (máx. 100 pts)
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\matching.ts:13: *   2. generarMatchesMentoria()  — Genera todos los matches de mentoría en lote
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\matching.ts:14: *   3. calcularScorePuesto()     — Score Estudiante ↔ Posición (máx. 100 pts)
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\matching.ts:15: *   4. generarScoresPuestos()    — Persiste scores para todos los pares activos
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\matching.ts:22: // ─── Tipos de retorno ─────────────────────────────────────────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\matching.ts:59: // ─── Funciones auxiliares de cálculo ────────────────────────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\matching.ts:90: // ─── Tipo de perfil del usuario desde public.users ───────────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\matching.ts:111: // ─── Algoritmo 1: Mentoría (Estudiante ↔ Exalumno) ───────────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\matching.ts:120: *   - Sector exalumno ∩ área proyecto estudiante        = 20 pts
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\matching.ts:175: // ── Criterio 1: Misma carrera principal — 25 puntos ─────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\matching.ts:182: // ── Criterio 2: Intersección proporcional de áreas de interés — máx. 25 pts
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\matching.ts:188: // ── Criterio 3: Sector exalumno ∩ área proyecto estudiante — 20 pts ─────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\matching.ts:196: // ── Criterio 4: Al menos un tipo de apoyo coincide — 20 puntos ──────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\matching.ts:204: // ── Criterio 5: Hobbies en común — máx. 10 puntos ──────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\matching.ts:225: * Genera y persiste en la tabla `matches` todos los pares Estudiante ↔ Exalumno
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\matching.ts:296: errores.push(`Error insertando ${est.id} ↔ ${ex.id}: ${errInsert.message}`)
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\matching.ts:302: errores.push(`Error calculando score ${est.id} ↔ ${ex.id}: ${mensaje}`)
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\matching.ts:311: // ─── Algoritmo 2: Compatibilidad de Puestos (Estudiante ↔ Posición) ──────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\matching.ts:318: *   - Área de interés estudiante ⊆ sector de la posición     = 35 pts
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\matching.ts:319: *   - Habilidades técnicas CV ∩ habilidades requeridas (prop) = máx. 35 pts
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\matching.ts:320: *   - Áreas de interés ∩ sector de la posición (proporcional) = máx. 20 pts
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\matching.ts:379: // Extraer claves del JSONB { "React": "avanzado", ... } → ["React", ...]
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\matching.ts:388: // ── Criterio 1: Área de interés estudiante ⊆ sector posición — 35 pts ───
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\matching.ts:391: // ── Criterio 2: Habilidades CV ∩ habilidades requeridas — máx. 35 pts ───
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\matching.ts:395: // ── Criterio 3: Áreas de interés ∩ sector posición — máx. 20 pts ────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\matching.ts:399: // ── Criterio 4: Tipo de apoyo buscado coincide — 10 pts ─────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\matching.ts:420: * Estudiante activo ↔ Posición activa que superen el `umbralMinimo`.
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\matching.ts:475: errores.push(`Error persistiendo ${est.id} ↔ ${pos.id}: ${errUpsert.message}`)
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\matching.ts:481: errores.push(`Error en par estudiante:${est.id} ↔ posición:${pos.id}: ${mensaje}`)
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\reports.ts:9: // Tipos manuales — reportes_perfil y user_bans no están en database.types.ts.
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\actions\reports.ts:54: /** Motivos permitidos en el sistema — debe coincidir con el enum de la BD. */
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(auth)\login\page.tsx:94: {/* Panel Izquierdo — Decorativo */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(auth)\login\page.tsx:146: {/* Panel Derecho — Formulario */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(auth)\recuperar-password\page.tsx:88: {/* Panel Izquierdo — Decorativo */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(auth)\recuperar-password\page.tsx:125: {/* Panel Derecho — Formulario */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\admin\donaciones\_components\donation-action-dialog.tsx:102: Abrir comprobante completo ↗
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\admin\donaciones\_components\donations-history.tsx:85: <span className="donations-total-value">₡ {totals.crc.toLocaleString('es-CR')}</span>
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\admin\donaciones\_components\pending-donations.tsx:74: <span className="donations-status-overdue">⚠ +24h Pendiente</span>
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\admin\matches\_components\matches-table.tsx:150: <span className="matches-alert-badge">⚠ +6 meses activo</span>
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\admin\usuarios\_components\users-table.tsx:228: {!user.carrera && !user.sede && <span className="users-table-cell-empty">—</span>}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\admin\vacantes\_components\vacantes-table.tsx:202: {isExpired(vacante.fecha_limite) ? '⚠ ' : ''}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\admin\layout.tsx:1: // Server Component — verificación de rol 'admin' como segunda capa de defensa
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\dashboard\page.tsx:19: /* ─────────── Floating Accessibility Panel ─────────── */
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\dashboard\page.tsx:112: /* ─────────── Animated Counter ─────────── */
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\dashboard\page.tsx:133: /* ─────────── Utils ─────────── */
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\dashboard\page.tsx:148: /* ─────────── Main Dashboard ─────────── */
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\dashboard\page.tsx:187: {/* ─── HERO ─── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\dashboard\page.tsx:232: {/* ─── METRIC CARDS ─── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\dashboard\page.tsx:297: {/* ─── CONEXIONES RECOMENDADAS ─── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\dashboard\page.tsx:347: {/* ─── PRÓXIMOS EVENTOS ─── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\dashboard\page.tsx:396: {/* ─── ACTUALIDAD UNIVERSITARIA ─── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\DirectorioClient.tsx:148: 🔍 Todos los Estudiantes
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\DirectorioClient.tsx:168: 💡 Proyectos Buscando Apoyo (Cualquier Tipo)
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\ModalOfrecerApoyo.tsx:149: 📘 {tituloProyecto}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\ModalProyectoEstudiante.tsx:138: <h5 className="text-xs font-bold text-amber-700 uppercase tracking-wider">🎁 Beneficios para Patrocinadores</h5>
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\ModalProyectoEstudiante.tsx:181: 💰 Apoyo Económico
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\ModalProyectoEstudiante.tsx:186: 🎓 Mentoría Técnica
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\ModalProyectoEstudiante.tsx:191: 💼 Empleo
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\ModalProyectoEstudiante.tsx:196: 👜 Pasantía
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\ModalProyectoEstudiante.tsx:256: Ofrecer Apoyo →
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\ModalProyectoEstudiante.tsx:264: 💰 Apoyar Económicamente →
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\Paginacion.tsx:39: ← Anterior
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\Paginacion.tsx:61: Siguiente →
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\StudentProfile.tsx:149: {/* ── SECCIÓN DE CABECERA UNIFICADA (DISEÑO BANNER) ────────────────── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\StudentProfile.tsx:183: <span>📍</span> Sede de {estudiante.sede}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\StudentProfile.tsx:189: </div>      {/* ── CARD DE COMPATIBILIDAD ─────────────────────────── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\StudentProfile.tsx:218: {/* ── PASIONES HUMANAS EN EL MATCH ── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\StudentProfile.tsx:224: {i === 0 ? '⚽' : i === 1 ? '🎵' : '📸'} {p}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\StudentProfile.tsx:231: {/* ── BOTONES DE ACCIÓN ──────────────────────────────── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\StudentProfile.tsx:244: {/* ── CARD PROYECTO TFG ─────────────────────────────── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\StudentProfile.tsx:293: {estudiante.proyecto_valor_moneda === 'USD' ? '$' : '₡'}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\StudentProfile.tsx:319: 📄 Ver Documento
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\StudentProfile.tsx:329: ▶️ Ver Video
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\StudentProfile.tsx:351: 💰 Financiamiento Colectivo
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\StudentProfile.tsx:368: <span className="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2.5 py-1 rounded-lg border border-emerald-100">💰 Apoyo Económico</span>
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\StudentProfile.tsx:371: <span className="bg-blue-50 text-blue-700 text-[10px] font-bold px-2.5 py-1 rounded-lg border border-blue-100">🎓 Mentoría Técnica</span>
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\StudentProfile.tsx:374: <span className="bg-orange-50 text-orange-700 text-[10px] font-bold px-2.5 py-1 rounded-lg border border-orange-100">💼 Oportunidad de Empleo</span>
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\StudentProfile.tsx:377: <span className="bg-violet-50 text-violet-700 text-[10px] font-bold px-2.5 py-1 rounded-lg border border-violet-100">👜 Pasantía</span>
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\StudentProfile.tsx:399: {/* ── COLUMNAS OPORTUNIDADES E INTERESES ──────────────── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\StudentProfile.tsx:403: <span>👜</span> Oportunidades
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\StudentProfile.tsx:412: <span>❤️</span> Intereses
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\StudentProfile.tsx:420: {/* ── EXPEDIENTE ACADÉMICO (DARK SLATE) ───────────────── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\StudentProfile.tsx:429: <span>🎓</span> Expediente Académico
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\StudentProfile.tsx:451: {/* ── VIDA MÁS ALLÁ DEL AULA ────────────────────────── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\StudentProfile.tsx:454: <div className="absolute top-3 right-4 text-5xl opacity-10 pointer-events-none select-none">🌟</div>
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\StudentProfile.tsx:456: <span>🎨</span> Vida Más Allá del Aula
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\StudentProfile.tsx:464: ✍️ En mis propias palabras
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\StudentProfile.tsx:475: <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">⚽ Deportes & Actividad Física</p>
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\StudentProfile.tsx:487: <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">🎵 Música & Artes</p>
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\StudentProfile.tsx:499: <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">✨ Pasatiempos & Hobbies</p>
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\StudentProfile.tsx:511: <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">🌐 Idiomas</p>
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\StudentProfile.tsx:523: {/* ── MI PRESENTACIÓN ──────────────────────────────────── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\StudentProfile.tsx:544: {/* ── HABILIDADES TÉCNICAS ───────────────────────────── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\StudentProfile.tsx:547: <span>💻</span> Habilidades Técnicas
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\StudentProfile.tsx:562: {/* ── PRIVACIDAD ─────────────────────────────────────── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\StudentProfile.tsx:587: {/* ── TRAYECTORIA ESTUDIANTIL ────────────────────────── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\StudentProfile.tsx:591: <span>🚌</span> Trayectoria Estudiantil
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\StudentProfile.tsx:611: {/* ── ACCIONES PARA MENTORES (DASHED GREEN) ───────────── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\StudentProfile.tsx:642: {/* ── ESTUDIANTES RELACIONADOS ── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\StudentProfile.tsx:655: {/* ── MODAL MENTORÍA ── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\StudentProfile.tsx:736: {/* ── MODAL APÓYAR PROYECTO ── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\TarjetaEstudiante.tsx:94: 💰 Económico
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\TarjetaEstudiante.tsx:99: 🎓 Mentoría
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\TarjetaEstudiante.tsx:104: 💼 Empleo
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\directorio\estudiantes\_components\TarjetaEstudiante.tsx:109: 👜 Pasantía
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\donations\history\page.tsx:41: if (moneda === 'CRC') return `₡${val.toLocaleString('es-CR')}`
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\donations\history\page.tsx:73: const metodoLabel = d.metodo === 'sinpe' ? '📱 SINPE Móvil' : '🏦 Transferencia Bancaria'
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\donations\history\page.tsx:135: Reintentar donación →
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\donations\history\page.tsx:220: { label: 'Total aportado', value: `₡${totales.totalCRC.toLocaleString()}`, color: 'text-blue-700', bg: 'bg-blue-50', border: 'border-blue-200' },
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\donations\history\page.tsx:233: { v: 'confirmada', label: '✅ Aceptadas' },
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\donations\history\page.tsx:234: { v: 'pendiente', label: '⏳ En espera' },
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\donations\history\page.tsx:235: { v: 'rechazada', label: '❌ Rechazadas' },
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\donations\page.tsx:28: // DATOS — reemplazarán con query a Supabase
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\donations\page.tsx:99: if (moneda === 'CRC') return `₡${val.toLocaleString('es-CR')}`
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\donations\page.tsx:143: <span>₡{fondo.raised.toLocaleString('es-CR')} recaudados</span>
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\donations\page.tsx:149: <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">{fondo.donors} donantes · Meta: ₡{fondo.meta.toLocaleString('es-CR')}</p>
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\donations\page.tsx:436: <option value="CRC">₡ CRC</option>
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\donations\page.tsx:644: ← Atrás
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\donations\page.tsx:653: Continuar →
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\events\[id]\page.tsx:28: // DATOS — reemplazarán con query a Supabase
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\events\[id]\page.tsx:99: if (moneda === 'CRC') return `₡${val.toLocaleString('es-CR')}`
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\events\[id]\page.tsx:143: <span>₡{fondo.raised.toLocaleString('es-CR')} recaudados</span>
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\events\[id]\page.tsx:149: <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">{fondo.donors} donantes · Meta: ₡{fondo.meta.toLocaleString('es-CR')}</p>
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\events\[id]\page.tsx:436: <option value="CRC">₡ CRC</option>
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\events\[id]\page.tsx:644: ← Atrás
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\events\[id]\page.tsx:653: Continuar →
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\events\[id]\RegisterEventButton.tsx:28: // DATOS — reemplazarán con query a Supabase
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\events\[id]\RegisterEventButton.tsx:99: if (moneda === 'CRC') return `₡${val.toLocaleString('es-CR')}`
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\events\[id]\RegisterEventButton.tsx:143: <span>₡{fondo.raised.toLocaleString('es-CR')} recaudados</span>
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\events\[id]\RegisterEventButton.tsx:149: <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">{fondo.donors} donantes · Meta: ₡{fondo.meta.toLocaleString('es-CR')}</p>
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\events\[id]\RegisterEventButton.tsx:436: <option value="CRC">₡ CRC</option>
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\events\[id]\RegisterEventButton.tsx:644: ← Atrás
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\events\[id]\RegisterEventButton.tsx:653: Continuar →
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\events\page.tsx:88: Ver Detalles →
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\give-back\[id]\page.tsx:88: Ver Detalles →
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\give-back\[id]\RegisterOpportunityButton.tsx:88: Ver Detalles →
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\give-back\page.tsx:108: Ver Detalles →
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\historial\page.tsx:31: if (moneda === 'CRC') return `₡${val.toLocaleString('es-CR')}`
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\historial\page.tsx:57: const metodoLabel = d.metodo === 'sinpe' ? '📱 SINPE Móvil' : '🏦 Transferencia Bancaria'
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\historial\page.tsx:120: Reintentar donación →
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\publish\page.tsx:19: // ──────────────────────────────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\publish\page.tsx:21: // ──────────────────────────────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\publish\page.tsx:120: // ─── Handlers generales ─────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\publish\page.tsx:129: // ─── Sector (múltiple) ───────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\publish\page.tsx:141: // ─── Responsabilidades dinámicas ─────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\publish\page.tsx:159: // ─── Validación por paso ─────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\publish\page.tsx:362: {/* ══════════════════════════════
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\publish\page.tsx:364: ══════════════════════════════ */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\publish\page.tsx:438: {/* ── Selector múltiple de Sectores ─────────────────── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\publish\page.tsx:458: {isSelected && <span className="mr-1">✓</span>}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\publish\page.tsx:482: {/* ══════════════════════════════
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\publish\page.tsx:484: ══════════════════════════════ */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\publish\page.tsx:501: {/* ── Responsabilidades dinámicas ──────────────────── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\publish\page.tsx:575: {/* ── Contexto del equipo (opcional, max 300) ────────── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\publish\page.tsx:614: {/* ══════════════════════════════
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\publish\page.tsx:616: ══════════════════════════════ */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\[id]\adaptar\page.tsx:19: // ──────────────────────────────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\[id]\adaptar\page.tsx:21: // ──────────────────────────────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\[id]\adaptar\page.tsx:120: // ─── Handlers generales ─────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\[id]\adaptar\page.tsx:129: // ─── Sector (múltiple) ───────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\[id]\adaptar\page.tsx:141: // ─── Responsabilidades dinámicas ─────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\[id]\adaptar\page.tsx:159: // ─── Validación por paso ─────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\[id]\adaptar\page.tsx:362: {/* ══════════════════════════════
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\[id]\adaptar\page.tsx:364: ══════════════════════════════ */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\[id]\adaptar\page.tsx:438: {/* ── Selector múltiple de Sectores ─────────────────── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\[id]\adaptar\page.tsx:458: {isSelected && <span className="mr-1">✓</span>}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\[id]\adaptar\page.tsx:482: {/* ══════════════════════════════
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\[id]\adaptar\page.tsx:484: ══════════════════════════════ */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\[id]\adaptar\page.tsx:501: {/* ── Responsabilidades dinámicas ──────────────────── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\[id]\adaptar\page.tsx:575: {/* ── Contexto del equipo (opcional, max 300) ────────── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\[id]\adaptar\page.tsx:614: {/* ══════════════════════════════
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\[id]\adaptar\page.tsx:616: ══════════════════════════════ */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\[id]\page.tsx:19: // ──────────────────────────────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\[id]\page.tsx:21: // ──────────────────────────────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\[id]\page.tsx:120: // ─── Handlers generales ─────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\[id]\page.tsx:129: // ─── Sector (múltiple) ───────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\[id]\page.tsx:141: // ─── Responsabilidades dinámicas ─────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\[id]\page.tsx:159: // ─── Validación por paso ─────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\[id]\page.tsx:362: {/* ══════════════════════════════
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\[id]\page.tsx:364: ══════════════════════════════ */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\[id]\page.tsx:438: {/* ── Selector múltiple de Sectores ─────────────────── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\[id]\page.tsx:458: {isSelected && <span className="mr-1">✓</span>}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\[id]\page.tsx:482: {/* ══════════════════════════════
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\[id]\page.tsx:484: ══════════════════════════════ */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\[id]\page.tsx:501: {/* ── Responsabilidades dinámicas ──────────────────── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\[id]\page.tsx:575: {/* ── Contexto del equipo (opcional, max 300) ────────── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\[id]\page.tsx:614: {/* ══════════════════════════════
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\[id]\page.tsx:616: ══════════════════════════════ */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\page.tsx:127: {/* Banner CV — solo si el estudiante no tiene CV */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\page.tsx:270: {sec} ✕
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\jobs\page.tsx:327: Ver Detalles →
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\mentorships\[id]\MentorshipRequestModal.tsx:127: {/* Banner CV — solo si el estudiante no tiene CV */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\mentorships\[id]\MentorshipRequestModal.tsx:270: {sec} ✕
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\mentorships\[id]\MentorshipRequestModal.tsx:327: Ver Detalles →
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\mentorships\[id]\page.tsx:127: {/* Banner CV — solo si el estudiante no tiene CV */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\mentorships\[id]\page.tsx:270: {sec} ✕
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\mentorships\[id]\page.tsx:327: Ver Detalles →
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\mentorships\page.tsx:13: // ─── TIPOS ──────────────────────────────────────────────────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\mentorships\page.tsx:34: // ─── CONFIG DE ESTADO ────────────────────────────────────────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\mentorships\page.tsx:49: // ─── TARJETA DE MATCH ────────────────────────────────────────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\mentorships\page.tsx:103: {match.tipo_apoyo === 'mentoria' ? '🎓 Mentoría' : match.tipo_apoyo === 'empleo' ? '💼 Empleo' : '👥 Pasantía'}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\mentorships\page.tsx:154: // ─── PÁGINA PRINCIPAL ────────────────────────────────────────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\mentorships\page.tsx:284: Ver directorio completo →
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\mentorships\page.tsx:304: ⚠️ {error} — Asegúrate de tener conexión y un perfil actualizado.
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\mis-aplicaciones\page.tsx:10: // ─── HELPERS VISUALES ────────────────────────────────────────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\mis-aplicaciones\page.tsx:47: // ─── COMPONENTE PRINCIPAL ────────────────────────────────────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\mis-aplicaciones\page.tsx:119: <p className="text-slate-500 font-medium text-sm">Cargando tus aplicaciones…</p>
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\mis-matches\_components\matches-list.tsx:172: ✓ Solicitud Enviada
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\mis-matches\_components\matches-list.tsx:179: {loadingId === match.id ? 'Cancelando...' : '✕ Cancelar solicitud'}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\mis-posiciones\page.tsx:25: empleo:   { label: 'Empleo',   icon: '💼' },
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\mis-posiciones\page.tsx:26: pasantia: { label: 'Pasantía', icon: '📋' },
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\mis-posiciones\page.tsx:27: proyecto: { label: 'Proyecto', icon: '🤝' },
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\network\page.tsx:36: { key: 'ofrece_mentoria', label: 'Mentoría', icon: '🎓' },
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\network\page.tsx:37: { key: 'ofrece_empleo', label: 'Empleo', icon: '💼' },
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\network\page.tsx:38: { key: 'ofrece_pasantia', label: 'Pasantía', icon: '📋' },
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\network\page.tsx:39: { key: 'ofrece_proyecto', label: 'Proyecto', icon: '🤝' },
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\network\page.tsx:40: { key: 'ofrece_donacion_dinero', label: 'Donación', icon: '💰' },
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\network\page.tsx:347: ← Anterior
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\network\page.tsx:369: Siguiente →
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\network\page.tsx:376: // PÁGINA PRINCIPAL — DIRECTORIO
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\student-dashboard\page.tsx:19: /* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Utils â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\student-dashboard\page.tsx:125: {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\student-dashboard\page.tsx:126: HERO BANNER â€” Mascota + CTA (NO TOCAR)
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\student-dashboard\page.tsx:127: â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\student-dashboard\page.tsx:177: {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\student-dashboard\page.tsx:178: ACCESO RÃPIDO â€” 3 tarjetas con borde celeste al seleccionar
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\student-dashboard\page.tsx:179: â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\student-dashboard\page.tsx:247: {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\student-dashboard\page.tsx:248: TU PROGRESO â€” EstadÃ­sticas reales + NotificaciÃ³n real
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\student-dashboard\page.tsx:249: â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\student-dashboard\page.tsx:312: {/* Notification bar â€” real o estado vacÃ­o */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\student-dashboard\page.tsx:352: {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\student-dashboard\page.tsx:353: EVENTOS PRÃ“XIMOS â€” 3 tarjetas con imÃ¡genes
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\student-dashboard\page.tsx:354: â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\talleres\[id]\page.tsx:19: /* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Utils â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\talleres\[id]\page.tsx:125: {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\talleres\[id]\page.tsx:126: HERO BANNER â€” Mascota + CTA (NO TOCAR)
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\talleres\[id]\page.tsx:127: â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\talleres\[id]\page.tsx:177: {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\talleres\[id]\page.tsx:178: ACCESO RÃPIDO â€” 3 tarjetas con borde celeste al seleccionar
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\talleres\[id]\page.tsx:179: â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\talleres\[id]\page.tsx:247: {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\talleres\[id]\page.tsx:248: TU PROGRESO â€” EstadÃ­sticas reales + NotificaciÃ³n real
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\talleres\[id]\page.tsx:249: â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\talleres\[id]\page.tsx:312: {/* Notification bar â€” real o estado vacÃ­o */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\talleres\[id]\page.tsx:352: {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\talleres\[id]\page.tsx:353: EVENTOS PRÃ“XIMOS â€” 3 tarjetas con imÃ¡genes
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\talleres\[id]\page.tsx:354: â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(dashboard)\layout.tsx:1: // Server Component — NO añadir 'use client'
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(public)\cuenta-suspendida\page.tsx:6: title: 'Cuenta Suspendida — Fundación Exalumnos UCR',
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\(public)\cuenta-suspendida\page.tsx:28: // Silencioso — mostrar página genérica si falla
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\api\support-queries\route.ts:8: // Admin → todas las consultas. Cualquier usuario → solo las suyas (por email).
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\api\support-queries\route.ts:52: // POST /api/support-queries — cualquier usuario autenticado
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\api\support-queries\route.ts:74: // Notificar a todos los admins — en try/catch propio para que un fallo
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\api\support-queries\route.ts:97: // PATCH /api/support-queries — solo admin
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\page.tsx:61: {/* ══ LADO IZQUIERDO ══ */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\page.tsx:64: {/* ── Formas de fondo ── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\page.tsx:77: {/* ── Iconos educativos flotantes ── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\page.tsx:79: {/* Birrete de graduación — arriba izquierda */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\page.tsx:89: {/* Libro abierto — derecha media */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\page.tsx:99: {/* Lápiz — arriba derecha */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\page.tsx:109: {/* Átomo — esquina superior derecha, girando */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\page.tsx:124: {/* Diploma / Medalla — abajo derecha */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\page.tsx:134: {/* Brújula / Compás — abajo izquierda */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\page.tsx:145: {/* Microscopio — zona alta izquierda */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\app\page.tsx:206: {/* ══ LADO DERECHO ══ */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\admin\reportes\PendingDonationsTable.tsx:40: const currencySymbol = d.moneda === 'USD' ? '$' : '₡';
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\cv\ui\BulletInput.tsx:50: title: '✨ Viñeta mejorada',
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\cv\ComponenteComparadorCV.tsx:186: 💡 {sug.justificacionReclutador}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\cv\PlantillaPDFCV.tsx:130: {academic.university} • Nivel: {academic.academic_level} • Año de ingreso: {academic.entry_year}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\cv\PlantillaPDFCV.tsx:150: <Text key={bIdx} style={styles.itemDesc}>• {b}</Text>
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\cv\PlantillaPDFCV.tsx:209: <Text key={`tech-${i}`} style={styles.skillItem}>• {s.name}</Text>
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\cv\PlantillaPDFCV.tsx:220: <Text key={`lang-${i}`} style={styles.skillItem}>• {s.name} - {s.level}</Text>
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\cv\PlantillaPDFCV.tsx:228: <Text key={`soft-${i}`} style={styles.skillItem}>• {s.name}</Text>
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\cv\VistaPreviaCV.tsx:31: {academic.university} • Nivel: {academic.academic_level} • Año de ingreso: {academic.entry_year}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\cv\VistaPreviaCV.tsx:60: {exp.bullets.map((b, bIdx) => <li key={bIdx}>• {b}</li>)}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\cv\VistaPreviaCV.tsx:115: {techSkills.map((s, i) => <li key={i}>• {s.name}</li>)}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\cv\VistaPreviaCV.tsx:126: {langSkills.map((s, i) => <li key={i}>• {s.name} - {s.level}</li>)}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\cv\VistaPreviaCV.tsx:134: {softSkills.map((s, i) => <li key={i}>• {s.name}</li>)}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\forms\StudentOnboardingForm.tsx:817: <span className="truncate">🖼️ Imagen del proyecto subida</span>
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\forms\StudentOnboardingForm.tsx:844: <span className="truncate">📄 {formData.proyecto_documento_url.split('/').pop()}</span>
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\forms\StudentOnboardingForm.tsx:1005: ⚠️ {item.reason}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\forms\StudentProfileEdit.tsx:555: ⚠️ {item.reason}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\layout\navbar.tsx:22: // Estado local del tema admin — sincronizado con localStorage y evento custom
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\layout\navbar.tsx:268: {/* ───────────────────── BARRA PRINCIPAL ───────────────────── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\layout\navbar.tsx:458: {/* ───────────────────── DRAWER MÓVIL ───────────────────── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\layout\SeccionApoyoComunidad.tsx:141: <span className="text-xl ml-1">▶</span>
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\layout\SeccionApoyoComunidad.tsx:170: <span className="transition-transform duration-200 group-hover:translate-x-1">▶</span>
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\layout\SeccionApoyoComunidad.tsx:198: ✕
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\ui\AuthBackground.tsx:7: {/* ── Formas de fondo ── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\ui\AuthBackground.tsx:20: {/* ── Iconos educativos flotantes ── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\ui\AuthBackground.tsx:22: {/* Birrete de graduación — arriba izquierda */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\ui\AuthBackground.tsx:32: {/* Libro abierto — derecha media */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\ui\AuthBackground.tsx:42: {/* Lápiz — arriba derecha */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\ui\AuthBackground.tsx:52: {/* Átomo — esquina superior derecha, girando */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\ui\AuthBackground.tsx:67: {/* Diploma / Medalla — abajo derecha */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\ui\AuthBackground.tsx:77: {/* Brújula / Compás — abajo izquierda */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\ui\AuthBackground.tsx:88: {/* Microscopio — zona alta izquierda */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\ui\DirectoryBackground.tsx:10: {/* ── Formas de fondo y círculos decorativos ── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\ui\DirectoryBackground.tsx:24: {/* ── Iconos educativos flotantes ── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\ui\DirectoryBackground.tsx:26: {/* Birrete de graduación — arriba izquierda */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\ui\DirectoryBackground.tsx:36: {/* Libro abierto — derecha media */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\ui\DirectoryBackground.tsx:46: {/* Lápiz — arriba derecha */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\ui\DirectoryBackground.tsx:56: {/* Átomo — esquina superior derecha, girando */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\ui\DirectoryBackground.tsx:71: {/* Diploma / Medalla — abajo derecha */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\ui\DirectoryBackground.tsx:81: {/* Brújula / Compás — abajo izquierda */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\ui\DirectoryBackground.tsx:92: {/* Microscopio — zona alta izquierda */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\GlobalLoadingOverlay.tsx:7: // ─── Color Utilities ─────────────────────────────────────────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\GlobalLoadingOverlay.tsx:89: // ─── Component ────────────────────────────────────────────────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\InteractiveTour.tsx:36: title: isStudent ? '🎓 ¡BIENVENIDO AL PORTAL ESTUDIANTE!' : '✨ ¡BIENVENIDO A TU PORTAL ALUMNI!',
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\InteractiveTour.tsx:63: title: '📢 EVENTOS Y ACCIONES CLAVE',
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\InteractiveTour.tsx:88: title: isStudent ? '⚡ ACCESOS RÁPIDOS' : '📊 RESUMEN RÁPIDO',
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\InteractiveTour.tsx:115: title: isStudent ? '🚀 ¿POR DÓNDE EMPEZAR?' : '📅 PRÓXIMOS EVENTOS',
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\InteractiveTour.tsx:142: title: '🏠 INICIO',
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\InteractiveTour.tsx:167: title: '👥 DIRECTORIOS',
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\InteractiveTour.tsx:192: title: '🤝 MENTORÍAS',
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\InteractiveTour.tsx:219: title: '⚡ MATCHES',
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\InteractiveTour.tsx:244: title: '📅 EVENTOS',
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\InteractiveTour.tsx:269: title: '💼 EMPLEOS',
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\InteractiveTour.tsx:296: title: '⚙️ TU PERFIL Y CONFIGURACIÓN',
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\MyMatches.tsx:20: // ─── TIPOS LOCALES ───────────────────────────────────────────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\MyMatches.tsx:28: // ─── HELPERS VISUALES ────────────────────────────────────────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\MyMatches.tsx:51: // ─── SUB-COMPONENTE: TarjetaMatch ────────────────────────────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\MyMatches.tsx:82: {/* ── CABECERA: Score + Perfiles + Estado ── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\MyMatches.tsx:153: {/* ── DESGLOSE DE COMPATIBILIDAD ── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\MyMatches.tsx:177: {desglosePuntaje.areasEnComun.length > 0 ? '+≤30' : '0'}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\MyMatches.tsx:181: {/* Sector ↔ Área temática */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\MyMatches.tsx:188: <span className="font-medium">Sector ↔ Proyecto</span>
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\MyMatches.tsx:241: {/* ── ACCIONES RÁPIDAS ── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\MyMatches.tsx:289: // ─── COMPONENTE PRINCIPAL ────────────────────────────────────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\MyMatches.tsx:336: {/* ── ENCABEZADO ── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\MyMatches.tsx:371: {/* ── FILTROS DE ESTADO ── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\MyMatches.tsx:394: {/* ── LISTA DE MATCHES ── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\ProyectoDonacionesProgreso.tsx:55: const symbol = metaMoneda === 'USD' ? '$' : '₡';
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\RealtimeApplicationStatus.tsx:125: Ver mis aplicaciones →
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\register.tsx:20: // ── Estado Estudiante (flujo OTP) ──
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\register.tsx:24: // ── Estado Exalumno (flujo email+password) ──
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\register.tsx:35: // ── Diálogo UCR ──
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\register.tsx:38: // ── General ──
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\register.tsx:54: // ── Detección correo @ucr.ac.cr para exalumno ──
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\register.tsx:66: // ── Submit Estudiante (OTP) ──
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\register.tsx:106: // ── Submit Exalumno (email+password) ──
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\register.tsx:152: // ── Helpers de carreras ──
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\register.tsx:172: // ── Reenviar enlace (solo estudiante) ──
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\register.tsx:195: // ═══════════════════════════════════════════
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\register.tsx:197: // ═══════════════════════════════════════════
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\register.tsx:248: // ═══════════════════════════════════════════
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\register.tsx:250: // ═══════════════════════════════════════════
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\register.tsx:297: <p className="subtitle">{tipoRegistro === 'estudiante' ? 'Acceso sin contraseñas mediante Enlace Mágico' : 'Autodeclaración — Bienvenido de vuelta a la comunidad UCR'}</p>
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\register.tsx:312: {/* ═══ FORMULARIO ESTUDIANTE (OTP) ═══ */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\register.tsx:367: {/* ═══ FORMULARIO EXALUMNO (email+password) ═══ */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\register.tsx:415: <input type="password" placeholder="••••••••" value={exalumnoData.password} onChange={e => setExalumnoData({ ...exalumnoData, password: e.target.value })} required />
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\StudentCard.tsx:16: // ⚠️ TIPO PÚBLICO — Ausencia de beca/promedio/socioeconómico es intencional y obligatoria
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\StudentCard.tsx:90: {/* ── CABECERA: Avatar + Nombre + Carrera + Sede ── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\StudentCard.tsx:122: {/* ── PROYECTO ── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\StudentCard.tsx:134: {/* ── BARRA DE PROGRESO ANIMADA ── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\StudentCard.tsx:145: {/* ── ÁREAS DE INTERÉS (chips) ── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\StudentCard.tsx:168: {/* ── TIPO DE APOYO BUSCADO (chips diferenciados) ── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\StudentCard.tsx:188: {/* ── BOTÓN OFRECER APOYO ── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\StudentDirectory.tsx:18: // ─── CATÁLOGOS LOCALES ──────────────────────────────────────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\StudentDirectory.tsx:36: // ─── ESTADO DE FILTROS ───────────────────────────────────────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\StudentDirectory.tsx:53: // ─── SUB-COMPONENTE: SelectorMultiple ────────────────────────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\StudentDirectory.tsx:128: // ─── COMPONENTE PRINCIPAL ────────────────────────────────────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\StudentDirectory.tsx:273: {/* ── ENCABEZADO ── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\StudentDirectory.tsx:295: {/* ── BARRA DE BÚSQUEDA RÁPIDA ── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\StudentDirectory.tsx:322: {/* ── PANEL DE FILTROS ── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\components\StudentDirectory.tsx:438: {/* ── CUADRÍCULA DE TARJETAS ── */}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\constants\catalogs.ts:2: // CATÁLOGOS COMPARTIDOS — Fundación Exalumnos UCR
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\constants\catalogs.ts:179: { key: 'ofrece_mentoria', label: 'Mentoría', icon: '🎓' },
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\constants\catalogs.ts:180: { key: 'ofrece_empleo', label: 'Empleo', icon: '💼' },
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\constants\catalogs.ts:181: { key: 'ofrece_pasantia', label: 'Pasantía', icon: '📋' },
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\constants\catalogs.ts:182: { key: 'ofrece_proyecto', label: 'Colaboración en Proyecto', icon: '🤝' },
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\constants\catalogs.ts:183: { key: 'ofrece_donacion_dinero', label: 'Donación Económica', icon: '💰' },
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\contexts\AdminThemeContext.tsx:13: // Valores por defecto seguros — no lanza si se usa fuera del Provider
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\contexts\AdminThemeContext.tsx:45: // Hook seguro — siempre retorna valores válidos aunque no haya Provider
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\lib\email\index.ts:17: subject: '¡Han confirmado una donación para tu proyecto! 🎉',
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\lib\email\index.ts:26: subject: 'Nueva aplicación a tu vacante 📄',
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\lib\email\index.ts:35: subject: 'Nuevo Match sugerido en la plataforma 🤝',
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\lib\email\index.ts:44: subject: '⚠️ Alerta: Cuenta suspendida automáticamente',
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\lib\email\index.ts:53: subject: '⏳ Acción requerida: Donación pendiente por más de 48h',
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\lib\email\index.ts:62: subject: '🗓️ Seguimiento requerido: Match activo por más de 6 meses',
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\lib\email\index.ts:71: subject: '🔔 Nueva Donación Pendiente de Revisión',
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\lib\email\index.ts:80: subject: estado === 'confirmada' ? '¡Tu donación ha sido confirmada! 🎉' : 'Actualización sobre tu donación',
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\lib\email\templates.ts:46: <h2 style="color: #990000;">⚠️ Alerta de Suspensión Automática</h2>
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\lib\email\templates.ts:60: <h2 style="color: #ff9900;">⏳ Recordatorio: Donación Pendiente (> 48h)</h2>
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\lib\email\templates.ts:78: <h2 style="color: #003366;">🗓️ Seguimiento de Match Activo</h2>
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\lib\pdf\CVDocument.tsx:146: <Text style={styles.bulletPoint}>•</Text>
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\lib\logger.ts:5: if (!isDev) return; // Silencioso en producción — usar observabilidad externa ahí
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\lib\notify-admins.ts:24: // Cliente sin tipos para no depender de Database generado — solo server-side
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\services\email-service.ts:33: 🎓 Fundación Exalumnos UCR
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\services\email-service.ts:76: ? `₡ ${amount.toLocaleString('es-CR')}`
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\services\email-service.ts:83: subject: '⏳ Tu donación está siendo verificada — Fundación Exalumnos UCR',
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\services\email-service.ts:124: ? `₡ ${amount.toLocaleString('es-CR')}`
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\services\email-service.ts:132: subject: '✅ Tu donación fue confirmada — Fundación Exalumnos UCR',
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\services\email-service.ts:161: subject: '🎉 ¡Recibiste una donación confirmada! — Fundación Exalumnos UCR',
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\services\email-service.ts:173: Sigue adelante con tu excelente trabajo — la comunidad universitaria está contigo.
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\services\email-service.ts:206: subject: '⚠️ Problema con tu reporte de donación — Fundación Exalumnos UCR',
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\services\email-service.ts:260: subject: '🤝 Nuevo match sugerido para ti — Fundación Exalumnos UCR',
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\services\email-service.ts:294: subject: '✨ ¡Un exalumno quiere apoyarte! — Fundación Exalumnos UCR',
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\services\email-service.ts:347: ? `🟢 Tu match está ahora activo, ${recipientName} — Fundación Exalumnos UCR`
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\services\email-service.ts:349: ? `🏆 Match completado exitosamente, ${recipientName} — Fundación Exalumnos UCR`
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\services\email-service.ts:350: : `📋 Actualización de tu match, ${recipientName} — Fundación Exalumnos UCR`;
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\services\email-service.ts:357: <p style="margin:0; font-size:14px; color:#065f46; font-weight:600;">Estado: Activo ✅</p>
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\services\email-service.ts:371: Resultado: ${isSuccess ? '¡Exitoso! 🏆' : 'Cancelado'}
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\services\email-service.ts:410: subject: `⚠️ ${pendingCount} donación(es) llevan +24h sin revisar — Acción requerida`,
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\services\email-service.ts:456: ? '⚠️ Nuevo reporte de perfil requiere revisión'
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\services\email-service.ts:457: : '📢 Actualización sobre el estado de tu cuenta';
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\services\matchingService.ts:174: // ─── HELPER INTERNO ──────────────────────────────────────────────────────────
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\services\pdfService.ts:43: // ── 1. ENCABEZADO (Header) ──
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\services\pdfService.ts:62: // ── 2. EDUCACIÓN ──
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\services\pdfService.ts:77: // ── 3. EXPERIENCIA PROFESIONAL (STAR) ──
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\services\pdfService.ts:90: doc.text(`• ${vineta}`, { indent: 15, align: 'justify' });
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\services\pdfService.ts:96: // ── 4. PROYECTOS ACADÉMICOS ──
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\services\pdfService.ts:103: doc.text(`• ${proy.descripcion}`, { indent: 15, align: 'justify' });
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\services\pdfService.ts:108: // ── 5. HABILIDADES ──
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\services\securityLogger.ts:5: //              Se usa exclusivamente desde el middleware Edge — nunca desde
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\services\securityLogger.ts:31: // Cliente admin lazy-initialized — compatible con Edge Runtime
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\services\securityLogger.ts:48: // Nunca lanza excepciones — el middleware nunca debe bloquearse por un fallo de log.
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\services\securityLogger.ts:63: // Silencioso — nunca bloquear el flujo del middleware
+C:\Users\Pcfwd\OneDrive\Escritorio\BACKEND\proyectos\exalumnos_ucr\exalumnos_ucr\src\types\estudiantes.ts:7: // Carrera y sede vienen de users_carreras → carrera_campus → carreras/campus

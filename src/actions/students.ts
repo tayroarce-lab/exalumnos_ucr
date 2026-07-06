@@ -18,6 +18,9 @@ export type PerfilEstudianteInput = {
   proyecto_valor_moneda?: string | null
   proyecto_video_url?: string | null
   proyecto_documento_url?: string | null
+  proyecto_foto_url?: string | null
+  proyecto_beneficios?: string | null
+  proyecto_beneficios_fotos?: string[] | null
   areas_de_interes?: string[]
   busca_financiamiento?: boolean
   busca_mentoria?: boolean
@@ -56,8 +59,7 @@ export async function actualizarPerfilEstudiante(datos: PerfilEstudianteInput) {
   // Actualizar estudiantes
   const { error: estError } = await supabase
     .from('estudiantes')
-    .update({ ...restDatos, areas_de_interes })
-    .eq('user_id', user.id)
+    .upsert({ user_id: user.id, ...restDatos, areas_de_interes }, { onConflict: 'user_id' })
 
   if (estError) {
     logError('students.ts/actualizarPerfilEstudiante', estError, { userId: user.id });
@@ -68,86 +70,252 @@ export async function actualizarPerfilEstudiante(datos: PerfilEstudianteInput) {
   return { success: true }
 }
 
+/**
+ * Server Action para completar el onboarding inicial del estudiante.
+ * Usa adminClient para bypassear la RLS y poder actualizar la tabla users
+ * (perfil_completo, busca_*). Sin esto, el sistema sigue pidiendo llenar el
+ * formulario aunque ya fue llenado.
+ */
+export async function completarOnboardingEstudiante(datos: {
+  carnet_ucr: string
+  carrera: string
+  escuela_facultad: string
+  sede: string
+  anio_ingreso: number
+  nivel_academico: string
+  promedio_ponderado?: number | null
+  beca_socioeconomica: string
+  proyecto_titulo: string
+  proyecto_descripcion: string
+  proyecto_area_tematica: string
+  proyecto_tipo: string
+  proyecto_porcentaje_avance: number
+  proyecto_necesidades: string[]
+  areas_de_interes: string[]
+  busca_financiamiento: boolean
+  busca_mentoria: boolean
+  busca_empleo: boolean
+  busca_pasantia: boolean
+  habilidades: string[]
+  hobbies?: string[]
+  full_name?: string
+  foto_url?: string
+  bio?: string
+  proyecto_valor_monto?: number | null
+  proyecto_valor_moneda?: string | null
+  proyecto_video_url?: string | null
+  proyecto_documento_url?: string | null
+  proyecto_foto_url?: string | null
+  proyecto_beneficios?: string | null
+  proyecto_beneficios_fotos?: string[] | null
+  phone?: string
+  linkedin_url?: string
+}) {
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      return { success: false, error: 'No autenticado. Por favor, inicia sesión nuevamente.' }
+    }
+
+    // Usar adminClient para saltarse la RLS en users
+    const adminClient = createAdminClient()
+
+    // 1. Guardar datos académicos del estudiante usando adminClient
+    const { error: estError } = await adminClient.from('estudiantes').upsert({
+      user_id: user.id,
+      carnet_ucr: datos.carnet_ucr,
+      carrera: datos.carrera,
+      escuela_facultad: datos.escuela_facultad,
+      sede: datos.sede,
+      anio_ingreso: datos.anio_ingreso,
+      nivel_academico: datos.nivel_academico,
+      promedio_ponderado: datos.promedio_ponderado === 0 ? null : datos.promedio_ponderado,
+      beca_socioeconomica: datos.beca_socioeconomica,
+      proyecto_titulo: datos.proyecto_titulo,
+      proyecto_descripcion: datos.proyecto_descripcion,
+      proyecto_area_tematica: datos.proyecto_area_tematica,
+      proyecto_tipo: datos.proyecto_tipo,
+      proyecto_porcentaje_avance: datos.proyecto_porcentaje_avance,
+      proyecto_necesidades: datos.proyecto_necesidades,
+      areas_de_interes: datos.areas_de_interes,
+      busca_financiamiento: datos.busca_financiamiento,
+      busca_mentoria: datos.busca_mentoria,
+      busca_empleo: datos.busca_empleo,
+      busca_pasantia: datos.busca_pasantia,
+      habilidades: datos.habilidades,
+      proyecto_valor_monto: datos.busca_financiamiento ? (datos.proyecto_valor_monto === 0 ? null : datos.proyecto_valor_monto) : null,
+      proyecto_valor_moneda: datos.busca_financiamiento ? datos.proyecto_valor_moneda : null,
+      proyecto_video_url: datos.proyecto_video_url || null,
+      proyecto_documento_url: datos.proyecto_documento_url || null,
+      proyecto_foto_url: datos.proyecto_foto_url || null,
+      proyecto_beneficios: datos.proyecto_beneficios || null,
+      proyecto_beneficios_fotos: datos.proyecto_beneficios_fotos || [],
+      perfil_completo: true,
+    }, { onConflict: 'user_id' })
+
+    if (estError) {
+      logError('students.ts/completarOnboardingEstudiante', estError, { userId: user.id })
+      return { success: false, error: 'Error al guardar datos académicos: ' + estError.message }
+    }
+
+    // 2. Marcar perfil_completo en profiles usando adminClient y actualizar nombre, foto_url y bio
+    const { error: profilesError } = await adminClient.from('profiles').update({
+      perfil_completo: 1 as any,
+      full_name: datos.full_name || user.user_metadata?.nombre || user.email?.split('@')[0],
+      foto_url: datos.foto_url || null,
+      bio: datos.bio || null,
+      phone: datos.phone || null,
+      linkedin_url: datos.linkedin_url || null
+    }).eq('id', user.id)
+
+    if (datos.full_name) {
+      await adminClient.from('users').update({ nombre: datos.full_name }).eq('id', user.id)
+    }
+
+    if (profilesError) {
+      logError('students.ts/completarOnboardingEstudiante', profilesError, { userId: user.id })
+      console.error('Warning: No se pudo actualizar perfil_completo en profiles:', profilesError.message)
+    }
+
+    // 2.5 Actualizar curriculums con el bio (resumen)
+    if (datos.bio || (datos.habilidades && datos.habilidades.length > 0)) {
+      const { data: currentCv } = await adminClient.from('curriculums').select('id').eq('user_id', user.id).maybeSingle()
+      if (!currentCv) {
+        await adminClient.from('curriculums').insert({
+          user_id: user.id,
+          habilidades_blandas: datos.habilidades || [],
+          sobre_mi: datos.bio || ''
+        })
+      } else {
+        await adminClient.from('curriculums').update({
+          habilidades_blandas: datos.habilidades || [],
+          sobre_mi: datos.bio || ''
+        }).eq('id', currentCv.id)
+      }
+    }
+
+    // 3. Actualizar flags de búsqueda en users, incluyendo hobbies
+    const { error: usersError } = await adminClient.from('users').update({
+      busca_mentoria: datos.busca_mentoria,
+      busca_empleo: datos.busca_empleo,
+      busca_pasantia: datos.busca_pasantia,
+      hobbies: datos.hobbies || []
+    }).eq('id', user.id)
+
+    if (usersError) {
+      logError('students.ts/completarOnboardingEstudiante', usersError, { userId: user.id })
+      console.error('Warning: No se pudo actualizar flags en users:', usersError.message)
+    }
+
+    revalidatePath('/completar-perfil')
+    revalidatePath('/student-dashboard')
+    return { success: true }
+  } catch (err: any) {
+    logError('students.ts/completarOnboardingEstudiante', err)
+    return { success: false, error: err.message || 'Error interno del servidor.' }
+  }
+}
+
 export async function actualizarPerfilCompletoEstudiante(datos: any) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    logError('students.ts/actualizarPerfilCompletoEstudiante', new Error('No autenticado'));
-    return { success: false, error: 'No autenticado' };
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      logError('students.ts/actualizarPerfilCompletoEstudiante', new Error('No autenticado'));
+      return { success: false, error: 'No autenticado. Por favor, inicia sesión nuevamente.' }
+    }
+
+    const adminClient = createAdminClient()
+
+    // 1. Obtener datos actuales del profile para no borrarlos accidentalmente si vienen undefined
+    const { data: currentProfile } = await adminClient
+      .from('profiles')
+      .select('full_name, foto_url, pais_ciudad, linkedin_url, phone, bio')
+      .eq('id', user.id)
+      .maybeSingle()
+
+    const profilePayload = {
+      id: user.id,
+      full_name: datos.full_name !== undefined ? datos.full_name : (currentProfile?.full_name || ''),
+      foto_url: datos.foto_url !== undefined ? datos.foto_url : (currentProfile?.foto_url || null),
+      pais_ciudad: datos.pais_ciudad !== undefined ? datos.pais_ciudad : (currentProfile?.pais_ciudad || null),
+      linkedin_url: datos.linkedin_url !== undefined ? datos.linkedin_url : (currentProfile?.linkedin_url || null),
+      phone: datos.phone !== undefined ? datos.phone : (currentProfile?.phone || null),
+      bio: datos.bio !== undefined ? datos.bio : (currentProfile?.bio || null),
+      es_exalumno: false // Siempre forzamos a false porque es un estudiante
+    }
+
+    const { error: profileError } = await adminClient
+      .from('profiles')
+      .upsert(profilePayload)
+
+    if (profileError) {
+      logError('students.ts/actualizarPerfilCompletoEstudiante', profileError, { userId: user.id });
+      return { success: false, error: 'Error al actualizar perfiles: ' + profileError.message }
+    }
+
+    // 2. Actualizar tabla users
+    const userPayload = {
+      busca_mentoria: datos.busca_mentoria,
+      busca_empleo: datos.busca_empleo,
+      busca_pasantia: datos.busca_pasantia,
+    }
+
+    const { error: usersError } = await adminClient
+      .from('users')
+      .update(userPayload)
+      .eq('id', user.id)
+      .eq('rol', 'estudiante')
+
+    if (usersError) {
+      logError('students.ts/actualizarPerfilCompletoEstudiante', usersError, { userId: user.id });
+      return { success: false, error: 'Error al actualizar usuario: ' + usersError.message }
+    }
+
+    // 3. Actualizar tabla estudiantes
+    const estudiantePayload = {
+      carnet_ucr: datos.carnet_ucr,
+      beca_socioeconomica: datos.beca_socioeconomica,
+      nivel_academico: datos.nivel_academico,
+      promedio_ponderado: datos.promedio_ponderado === 0 ? null : datos.promedio_ponderado,
+      carrera: datos.carrera,
+      escuela_facultad: datos.escuela_facultad,
+      sede: datos.sede,
+      anio_ingreso: datos.anio_ingreso,
+      proyecto_titulo: datos.proyecto_titulo,
+      proyecto_descripcion: datos.proyecto_descripcion,
+      proyecto_area_tematica: datos.proyecto_area_tematica,
+      proyecto_tipo: datos.proyecto_tipo,
+      proyecto_porcentaje_avance: datos.proyecto_porcentaje_avance,
+      proyecto_valor_monto: datos.busca_financiamiento ? (datos.proyecto_valor_monto === 0 ? null : datos.proyecto_valor_monto) : null,
+      proyecto_valor_moneda: datos.busca_financiamiento ? datos.proyecto_valor_moneda : null,
+      proyecto_video_url: datos.proyecto_video_url || null,
+      proyecto_documento_url: datos.proyecto_documento_url || null,
+      proyecto_foto_url: datos.proyecto_foto_url || null,
+      proyecto_necesidades: datos.proyecto_necesidades,
+      areas_de_interes: datos.areas_de_interes,
+      busca_financiamiento: datos.busca_financiamiento,
+      proyecto_beneficios: datos.proyecto_beneficios || null,
+      proyecto_beneficios_fotos: datos.proyecto_beneficios_fotos || [],
+    }
+
+    const { error: estError } = await adminClient
+      .from('estudiantes')
+      .upsert({ user_id: user.id, ...estudiantePayload }, { onConflict: 'user_id' })
+
+    if (estError) {
+      logError('students.ts/actualizarPerfilCompletoEstudiante', estError, { userId: user.id });
+      return { success: false, error: 'Error al actualizar datos de estudiante: ' + estError.message }
+    }
+
+    revalidatePath('/profile')
+    revalidatePath('/student-dashboard')
+    revalidatePath('/completar-perfil')
+    return { success: true }
+  } catch (err: any) {
+    return { success: false, error: err.message || 'Error interno del servidor.' }
   }
-
-  const adminClient = createAdminClient()
-
-  // 1. Actualizar tabla profiles
-  const profilePayload = {
-    id: user.id,
-    full_name: datos.full_name,
-    foto_url: datos.foto_url,
-    pais_ciudad: datos.pais_ciudad,
-    linkedin_url: datos.linkedin_url,
-    bio: datos.bio,
-    es_exalumno: false // Siempre forzamos a false porque es un estudiante
-  }
-
-  const { error: profileError } = await adminClient
-    .from('profiles')
-    .upsert(profilePayload)
-
-  if (profileError) {
-    logError('students.ts/actualizarPerfilCompletoEstudiante', profileError, { userId: user.id });
-    return { success: false, error: 'Error al actualizar perfiles' };
-  }
-
-  // 2. Actualizar tabla users
-  const userPayload = {
-    busca_mentoria: datos.busca_mentoria,
-    busca_empleo: datos.busca_empleo,
-    busca_pasantia: datos.busca_pasantia,
-  }
-
-  const { error: usersError } = await supabase
-    .from('users')
-    .update(userPayload)
-    .eq('id', user.id)
-    .eq('rol', 'estudiante')
-
-  if (usersError) {
-    logError('students.ts/actualizarPerfilCompletoEstudiante', usersError, { userId: user.id });
-    return { success: false, error: 'Error al actualizar usuario' };
-  }
-
-  // 3. Actualizar tabla estudiantes
-  const estudiantePayload = {
-    carrera: datos.carrera,
-    escuela_facultad: datos.escuela_facultad,
-    sede: datos.sede,
-    anio_ingreso: datos.anio_ingreso,
-    proyecto_titulo: datos.proyecto_titulo,
-    proyecto_descripcion: datos.proyecto_descripcion,
-    proyecto_area_tematica: datos.proyecto_area_tematica,
-    proyecto_tipo: datos.proyecto_tipo,
-    proyecto_porcentaje_avance: datos.proyecto_porcentaje_avance,
-    proyecto_valor_monto: datos.proyecto_valor_monto,
-    proyecto_valor_moneda: datos.proyecto_valor_moneda,
-    proyecto_video_url: datos.proyecto_video_url,
-    proyecto_documento_url: datos.proyecto_documento_url,
-    proyecto_necesidades: datos.proyecto_necesidades,
-    areas_de_interes: datos.areas_de_interes,
-    busca_financiamiento: datos.busca_financiamiento,
-  }
-
-  const { error: estError } = await supabase
-    .from('estudiantes')
-    .update(estudiantePayload)
-    .eq('user_id', user.id)
-
-  if (estError) {
-    logError('students.ts/actualizarPerfilCompletoEstudiante', estError, { userId: user.id });
-    return { success: false, error: 'Error al actualizar datos de estudiante' };
-  }
-
-  revalidatePath('/profile')
-  return { success: true }
 }
 
 export async function obtenerMiPerfilEstudiante() {
@@ -176,8 +344,8 @@ export async function obtenerMiPerfilEstudiante() {
   if (data) {
     const est = Array.isArray(data.estudiantes) ? data.estudiantes[0] : data.estudiantes;
     return { 
-      ...data, 
-      ...est, // merge estudiantes fields
+      ...est,
+      ...data, // merge estudiantes fields, prioritizing users fields
       areas_de_interes: est?.areas_de_interes || []
     }
   }
@@ -277,41 +445,94 @@ export async function listarEstudiantes(
       query = query.eq('estudiantes.proyecto_tipo', filtros.proyecto_tipo)
     }
     if (filtros.tipos_apoyo && filtros.tipos_apoyo.length > 0) {
+      const orConditions: string[] = []
       filtros.tipos_apoyo.forEach(tipo => {
-        if (tipo === 'financiamiento') query = query.eq('estudiantes.busca_financiamiento', true)
-        if (tipo === 'mentoría') query = query.eq('busca_mentoria', true)
-        if (tipo === 'empleo') query = query.eq('busca_empleo', true)
-        if (tipo === 'pasantía') query = query.eq('busca_pasantia', true)
+        if (tipo === 'financiamiento') orConditions.push('estudiantes.busca_financiamiento.eq.true')
+        if (tipo === 'mentoria' || tipo === 'mentoría') orConditions.push('busca_mentoria.eq.true')
+        if (tipo === 'empleo') orConditions.push('busca_empleo.eq.true')
+        if (tipo === 'pasantia' || tipo === 'pasantía') orConditions.push('busca_pasantia.eq.true')
       })
+      if (orConditions.length > 0) {
+        query = query.or(orConditions.join(','))
+      }
     }
   }
 
   if (opciones?.busqueda) {
-    query = query.or(`nombre.ilike.%${opciones.busqueda}%,apellidos.ilike.%${opciones.busqueda}%,estudiantes.proyecto_titulo.ilike.%${opciones.busqueda}%`)
+    const terminos = opciones.busqueda.trim().split(/\s+/);
+    terminos.forEach(termino => {
+      query = query.or(`nombre.ilike.%${termino}%,apellidos.ilike.%${termino}%`);
+    });
   }
 
-  if (opciones?.page && opciones?.limit) {
-    const from = (opciones.page - 1) * opciones.limit
-    const to = from + opciones.limit - 1
-    query = query.range(from, to)
-  } else if (opciones?.limit) {
-    query = query.limit(opciones.limit)
-  }
+  // REMOVIDO: Paginación en SQL para poder ordenar por score_match en memoria
+  // if (opciones?.page && opciones?.limit) {
+  //   const from = (opciones.page - 1) * opciones.limit
+  //   const to = from + opciones.limit - 1
+  //   query = query.range(from, to)
+  // } else if (opciones?.limit) {
+  //   query = query.limit(opciones.limit)
+  // }
 
   const { data, count, error } = await query
   if (error) {
     logError('students.ts/listarEstudiantes', error);
     return { data: [], count: 0 };
   }
-  
-  const mappedData = data?.map(d => {
+
+  // Cargar foto_url y banner_url personalizados desde la tabla profiles para evitar inconsistencias
+  const userIds = data?.map(d => d.id) || [];
+  let profilesData: any[] = [];
+  if (userIds.length > 0) {
+    try {
+      const { data: profs } = await supabase
+        .from('profiles')
+        .select('id, foto_url, banner_url')
+        .in('id', userIds);
+      if (profs) {
+        profilesData = profs;
+      }
+    } catch (err) {
+      console.error('Error fetching batch profiles in listarEstudiantes:', err);
+    }
+  }
+  const { obtenerMiPerfil } = await import('./users');
+  const perfilActual = await obtenerMiPerfil().catch(() => null);
+  const { calcularMatch } = await import('@/lib/match');
+
+  let mappedData = data?.map(d => {
     const est = Array.isArray(d.estudiantes) ? d.estudiantes[0] : d.estudiantes;
-    return {
+    const prof = profilesData.find(p => p.id === d.id);
+    const result = {
+      ...est,
       ...d,
       estudiantes: est,
-      areas_de_interes: est?.areas_de_interes || []
+      areas_de_interes: est?.areas_de_interes || [],
+      foto_url: prof?.foto_url || d.foto_url,
+      banner_url: prof?.banner_url || null,
+      match_score: 0
     }
-  })
+    
+    if (perfilActual) {
+      result.match_score = calcularMatch(result, perfilActual);
+    }
+    
+    return result;
+  }) || [];
+
+  // Ordenar por score_match descendente
+  if (perfilActual) {
+    mappedData.sort((a, b) => (b.match_score || 0) - (a.match_score || 0));
+  }
+
+  // Aplicar paginación en memoria
+  if (opciones?.page && opciones?.limit) {
+    const from = (opciones.page - 1) * opciones.limit;
+    const to = from + opciones.limit;
+    mappedData = mappedData.slice(from, to);
+  } else if (opciones?.limit) {
+    mappedData = mappedData.slice(0, opciones.limit);
+  }
 
   return { data: mappedData, count: count || 0 }
 }
@@ -341,12 +562,31 @@ export async function obtenerEstudiantePorId(id: string) {
     return null;
   }
 
+  let banner_url: string | null = null;
+  let custom_foto_url: string | null = null;
+  try {
+    const { data: profData } = await supabase
+      .from('profiles')
+      .select('banner_url, foto_url')
+      .eq('id', id)
+      .maybeSingle();
+    if (profData) {
+      banner_url = profData.banner_url;
+      custom_foto_url = profData.foto_url;
+    }
+  } catch (err) {
+    console.error('Error fetching banner_url and foto_url from profiles:', err);
+  }
+
   if (data) {
     const est = Array.isArray(data.estudiantes) ? data.estudiantes[0] : data.estudiantes;
     return { 
+      ...est,
       ...data, 
       estudiantes: est,
-      areas_de_interes: est?.areas_de_interes || [] 
+      areas_de_interes: est?.areas_de_interes || [],
+      banner_url,
+      foto_url: custom_foto_url || data.foto_url
     }
   }
 
@@ -374,3 +614,73 @@ export async function pausarPerfilEstudiante(pausar: boolean = true) {
   revalidatePath('/mi-perfil')
   return { success: true }
 }
+
+export async function obtenerProyectosBuscandoApoyo(limite: number = 3) {
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from('users')
+      .select(`
+        id,
+        nombre,
+        apellidos,
+        foto_url,
+        estudiantes (
+          carrera,
+          sede,
+          proyecto_titulo,
+          proyecto_descripcion,
+          proyecto_area_tematica,
+          proyecto_tipo,
+          proyecto_porcentaje_avance,
+          proyecto_valor_monto,
+          proyecto_valor_moneda,
+          busca_financiamiento,
+          busca_mentoria,
+          busca_empleo,
+          busca_pasantia
+        )
+      `)
+      .eq('rol', 'estudiante')
+      .eq('activo', true)
+      .eq('visible_en_directorio', true)
+      .or('busca_mentoria.eq.true,busca_empleo.eq.true,busca_pasantia.eq.true,busca_financiamiento.eq.true')
+      .order('created_at', { ascending: false })
+      .limit(limite)
+
+    if (error) {
+      console.error('Error en obtenerProyectosBuscandoApoyo:', error)
+      return { success: false, data: [] }
+    }
+
+    // Aplanar y filtrar registros válidos
+    const proyectos = (data || []).map((u: any) => {
+      const ests = u.estudiantes;
+      const est = Array.isArray(ests) ? ests[0] : ests;
+      if (!est) return null;
+      return {
+        estudianteId: u.id,
+        nombreCompleto: `${u.nombre || ''} ${u.apellidos || ''}`.trim() || 'Estudiante',
+        fotoUrl: u.foto_url,
+        carrera: est.carrera,
+        sede: est.sede,
+        proyectoTitulo: est.proyecto_titulo || 'Proyecto sin título',
+        proyectoDescripcion: est.proyecto_descripcion || '',
+        proyectoArea: est.proyecto_area_tematica || est.proyecto_tipo || 'General',
+        avanceAcademico: est.proyecto_porcentaje_avance || 0,
+        buscaFinanciamiento: est.busca_financiamiento,
+        buscaMentoria: est.busca_mentoria,
+        buscaEmpleo: est.busca_empleo,
+        buscaPasantia: est.busca_pasantia,
+        proyectoValorMonto: est.proyecto_valor_monto,
+        proyectoValorMoneda: est.proyecto_valor_moneda || 'USD',
+      };
+    }).filter(Boolean);
+
+    return { success: true, data: proyectos };
+  } catch (err) {
+    console.error('Error en obtenerProyectosBuscandoApoyo:', err)
+    return { success: false, data: [] }
+  }
+}
+
