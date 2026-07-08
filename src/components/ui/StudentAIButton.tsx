@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -19,11 +19,15 @@ import {
 } from 'lucide-react'
 import mascotImg from '@/images/mascota_ucr_3d.png'
 
+import { useChat } from '@ai-sdk/react'
+import { DefaultChatTransport } from 'ai'
+import { getOrCreateActiveAiChat } from '@/actions/ai-chat'
+
 interface Message {
   id: string
-  sender: 'user' | 'ai'
-  text: string
-  timestamp: Date
+  role: 'user' | 'assistant'
+  content: string
+  createdAt?: Date
 }
 
 const SUGGESTED_PROMPTS = [
@@ -33,21 +37,50 @@ const SUGGESTED_PROMPTS = [
   { text: '🎯 Tips para entrevistas de trabajo', type: 'interview', icon: Sparkles },
 ]
 
-const MOCK_ANSWERS: Record<string, string> = {
-  cv: '¡Excelente pregunta! 🎓 Para optimizar tu currículum:\n\n1. Usa un diseño de una sola página si tienes menos de 5 años de experiencia.\n2. Incluye palabras clave de la oferta de trabajo.\n3. Enfócate en logros y resultados utilizando el formato: "Acción + Contexto + Resultado".',
-  jobs: '💼 Para ver las ofertas de empleo disponibles:\n\nVe al panel de inicio y selecciona la tarjeta "Buscar Empleos". Ahí podrás filtrar vacantes por área profesional, modalidad (presencial/remoto) y ver los requerimientos directamente.',
-  mentorship: '🤝 Conectar con un mentor es súper fácil:\n\nEntra a "Solicitar Mentoría". Podrás ver perfiles de graduados destacados de tu misma área. Elige uno y envíale una solicitud contándole brevemente tus metas profesionales.',
-  interview: '🎯 Prepárate para ganar tu próxima entrevista:\n\n1. Investiga la cultura e historia de la empresa.\n2. Practica el Método STAR para responder preguntas sobre tus experiencias.\n3. Prepara 2 preguntas inteligentes para hacerle al reclutador al final.',
-  default: '¡Hola! Estoy listo para ayudarte a navegar tu carrera profesional. ¿Te gustaría que hablemos sobre vacantes de empleo, mentorías o cómo mejorar tu CV?'
-}
-
+// Mock answers removed - using OpenAI integration
 export default function StudentAIButton() {
   const [isHovered, setIsHovered] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
   const [isFullScreen, setIsFullScreen] = useState(false)
-  const [inputValue, setInputValue] = useState('')
-  const [isTyping, setIsTyping] = useState(false)
-  const [messages, setMessages] = useState<Message[]>([])
+  const [chatId, setChatId] = useState<string | null>(null)
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false)
+
+  const chatIdRef = useRef<string | null>(null)
+  useEffect(() => {
+    chatIdRef.current = chatId
+  }, [chatId])
+
+  const transport = useMemo(() => {
+    return new DefaultChatTransport({
+      api: '/api/chat',
+      prepareSendMessagesRequest: ({ body }) => ({
+        body: { ...body, chatId: chatIdRef.current }
+      })
+    })
+  }, [])
+
+  const { messages, setMessages, sendMessage, status } = useChat({
+    transport
+  })
+
+  const [input, setInput] = useState('')
+
+  const isLoading = status === 'submitted' || status === 'streaming'
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInput(e.target.value)
+  }
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    if (!input.trim() || !chatId) return
+    sendMessage({ role: 'user', parts: [{ type: 'text', text: input }] })
+    setInput('')
+  }
+
+  const append = (msg: { role: 'user' | 'assistant', content: string }) => {
+    sendMessage({ role: msg.role, parts: [{ type: 'text', text: msg.content }] })
+  }
 
   const chatEndRef = useRef<HTMLDivElement>(null)
 
@@ -55,53 +88,32 @@ export default function StudentAIButton() {
     if (isOpen) {
       chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     }
-  }, [messages, isOpen, isTyping])
+  }, [messages, isOpen, isLoading])
+
+  useEffect(() => {
+    if (isOpen && !chatId && !isLoadingHistory) {
+      setIsLoadingHistory(true)
+      getOrCreateActiveAiChat().then(res => {
+        if (res.chatId) {
+          setChatId(res.chatId)
+          // setMessages expects the format from ai-sdk
+          setMessages(res.initialMessages as any)
+        }
+        setIsLoadingHistory(false)
+      })
+    }
+  }, [isOpen, chatId, isLoadingHistory, setMessages])
 
   const handleSendMessage = (text: string) => {
-    if (!text.trim()) return
-
-    const userMsg: Message = {
-      id: Math.random().toString(),
-      sender: 'user',
-      text,
-      timestamp: new Date()
-    }
-
-    setMessages(prev => [...prev, userMsg])
-    setInputValue('')
-    setIsTyping(true)
-
-    // Simulate AI response with natural delay
-    setTimeout(() => {
-      let aiText = MOCK_ANSWERS.default
-      const lowercaseText = text.toLowerCase()
-
-      if (lowercaseText.includes('cv') || lowercaseText.includes('currículum') || lowercaseText.includes('curriculum')) {
-        aiText = MOCK_ANSWERS.cv
-      } else if (lowercaseText.includes('empleo') || lowercaseText.includes('oferta') || lowercaseText.includes('trabajo') || lowercaseText.includes('vacante')) {
-        aiText = MOCK_ANSWERS.jobs
-      } else if (lowercaseText.includes('mentor') || lowercaseText.includes('mentoría') || lowercaseText.includes('asesor')) {
-        aiText = MOCK_ANSWERS.mentorship
-      } else if (lowercaseText.includes('entrevista') || lowercaseText.includes('tips') || lowercaseText.includes('consejo')) {
-        aiText = MOCK_ANSWERS.interview
-      }
-
-      setMessages(prev => [
-        ...prev,
-        {
-          id: Math.random().toString(),
-          sender: 'ai',
-          text: aiText,
-          timestamp: new Date()
-        }
-      ])
-      setIsTyping(false)
-    }, 1000)
+    if (!text.trim() || !chatId) return
+    append({ role: 'user', content: text })
   }
 
   const handleResetChat = () => {
     setMessages([])
+    setChatId(null)
   }
+
 
   return (
     <>
@@ -255,6 +267,11 @@ export default function StudentAIButton() {
                       <p className="text-xs text-slate-500 leading-relaxed">
                         Estoy aquí para ayudarte a mejorar tu perfil, buscar pasantías, empleos o encontrar un mentor ideal. Escribe tu pregunta abajo para empezar.
                       </p>
+                      {isLoadingHistory && (
+                        <p className="text-xs text-[#54BCEB] font-medium animate-pulse mt-4">
+                          Cargando historial de chat...
+                        </p>
+                      )}
                     </div>
                   </div>
                 ) : (
@@ -262,22 +279,24 @@ export default function StudentAIButton() {
                   messages.map((msg) => (
                     <div
                       key={msg.id}
-                      className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                      className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                     >
                       <div
                         className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm shadow-sm leading-relaxed whitespace-pre-line ${
-                          msg.sender === 'user'
+                          msg.role === 'user'
                             ? 'bg-gradient-to-r from-[#54BCEB] to-sky-400 text-white rounded-tr-none'
                             : 'bg-white text-slate-800 border border-slate-100 rounded-tl-none border-l-4 border-l-[#54BCEB]'
                         }`}
                       >
-                        <p>{msg.text}</p>
+                        <p>{(msg as any).content || ((msg as any).parts && Array.isArray((msg as any).parts) ? (msg as any).parts.map((p: any) => p.text || '').join('') : '')}</p>
                         <span
                           className={`text-[9px] block text-right mt-2 opacity-60 ${
-                            msg.sender === 'user' ? 'text-white' : 'text-slate-400'
+                            msg.role === 'user' ? 'text-white' : 'text-slate-400'
                           }`}
                         >
-                          {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          {((msg as any).createdAt instanceof Date) 
+                            ? ((msg as any).createdAt as Date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
+                            : new Date((msg as any).createdAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </div>
                     </div>
@@ -285,7 +304,7 @@ export default function StudentAIButton() {
                 )}
 
                 {/* Typing status indicator */}
-                {isTyping && (
+                {isLoading && (
                   <div className="flex justify-start">
                     <div className="bg-white border border-slate-100 rounded-2xl rounded-tl-none border-l-4 border-l-[#54BCEB] px-4 py-3 text-sm shadow-sm flex items-center gap-1.5">
                       <span className="text-xs text-slate-400 font-medium">Pensando</span>
@@ -316,22 +335,19 @@ export default function StudentAIButton() {
               {/* Chat Form Area */}
               <div className="p-4 border-t border-slate-100 bg-white shrink-0">
                 <form
-                  onSubmit={(e) => {
-                    e.preventDefault()
-                    handleSendMessage(inputValue)
-                  }}
+                  onSubmit={handleSubmit}
                   className="flex items-center gap-2"
                 >
                   <input
                     type="text"
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
+                    value={input}
+                    onChange={handleInputChange}
                     placeholder="Pregúntame sobre empleo, CV o mentorías..."
                     className="flex-1 px-4 py-3 rounded-xl border border-slate-200 bg-[#F9FAFB] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#54BCEB]/25 focus:border-[#54BCEB] text-sm text-slate-800 transition-all"
                   />
                   <button
                     type="submit"
-                    disabled={!inputValue.trim()}
+                    disabled={!input.trim() || isLoading || isLoadingHistory}
                     className="p-3 rounded-xl bg-[#54BCEB] text-white hover:bg-sky-500 transition-colors disabled:opacity-40 disabled:hover:bg-[#54BCEB] cursor-pointer flex items-center justify-center shadow-md shadow-sky-200/40"
                   >
                     <Send className="w-4 h-4" />
