@@ -59,3 +59,32 @@ export async function getOrCreateActiveAiChat() {
     return { chatId: null, initialMessages: [] }
   }
 }
+
+export async function getTfgDraft() {
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
+      throw new Error('Unauthorized')
+    }
+
+    const { data: tfgDraft, error } = await supabase
+      .from('tfg_proposals')
+      .select('*')
+      .eq('estudiante_id', user.id)
+      .eq('is_completed', false)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single()
+
+    if (error && error.code !== 'PGRST116') {
+      throw error
+    }
+
+    return tfgDraft || null
+  } catch (error) {
+    logError('actions/ai-chat/getTfgDraft', error)
+    return null
+  }
+}

@@ -1,27 +1,18 @@
 'use client'
 
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
+import React, { useState, useEffect, useRef, useMemo } from 'react'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  X,
-  Maximize2,
-  Minimize2,
-  Send,
-  Sparkles,
-  Bot,
-  RefreshCw,
-  CornerDownLeft,
-  ChevronRight,
-  GraduationCap,
-  Briefcase,
-  Users
+  X, Maximize2, Minimize2, Send, Sparkles, RefreshCw,
+  GraduationCap, Briefcase, FileText
 } from 'lucide-react'
 import mascotImg from '@/images/mascota_ucr_3d.png'
 
 import { useChat } from '@ai-sdk/react'
 import { DefaultChatTransport } from 'ai'
-import { getOrCreateActiveAiChat } from '@/actions/ai-chat'
+import { getOrCreateActiveAiChat, getTfgDraft } from '@/actions/ai-chat'
+import TfgDraftPreview, { TfgDraft } from '@/components/tfg/TfgDraftPreview'
 
 interface Message {
   id: string
@@ -31,55 +22,70 @@ interface Message {
 }
 
 const SUGGESTED_PROMPTS = [
-  { text: '📄 ¿Cómo optimizar mi currículum?', type: 'cv', icon: GraduationCap },
+  { text: '📄 Ayuda para formular mi TFG', type: 'tfg', icon: FileText },
+  { text: '🎓 ¿Cómo optimizar mi currículum?', type: 'cv', icon: GraduationCap },
   { text: '💼 ¿Dónde ver ofertas de empleo?', type: 'jobs', icon: Briefcase },
-  { text: '🤝 ¿Cómo solicitar una mentoría?', type: 'mentorship', icon: Users },
   { text: '🎯 Tips para entrevistas de trabajo', type: 'interview', icon: Sparkles },
 ]
 
-// Mock answers removed - using OpenAI integration
 export default function StudentAIButton() {
   const [isHovered, setIsHovered] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
   const [isFullScreen, setIsFullScreen] = useState(false)
+  const [showDraft, setShowDraft] = useState(false)
   const [chatId, setChatId] = useState<string | null>(null)
   const [isLoadingHistory, setIsLoadingHistory] = useState(false)
+  const [draft, setDraft] = useState<TfgDraft | null>(null)
 
   const chatIdRef = useRef<string | null>(null)
-  useEffect(() => {
-    chatIdRef.current = chatId
-  }, [chatId])
 
   const transport = useMemo(() => {
     return new DefaultChatTransport({
       api: '/api/chat',
-      prepareSendMessagesRequest: ({ body }) => ({
-        body: { ...body, chatId: chatIdRef.current }
+      body: { chatId: chatIdRef.current },
+      prepareSendMessagesRequest: ({ messages, id, body }) => ({
+        body: {
+          ...body,
+          chatId: chatIdRef.current,
+          messages,
+          id,
+        }
       })
     })
   }, [])
 
   const { messages, setMessages, sendMessage, status } = useChat({
-    transport
+    transport,
   })
 
   const [input, setInput] = useState('')
-
   const isLoading = status === 'submitted' || status === 'streaming'
+
+  // Fetch draft when chat is open and messages change
+  useEffect(() => {
+    if (isOpen && showDraft) {
+      getTfgDraft().then(res => setDraft(res as TfgDraft))
+    }
+  }, [messages, isOpen, showDraft])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInput(e.target.value)
   }
 
+  useEffect(() => {
+    chatIdRef.current = chatId
+  }, [chatId])
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!input.trim() || !chatId) return
-    sendMessage({ role: 'user', parts: [{ type: 'text', text: input }] })
+    sendMessage({ text: input })
     setInput('')
   }
 
-  const append = (msg: { role: 'user' | 'assistant', content: string }) => {
-    sendMessage({ role: msg.role, parts: [{ type: 'text', text: msg.content }] })
+  const sendText = (text: string) => {
+    if (!chatId) return
+    sendMessage({ text })
   }
 
   const chatEndRef = useRef<HTMLDivElement>(null)
@@ -96,7 +102,6 @@ export default function StudentAIButton() {
       getOrCreateActiveAiChat().then(res => {
         if (res.chatId) {
           setChatId(res.chatId)
-          // setMessages expects the format from ai-sdk
           setMessages(res.initialMessages as any)
         }
         setIsLoadingHistory(false)
@@ -106,7 +111,7 @@ export default function StudentAIButton() {
 
   const handleSendMessage = (text: string) => {
     if (!text.trim() || !chatId) return
-    append({ role: 'user', content: text })
+    sendText(text)
   }
 
   const handleResetChat = () => {
@@ -114,10 +119,31 @@ export default function StudentAIButton() {
     setChatId(null)
   }
 
+  // Format the text representation of message, handling tool calls
+  const renderMessageContent = (msg: any) => {
+    let text = msg.content || '';
+    if (msg.parts && Array.isArray(msg.parts)) {
+      text = msg.parts.map((p: any) => p.text || '').join('');
+    }
+    
+    // Add visual indicator for tool invocations
+    if (msg.toolInvocations && msg.toolInvocations.length > 0) {
+      const isSaving = msg.toolInvocations.some((t: any) => !t.state || t.state !== 'result');
+      return (
+        <div className="flex flex-col gap-2">
+          {text && <p>{text}</p>}
+          <div className="flex items-center gap-2 mt-2 px-3 py-1.5 bg-blue-50 text-blue-700 text-xs rounded-md border border-blue-100">
+            {isSaving ? <RefreshCw className="w-3 h-3 animate-spin" /> : <FileText className="w-3 h-3" />}
+            <span>{isSaving ? 'Actualizando borrador TFG...' : 'Borrador TFG actualizado.'}</span>
+          </div>
+        </div>
+      )
+    }
+    return <p>{text}</p>
+  }
 
   return (
     <>
-      {/* Floating Action Button (Mascot) */}
       <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end pointer-events-none">
         <AnimatePresence>
           {isHovered && !isOpen && (
@@ -126,11 +152,11 @@ export default function StudentAIButton() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 5, scale: 0.95 }}
               transition={{ duration: 0.2 }}
-              className="mb-3 mr-2 px-4 py-2.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-xs font-bold rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 pointer-events-auto whitespace-nowrap relative flex items-center gap-2"
+              className="mb-3 mr-2 px-4 py-2.5 bg-white text-slate-800 text-xs font-bold rounded-2xl shadow-xl border border-slate-100 pointer-events-auto whitespace-nowrap relative flex items-center gap-2"
             >
               <span className="w-2.5 h-2.5 rounded-full bg-[#54BCEB] animate-pulse" />
               <span>¿Tienes preguntas de tu carrera? ¡Pregúntame!</span>
-              <div className="absolute top-full right-6 w-0 h-0 border-l-6 border-l-transparent border-r-6 border-r-transparent border-t-6 border-t-white dark:border-t-slate-800" />
+              <div className="absolute top-full right-6 w-0 h-0 border-l-6 border-l-transparent border-r-6 border-r-transparent border-t-6 border-t-white" />
             </motion.div>
           )}
         </AnimatePresence>
@@ -149,15 +175,12 @@ export default function StudentAIButton() {
             onMouseLeave={() => setIsHovered(false)}
             whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.95 }}
-            className="relative w-16 h-16 rounded-full bg-gradient-to-tr from-[#54BCEB] via-sky-400 to-emerald-400 shadow-[0_8px_32px_rgba(84,188,235,0.45)] dark:shadow-[0_8px_32px_rgba(84,188,235,0.2)] flex items-center justify-center border-[3px] border-white dark:border-slate-800 transition-shadow duration-300 hover:shadow-[0_12px_40px_rgba(84,188,235,0.65)] cursor-pointer"
+            className="relative w-16 h-16 rounded-full bg-gradient-to-tr from-[#54BCEB] via-sky-400 to-emerald-400 shadow-[0_8px_32px_rgba(84,188,235,0.45)] flex items-center justify-center border-[3px] border-white transition-shadow duration-300 hover:shadow-[0_12px_40px_rgba(84,188,235,0.65)] cursor-pointer"
             aria-label="Asistente de Inteligencia Artificial"
           >
-            {/* Neon Ring Glow */}
             <div className="absolute -inset-[3px] rounded-full bg-gradient-to-tr from-[#54BCEB] to-emerald-400 opacity-0 hover:opacity-55 blur-md transition-opacity duration-300 -z-10" />
-
-            <span className="absolute top-0.5 right-0.5 block h-4 w-4 rounded-full ring-2 ring-white dark:ring-slate-800 bg-emerald-400 z-20 shadow-sm" />
-            <span className="absolute top-0.5 right-0.5 block h-4 w-4 rounded-full ring-2 ring-white dark:ring-slate-800 bg-emerald-400 z-20 animate-ping opacity-75" />
-
+            <span className="absolute top-0.5 right-0.5 block h-4 w-4 rounded-full ring-2 ring-white bg-emerald-400 z-20 shadow-sm" />
+            <span className="absolute top-0.5 right-0.5 block h-4 w-4 rounded-full ring-2 ring-white bg-emerald-400 z-20 animate-ping opacity-75" />
             <div className="relative w-[85%] h-[85%] overflow-hidden rounded-full bg-sky-50 flex items-center justify-center shadow-inner">
               <Image
                 src={mascotImg}
@@ -171,10 +194,9 @@ export default function StudentAIButton() {
         </motion.div>
       </div>
 
-      {/* AI Assistant Modal Window */}
       <AnimatePresence>
         {isOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-0 md:p-4 bg-slate-900/40 dark:bg-slate-950/60 backdrop-blur-sm">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-0 md:p-4 bg-slate-900/40 backdrop-blur-sm">
             <motion.div
               initial={{ opacity: 0, scale: 0.93, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -183,10 +205,11 @@ export default function StudentAIButton() {
               className={`bg-white shadow-[0_20px_50px_rgba(0,0,0,0.15)] flex flex-col transition-all duration-300 relative ${
                 isFullScreen
                   ? 'fixed inset-0 w-screen h-screen rounded-none z-50'
-                  : 'w-full max-w-2xl h-[95vh] md:h-[680px] rounded-none md:rounded-2xl border border-slate-100 overflow-hidden'
+                  : showDraft 
+                    ? 'w-full max-w-[1000px] h-[95vh] md:h-[680px] rounded-none md:rounded-2xl border border-slate-100 overflow-hidden'
+                    : 'w-full max-w-2xl h-[95vh] md:h-[680px] rounded-none md:rounded-2xl border border-slate-100 overflow-hidden'
               }`}
             >
-              {/* Header with Creative Gradient Accent */}
               <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-gradient-to-r from-[#54BCEB] via-[#8DD4F0] to-[#F5A623] shrink-0">
                 <div className="flex items-center gap-3">
                   <div className="relative w-11 h-11 rounded-full bg-white overflow-hidden flex items-center justify-center border-2 border-[#54BCEB] shadow-sm">
@@ -211,154 +234,133 @@ export default function StudentAIButton() {
 
                 <div className="flex items-center gap-1.5">
                   <button
+                    onClick={() => setShowDraft(!showDraft)}
+                    className={`p-2 rounded-xl transition-all cursor-pointer border ${showDraft ? 'bg-white text-[#54BCEB] border-white' : 'text-white/80 hover:text-white hover:bg-white/20 border-transparent hover:border-white/30'}`}
+                    title="Ver Mi Borrador TFG"
+                  >
+                    <FileText className="w-4 h-4" />
+                  </button>
+                  <button
                     onClick={handleResetChat}
                     className="p-2 text-white/70 hover:text-white hover:bg-white/20 rounded-xl transition-all cursor-pointer border border-transparent hover:border-white/30"
                     title="Limpiar chat"
                   >
                     <RefreshCw className="w-4 h-4" />
                   </button>
-
                   <button
                     onClick={() => setIsFullScreen(!isFullScreen)}
                     className="p-2 text-white/70 hover:text-white hover:bg-white/20 rounded-xl transition-all cursor-pointer border border-transparent hover:border-white/30"
-                    title={isFullScreen ? 'Restaurar ventana' : 'Expandir pantalla completa'}
                   >
-                    {isFullScreen ? (
-                      <Minimize2 className="w-4 h-4" />
-                    ) : (
-                      <Maximize2 className="w-4 h-4" />
-                    )}
+                    {isFullScreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
                   </button>
-
                   <button
-                    onClick={() => {
-                      setIsOpen(false)
-                      setIsFullScreen(false)
-                    }}
+                    onClick={() => { setIsOpen(false); setIsFullScreen(false) }}
                     className="p-2 text-white/70 hover:text-white hover:bg-white/20 rounded-xl transition-all cursor-pointer"
-                    title="Cerrar asistente"
                   >
                     <X className="w-4.5 h-4.5" />
                   </button>
                 </div>
               </div>
 
-              {/* Chat Content Space */}
-              <div className="flex-1 overflow-y-auto px-6 py-6 space-y-5 bg-white">
-                {messages.length === 0 ? (
-                  /* Creative Empty Welcome State */
-                  <div className="h-full flex flex-col justify-center items-center py-6 text-center space-y-6">
-                    <div className="relative w-20 h-20 rounded-full bg-gradient-to-tr from-[#54BCEB] to-emerald-300 p-1 shadow-md">
-                      <div className="w-full h-full bg-white rounded-full overflow-hidden flex items-center justify-center">
-                        <Image
-                          src={mascotImg}
-                          alt="Mascota"
-                          width={60}
-                          height={60}
-                          className="object-contain translate-y-1.5"
-                        />
+              <div className="flex-1 flex overflow-hidden">
+                <div className={`flex flex-col h-full bg-white transition-all duration-300 ${showDraft ? 'w-1/2 border-r border-slate-200' : 'w-full'}`}>
+                  <div className="flex-1 overflow-y-auto px-6 py-6 space-y-5 bg-white">
+                    {messages.length === 0 ? (
+                      <div className="h-full flex flex-col justify-center items-center py-6 text-center space-y-6">
+                        <div className="relative w-20 h-20 rounded-full bg-gradient-to-tr from-[#54BCEB] to-emerald-300 p-1 shadow-md">
+                          <div className="w-full h-full bg-white rounded-full overflow-hidden flex items-center justify-center">
+                            <Image
+                              src={mascotImg}
+                              alt="Mascota"
+                              width={60}
+                              height={60}
+                              className="object-contain translate-y-1.5"
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2 max-w-sm">
+                          <h4 className="text-base font-black text-slate-800 font-display">¡Hola! Soy tu guía virtual</h4>
+                          <p className="text-xs text-slate-500 leading-relaxed">
+                            Estoy aquí para ayudarte a formular tu TFG paso a paso, mejorar tu perfil o buscar empleo.
+                          </p>
+                          {isLoadingHistory && (
+                            <p className="text-xs text-[#54BCEB] font-medium animate-pulse mt-4">
+                              Cargando historial...
+                            </p>
+                          )}
+                        </div>
                       </div>
-                    </div>
-
-                    <div className="space-y-2 max-w-sm">
-                      <h4 className="text-base font-black text-slate-800 font-display">
-                        ¡Hola! Soy tu guía virtual
-                      </h4>
-                      <p className="text-xs text-slate-500 leading-relaxed">
-                        Estoy aquí para ayudarte a mejorar tu perfil, buscar pasantías, empleos o encontrar un mentor ideal. Escribe tu pregunta abajo para empezar.
-                      </p>
-                      {isLoadingHistory && (
-                        <p className="text-xs text-[#54BCEB] font-medium animate-pulse mt-4">
-                          Cargando historial de chat...
-                        </p>
-                      )}
-                    </div>
+                    ) : (
+                      messages.map((msg) => (
+                        <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                          <div className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm shadow-sm leading-relaxed whitespace-pre-line ${
+                              msg.role === 'user'
+                                ? 'bg-gradient-to-r from-[#54BCEB] to-sky-400 text-white rounded-tr-none'
+                                : 'bg-white text-slate-800 border border-slate-100 rounded-tl-none border-l-4 border-l-[#54BCEB]'
+                            }`}
+                          >
+                            {renderMessageContent(msg)}
+                            <span className={`text-[9px] block text-right mt-2 opacity-60 ${msg.role === 'user' ? 'text-white' : 'text-slate-400'}`}>
+                              {((msg as any).createdAt instanceof Date) 
+                                ? ((msg as any).createdAt as Date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
+                                : new Date((msg as any).createdAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                    {isLoading && (
+                      <div className="flex justify-start">
+                        <div className="bg-white border border-slate-100 rounded-2xl rounded-tl-none border-l-4 border-l-[#54BCEB] px-4 py-3 text-sm shadow-sm flex items-center gap-1.5">
+                          <span className="text-xs text-slate-400 font-medium">Pensando</span>
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#54BCEB] animate-bounce" style={{ animationDelay: '0ms' }} />
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#54BCEB] animate-bounce" style={{ animationDelay: '150ms' }} />
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#54BCEB] animate-bounce" style={{ animationDelay: '300ms' }} />
+                        </div>
+                      </div>
+                    )}
+                    <div ref={chatEndRef} />
                   </div>
-                ) : (
-                  /* Conversation list */
-                  messages.map((msg) => (
-                    <div
-                      key={msg.id}
-                      className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                    >
-                      <div
-                        className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm shadow-sm leading-relaxed whitespace-pre-line ${
-                          msg.role === 'user'
-                            ? 'bg-gradient-to-r from-[#54BCEB] to-sky-400 text-white rounded-tr-none'
-                            : 'bg-white text-slate-800 border border-slate-100 rounded-tl-none border-l-4 border-l-[#54BCEB]'
-                        }`}
-                      >
-                        <p>{(msg as any).content || ((msg as any).parts && Array.isArray((msg as any).parts) ? (msg as any).parts.map((p: any) => p.text || '').join('') : '')}</p>
-                        <span
-                          className={`text-[9px] block text-right mt-2 opacity-60 ${
-                            msg.role === 'user' ? 'text-white' : 'text-slate-400'
-                          }`}
+
+                  {messages.length > 0 && (
+                    <div className="px-6 py-2 border-t border-slate-100 bg-white flex gap-2 overflow-x-auto shrink-0 scrollbar-none">
+                      {SUGGESTED_PROMPTS.map((prompt, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => handleSendMessage(prompt.text)}
+                          className="text-[10px] font-bold px-3 py-1.5 bg-[#F2F7FA] text-slate-600 hover:text-[#54BCEB] rounded-full border border-slate-200/50 hover:border-[#54BCEB]/50 transition-colors whitespace-nowrap cursor-pointer"
                         >
-                          {((msg as any).createdAt instanceof Date) 
-                            ? ((msg as any).createdAt as Date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
-                            : new Date((msg as any).createdAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </span>
-                      </div>
+                          {prompt.text}
+                        </button>
+                      ))}
                     </div>
-                  ))
-                )}
+                  )}
 
-                {/* Typing status indicator */}
-                {isLoading && (
-                  <div className="flex justify-start">
-                    <div className="bg-white border border-slate-100 rounded-2xl rounded-tl-none border-l-4 border-l-[#54BCEB] px-4 py-3 text-sm shadow-sm flex items-center gap-1.5">
-                      <span className="text-xs text-slate-400 font-medium">Pensando</span>
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#54BCEB] animate-bounce" style={{ animationDelay: '0ms' }} />
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#54BCEB] animate-bounce" style={{ animationDelay: '150ms' }} />
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#54BCEB] animate-bounce" style={{ animationDelay: '300ms' }} />
-                    </div>
+                  <div className="p-4 border-t border-slate-100 bg-white shrink-0">
+                    <form onSubmit={handleSubmit} className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={input}
+                        onChange={handleInputChange}
+                        placeholder="Escribe aquí tu respuesta o pregunta..."
+                        className="flex-1 px-4 py-3 rounded-xl border border-slate-200 bg-[#F9FAFB] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#54BCEB]/25 focus:border-[#54BCEB] text-sm text-slate-800 transition-all"
+                      />
+                      <button
+                        type="submit"
+                        disabled={!input.trim() || isLoading || isLoadingHistory}
+                        className="p-3 rounded-xl bg-[#54BCEB] text-white hover:bg-sky-500 transition-colors disabled:opacity-40 cursor-pointer flex items-center justify-center shadow-md shadow-sky-200/40"
+                      >
+                        <Send className="w-4 h-4" />
+                      </button>
+                    </form>
+                  </div>
+                </div>
+
+                {showDraft && (
+                  <div className="w-1/2 bg-slate-50 flex flex-col relative">
+                    <TfgDraftPreview draft={draft} />
                   </div>
                 )}
-                <div ref={chatEndRef} />
-              </div>
-
-              {/* Sticky bottom suggested prompts bar (if chat is active) */}
-              {messages.length > 0 && (
-                <div className="px-6 py-2 border-t border-slate-100 bg-white flex gap-2 overflow-x-auto shrink-0 scrollbar-none">
-                  {SUGGESTED_PROMPTS.map((prompt, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => handleSendMessage(prompt.text)}
-                      className="text-[10px] font-bold px-3 py-1.5 bg-[#F2F7FA] text-slate-600 hover:text-[#54BCEB] rounded-full border border-slate-200/50 hover:border-[#54BCEB]/50 transition-colors whitespace-nowrap cursor-pointer"
-                    >
-                      {prompt.text}
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              {/* Chat Form Area */}
-              <div className="p-4 border-t border-slate-100 bg-white shrink-0">
-                <form
-                  onSubmit={handleSubmit}
-                  className="flex items-center gap-2"
-                >
-                  <input
-                    type="text"
-                    value={input}
-                    onChange={handleInputChange}
-                    placeholder="Pregúntame sobre empleo, CV o mentorías..."
-                    className="flex-1 px-4 py-3 rounded-xl border border-slate-200 bg-[#F9FAFB] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#54BCEB]/25 focus:border-[#54BCEB] text-sm text-slate-800 transition-all"
-                  />
-                  <button
-                    type="submit"
-                    disabled={!input.trim() || isLoading || isLoadingHistory}
-                    className="p-3 rounded-xl bg-[#54BCEB] text-white hover:bg-sky-500 transition-colors disabled:opacity-40 disabled:hover:bg-[#54BCEB] cursor-pointer flex items-center justify-center shadow-md shadow-sky-200/40"
-                  >
-                    <Send className="w-4 h-4" />
-                  </button>
-                </form>
-                <div className="flex items-center justify-between mt-2.5 px-1 text-[10px] text-slate-400">
-                  <span>Asistente interactivo • Simulación de respuestas</span>
-                  <span className="flex items-center gap-1">
-                    Enviar con Enter <CornerDownLeft className="w-2.5 h-2.5 text-slate-300" />
-                  </span>
-                </div>
               </div>
             </motion.div>
           </div>
