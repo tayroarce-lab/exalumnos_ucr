@@ -4,7 +4,7 @@ export interface EstudianteDirectorio {
   nombre: string;
   foto_url: string | null;
   banner_url?: string | null;
-  // Carrera y sede vienen de users_carreras → carrera_campus → carreras/campus
+  // Carrera y sede vienen de users_carreras  carrera_campus  carreras/campus
   carrera: string;
   sede: string;
   escuela_facultad?: string;
@@ -23,8 +23,11 @@ export interface EstudianteDirectorio {
   proyecto_valor_moneda?: string | null;
   proyecto_video_url?: string | null;
   proyecto_documento_url?: string | null;
+  proyecto_foto_url?: string | null;
   proyecto_activo?: boolean | null;
   proyecto_necesidades?: string[] | null;
+  proyecto_beneficios?: string | null;
+  proyecto_beneficios_fotos?: string[] | null;
   // Currículum
   sobre_mi?: string | null;
   sobre_mi_personal?: string | null;

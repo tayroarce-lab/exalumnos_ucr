@@ -17,11 +17,11 @@ import { CARRERAS_UCR, CARRERA_TO_ESCUELA } from '@/constants/catalogs';
 export default function Register() {
   const [tipoRegistro, setTipoRegistro] = useState<'estudiante' | 'exalumno'>('estudiante');
 
-  // ── Estado Estudiante (flujo OTP) ──
+  //  Estado Estudiante (flujo OTP) 
   const [estudianteData, setEstudianteData] = useState({ nombre: '', apellidos: '', correo: '' });
   const [estError, setEstError] = useState('');
 
-  // ── Estado Exalumno (flujo email+password) ──
+  //  Estado Exalumno (flujo email+password) 
   const [exalumnoData, setExalumnoData] = useState({
     nombre: '',
     correo: '',
@@ -32,10 +32,10 @@ export default function Register() {
   const [exError, setExError] = useState('');
   const [terminosAceptados, setTerminosAceptados] = useState(false);
 
-  // ── Diálogo UCR ──
+  //  Diálogo UCR 
   const [showUcrDialog, setShowUcrDialog] = useState(false);
 
-  // ── General ──
+  //  General 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMode, setSuccessMode] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
@@ -51,7 +51,7 @@ export default function Register() {
   }, [resendTimer]);
 
 
-  // ── Detección correo @ucr.ac.cr para exalumno ──
+  //  Detección correo @ucr.ac.cr para exalumno 
   const handleExalumnoCorreoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const correo = e.target.value;
     setExalumnoData({ ...exalumnoData, correo });
@@ -63,7 +63,7 @@ export default function Register() {
     }
   };
 
-  // ── Submit Estudiante (OTP) ──
+  //  Submit Estudiante (OTP) 
   const handleEstudianteSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setEstError('');
@@ -94,13 +94,16 @@ export default function Register() {
       setSuccessMsg('estudiante');
       setResendTimer(60);
     } catch (err: any) {
-      setEstError(err.message || 'Error al enviar el enlace mágico.');
+      console.error("Supabase Auth Error:", err);
+      // Supabase a veces devuelve errores sin .message cuando es un 500 del servidor
+      const errorMessage = err.message || (err.status === 500 ? 'Fallo interno del servidor (posible error de SMTP al enviar correo).' : 'Error al enviar el enlace mágico.');
+      setEstError(typeof err === 'object' && !err.message ? JSON.stringify(err) : errorMessage);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // ── Submit Exalumno (email+password) ──
+  //  Submit Exalumno (email+password) 
   const handleExalumnoSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setExError('');
@@ -146,7 +149,7 @@ export default function Register() {
     }
   };
 
-  // ── Helpers de carreras ──
+  //  Helpers de carreras 
   const handleAddCarrera = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selected = e.target.value;
     if (!selected) return;
@@ -166,7 +169,7 @@ export default function Register() {
   // Extraer las facultades únicas basadas en las carreras seleccionadas
   const derivedFaculties = Array.from(new Set(exalumnoData.carreras.map(c => CARRERA_TO_ESCUELA[c]).filter(Boolean)));
 
-  // ── Reenviar enlace (solo estudiante) ──
+  //  Reenviar enlace (solo estudiante) 
   const handleResend = async () => {
     if (resendTimer > 0) return;
     setEstError('');
@@ -189,9 +192,9 @@ export default function Register() {
     }
   };
 
-  // ═══════════════════════════════════════════
+  // 
   // PANTALLA DE ÉXITO
-  // ═══════════════════════════════════════════
+  // 
   if (successMode) {
     if (successMsg === 'estudiante') {
       return (
@@ -242,9 +245,9 @@ export default function Register() {
     );
   }
 
-  // ═══════════════════════════════════════════
+  // 
   // FORMULARIO PRINCIPAL
-  // ═══════════════════════════════════════════
+  // 
   return (
     <div className={`register-container ${tipoRegistro}`}>
       <div className="register-left relative">
@@ -252,7 +255,7 @@ export default function Register() {
         <Link href="/" className="absolute top-6 left-6 flex items-center gap-2 text-white/80 hover:text-white transition-colors text-sm font-semibold z-20 bg-black/10 hover:bg-black/20 px-4 py-2 rounded-full backdrop-blur-md border border-white/10">
           <ArrowLeft size={16} /> Volver al inicio
         </Link>
-        
+
         <div className="register-logo-container mt-8">
           <Link href="/">
             <Image src={logoUCR} alt="Logo Alumni UCR" width={320} height={105} className="register-brand-logo object-contain cursor-pointer" priority />
@@ -306,7 +309,7 @@ export default function Register() {
 
         {tipoRegistro === 'estudiante' ? (
           <>
-            {/* ═══ FORMULARIO ESTUDIANTE (OTP) ═══ */}
+            {/*  FORMULARIO ESTUDIANTE (OTP)  */}
             <div className="register-info-box">
               <Mail className="info-icon" size={20} />
               <div>
@@ -361,7 +364,7 @@ export default function Register() {
           </>
         ) : (
           <>
-            {/* ═══ FORMULARIO EXALUMNO (email+password) ═══ */}
+            {/*  FORMULARIO EXALUMNO (email+password)  */}
             <div className="register-info-box">
               <GraduationCap className="info-icon" size={20} />
               <div>

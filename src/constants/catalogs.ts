@@ -176,11 +176,11 @@ export const AREAS_INTERES = [
 ]
 
 export const TIPOS_APOYO = [
-  { key: 'ofrece_mentoria', label: 'Mentoría', icon: '🎓' },
-  { key: 'ofrece_empleo', label: 'Empleo', icon: '💼' },
-  { key: 'ofrece_pasantia', label: 'Pasantía', icon: '📋' },
-  { key: 'ofrece_proyecto', label: 'Colaboración en Proyecto', icon: '🤝' },
-  { key: 'ofrece_donacion_dinero', label: 'Donación Económica', icon: '💰' },
+  { key: 'ofrece_mentoria', label: 'Mentoría', lucideIcon: 'GraduationCap' },
+  { key: 'ofrece_empleo', label: 'Empleo', lucideIcon: 'Briefcase' },
+  { key: 'ofrece_pasantia', label: 'Pasantía', lucideIcon: 'ClipboardList' },
+  { key: 'ofrece_proyecto', label: 'Colaboración en Proyecto', lucideIcon: 'Handshake' },
+  { key: 'ofrece_donacion_dinero', label: 'Donación Económica', lucideIcon: 'DollarSign' },
 ] as const
 
 

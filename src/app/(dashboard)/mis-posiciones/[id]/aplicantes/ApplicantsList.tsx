@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { AlumniApplicationView, ApplicationStatus } from '@/types/applications'
 import ApplicantCard from '@/components/applications/ApplicantCard'
 import { updateApplicationStatus } from '@/actions/applications'
+import { toast } from 'sonner'
 
 interface ApplicantsListProps {
   initialApplications: AlumniApplicationView[]
@@ -36,11 +37,11 @@ export default function ApplicantsList({ initialApplications }: ApplicantsListPr
           ))
         }
       } else {
-        alert(result.error || 'Error al actualizar el estado')
+        toast.error(result.error || 'Error al actualizar el estado')
       }
     } catch (err) {
       console.error(err)
-      alert('Error inesperado al actualizar')
+      toast.error('Error inesperado al actualizar')
     } finally {
       setUpdatingId(null)
     }

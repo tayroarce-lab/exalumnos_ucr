@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { uploadProfileImage, uploadBannerImage } from '@/lib/profile-upload'
 import { revalidatePath } from 'next/cache'
 import { logError } from '@/lib/logger'
@@ -21,12 +22,18 @@ export async function updateProfileImage(formData: FormData) {
 
     const publicUrl = await uploadProfileImage(file, user.id)
 
-    const { error } = await supabase
+    const { error: profileError } = await supabase
       .from('profiles')
       .update({ foto_url: publicUrl })
       .eq('id', user.id)
 
-    if (error) throw error
+    if (profileError) throw profileError
+    
+    const adminClient = createAdminClient()
+    await adminClient
+      .from('users')
+      .update({ foto_url: publicUrl })
+      .eq('id', user.id)
 
     revalidatePath('/profile')
     return { success: true, url: publicUrl }

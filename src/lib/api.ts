@@ -94,9 +94,11 @@ export async function getEstudiantes(
   const perfilActual = await obtenerMiPerfil().catch(() => null);
 
   if (perfilActual) {
+    console.log("Calculando match para perfilActual:", perfilActual.id, perfilActual.carrera);
     estudiantes.forEach(e => {
       e.match_score = calcularMatch(e, perfilActual);
     });
+    console.log("Match del primer estudiante:", estudiantes[0]?.match_score);
     // Ordenar de mayor a menor compatibilidad
     estudiantes.sort((a, b) => (b.match_score || 0) - (a.match_score || 0));
   } else {

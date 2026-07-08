@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { requestDirectConnection, cancelDirectConnection, removeDirectConnection } from '@/actions/matches';
 import { UserPlus, Clock, Check, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 export default function ConnectButton({ targetUserId, initialStatus }: { targetUserId: string, initialStatus: 'none' | 'contactado' | 'activo' }) {
   const [status, setStatus] = useState(initialStatus);
@@ -17,7 +18,7 @@ export default function ConnectButton({ targetUserId, initialStatus }: { targetU
       setStatus('contactado');
       router.refresh();
     } else {
-      alert(result.error || 'Error al conectar');
+      toast.error(result.error || 'Error al conectar');
     }
     setLoading(false);
   };
@@ -29,7 +30,7 @@ export default function ConnectButton({ targetUserId, initialStatus }: { targetU
       setStatus('none');
       router.refresh();
     } else {
-      alert(result.error || 'Error al cancelar la solicitud');
+      toast.error(result.error || 'Error al cancelar la solicitud');
     }
     setLoading(false);
   };
@@ -42,7 +43,7 @@ export default function ConnectButton({ targetUserId, initialStatus }: { targetU
       setStatus('none');
       router.refresh();
     } else {
-      alert(result.error || 'Error al eliminar la conexión');
+      toast.error(result.error || 'Error al eliminar la conexión');
     }
     setLoading(false);
   };

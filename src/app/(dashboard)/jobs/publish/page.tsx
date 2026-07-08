@@ -16,9 +16,9 @@ import type { PosicionFormValues } from '@/lib/validations/posiciones'
 import { useProfile } from '@/contexts/ProfileContext'
 import { obtenerMiPerfil } from '@/actions/users'
 
-// ──────────────────────────────────────────────
+// 
 // Catálogo de sectores disponibles
-// ──────────────────────────────────────────────
+// 
 const SECTORES_CATALOGO = [
   'Tecnología',
   'Finanzas',
@@ -38,7 +38,7 @@ const MAX_RESP = 10
 
 export default function PublishJobPage() {
   const router = useRouter()
-  const { user } = useProfile()
+  const { user, profile } = useProfile()
   const [step, setStep] = useState(1)
   const [isPublishing, setIsPublishing] = useState(false)
   const [isPublished, setIsPublished] = useState(false)
@@ -47,10 +47,11 @@ export default function PublishJobPage() {
   const [isProfileComplete, setIsProfileComplete] = useState<boolean | null>(null)
   const [isLoadingProfile, setIsLoadingProfile] = useState(true)
 
-  const isStudent = user?.user_metadata?.rol === 'estudiante'
+  const userRole = profile?.rol || user?.user_metadata?.rol || 'exalumno'
+  const isStudent = userRole === 'estudiante'
 
   React.useEffect(() => {
-    const isAdmin = user?.user_metadata?.rol === 'admin' || user?.user_metadata?.tipo === 'admin'
+    const isAdmin = userRole === 'admin' || user?.user_metadata?.tipo === 'admin'
     if (isAdmin) {
       router.replace('/jobs')
       return
@@ -116,7 +117,7 @@ export default function PublishJobPage() {
   // Errores de validación
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  // ─── Handlers generales ─────────────────────
+  //  Handlers generales 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
@@ -125,7 +126,7 @@ export default function PublishJobPage() {
     if (errors[name]) setErrors((prev) => { const c = { ...prev }; delete c[name]; return c })
   }
 
-  // ─── Sector (múltiple) ───────────────────────
+  //  Sector (múltiple) 
   const toggleSector = (sector: string) => {
     setFormData((prev) => {
       const already = prev.sector.includes(sector)
@@ -137,7 +138,7 @@ export default function PublishJobPage() {
     if (errors.sector) setErrors((p) => { const c = { ...p }; delete c.sector; return c })
   }
 
-  // ─── Responsabilidades dinámicas ─────────────
+  //  Responsabilidades dinámicas 
   const addResp = () => {
     if (responsabilidades.length < MAX_RESP) {
       setResponsabilidades((prev) => [...prev, ''])
@@ -155,7 +156,7 @@ export default function PublishJobPage() {
     if (errors.responsabilidades) setErrors((p) => { const c = { ...p }; delete c.responsabilidades; return c })
   }
 
-  // ─── Validación por paso ─────────────────────
+  //  Validación por paso 
   const validateStep = (currentStep: number) => {
     const newErrors: Record<string, string> = {}
 
@@ -164,6 +165,8 @@ export default function PublishJobPage() {
         newErrors.titulo = 'El título debe tener al menos 5 caracteres'
       if (!formData.lugar.trim())
         newErrors.lugar = 'La ubicación es obligatoria'
+      if (!formData.empresa.trim())
+        newErrors.empresa = 'La empresa es obligatoria'
       if (formData.sector.length === 0)
         newErrors.sector = 'Selecciona al menos un sector'
       
@@ -356,9 +359,9 @@ export default function PublishJobPage() {
         {/* Tarjeta de Formulario */}
         <Card hoverEffect={false} className="space-y-6 p-6 rounded-2xl border border-slate-200/60 bg-white shadow-lg">
 
-          {/* ══════════════════════════════
+          {/* 
               PASO 1: DATOS BÁSICOS
-          ══════════════════════════════ */}
+           */}
           {step === 1 && (
             <div className="space-y-5">
               <h3 className="font-display font-extrabold text-base text-slate-700 uppercase tracking-wider pb-2 border-b border-slate-100">
@@ -377,9 +380,11 @@ export default function PublishJobPage() {
               <Input
                 label="Empresa"
                 name="empresa"
+                placeholder="Ej: Intel Costa Rica"
                 value={formData.empresa}
-                disabled
-                className="h-11 border-slate-200 bg-slate-100"
+                onChange={handleChange}
+                error={errors.empresa}
+                className="h-11 border-slate-200 focus:border-brand-blue bg-slate-50/50"
               />
               <Input
                 label="Ubicación"
@@ -430,7 +435,7 @@ export default function PublishJobPage() {
                 className="h-11 border-slate-200 focus:border-brand-blue bg-slate-50/50"
               />
 
-              {/* ── Selector múltiple de Sectores ─────────────────── */}
+              {/*  Selector múltiple de Sectores  */}
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
                   Sector(es) de la Vacante
@@ -450,7 +455,7 @@ export default function PublishJobPage() {
                             : 'bg-white text-slate-600 border-slate-200 hover:border-brand-blue hover:text-brand-blue'
                         }`}
                       >
-                        {isSelected && <span className="mr-1">✓</span>}
+                        {isSelected && <span className="mr-1"></span>}
                         {sector}
                       </button>
                     )
@@ -474,9 +479,9 @@ export default function PublishJobPage() {
             </div>
           )}
 
-          {/* ══════════════════════════════
+          {/* 
               PASO 2: DESCRIPCIÓN Y REQUISITOS
-          ══════════════════════════════ */}
+           */}
           {step === 2 && (
             <div className="space-y-5">
               <h3 className="font-display font-extrabold text-base text-slate-700 uppercase tracking-wider pb-2 border-b border-slate-100">
@@ -493,7 +498,7 @@ export default function PublishJobPage() {
                 className="border-slate-200 focus:border-brand-blue bg-slate-50/50 min-h-[120px]"
               />
 
-              {/* ── Responsabilidades dinámicas ──────────────────── */}
+              {/*  Responsabilidades dinámicas  */}
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <label className="text-xs font-bold uppercase tracking-wider text-slate-500">
@@ -567,7 +572,7 @@ export default function PublishJobPage() {
                 className="h-11 border-slate-200 focus:border-brand-blue bg-slate-50/50"
               />
 
-              {/* ── Contexto del equipo (opcional, max 300) ────────── */}
+              {/*  Contexto del equipo (opcional, max 300)  */}
               <div>
                 <div className="flex items-center justify-between mb-1">
                   <label className="text-xs font-bold uppercase tracking-wider text-slate-500">
@@ -606,9 +611,9 @@ export default function PublishJobPage() {
             </div>
           )}
 
-          {/* ══════════════════════════════
+          {/* 
               PASO 3: CONFIRMACIÓN Y PREVIEW
-          ══════════════════════════════ */}
+           */}
           {step === 3 && (
             <div className="space-y-6">
               <h3 className="font-display font-extrabold text-base text-slate-700 uppercase tracking-wider pb-2 border-b border-slate-100">

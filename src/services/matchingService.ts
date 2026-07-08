@@ -171,7 +171,7 @@ export async function rechazarMatch(matchId: string): Promise<RespuestaServicio>
   return cambiarEstadoMatch(matchId, 'cerrado', 'cancelado');
 }
 
-// ─── HELPER INTERNO ──────────────────────────────────────────────────────────
+//  HELPER INTERNO 
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function construirMatchSugerido(raw: any): MatchSugerido {

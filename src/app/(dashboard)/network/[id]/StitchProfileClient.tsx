@@ -4,10 +4,12 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { 
   MapPin, Briefcase, Mail, Linkedin, Twitter, Instagram, 
-  Lock, CheckCircle2, Volume2, Send, X, Heart, Sparkles, Plus, Clock, Check
+  Lock, CheckCircle2, Volume2, Send, X, Heart, Sparkles, Plus, Clock, Check,
+  GraduationCap, Bike, Camera, Leaf, Dribbble, Hammer, Accessibility
 } from 'lucide-react';
 import { getAvatarUrl } from '@/lib/utils';
 import { requestDirectConnection, cancelDirectConnection } from '@/actions/matches';
+import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 
 interface RecommendedProfile {
@@ -65,7 +67,7 @@ export default function StitchProfileClient({
       setStatus('contactado');
       router.refresh();
     } else {
-      alert(result.error || 'Error al conectar');
+      toast.error(result.error || 'Error al conectar');
     }
     setLoading(false);
   };
@@ -77,7 +79,7 @@ export default function StitchProfileClient({
       setStatus('none');
       router.refresh();
     } else {
-      alert(result.error || 'Error al cancelar la solicitud');
+      toast.error(result.error || 'Error al cancelar la solicitud');
     }
     setLoading(false);
   };
@@ -95,7 +97,7 @@ export default function StitchProfileClient({
             href="/network" 
             className="inline-flex items-center gap-2 text-xs font-bold text-[#8C877D] hover:text-[#3C3935] transition-colors uppercase tracking-wider"
           >
-            ← Volver al Directorio
+             Volver al Directorio
           </Link>
         </div>
 
@@ -106,7 +108,8 @@ export default function StitchProfileClient({
           <div className="h-44 bg-gradient-to-r from-[#D7ECFA] to-[#EBF6FF] relative p-6 flex items-start justify-between">
             {/* Left Pill (Role/Badge) */}
             <span className="bg-white border border-[#B34700] text-[#B34700] px-4 py-1.5 rounded-full text-xs font-extrabold tracking-wider uppercase flex items-center gap-1.5 shadow-sm">
-              {profile.rol === 'exalumno' ? '🎓 MENTOR EN GENERAL' : '🎓 ESTUDIANTE'}
+              <GraduationCap className="w-4 h-4" />
+              {profile.rol === 'exalumno' ? 'MENTOR EN GENERAL' : 'ESTUDIANTE'}
             </span>
 
             {/* Right Pill (Connection Request state) */}
@@ -121,7 +124,7 @@ export default function StitchProfileClient({
                   disabled={loading}
                   className="text-xs font-black text-[#F34B26] hover:text-red-700 transition-colors uppercase"
                 >
-                  ✕ Cancelar
+                   Cancelar
                 </button>
               </div>
             )}
@@ -159,7 +162,7 @@ export default function StitchProfileClient({
                   if (profile.email) {
                     window.location.href = `mailto:${profile.email}`;
                   } else {
-                    alert('Este exalumno no ha configurado un correo electrónico público.');
+                    toast.info('Este exalumno no ha configurado un correo electrónico público.');
                   }
                 }}
                 className="flex items-center gap-2 bg-[#B34700] hover:bg-[#993E00] text-white px-6 py-2.5 rounded-full text-sm font-extrabold transition-colors shadow-sm tracking-wide"
@@ -224,17 +227,17 @@ export default function StitchProfileClient({
               <div className="flex flex-wrap gap-2 pt-2">
                 {profile.ofrece_empleo && (
                   <span className="bg-[#E4F3E8] text-[#27AE60] border border-[#C2E8CC] px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider flex items-center gap-1.5">
-                    ● Ofrece Empleo
+                     Ofrece Empleo
                   </span>
                 )}
                 {profile.ofrece_mentoria && (
                   <span className="bg-[#FFF4E5] text-[#D35400] border border-[#FFE3C2] px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider flex items-center gap-1.5">
-                    ● Ofrece Mentoría
+                     Ofrece Mentoría
                   </span>
                 )}
                 {profile.ofrece_pasantia && (
                   <span className="bg-[#EAF2F8] text-[#2980B9] border border-[#D5E6F2] px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider flex items-center gap-1.5">
-                    ● Ofrece Pasantía
+                     Ofrece Pasantía
                   </span>
                 )}
               </div>
@@ -399,27 +402,39 @@ export default function StitchProfileClient({
               {/* Hobbies list */}
               <ul className="space-y-3.5 pt-2">
                 <li className="flex items-center gap-3 text-xs font-bold text-[#3C3935]">
-                  <span className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm text-sm shrink-0">🚴‍♂️</span>
+                  <span className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm text-sm shrink-0">
+                    <Bike className="w-4 h-4" />
+                  </span>
                   Ciclismo de montaña
                 </li>
                 <li className="flex items-center gap-3 text-xs font-bold text-[#3C3935]">
-                  <span className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm text-sm shrink-0">📷</span>
+                  <span className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm text-sm shrink-0">
+                    <Camera className="w-4 h-4" />
+                  </span>
                   Fotografía analógica
                 </li>
                 <li className="flex items-center gap-3 text-xs font-bold text-[#3C3935]">
-                  <span className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm text-sm shrink-0">🌱</span>
+                  <span className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm text-sm shrink-0">
+                    <Leaf className="w-4 h-4" />
+                  </span>
                   Voluntariado ambiental
                 </li>
                 <li className="flex items-center gap-3 text-xs font-bold text-[#3C3935]">
-                  <span className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm text-sm shrink-0">⚽</span>
+                  <span className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm text-sm shrink-0">
+                    <Dribbble className="w-4 h-4" />
+                  </span>
                   Fútbol
                 </li>
                 <li className="flex items-center gap-3 text-xs font-bold text-[#3C3935]">
-                  <span className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm text-sm shrink-0">🪚</span>
+                  <span className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm text-sm shrink-0">
+                    <Hammer className="w-4 h-4" />
+                  </span>
                   Carpintería artesanal
                 </li>
                 <li className="flex items-center gap-3 text-xs font-bold text-[#3C3935]">
-                  <span className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm text-sm shrink-0">🧘</span>
+                  <span className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm text-sm shrink-0">
+                    <Accessibility className="w-4 h-4" />
+                  </span>
                   Yoga
                 </li>
               </ul>
@@ -440,7 +455,7 @@ export default function StitchProfileClient({
                 href="/network" 
                 className="text-xs font-extrabold text-[#B34700] hover:text-[#993E00] flex items-center gap-1 transition-colors uppercase tracking-wider"
               >
-                Ver todos →
+                Ver todos 
               </Link>
             </div>
 

@@ -4,11 +4,6 @@ import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { DatosCV } from '@/components/cv/CVLiveContext';
 
-// Utilidad para validar UUID
-const isValidUUID = (uuid: string) => {
-  const regex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  return regex.test(uuid);
-};
 
 export async function obtenerVersionAdaptadaPorPosicion(posicionId: string) {
   try {
@@ -17,20 +12,13 @@ export async function obtenerVersionAdaptadaPorPosicion(posicionId: string) {
 
     if (!user) return { success: false, error: 'No autenticado' };
 
-    // Si no es un UUID válido (ej. MOCK IDs), no lo filtramos por posicion_id o lo manejamos distinto.
     let query = supabase
       .from('cv_versiones')
       .select('*')
       .eq('user_id', user.id)
+      .eq('posicion_id', posicionId)
       .order('created_at', { ascending: false })
       .limit(1);
-
-    if (isValidUUID(posicionId)) {
-      query = query.eq('posicion_id', posicionId);
-    } else {
-      // Para propósitos de prueba con MOCK_JOBS, traemos la última guardada genéricamente
-      query = query.is('posicion_id', null);
-    }
 
     const { data, error } = await query.maybeSingle();
 
@@ -53,15 +41,12 @@ export async function guardarVersionAdaptada(
 
     if (!user) return { success: false, error: 'No autenticado' };
 
-    // Determinar si el ID de posición es válido para la DB
-    const validPosicionId = isValidUUID(posicionId) ? posicionId : null;
-
     const { error } = await supabase
       .from('cv_versiones')
       .insert([
         {
           user_id: user.id,
-          posicion_id: validPosicionId,
+          posicion_id: posicionId,
           titulo_version: tituloVersion,
           contenido: cvAdaptado
         }

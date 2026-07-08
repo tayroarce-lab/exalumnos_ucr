@@ -19,3 +19,9 @@ export function getAvatarUrl(foto_url: string | null | undefined, nombreAlternat
   if (foto_url.startsWith('http') || foto_url.startsWith('data:') || foto_url.startsWith('/')) return foto_url;
   return `${process.env.NEXT_PUBLIC_SUPABASE_URL || ''}/storage/v1/object/public/avatars/${foto_url}`;
 }
+
+export function getProyectoFileUrl(path: string | null | undefined): string | null {
+  if (!path) return null;
+  if (path.startsWith('http') || path.startsWith('data:') || path.startsWith('/')) return path;
+  return `${process.env.NEXT_PUBLIC_SUPABASE_URL || ''}/storage/v1/object/public/proyectos/${path}`;
+}

@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
@@ -33,9 +34,37 @@ export async function GET(request: Request) {
       }
     )
 
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    const { data: authData, error } = await supabase.auth.exchangeCodeForSession(code)
     
-    if (!error) {
+    if (!error && authData?.user) {
+      // Sync user safely with admin rights
+      const adminClient = createAdminClient();
+      const user = authData.user;
+      
+      const { data: dbUser } = await adminClient.from('users').select('id').eq('id', user.id).maybeSingle();
+      if (!dbUser) {
+        const rol = user.user_metadata?.rol || (user.email?.endsWith('@ucr.ac.cr') ? 'estudiante' : 'exalumno');
+        await adminClient.from('users').insert({
+          id: user.id,
+          email: user.email,
+          nombre: user.user_metadata?.nombre || user.user_metadata?.full_name || user.email?.split('@')[0],
+          rol: rol,
+          activo: true,
+          email_verified: true
+        });
+      }
+      
+      const { data: dbProfile } = await adminClient.from('profiles').select('id').eq('id', user.id).maybeSingle();
+      if (!dbProfile) {
+        const rol = user.user_metadata?.rol || (user.email?.endsWith('@ucr.ac.cr') ? 'estudiante' : 'exalumno');
+        await adminClient.from('profiles').insert({
+          id: user.id,
+          email: user.email,
+          full_name: user.user_metadata?.nombre || user.user_metadata?.full_name || user.email?.split('@')[0],
+          es_exalumno: rol === 'exalumno'
+        });
+      }
+
       return NextResponse.redirect(`${origin}${next}`)
     }
   }

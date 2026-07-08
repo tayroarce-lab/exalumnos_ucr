@@ -12,7 +12,7 @@
 
 .admin-table-container {
   background: var(--admin-bg-card);
-  border-radius: 16px;
+  border-radius: 6px;
   padding: 32px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02), 0 4px 16px rgba(0, 0, 0, 0.03);
   border: 1px solid var(--admin-border-color);
@@ -83,7 +83,7 @@
 .admin-table-avatar {
   width: 34px;
   height: 34px;
-  border-radius: 9999px;
+  border-radius: 4px;
   background: linear-gradient(135deg, var(--admin-bg-hover) 0%, var(--admin-bg-card) 100%);
   color: var(--admin-accent-celeste);
   display: flex;
@@ -98,7 +98,7 @@
   display: inline-flex;
   align-items: center;
   padding: 5px 12px;
-  border-radius: 9999px;
+  border-radius: 4px;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.02em;
@@ -142,7 +142,6 @@
   background-color: rgba(16, 185, 129, 0.15);
   border-color: #10B981;
   color: #059669;
-  transform: scale(1.05);
 }
 
 .admin-btn-icon.close {
@@ -153,7 +152,6 @@
   background-color: rgba(239, 68, 68, 0.15);
   border-color: #EF4444;
   color: #DC2626;
-  transform: scale(1.05);
 }
 
 @media (max-width: 639px) {

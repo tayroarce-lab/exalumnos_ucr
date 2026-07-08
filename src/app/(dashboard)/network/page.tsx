@@ -8,7 +8,8 @@ import { createClient } from '@/lib/supabase/client'
 import { buscarExalumnosDirectorio } from '@/actions/directory'
 import {
   Search, SlidersHorizontal, MapPin, Briefcase, GraduationCap,
-  Heart, Users, X, Handshake, Building, ChevronDown, Check
+  Heart, Users, X, Handshake, Building, ChevronDown, Check,
+  ClipboardList, DollarSign
 } from 'lucide-react'
 import Card from '@/components/ui/card'
 import Button from '@/components/ui/button'
@@ -33,11 +34,11 @@ interface ExalumnoPublic extends ExalumnoDirectorio {
 // ============================================================
 
 const APOYO_FILTROS = [
-  { key: 'ofrece_mentoria', label: 'Mentoría', icon: '🎓' },
-  { key: 'ofrece_empleo', label: 'Empleo', icon: '💼' },
-  { key: 'ofrece_pasantia', label: 'Pasantía', icon: '📋' },
-  { key: 'ofrece_proyecto', label: 'Proyecto', icon: '🤝' },
-  { key: 'ofrece_donacion_dinero', label: 'Donación', icon: '💰' },
+  { key: 'ofrece_mentoria', label: 'Mentoría', icon: <GraduationCap size={11} /> },
+  { key: 'ofrece_empleo', label: 'Empleo', icon: <Briefcase size={11} /> },
+  { key: 'ofrece_pasantia', label: 'Pasantía', icon: <ClipboardList size={11} /> },
+  { key: 'ofrece_proyecto', label: 'Proyecto', icon: <Handshake size={11} /> },
+  { key: 'ofrece_donacion_dinero', label: 'Donación', icon: <DollarSign size={11} /> },
 ]
 
 // ==========================// TARJETA DE EXALUMNO
@@ -125,7 +126,7 @@ function ExalumnoCard({ ex, isAdmin }: { ex: ExalumnoPublic, isAdmin: boolean })
             <div className="flex flex-wrap gap-1.5">
               {apoyos.map(a => (
                 <span key={a.key} className="bg-emerald-50 text-emerald-700 border border-emerald-100 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide">
-                  <span aria-hidden="true" className="mr-1">{a.icon}</span>{a.label}
+                  <span aria-hidden="true" className="mr-1 flex items-center">{a.icon}</span>{a.label}
                 </span>
               ))}
             </div>
@@ -344,7 +345,7 @@ function Paginacion({ paginaActual, totalPaginas, onChange }: PaginacionProps) {
         disabled={paginaActual === 1}
         className="px-3.5 py-2 text-sm font-medium rounded-xl border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200"
       >
-        ← Anterior
+         Anterior
       </button>
 
       {getVisiblePages().map((pagina) => (
@@ -366,7 +367,7 @@ function Paginacion({ paginaActual, totalPaginas, onChange }: PaginacionProps) {
         disabled={paginaActual === totalPaginas}
         className="px-3.5 py-2 text-sm font-medium rounded-xl border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200"
       >
-        Siguiente →
+        Siguiente 
       </button>
     </div>
   );
@@ -396,13 +397,14 @@ export default function NetworkPage() {
   useEffect(() => {
     // Validar sesión del lado del cliente como fallback (middleware hace el groso del trabajo)
     const supabase = createClient()
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
       if (!user) {
         window.location.href = '/login'
       } else if (!user.email_confirmed_at) {
         window.location.href = '/verificar-correo'
       } else {
-        setIsAdmin(user.user_metadata?.rol === 'admin')
+        const { data: dbUser } = await supabase.from('users').select('rol').eq('id', user.id).single()
+        setIsAdmin(dbUser?.rol === 'admin' || user.user_metadata?.rol === 'admin')
       }
     })
   }, [])

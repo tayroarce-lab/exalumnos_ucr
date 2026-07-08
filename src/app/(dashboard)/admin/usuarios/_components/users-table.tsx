@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react';
 import { Loader2, Search, UserCheck, UserX, Users, GraduationCap, ShieldCheck, LayoutGrid } from 'lucide-react';
 import { suspenderUsuario, reactivarUsuario } from '@/actions/users';
+import { toast } from 'sonner';
 import '../../../../../styles/admin-table.css';
 import '../../../../../styles/admin-usuarios.css';
 
@@ -55,7 +56,7 @@ export function UsersTable({ initialUsers }: UsersTableProps) {
       // Actualizar el estado local de forma optimista
       setUsers(prev => prev.map(u => u.id === userId ? { ...u, activo: false } : u));
     } catch (err: any) {
-      alert(`Error al suspender usuario: ${err.message}`);
+      toast.error(`Error al suspender usuario: ${err.message}`);
     } finally {
       setLoadingId(null);
     }
@@ -67,7 +68,7 @@ export function UsersTable({ initialUsers }: UsersTableProps) {
       await reactivarUsuario(userId);
       setUsers(prev => prev.map(u => u.id === userId ? { ...u, activo: true } : u));
     } catch (err: any) {
-      alert(`Error al reactivar usuario: ${err.message}`);
+      toast.error(`Error al reactivar usuario: ${err.message}`);
     } finally {
       setLoadingId(null);
     }

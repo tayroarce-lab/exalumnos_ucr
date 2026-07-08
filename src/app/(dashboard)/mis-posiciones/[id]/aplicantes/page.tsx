@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { ArrowLeft, Users, Mail, GraduationCap, Clock, AlertCircle, CheckCircle2, XCircle, Eye, ChevronDown, MapPin, FileText, Check } from 'lucide-react'
 import { obtenerPosicionPorId } from '@/actions/positions'
 import { getPositionApplications, updateApplicationStatus } from '@/actions/applications'
+import { toast } from 'sonner'
 import Card from '@/components/ui/card'
 import Modal from '@/components/ui/modal'
 import Button from '@/components/ui/button'
@@ -74,7 +75,7 @@ function TarjetaAplicante({ aplicacion, onCambiarEstado }: {
               {/* Compatibilidad */}
               {aplicacion.compatibility_score !== undefined && aplicacion.compatibility_score !== null && (
                 <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700">
-                  ⚡ {Math.round(aplicacion.compatibility_score)}% Match
+                   {Math.round(aplicacion.compatibility_score)}% Match
                 </span>
               )}
             </div>
@@ -95,7 +96,7 @@ function TarjetaAplicante({ aplicacion, onCambiarEstado }: {
             </div>
 
             {aplicacion.message && (
-              <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-600 leading-relaxed italic mt-3 mb-2">
+              <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-600 leading-relaxed italic mt-3 mb-2 break-words">
                 "{aplicacion.message}"
               </div>
             )}
@@ -210,7 +211,7 @@ export default function AplicantesPage({ params }: AplicantesPageProps) {
       ))
       if (modalSeleccion.open) setModalSeleccion({ id: '', open: false })
     } else {
-      alert(result.error || 'Ocurrió un error al actualizar.')
+      toast.error(result.error || 'Ocurrió un error al actualizar.')
     }
     setActualizando(false)
   }

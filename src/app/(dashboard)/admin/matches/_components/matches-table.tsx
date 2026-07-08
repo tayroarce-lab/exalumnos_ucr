@@ -7,6 +7,7 @@ import { getMatches, updateMatch } from '@/actions/matches';
 import { MatchesFiltersComponent } from './matches-filters';
 import { MatchActionDialog } from './match-action-dialog';
 import { exportToCSV } from '@/lib/export-csv';
+import { toast } from 'sonner';
 import '../../../../../styles/admin-table.css';
 import '../../../../../styles/admin-matches.css';
 
@@ -58,7 +59,7 @@ export function MatchesTable() {
     if (res.success) {
       fetchMatches(filters);
     } else {
-      alert('Error al actualizar el match');
+      toast.error('Error al actualizar el match');
     }
   };
 
@@ -146,7 +147,7 @@ export function MatchesTable() {
                               {match.estado.charAt(0).toUpperCase() + match.estado.slice(1)}
                             </span>
                             {isAlertable && (
-                              <span className="matches-alert-badge">⚠ +6 meses activo</span>
+                              <span className="matches-alert-badge"> +6 meses activo</span>
                             )}
                           </div>
                         </td>

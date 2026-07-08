@@ -4,25 +4,25 @@ export default function AuthBackground() {
 
   return (
     <div className="auth-bg-fixed">
-      {/* ── Formas de fondo ── */}
+      {/*  Formas de fondo  */}
       <div className="deco-circulo-grande-bg" />
       <div className="deco-circulo-medio-bg" />
 
       <div className="deco-hexagono-bg">
         <svg width="210" height="242" viewBox="0 0 210 242" fill="none">
           <polygon points="105,6 200,55 200,185 105,236 10,185 10,55"
-            stroke={`rgba(${c},0.25)`} strokeWidth="2" fill="none" />
+            stroke="rgba(0,0,0,0.06)" strokeWidth="2" fill="none" />
           <polygon points="105,26 180,67 180,175 105,216 30,175 30,67"
-            stroke={`rgba(${c},0.15)`} strokeWidth="1.5" fill="none" />
+            stroke="rgba(0,0,0,0.04)" strokeWidth="1.5" fill="none" />
         </svg>
       </div>
 
-      {/* ── Iconos educativos flotantes ── */}
+      {/*  Iconos educativos flotantes  */}
 
       {/* Birrete de graduación — arriba izquierda */}
       <div className="deco-icono deco-gorro-graduacion">
         <svg width="58" height="58" viewBox="0 0 24 24" fill="none"
-          stroke={`rgba(${c},0.85)`} strokeWidth="1.3"
+          stroke="rgba(0,0,0,0.15)" strokeWidth="1.3"
           strokeLinecap="round" strokeLinejoin="round">
           <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
           <path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5" />
@@ -81,14 +81,14 @@ export default function AuthBackground() {
           strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="10" />
           <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"
-            fill="rgba(255,155,24,0.45)" stroke="rgba(255,155,24,0.88)" strokeWidth="1.2" />
+            fill="rgba(0,0,0,0.05)" stroke="rgba(0,0,0,0.15)" strokeWidth="1.2" />
         </svg>
       </div>
 
       {/* Microscopio — zona alta izquierda */}
       <div className="deco-icono deco-microscopio">
         <svg width="38" height="38" viewBox="0 0 24 24" fill="none"
-          stroke={`rgba(${c},0.65)`} strokeWidth="1.3"
+          stroke="rgba(0,0,0,0.12)" strokeWidth="1.3"
           strokeLinecap="round" strokeLinejoin="round">
           <path d="M6 18h8" /><path d="M3 22h18" />
           <path d="M14 22a7 7 0 1 0 0-14h-1" />
@@ -100,7 +100,7 @@ export default function AuthBackground() {
       {/* Estrella amarilla */}
       <div className="deco-icono deco-estrella">
         <svg width="30" height="30" viewBox="0 0 24 24"
-          fill="rgba(255,155,24,0.72)" stroke="rgba(255,155,24,0.95)" strokeWidth="1.2">
+          fill="rgba(0,0,0,0.08)" stroke="rgba(0,0,0,0.18)" strokeWidth="1.2">
           <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
         </svg>
       </div>
@@ -129,8 +129,8 @@ export default function AuthBackground() {
       <div className="deco-triangulo-acento">
         <svg width="52" height="46" viewBox="0 0 52 46" fill="none">
           <polygon points="26,2 50,44 2,44"
-            stroke="rgba(243,75,38,0.58)" strokeWidth="2"
-            fill="rgba(243,75,38,0.08)" />
+            stroke="rgba(0,0,0,0.12)" strokeWidth="2"
+            fill="rgba(0,0,0,0.02)" />
         </svg>
       </div>
     </div>

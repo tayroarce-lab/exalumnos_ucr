@@ -103,7 +103,7 @@ export default function ModalOfrecerApoyo({
 
     switch (tipoId) {
       case 'donacion':
-        router.push(`/donaciones?proyecto=${estudianteId}`);
+        router.push(`/donations?proyecto_id=${estudianteId}`);
         break;
       case 'mentoria':
       case 'empleo':
@@ -146,7 +146,7 @@ export default function ModalOfrecerApoyo({
           </h2>
           {tituloProyecto && (
             <p className="text-white/60 text-xs font-medium mt-1 line-clamp-1">
-              📘 {tituloProyecto}
+               {tituloProyecto}
             </p>
           )}
         </div>

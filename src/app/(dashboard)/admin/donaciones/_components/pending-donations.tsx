@@ -71,7 +71,7 @@ export function PendingDonations({ donations, onRefresh, onProcess }: PendingDon
                       </td>
                       <td>
                         {overdue ? (
-                          <span className="donations-status-overdue">⚠ +24h Pendiente</span>
+                          <span className="donations-status-overdue"> +24h Pendiente</span>
                         ) : (
                           <span className="donations-status-pending">Pendiente</span>
                         )}

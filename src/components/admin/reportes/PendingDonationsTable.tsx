@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Check, X } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
 import '../../../styles/admin-table.css';
 
 interface PendingDonation {
@@ -8,41 +9,51 @@ interface PendingDonation {
   donorInitials: string;
   amount: string;
   date: string;
-  status: 'pendiente' | 'procesando';
+  status: string;
   receiptUrl: string;
 }
 
-const mockPendingDonations: PendingDonation[] = [
-  {
-    id: '1',
-    donorName: 'María Rojas',
-    donorInitials: 'MR',
-    amount: '₡ 50,000',
-    date: '10 May 2026',
-    status: 'pendiente',
-    receiptUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-  },
-  {
-    id: '2',
-    donorName: 'Carlos Méndez',
-    donorInitials: 'CM',
-    amount: '$ 120.00',
-    date: '11 May 2026',
-    status: 'procesando',
-    receiptUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-  },
-  {
-    id: '3',
-    donorName: 'Laura Vargas',
-    donorInitials: 'LV',
-    amount: '₡ 25,000',
-    date: '12 May 2026',
-    status: 'pendiente',
-    receiptUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-  }
-];
-
 export const PendingDonationsTable: React.FC = () => {
+  const [donations, setDonations] = useState<PendingDonation[]>([]);
+
+  useEffect(() => {
+    async function fetchDonations() {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from('donaciones')
+        .select(`
+          id,
+          monto,
+          moneda,
+          fecha_transferencia,
+          estado,
+          comprobante_url,
+          users!exalumno_id (nombre, apellidos)
+        `)
+        .eq('estado', 'pendiente');
+      
+      if (data) {
+        const mapped = data.map((d: any) => {
+          const user = Array.isArray(d.users) ? d.users[0] : d.users;
+          const fullName = user ? `${user.nombre} ${user.apellidos || ''}`.trim() : 'Donante';
+          const initials = user ? (user.nombre.charAt(0) + (user.apellidos?.charAt(0) || '')).toUpperCase() : 'D';
+          const currencySymbol = d.moneda === 'USD' ? '$' : '';
+          return {
+            id: d.id,
+            donorName: fullName,
+            donorInitials: initials,
+            amount: `${currencySymbol} ${d.monto}`,
+            date: new Date(d.fecha_transferencia).toLocaleDateString(),
+            status: d.estado,
+            receiptUrl: d.comprobante_url || '#'
+          };
+        });
+        setDonations(mapped);
+      }
+    }
+    fetchDonations();
+  }, []);
+
   return (
     <div className="admin-table-container">
       <div className="admin-table-header">
@@ -60,7 +71,7 @@ export const PendingDonationsTable: React.FC = () => {
           </tr>
         </thead>
         <tbody>
-          {mockPendingDonations.map((donation) => (
+          {donations.map((donation) => (
             <tr key={donation.id}>
               <td>
                 <div className="admin-table-user">
@@ -99,6 +110,13 @@ export const PendingDonationsTable: React.FC = () => {
               </td>
             </tr>
           ))}
+          {donations.length === 0 && (
+            <tr>
+              <td colSpan={6} style={{ textAlign: 'center', padding: '2rem', color: '#6B7280' }}>
+                No hay donaciones pendientes por verificar.
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
     </div>

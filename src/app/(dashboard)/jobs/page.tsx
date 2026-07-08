@@ -38,9 +38,10 @@ export default function JobsPage() {
   const [hasCV, setHasCV] = useState<boolean | null>(null)
   const [bannerDismissed, setBannerDismissed] = useState(false)
 
-  const { user } = useProfile()
-  const isAdmin = user?.user_metadata?.rol === 'admin' || user?.user_metadata?.tipo === 'admin'
-  const isStudent = user?.user_metadata?.rol === 'estudiante'
+  const { user, profile } = useProfile()
+  const userRole = profile?.rol || user?.user_metadata?.rol
+  const isAdmin = userRole === 'admin' || user?.user_metadata?.tipo === 'admin'
+  const isStudent = userRole === 'estudiante'
 
   // Verificar si el usuario tiene CV
   useEffect(() => {
@@ -94,8 +95,8 @@ export default function JobsPage() {
     return matchesSearch && matchesSkills
   })
 
-  // Mostrar banner si: es estudiante, no tiene CV, y no lo ha cerrado
-  const showCVBanner = isStudent && hasCV === false && !bannerDismissed
+  // Mostrar banner si: no tiene CV, y no lo ha cerrado
+  const showCVBanner = hasCV === false && !bannerDismissed
 
   return (
     <div className="bg-transparent min-h-screen py-10 px-6 lg:px-10 relative overflow-hidden transition-colors duration-300">
@@ -266,7 +267,7 @@ export default function JobsPage() {
                   onClick={() => setSelectedSectors(prev => prev.filter(s => s !== sec))}
                   className="bg-slate-100 hover:bg-red-50 hover:text-red-500 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded-full transition-colors"
                 >
-                  {sec} ✕
+                  {sec} 
                 </button>
               ))}
             </div>
@@ -323,7 +324,7 @@ export default function JobsPage() {
                       </div>
                       <Link href={`/jobs/${job.id}`}>
                         <span className="text-xs font-bold text-[#F34B26] hover:text-[#C82A08] transition-colors uppercase tracking-wider cursor-pointer">
-                          Ver Detalles →
+                          Ver Detalles 
                         </span>
                       </Link>
                     </div>

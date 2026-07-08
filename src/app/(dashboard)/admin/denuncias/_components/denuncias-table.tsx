@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Loader2, CheckCircle } from 'lucide-react';
 import { resolveReport } from '@/actions/reports';
+import { toast } from 'sonner';
 import '../../../../../styles/admin-table.css';
 import '../../../../../styles/admin-denuncias.css';
 
@@ -39,7 +40,7 @@ export function DenunciasTable({ initialReportes }: DenunciasTableProps) {
       // Actualizar localmente removiendo el reporte de la lista de pendientes
       setReportes(prev => prev.filter(r => r.id !== id));
     } catch (err: any) {
-      alert(`Error al resolver el reporte: ${err.message}`);
+      toast.error(`Error al resolver el reporte: ${err.message}`);
     } finally {
       setLoadingId(null);
     }

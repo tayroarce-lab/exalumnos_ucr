@@ -13,7 +13,8 @@ import {
   Calendar,
   X,
   LogOut,
-  BookUser
+  BookUser,
+  BookOpen
 } from 'lucide-react'
 
 interface SidebarProps {
@@ -33,6 +34,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     { name: 'Mentorías',        href: '/mentorships', icon: Users },
     { name: 'Retribuir Capital',href: '/give-back',   icon: HandHeart },
     { name: 'Eventos',          href: '/events',      icon: Calendar },
+    { name: 'Talleres',         href: '/mis-talleres',icon: BookOpen },
   ]
 
   const checkActive = (href: string) => {

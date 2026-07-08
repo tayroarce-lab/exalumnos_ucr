@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { Bell, ChevronDown, User, LogOut, Briefcase, Menu, X, Clock, Sun, Moon } from 'lucide-react'
+import { Bell, ChevronDown, User, LogOut, Briefcase, Menu, X, Clock, Sun, Moon, BookOpen, Sparkles } from 'lucide-react'
 import { useProfile } from '@/contexts/ProfileContext'
 import { createClient } from '@/lib/supabase/client'
 import logoUCR from '@/images/Logo_UCR.png'
@@ -171,9 +171,9 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
   }
 
   // Lógica de contexto: Admin, Estudiantes, Exalumnos
-  const isAdmin = pathname?.startsWith('/admin') || user?.user_metadata?.rol === 'admin'
-  const isStudentUser = user?.user_metadata?.rol === 'estudiante' || profile?.es_exalumno === false || user?.email?.endsWith('@ucr.ac.cr')
-  const isStudent = pathname?.startsWith('/student-dashboard') || (isStudentUser && user?.user_metadata?.rol !== 'exalumno')
+  const userRole = profile?.rol || user?.user_metadata?.rol || (profile?.es_exalumno === false ? 'estudiante' : 'exalumno')
+  const isAdmin = pathname?.startsWith('/admin') || userRole === 'admin'
+  const isStudent = userRole === 'estudiante'
 
   // Dashboard de inicio según rol
   const dashboardHref = isAdmin ? '/admin' : isStudent ? '/student-dashboard' : '/dashboard'
@@ -195,8 +195,12 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
       { name: 'Mentorías', href: '/mentorships' },
       { name: 'Matches', href: '/mis-matches' },
       { name: 'Eventos', href: '/events' },
-      { name: 'Empleos', href: '/jobs' }
+      { name: 'Empleos', href: '/jobs' },
+      { name: 'Talleres', href: '/mis-talleres' },
+      { name: 'Consultas y Soporte', href: '/consultas-soporte' }
     ]
+
+
   }
 
   if (isAdmin) {
@@ -212,11 +216,12 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
       userCircleBg: 'bg-white/20 text-white',
       menuItems: [
         { name: 'Inicio', href: '/admin/dashboard' },
-        { name: 'Reportes', href: '/admin/reportes' },
+        { name: 'Consultas y Soporte', href: '/admin/consultas-soporte' },
         { name: 'Usuarios', href: '/admin/usuarios' },
         { name: 'Matches', href: '/admin/matches' },
         { name: 'Donaciones', href: '/admin/donaciones' },
-        { name: 'Vacantes', href: '/admin/vacantes' }
+        { name: 'Vacantes', href: '/admin/vacantes' },
+        { name: 'Talleres', href: '/admin/talleres' }
       ]
     }
   } else if (isStudent) {
@@ -236,7 +241,9 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
         { name: 'Mentorías', href: '/mentorships' },
         { name: 'Matches', href: '/mis-matches' },
         { name: 'Eventos', href: '/events' },
-        { name: 'Empleos', href: '/jobs' }
+        { name: 'Empleos', href: '/jobs' },
+        { name: 'Talleres', href: '/talleres' },
+        { name: 'Consultas y Soporte', href: '/consultas-soporte' }
       ]
     }
   }
@@ -259,7 +266,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
 
   return (
     <>
-      {/* ───────────────────── BARRA PRINCIPAL ───────────────────── */}
+      {/*  BARRA PRINCIPAL  */}
       <header className={`h-20 w-full ${config.bgClass} flex items-center justify-between px-4 lg:px-8 shrink-0 transition-all duration-300 backdrop-blur-sm z-30 relative`}>
 
         {/* Logo */}
@@ -270,26 +277,27 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
               alt="Logo UCR"
               width={240}
               height={80}
-              style={{ objectFit: 'contain', filter: config.logoFilter }}
+              style={{ objectFit: 'contain', filter: config.logoFilter, width: 'auto', height: 'auto' }}
               className="h-16 w-auto transition-all duration-300"
             />
           </Link>
         </div>
 
         {/* Navegación desktop */}
-        <nav className="hidden lg:flex items-center gap-2">
+        <nav id="tour-navbar-links" className="hidden lg:flex items-center gap-2">
           {config.menuItems.map((item, idx) => {
             const isExactOnly = item.name === 'Inicio'
             const isActive = isExactOnly
               ? pathname === item.href
               : pathname === item.href || pathname?.startsWith(item.href + '/')
+            const elementId = `tour-nav-${item.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}`
             return (
               <Link
                 key={idx}
+                id={elementId}
                 href={item.href}
-                className={`text-xs uppercase tracking-wider font-bold px-4 py-2 rounded-xl transition-all duration-200 ${
-                  isActive ? config.linkActiveClass : `text-current/80 ${config.linkHoverClass}`
-                }`}
+                className={`text-xs uppercase tracking-wider font-bold px-4 py-2 rounded-xl transition-all duration-200 ${isActive ? config.linkActiveClass : `text-current/80 ${config.linkHoverClass}`
+                  }`}
               >
                 {item.name}
               </Link>
@@ -372,7 +380,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
           </div>
 
           {/* Perfil (solo desktop) */}
-          <div className="relative hidden lg:block">
+          <div id="tour-user-menu" className="relative hidden lg:block">
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               className="flex items-center gap-2 hover:bg-current/10 p-1.5 rounded-xl transition-all active:scale-95 focus:outline-none"
@@ -400,7 +408,13 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
                   <User className="w-4 h-4 text-slate-400" />
                   <span>Mi Perfil</span>
                 </Link>
-                <Link href="/mis-posiciones" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-600 hover:bg-slate-50 hover:text-brand-blue transition-colors">
+                {isStudent && (
+                  <Link href="/profile/edit?step=4" onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-600 hover:bg-slate-50 hover:text-brand-blue transition-colors">
+                    <BookOpen className="w-4 h-4 text-slate-400" />
+                    <span>Mi Proyecto</span>
+                  </Link>
+                )}
+                <Link href={isStudent ? "/mis-aplicaciones" : "/mis-posiciones"} onClick={() => setIsDropdownOpen(false)} className="flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-600 hover:bg-slate-50 hover:text-brand-blue transition-colors">
                   <Briefcase className="w-4 h-4 text-slate-400" />
                   <span>{isStudent ? 'Mis Postulaciones' : 'Mis Posiciones'}</span>
                 </Link>
@@ -409,6 +423,18 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
                     <Clock className="w-4 h-4 text-slate-400" />
                     <span>Ver mi Historial</span>
                   </Link>
+                )}
+                {!isAdmin && (
+                  <button
+                    onClick={() => {
+                      setIsDropdownOpen(false)
+                      window.dispatchEvent(new CustomEvent('start-interactive-tour'))
+                    }}
+                    className="w-full flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-600 hover:bg-slate-50 hover:text-[#F34B26] transition-colors text-left"
+                  >
+                    <Sparkles className="w-4 h-4 text-[#F34B26]" />
+                    <span>Tour Interactivo</span>
+                  </button>
                 )}
                 <div className="border-t border-slate-100 my-1"></div>
                 <button onClick={handleLogout} className="w-full flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider text-rose-600 hover:bg-rose-50 transition-colors text-left">
@@ -430,7 +456,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
         </div>
       </header>
 
-      {/* ───────────────────── DRAWER MÓVIL ───────────────────── */}
+      {/*  DRAWER MÓVIL  */}
       {/* Overlay oscuro */}
       {isMobileMenuOpen && (
         <div
@@ -441,9 +467,8 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
 
       {/* Panel lateral derecho */}
       <div
-        className={`fixed top-0 right-0 h-full w-72 z-50 lg:hidden flex flex-col shadow-2xl transition-transform duration-300 ease-in-out ${config.drawerBg} ${
-          isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
+        className={`fixed top-0 right-0 h-full w-72 z-50 lg:hidden flex flex-col shadow-2xl transition-transform duration-300 ease-in-out ${config.drawerBg} ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
+          }`}
       >
         {/* Cabecera del drawer */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
@@ -481,9 +506,8 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
                 key={idx}
                 href={item.href}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold uppercase tracking-wide transition-all duration-200 text-white ${
-                  isActive ? config.drawerItemActive : config.drawerItemHover
-                }`}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold uppercase tracking-wide transition-all duration-200 text-white ${isActive ? config.drawerItemActive : config.drawerItemHover
+                  }`}
               >
                 {item.name}
               </Link>
@@ -501,13 +525,23 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
             <User className="w-4 h-4 opacity-70" />
             Mi Perfil
           </Link>
+          {isStudent && (
+            <Link
+              href="/profile/edit?step=4"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold uppercase tracking-wide text-white transition-all duration-200 ${config.drawerItemHover}`}
+            >
+              <BookOpen className="w-4 h-4 opacity-70" />
+              Mi Proyecto
+            </Link>
+          )}
           <Link
-            href="/mis-posiciones"
+            href={isStudent ? "/mis-aplicaciones" : "/mis-posiciones"}
             onClick={() => setIsMobileMenuOpen(false)}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold uppercase tracking-wide text-white transition-all duration-200 ${config.drawerItemHover}`}
           >
             <Briefcase className="w-4 h-4 opacity-70" />
-            Mis Posiciones
+            {isStudent ? 'Mis Postulaciones' : 'Mis Posiciones'}
           </Link>
           {!isAdmin && (
             <Link

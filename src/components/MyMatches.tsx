@@ -17,7 +17,7 @@ import {
 import type { MatchSugerido, EstadoMatch } from '@/services/matchingService';
 import { getAvatarUrl } from '@/lib/utils';
 
-// ─── TIPOS LOCALES ───────────────────────────────────────────────────────────
+//  TIPOS LOCALES 
 
 interface PropsMisMatches {
   matchesIniciales: MatchSugerido[];
@@ -25,7 +25,7 @@ interface PropsMisMatches {
   onAccionar: (matchId: string, accion: 'aceptar' | 'rechazar' | 'contactar') => Promise<void>;
 }
 
-// ─── HELPERS VISUALES ────────────────────────────────────────────────────────
+//  HELPERS VISUALES 
 
 // [VERDE - FUNCION: obtenerColorScore]
 // Determina el color del badge de score según el rango de puntuación.
@@ -48,7 +48,7 @@ function obtenerEtiquetaEstado(estado: EstadoMatch): { label: string; clase: str
   return mapa[estado];
 }
 
-// ─── SUB-COMPONENTE: TarjetaMatch ────────────────────────────────────────────
+//  SUB-COMPONENTE: TarjetaMatch 
 
 interface PropsTarjetaMatch {
   match: MatchSugerido;
@@ -79,7 +79,7 @@ function TarjetaMatch({ match, onAccionar }: PropsTarjetaMatch) {
   return (
     <article className="group bg-gradient-to-b from-slate-800/90 to-slate-900 border border-slate-700/50 rounded-2xl overflow-hidden shadow-lg hover:border-slate-600/70 hover:shadow-blue-900/20 transition-all duration-300">
 
-      {/* ── CABECERA: Score + Perfiles + Estado ── */}
+      {/*  CABECERA: Score + Perfiles + Estado  */}
       <div className="flex items-start gap-4 p-5">
 
         {/* Badge circular del score */}
@@ -150,7 +150,7 @@ function TarjetaMatch({ match, onAccionar }: PropsTarjetaMatch) {
         </div>
       </div>
 
-      {/* ── DESGLOSE DE COMPATIBILIDAD ── */}
+      {/*  DESGLOSE DE COMPATIBILIDAD  */}
       <div className="px-5 pb-3">
         <div className="grid grid-cols-2 gap-2">
 
@@ -174,18 +174,18 @@ function TarjetaMatch({ match, onAccionar }: PropsTarjetaMatch) {
             <Tag className="w-3.5 h-3.5 flex-shrink-0" />
             <span className="font-medium">{desglosePuntaje.areasEnComun.length} área(s) común</span>
             <span className="ml-auto font-bold">
-              {desglosePuntaje.areasEnComun.length > 0 ? '+≤30' : '0'}
+              {desglosePuntaje.areasEnComun.length > 0 ? '+30' : '0'}
             </span>
           </div>
 
-          {/* Sector ↔ Área temática */}
+          {/* Sector  Área temática */}
           <div className={`flex items-center gap-2 p-2.5 rounded-xl border text-xs ${
             desglosePuntaje.sectorCoincide
               ? 'bg-violet-500/10 border-violet-500/25 text-violet-300'
               : 'bg-slate-800/50 border-slate-700/40 text-slate-500'
           }`}>
             <Briefcase className="w-3.5 h-3.5 flex-shrink-0" />
-            <span className="font-medium">Sector ↔ Proyecto</span>
+            <span className="font-medium">Sector  Proyecto</span>
             <span className="ml-auto font-bold">{desglosePuntaje.sectorCoincide ? '+20' : '0'}</span>
           </div>
 
@@ -238,7 +238,7 @@ function TarjetaMatch({ match, onAccionar }: PropsTarjetaMatch) {
         </button>
       </div>
 
-      {/* ── ACCIONES RÁPIDAS ── */}
+      {/*  ACCIONES RÁPIDAS  */}
       {match.estado === 'sugerido' && (
         <div className="flex gap-2 px-5 pb-5">
           <button
@@ -286,7 +286,7 @@ function TarjetaMatch({ match, onAccionar }: PropsTarjetaMatch) {
   );
 }
 
-// ─── COMPONENTE PRINCIPAL ────────────────────────────────────────────────────
+//  COMPONENTE PRINCIPAL 
 
 // [VERDE - FUNCION: MisMatches]
 // Vista principal /mis-matches que lista y gestiona las sugerencias del algoritmo.
@@ -333,7 +333,7 @@ export default function MisMatches({ matchesIniciales, onAccionar }: PropsMisMat
   return (
     <div className="min-h-screen bg-slate-950">
 
-      {/* ── ENCABEZADO ── */}
+      {/*  ENCABEZADO  */}
       <div className="border-b border-slate-800 bg-slate-900/60 backdrop-blur-sm sticky top-0 z-40">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -368,7 +368,7 @@ export default function MisMatches({ matchesIniciales, onAccionar }: PropsMisMat
 
       <div className="max-w-5xl mx-auto px-4 py-6 space-y-5">
 
-        {/* ── FILTROS DE ESTADO ── */}
+        {/*  FILTROS DE ESTADO  */}
         <div className="flex gap-2 overflow-x-auto pb-2 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {ESTADOS_FILTRO.map(({ valor, label }) => (
             <button
@@ -391,7 +391,7 @@ export default function MisMatches({ matchesIniciales, onAccionar }: PropsMisMat
           ))}
         </div>
 
-        {/* ── LISTA DE MATCHES ── */}
+        {/*  LISTA DE MATCHES  */}
         {matchesFiltrados.length > 0 ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             {matchesFiltrados.map(match => (

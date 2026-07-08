@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { FiltrosDirectorio } from "@/types/estudiantes";
-import { MOCK_AREAS_CARRERAS, MOCK_SEDES, MOCK_TIPOS_PROYECTO, MOCK_TIPOS_APOYO } from "@/constants/areas-carreras";
+import { useCatalogs } from "@/contexts/CatalogsContext";
 
 interface PanelFiltrosProps {
   filtros: FiltrosDirectorio;
@@ -10,16 +10,26 @@ interface PanelFiltrosProps {
 }
 
 export default function PanelFiltros({ filtros, onChange }: PanelFiltrosProps) {
-  const [areasDisponibles] = useState(Object.keys(MOCK_AREAS_CARRERAS));
+  const { areasCarreras, sedes, tiposProyecto, tiposApoyo, isLoading } = useCatalogs();
+  
+  const [areasDisponibles, setAreasDisponibles] = useState<string[]>([]);
   const [carrerasDisponibles, setCarrerasDisponibles] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (!isLoading) {
+      setAreasDisponibles(Object.keys(areasCarreras));
+    }
+  }, [areasCarreras, isLoading]);
 
   // Actualizar carreras disponibles cuando cambia el área temática
   useEffect(() => {
+    if (isLoading) return;
+
     let nuevasCarreras: string[] = [];
     if (filtros.proyecto_area_tematica.length > 0) {
       filtros.proyecto_area_tematica.forEach((area) => {
-        if (MOCK_AREAS_CARRERAS[area]) {
-          nuevasCarreras = [...nuevasCarreras, ...MOCK_AREAS_CARRERAS[area]];
+        if (areasCarreras[area]) {
+          nuevasCarreras = [...nuevasCarreras, ...areasCarreras[area]];
         }
       });
     } else {
@@ -37,7 +47,7 @@ export default function PanelFiltros({ filtros, onChange }: PanelFiltrosProps) {
     if (carrerasFiltradas.length !== filtros.carrera.length) {
       onChange({ ...filtros, carrera: carrerasFiltradas });
     }
-  }, [filtros.proyecto_area_tematica]);
+  }, [filtros.proyecto_area_tematica, areasCarreras, isLoading]);
 
   const handleAreaChange = (area: string, checked: boolean) => {
     const nuevasAreas = checked 
@@ -77,6 +87,10 @@ export default function PanelFiltros({ filtros, onChange }: PanelFiltrosProps) {
     filtros.tipos_apoyo.length + 
     (filtros.proyecto_tipo ? 1 : 0) + 
     (filtros.sede ? 1 : 0);
+
+  if (isLoading) {
+    return <div className="bg-white rounded-2xl border border-[#B3DCEE]/60 shadow-sm p-5 text-center text-sm text-slate-500">Cargando filtros...</div>;
+  }
 
   return (
     <div className="bg-white rounded-2xl border border-[#B3DCEE]/60 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden">
@@ -140,7 +154,7 @@ export default function PanelFiltros({ filtros, onChange }: PanelFiltrosProps) {
             onChange={(e) => onChange({ ...filtros, proyecto_tipo: e.target.value })}
           >
             <option value="">Todos los tipos</option>
-            {MOCK_TIPOS_PROYECTO.map((tipo) => (
+            {tiposProyecto.map((tipo) => (
               <option key={tipo} value={tipo}>{tipo}</option>
             ))}
           </select>
@@ -150,7 +164,7 @@ export default function PanelFiltros({ filtros, onChange }: PanelFiltrosProps) {
         <div>
           <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2.5">Busca Apoyo En</h3>
           <div className="space-y-1.5">
-            {MOCK_TIPOS_APOYO.map((apoyo) => (
+            {tiposApoyo.map((apoyo) => (
               <label key={apoyo.id} className="flex items-center gap-2.5 cursor-pointer group px-2 py-1.5 rounded-lg hover:bg-[#54BCEB]/10 transition-colors duration-150">
                 <input 
                   type="checkbox"
@@ -173,7 +187,7 @@ export default function PanelFiltros({ filtros, onChange }: PanelFiltrosProps) {
             onChange={(e) => onChange({ ...filtros, sede: e.target.value })}
           >
             <option value="">Todas las sedes</option>
-            {MOCK_SEDES.map((sede) => (
+            {sedes.map((sede) => (
               <option key={sede} value={sede}>{sede}</option>
             ))}
           </select>

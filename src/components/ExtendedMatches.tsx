@@ -8,6 +8,7 @@
 // =============================================================================
 
 import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { Briefcase, Building, MapPin, Tag, Activity, ArrowRight, Zap } from 'lucide-react';
 import { obtenerPosicionesCompatibles, PosicionRecomendada } from '@/services/extendedMatchingService';
 
@@ -41,7 +42,7 @@ export default function ExtendedMatches() {
   // [VERDE - FUNCION: manejarAplicacionClick]
   const manejarAplicacionClick = (id: string) => {
     // Aquí se conectaría la apertura del modal "ModalAplicar" desarrollado en RF-08
-    alert(`Se abrirá el modal para aplicar a la posición: ${id}`);
+    toast.info(`Abriendo formulario para posición: ${id}`);
   };
 
   if (cargando) {
