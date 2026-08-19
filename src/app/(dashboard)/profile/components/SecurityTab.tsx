@@ -17,8 +17,8 @@ export default function SecurityTab() {
     e.preventDefault()
     setMessage(null)
 
-    if (password.length !== 8) {
-      setMessage({ text: 'La contraseña debe tener exactamente 8 caracteres.', type: 'error' })
+    if (password.length < 6) {
+      setMessage({ text: 'La contraseña debe tener al menos 6 caracteres.', type: 'error' })
       return
     }
 
@@ -55,7 +55,7 @@ export default function SecurityTab() {
             <div>
               <h2 className="text-xl font-bold text-slate-900">Seguridad y Acceso</h2>
               <p className="text-slate-500 mt-1">
-                Si ingresaste mediante un Magic Link, puedes establecer una contraseña aquí para iniciar sesión en el futuro de forma tradicional.
+                Administra tu contraseña de acceso a la plataforma. Puedes cambiarla en cualquier momento para mantener tu cuenta segura.
               </p>
             </div>
           </div>
@@ -82,7 +82,7 @@ export default function SecurityTab() {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Exactamente 8 caracteres"
+                  placeholder="Mínimo 6 caracteres"
                   className="w-full pl-10 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-celeste focus:border-transparent outline-none transition-all"
                 />
                 <button

@@ -19,14 +19,16 @@ function translateSupabaseError(message: string): string {
 
 export async function registrarEstudiante(data: { email: string; password: string; nombre: string }) {
   const emailLimpio = data.email.trim().toLowerCase()
-  if (emailLimpio.endsWith('@gmail.com')) {
-    throw new Error('Los correos de Gmail no están permitidos para estudiantes.')
-  }
-  if (!emailLimpio.endsWith('@ucr.ac.cr')) {
-    throw new Error('El correo debe terminar en @ucr.ac.cr')
-  }
 
-  const supabase = await createClient()
+  // [DEMO] Restricciones de dominio deshabilitadas para la demo de financiación.
+  // Descomentar para producción con verificación institucional:
+  // if (emailLimpio.endsWith('@gmail.com')) {
+  //   throw new Error('Los correos de Gmail no están permitidos para estudiantes.')
+  // }
+  // if (!emailLimpio.endsWith('@ucr.ac.cr')) {
+  //   throw new Error('El correo debe terminar en @ucr.ac.cr')
+  // }
+
   const adminClient = createAdminClient()
 
   const { data: authData, error: authError } = await adminClient.auth.admin.createUser({
@@ -77,7 +79,6 @@ export async function registrarExalumno(data: {
   anio_graduacion: number;
 }) {
   const emailLimpio = data.email.trim().toLowerCase()
-  const supabase = await createClient()
   const adminClient = createAdminClient()
 
   const { data: authData, error: authError } = await adminClient.auth.admin.createUser({
@@ -249,10 +250,12 @@ export async function restablecerPasswordConCodigo(email: string, codigo: string
 
 export async function enviarEnlaceMagico(email: string, role: "estudiante" | "exalumno") {
   const emailLimpio = email.trim().toLowerCase()
-  
-  if (role === "estudiante" && !emailLimpio.endsWith("@ucr.ac.cr")) {
-    throw new Error("Los estudiantes deben usar su correo institucional (@ucr.ac.cr).");
-  }
+
+  // [DEMO] Restricción de dominio UCR deshabilitada para la demo.
+  // Descomentar para producción:
+  // if (role === "estudiante" && !emailLimpio.endsWith("@ucr.ac.cr")) {
+  //   throw new Error("Los estudiantes deben usar su correo institucional (@ucr.ac.cr).");
+  // }
 
   const supabase = await createClient()
   const { error } = await supabase.auth.signInWithOtp({
@@ -276,8 +279,8 @@ export async function actualizarContrasena(password: string) {
       return { success: false, error: 'No estás autenticado.' }
     }
 
-    if (password.length !== 8) {
-      return { success: false, error: 'La contraseña debe tener exactamente 8 caracteres.' }
+    if (password.length < 6) {
+      return { success: false, error: 'La contraseña debe tener al menos 6 caracteres.' }
     }
 
     const { error: updateError } = await supabase.auth.updateUser({ password })

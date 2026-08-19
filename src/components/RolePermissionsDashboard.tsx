@@ -26,7 +26,7 @@ const datosUsuarios: TipoUsuario[] = [
     id: 'estudiante',
     rol: 'Estudiante',
     descripcion: 'Alumno activo UCR con proyecto de graduación',
-    validacion: 'Correo institucional @ucr.ac.cr (magic link)'
+    validacion: 'Correo electr\u00f3nico + contrase\u00f1a'
   },
   {
     id: 'exalumno',

@@ -28,7 +28,7 @@ export default function VerificarCorreoPage() {
         </h1>
         
         <p className="text-sm text-slate-600 font-medium leading-relaxed">
-          Necesitás verificar tu correo UCR para acceder al directorio. Revisá tu bandeja de entrada y haz clic en el enlace mágico que te enviamos.
+          Revisa tu bandeja de entrada y haz clic en el enlace de confirmación que te enviamos para activar tu cuenta.
         </p>
         
         <div className="pt-4">

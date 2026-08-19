@@ -6,20 +6,20 @@ import '@/styles/loadingSpinner.css';
 import '@/styles/cycleWisdom.css';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import CycleWisdomOption3 from '@/components/CycleWisdomOption3';
-import { User, Mail, Lock, AlertCircle, ArrowRight, CheckCircle2, Clock, GraduationCap, ArrowLeft } from 'lucide-react';
+import { User, Mail, Lock, AlertCircle, ArrowRight, CheckCircle2, GraduationCap, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import logoUCR from '@/images/Logo_UCR.png';
-import { createClient } from '@/lib/supabase/client';
-import { registrarExalumno } from '@/actions/auth';
+import { registrarEstudiante, registrarExalumno } from '@/actions/auth';
 import { CARRERAS_UCR, CARRERA_TO_ESCUELA } from '@/constants/catalogs';
 
 export default function Register() {
   const [tipoRegistro, setTipoRegistro] = useState<'estudiante' | 'exalumno'>('estudiante');
 
-  //  Estado Estudiante (flujo OTP) 
-  const [estudianteData, setEstudianteData] = useState({ nombre: '', apellidos: '', correo: '' });
+  //  Estado Estudiante (flujo email+password) 
+  const [estudianteData, setEstudianteData] = useState({ nombre: '', apellidos: '', correo: '', password: '' });
   const [estError, setEstError] = useState('');
+  const [showEstPassword, setShowEstPassword] = useState(false);
 
   //  Estado Exalumno (flujo email+password) 
   const [exalumnoData, setExalumnoData] = useState({
@@ -30,47 +30,39 @@ export default function Register() {
     anioGraduacion: ''
   });
   const [exError, setExError] = useState('');
+  const [showExPassword, setShowExPassword] = useState(false);
   const [terminosAceptados, setTerminosAceptados] = useState(false);
-
-  //  Diálogo UCR 
-  const [showUcrDialog, setShowUcrDialog] = useState(false);
 
   //  General 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMode, setSuccessMode] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
-  const [resendTimer, setResendTimer] = useState(0);
 
-  // Cooldown timer
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (resendTimer > 0) {
-      timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000);
-    }
-    return () => clearTimeout(timer);
-  }, [resendTimer]);
-
-
-  //  Detección correo @ucr.ac.cr para exalumno 
-  const handleExalumnoCorreoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const correo = e.target.value;
-    setExalumnoData({ ...exalumnoData, correo });
-    setExError('');
-    if (correo.toLowerCase().endsWith('@ucr.ac.cr') && correo.length > 11) {
-      setShowUcrDialog(true);
-    } else {
-      setShowUcrDialog(false);
-    }
-  };
-
-  //  Submit Estudiante (OTP) 
+  //  Submit Estudiante (email+password) 
   const handleEstudianteSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setEstError('');
     setIsSubmitting(true);
 
-    if (!estudianteData.correo.toLowerCase().endsWith('@ucr.ac.cr')) {
-      setEstError('Solo puedes registrarte con un correo institucional UCR (@ucr.ac.cr)');
+    if (!estudianteData.nombre.trim()) {
+      setEstError('Por favor, ingresa tu nombre.');
+      setIsSubmitting(false);
+      return;
+    }
+    if (!estudianteData.correo.trim()) {
+      setEstError('Por favor, ingresa tu correo electrónico.');
+      setIsSubmitting(false);
+      return;
+    }
+    // [DEMO] Restricción de dominio UCR deshabilitada para la demo de financiación.
+    // Descomentar para producción con verificación institucional:
+    // if (!estudianteData.correo.toLowerCase().endsWith('@ucr.ac.cr')) {
+    //   setEstError('Solo puedes registrarte con un correo institucional UCR (@ucr.ac.cr)');
+    //   setIsSubmitting(false);
+    //   return;
+    // }
+    if (estudianteData.password.length < 6) {
+      setEstError('La contraseña debe tener al menos 6 caracteres.');
       setIsSubmitting(false);
       return;
     }
@@ -81,23 +73,19 @@ export default function Register() {
     }
 
     try {
-      const supabase = createClient();
-      const { error } = await supabase.auth.signInWithOtp({
+      const nombreCompleto = estudianteData.apellidos
+        ? `${estudianteData.nombre} ${estudianteData.apellidos}`
+        : estudianteData.nombre;
+
+      await registrarEstudiante({
+        nombre: nombreCompleto,
         email: estudianteData.correo,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback?next=/completar-perfil`,
-          data: { nombre: estudianteData.nombre, apellidos: estudianteData.apellidos, rol: 'estudiante', tipo: 'estudiante' }
-        }
+        password: estudianteData.password,
       });
-      if (error) throw error;
       setSuccessMode(true);
       setSuccessMsg('estudiante');
-      setResendTimer(60);
     } catch (err: any) {
-      console.error("Supabase Auth Error:", err);
-      // Supabase a veces devuelve errores sin .message cuando es un 500 del servidor
-      const errorMessage = err.message || (err.status === 500 ? 'Fallo interno del servidor (posible error de SMTP al enviar correo).' : 'Error al enviar el enlace mágico.');
-      setEstError(typeof err === 'object' && !err.message ? JSON.stringify(err) : errorMessage);
+      setEstError(err.message || 'Error en el registro.');
     } finally {
       setIsSubmitting(false);
     }
@@ -114,8 +102,8 @@ export default function Register() {
       setIsSubmitting(false);
       return;
     }
-    if (exalumnoData.password.length < 8) {
-      setExError('La contraseña debe tener mínimo 8 caracteres.');
+    if (exalumnoData.password.length < 6) {
+      setExError('La contraseña debe tener al menos 6 caracteres.');
       setIsSubmitting(false);
       return;
     }
@@ -169,29 +157,6 @@ export default function Register() {
   // Extraer las facultades únicas basadas en las carreras seleccionadas
   const derivedFaculties = Array.from(new Set(exalumnoData.carreras.map(c => CARRERA_TO_ESCUELA[c]).filter(Boolean)));
 
-  //  Reenviar enlace (solo estudiante) 
-  const handleResend = async () => {
-    if (resendTimer > 0) return;
-    setEstError('');
-    setIsSubmitting(true);
-    try {
-      const supabase = createClient();
-      const { error } = await supabase.auth.signInWithOtp({
-        email: estudianteData.correo,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback?next=/completar-perfil`,
-          data: { nombre: estudianteData.nombre, apellidos: estudianteData.apellidos, rol: 'estudiante', tipo: 'estudiante' }
-        }
-      });
-      if (error) throw error;
-      setResendTimer(60);
-    } catch (err: any) {
-      setEstError(err.message || 'Error al reenviar el enlace mágico.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   // 
   // PANTALLA DE ÉXITO
   // 
@@ -201,27 +166,15 @@ export default function Register() {
         <div className="register-container">
           <div className="register-success text-center p-8 bg-white rounded-2xl shadow-sm border border-slate-200 max-w-md mx-auto mt-20 space-y-5">
             <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-2">
-              <Mail className="w-10 h-10 text-blue-600" />
+              <CheckCircle2 className="w-10 h-10 text-blue-600" />
             </div>
-            <h2 className="text-2xl font-black text-slate-900 uppercase tracking-wide">Revisa tu correo</h2>
+            <h2 className="text-2xl font-black text-slate-900 uppercase tracking-wide">Registro Completado</h2>
             <p className="text-sm text-slate-600 leading-relaxed font-medium">
-              Te enviamos un enlace a tu correo UCR (<strong>{estudianteData.correo}</strong>).
-              Revisá tu bandeja y hacé clic en el enlace para activar tu cuenta.
+              ¡Bienvenido a la comunidad Alumni UCR! Tu cuenta ha sido creada exitosamente. Ya puedes iniciar sesión con tu correo y contraseña.
             </p>
-            <div className="pt-6 border-t border-slate-100">
-              <p className="text-xs text-slate-500 font-medium mb-3">¿No recibiste el correo?</p>
-              <button
-                onClick={handleResend}
-                disabled={resendTimer > 0 || isSubmitting}
-                className={`submit-btn w-full flex items-center justify-center gap-2 ${resendTimer > 0 ? 'opacity-50 cursor-not-allowed bg-slate-400' : 'bg-blue-700 hover:bg-blue-800'}`}
-              >
-                {resendTimer > 0 ? (
-                  <><Clock size={16} /> Reenviar enlace en {resendTimer}s</>
-                ) : (
-                  isSubmitting ? 'Enviando...' : 'Reenviar enlace'
-                )}
-              </button>
-            </div>
+            <Link href="/login" className="submit-btn inline-flex items-center justify-center gap-2 w-full" style={{ background: 'linear-gradient(135deg, #0284C7 0%, #0369A1 100%)' }}>
+              Ir a Iniciar Sesión <ArrowRight size={18} />
+            </Link>
           </div>
         </div>
       );
@@ -235,7 +188,7 @@ export default function Register() {
           </div>
           <h2 className="text-2xl font-black text-slate-900 uppercase tracking-wide">Registro Completado</h2>
           <p className="text-sm text-slate-600 leading-relaxed font-medium">
-            ¡Bienvenido de vuelta a la comunidad UCR! Tu perfil quedará en estado <strong>&quot;pendiente&quot;</strong> hasta que confirmes tu correo electrónico. Revisa tu bandeja de entrada.
+            ¡Bienvenido de vuelta a la comunidad UCR! Tu cuenta ha sido creada exitosamente. Ya puedes iniciar sesión con tu correo y contraseña.
           </p>
           <Link href="/login" className="submit-btn inline-flex items-center justify-center gap-2 w-full" style={{ background: 'linear-gradient(135deg, #F34B26 0%, #b83318 100%)' }}>
             Ir a Iniciar Sesión <ArrowRight size={18} />
@@ -279,7 +232,7 @@ export default function Register() {
           <button
             type="button"
             className="toggle-btn"
-            onClick={() => { setTipoRegistro(tipoRegistro === 'estudiante' ? 'exalumno' : 'estudiante'); setTerminosAceptados(false); setShowUcrDialog(false); }}
+            onClick={() => { setTipoRegistro(tipoRegistro === 'estudiante' ? 'exalumno' : 'estudiante'); setTerminosAceptados(false); }}
           >
             {tipoRegistro === 'estudiante' ? 'Registrarse como Exalumno' : 'Registrarse como Estudiante'}
           </button>
@@ -294,13 +247,13 @@ export default function Register() {
             </Link>
           </div>
           <h1>{tipoRegistro === 'estudiante' ? 'Registro de Estudiante' : 'Registro de Exalumno'}</h1>
-          <p className="subtitle">{tipoRegistro === 'estudiante' ? 'Acceso sin contraseñas mediante Enlace Mágico' : 'Autodeclaración — Bienvenido de vuelta a la comunidad UCR'}</p>
+          <p className="subtitle">{tipoRegistro === 'estudiante' ? 'Crea tu cuenta con correo electrónico y contraseña' : 'Autodeclaración — Bienvenido de vuelta a la comunidad UCR'}</p>
           <div className="block md:hidden mt-4 p-4 bg-slate-50 border border-slate-200 rounded-lg">
             <p className="text-sm text-slate-600 mb-2">{tipoRegistro === 'estudiante' ? '¿Ya te graduaste?' : '¿Aún estás estudiando?'}</p>
             <button
               type="button"
               className={`w-full py-2 px-4 rounded font-semibold text-sm transition-colors border ${tipoRegistro === 'estudiante' ? 'border-orange-500 text-orange-600 hover:bg-orange-50' : 'border-blue-500 text-blue-600 hover:bg-blue-50'}`}
-              onClick={() => { setTipoRegistro(tipoRegistro === 'estudiante' ? 'exalumno' : 'estudiante'); setTerminosAceptados(false); setShowUcrDialog(false); }}
+              onClick={() => { setTipoRegistro(tipoRegistro === 'estudiante' ? 'exalumno' : 'estudiante'); setTerminosAceptados(false); }}
             >
               {tipoRegistro === 'estudiante' ? 'Registrarse como Exalumno' : 'Registrarse como Estudiante'}
             </button>
@@ -309,12 +262,12 @@ export default function Register() {
 
         {tipoRegistro === 'estudiante' ? (
           <>
-            {/*  FORMULARIO ESTUDIANTE (OTP)  */}
+            {/*  FORMULARIO ESTUDIANTE (email+password)  */}
             <div className="register-info-box">
               <Mail className="info-icon" size={20} />
               <div>
-                <strong>Solo con correo UCR</strong>
-                <p>Para proteger nuestra comunidad, debes utilizar tu correo de dominio @ucr.ac.cr. Te enviaremos un enlace mágico para acceder sin contraseña.</p>
+                <strong>Crea tu cuenta</strong>
+                <p>Regístrate con cualquier correo electrónico válido y una contraseña segura para acceder a la plataforma.</p>
               </div>
             </div>
 
@@ -334,13 +287,35 @@ export default function Register() {
                 </div>
               </div>
               <div className="form-group">
-                <label>Correo Institucional UCR</label>
+                <label>Correo Electrónico</label>
                 <div className="input-wrapper">
                   <Mail className="input-icon" size={18} />
-                  <input type="email" placeholder="usuario@ucr.ac.cr" value={estudianteData.correo} onChange={e => { setEstudianteData({ ...estudianteData, correo: e.target.value }); setEstError(''); }} required />
+                  <input type="email" placeholder="correo@ejemplo.com" value={estudianteData.correo} onChange={e => { setEstudianteData({ ...estudianteData, correo: e.target.value }); setEstError(''); }} required />
                   {estError && <AlertCircle className="error-icon" size={18} />}
                 </div>
-                <span className="help-text">Solo puedes registrarte con un correo que termine en @ucr.ac.cr</span>
+                <span className="help-text">Puedes usar cualquier correo electrónico válido</span>
+              </div>
+              <div className="form-group">
+                <label>Contraseña</label>
+                <div className="input-wrapper">
+                  <Lock className="input-icon" size={18} />
+                  <input
+                    type={showEstPassword ? "text" : "password"}
+                    placeholder="Mínimo 6 caracteres"
+                    value={estudianteData.password}
+                    onChange={e => setEstudianteData({ ...estudianteData, password: e.target.value })}
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowEstPassword(!showEstPassword)}
+                    style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', padding: '4px' }}
+                    tabIndex={-1}
+                  >
+                    {showEstPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+                <span className="help-text">Mínimo 6 caracteres</span>
               </div>
               <div className="checkbox-group">
                 <input type="checkbox" id="terminos-est" checked={terminosAceptados} onChange={e => setTerminosAceptados(e.target.checked)} />
@@ -355,7 +330,7 @@ export default function Register() {
               )}
               <div className="form-actions center mt-6">
                 <button type="submit" className="submit-btn full-width flex justify-center items-center gap-2" disabled={isSubmitting}>
-                  {isSubmitting ? 'Enviando...' : 'Registrar y enviar enlace'}
+                  {isSubmitting ? 'Procesando...' : 'Crear Cuenta'}
                   {!isSubmitting && <ArrowRight size={18} />}
                 </button>
                 <Link href="/login" className="login-link">¿Ya tienes cuenta? Inicia sesión aquí</Link>
@@ -369,7 +344,7 @@ export default function Register() {
               <GraduationCap className="info-icon" size={20} />
               <div>
                 <strong>Registro con cualquier correo</strong>
-                <p>Puedes registrarte con cualquier correo electrónico (Gmail, Outlook, etc.). Tu perfil quedará en estado &quot;pendiente&quot; hasta que confirmes tu correo.</p>
+                <p>Puedes registrarte con cualquier correo electrónico (Gmail, Outlook, etc.). Tu cuenta quedará activa de inmediato.</p>
               </div>
             </div>
 
@@ -388,33 +363,32 @@ export default function Register() {
                 <label>Correo Electrónico</label>
                 <div className="input-wrapper">
                   <Mail className="input-icon" size={18} />
-                  <input type="email" placeholder="maria@ejemplo.com" value={exalumnoData.correo} onChange={handleExalumnoCorreoChange} required />
+                  <input type="email" placeholder="correo@ejemplo.com" value={exalumnoData.correo} onChange={e => { setExalumnoData({ ...exalumnoData, correo: e.target.value }); setExError(''); }} required />
                   {exError && <AlertCircle className="error-icon" size={18} />}
                 </div>
-                {showUcrDialog && (
-                  <div className="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm">
-                    <p className="font-semibold text-amber-800 mb-2 flex items-center gap-1.5">
-                      <AlertCircle size={16} /> Tu correo es institucional UCR. ¿Ya te graduaste?
-                    </p>
-                    <div className="flex gap-2">
-                      <button type="button" className="px-3 py-1.5 bg-amber-600 text-white rounded text-xs font-semibold hover:bg-amber-700 transition-colors" onClick={() => setShowUcrDialog(false)}>
-                        Sí, ya me gradué
-                      </button>
-                      <button type="button" className="px-3 py-1.5 bg-white border border-amber-300 text-amber-800 rounded text-xs font-semibold hover:bg-amber-100 transition-colors" onClick={() => { setTipoRegistro('estudiante'); setEstudianteData({ ...estudianteData, correo: exalumnoData.correo }); setShowUcrDialog(false); }}>
-                        No, aún soy estudiante
-                      </button>
-                    </div>
-                  </div>
-                )}
               </div>
 
               <div className="form-group">
                 <label>Contraseña</label>
                 <div className="input-wrapper">
                   <Lock className="input-icon" size={18} />
-                  <input type="password" placeholder="••••••••" value={exalumnoData.password} onChange={e => setExalumnoData({ ...exalumnoData, password: e.target.value })} required />
+                  <input
+                    type={showExPassword ? "text" : "password"}
+                    placeholder="Mínimo 6 caracteres"
+                    value={exalumnoData.password}
+                    onChange={e => setExalumnoData({ ...exalumnoData, password: e.target.value })}
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowExPassword(!showExPassword)}
+                    style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', padding: '4px' }}
+                    tabIndex={-1}
+                  >
+                    {showExPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
                 </div>
-                <span className="help-text">Mínimo 8 caracteres.</span>
+                <span className="help-text">Mínimo 6 caracteres</span>
               </div>
 
               <div className="section-title mt-6">INFORMACIÓN ACADÉMICA</div>

@@ -43,7 +43,7 @@ export async function GET(request: Request) {
       
       const { data: dbUser } = await adminClient.from('users').select('id').eq('id', user.id).maybeSingle();
       if (!dbUser) {
-        const rol = user.user_metadata?.rol || (user.email?.endsWith('@ucr.ac.cr') ? 'estudiante' : 'exalumno');
+        const rol = user.user_metadata?.rol || 'estudiante';
         await adminClient.from('users').insert({
           id: user.id,
           email: user.email,
@@ -56,7 +56,7 @@ export async function GET(request: Request) {
       
       const { data: dbProfile } = await adminClient.from('profiles').select('id').eq('id', user.id).maybeSingle();
       if (!dbProfile) {
-        const rol = user.user_metadata?.rol || (user.email?.endsWith('@ucr.ac.cr') ? 'estudiante' : 'exalumno');
+        const rol = user.user_metadata?.rol || 'estudiante';
         await adminClient.from('profiles').insert({
           id: user.id,
           email: user.email,
