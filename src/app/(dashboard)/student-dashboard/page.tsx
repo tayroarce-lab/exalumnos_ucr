@@ -18,13 +18,19 @@ import { createClient } from '@/lib/supabase/client'
 
 /* â”â”â”â”â”â”â”â”â”â”â” Utils â”â”â”â”â”â”â”â”â”â”â” */
 function parseEventDateStr(dateString: string) {
-  if (!dateString) return '---'
+  if (!dateString) return 'Próximamente'
   try {
+    if (/^\d{4}-\d{2}-\d{2}/.test(dateString)) {
+      const [y, m, d] = dateString.split(/[-T ]/).map(Number)
+      const months = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE']
+      return `${String(d || 1).padStart(2, '0')} ${months[(m || 1) - 1] || 'ENERO'}`
+    }
     const d = new Date(dateString)
+    if (isNaN(d.getTime())) return 'Próximamente'
     const months = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE']
-    return `${String(d.getDate()).padStart(2, '0')} ${months[d.getMonth()]}`
+    return `${String(d.getDate()).padStart(2, '0')} ${months[d.getMonth()] || 'ENERO'}`
   } catch(e) {
-    return '---'
+    return 'Próximamente'
   }
 }
 

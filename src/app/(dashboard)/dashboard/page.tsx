@@ -132,16 +132,28 @@ function AnimatedNumber({ value, prefix = '', suffix = '' }: { value: number; pr
 
 /*  Utils  */
 function parseEventDate(dateString: string) {
-  if (!dateString) return { day: '00', month: '---' }
+  if (!dateString) return { day: '01', month: 'ENE' }
   try {
+    // Handle 'YYYY-MM-DD' safely without timezone offset shift
+    if (/^\d{4}-\d{2}-\d{2}/.test(dateString)) {
+      const [y, m, d] = dateString.split(/[-T ]/).map(Number)
+      const months = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC']
+      return {
+        day: String(d || 1).padStart(2, '0'),
+        month: months[(m || 1) - 1] || 'ENE'
+      }
+    }
     const d = new Date(dateString)
+    if (isNaN(d.getTime())) {
+      return { day: '15', month: 'ACT' }
+    }
     const months = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC']
     return {
       day: String(d.getDate()).padStart(2, '0'),
-      month: months[d.getMonth()] || '---'
+      month: months[d.getMonth()] || 'ENE'
     }
   } catch(e) {
-    return { day: '00', month: '---' }
+    return { day: '01', month: 'ENE' }
   }
 }
 

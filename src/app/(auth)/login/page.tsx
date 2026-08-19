@@ -47,7 +47,6 @@ function LoginPageContent() {
     setLoading(true);
 
     try {
-      setLoading(true);
       // iniciarSesion expects an object { email, password }
       const result = await iniciarSesion({ email, password });
 
