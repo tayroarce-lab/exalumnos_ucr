@@ -16,8 +16,15 @@ export default async function EstudianteOnboardingPage() {
   const { data: { user } } = await supabase.auth.getUser();
   
   let userName = 'No disponible';
+  let initialData: any = undefined;
+
   if (user) {
-    const { data: profile } = await supabase.from('profiles').select('full_name, nombre, apellidos').eq('id', user.id).single();
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('full_name, nombre, apellidos, phone, linkedin_url, bio, foto_url')
+      .eq('id', user.id)
+      .maybeSingle();
+
     if (profile && profile.full_name) {
       userName = profile.full_name;
     } else if (profile && profile.nombre) {
@@ -25,6 +32,14 @@ export default async function EstudianteOnboardingPage() {
     } else if (user.user_metadata?.nombre) {
       userName = user.user_metadata.nombre;
     }
+
+    initialData = {
+      full_name: userName !== 'No disponible' ? userName : '',
+      phone: profile?.phone || '',
+      linkedin_url: profile?.linkedin_url || '',
+      bio: profile?.bio || '',
+      foto_url: profile?.foto_url || '',
+    };
   }
 
   return (
@@ -50,7 +65,7 @@ export default async function EstudianteOnboardingPage() {
         </div>
         
         <div className="bg-white/95 backdrop-blur-md border border-slate-200/80 rounded-3xl p-6 sm:p-10 shadow-xl hover:shadow-2xl transition-all duration-300 relative z-20">
-          <StudentOnboardingForm userName={userName} userEmail={user?.email || 'No disponible'} />
+          <StudentOnboardingForm initialData={initialData} userName={userName} userEmail={user?.email || 'No disponible'} />
         </div>
         
       </div>

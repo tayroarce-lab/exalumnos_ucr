@@ -62,11 +62,19 @@ export async function registrarEstudiante(data: { email: string; password: strin
       email: emailLimpio,
       full_name: data.nombre,
       es_exalumno: false,
+      perfil_completo: 0,
       created_at: new Date().toISOString()
+    })
+
+    // Iniciar sesión automáticamente en el cliente para pasar de inmediato al onboarding
+    const supabase = await createClient()
+    await supabase.auth.signInWithPassword({
+      email: emailLimpio,
+      password: data.password
     })
   }
 
-  return { success: true }
+  return { success: true, rol: 'estudiante', rutaDestino: '/completar-perfil/estudiante' }
 }
 
 import { CARRERA_TO_ESCUELA } from '@/constants/catalogs'
@@ -119,11 +127,19 @@ export async function registrarExalumno(data: {
       full_name: data.nombre,
       academic: academic,
       es_exalumno: true,
+      perfil_completo: 0,
       created_at: new Date().toISOString()
+    })
+
+    // Iniciar sesión automáticamente en el cliente para pasar de inmediato al onboarding
+    const supabase = await createClient()
+    await supabase.auth.signInWithPassword({
+      email: emailLimpio,
+      password: data.password
     })
   }
 
-  return { success: true }
+  return { success: true, rol: 'exalumno', rutaDestino: '/completar-perfil/exalumno' }
 }
 
 export async function iniciarSesion(data: { email: string; password: string }) {
@@ -164,17 +180,25 @@ export async function iniciarSesion(data: { email: string; password: string }) {
     return { success: false, error: 'Tu cuenta ha sido suspendida. Contacta al administrador.' }
   }
 
-  // Determinar la ruta de destino según el rol
+  // Consultar si ya completó el perfil en profiles
+  const { data: profileData } = await adminClient
+    .from('profiles')
+    .select('perfil_completo')
+    .eq('id', authData.user.id)
+    .maybeSingle()
+
+  const esPerfilCompleto = Boolean(profileData?.perfil_completo)
+
+  // Determinar la ruta de destino según el rol y el estado de completitud del perfil
   const rol = userData.rol ?? 'estudiante'
 
   let rutaDestino: string
   if (rol === 'admin') {
     rutaDestino = '/admin'
   } else if (rol === 'exalumno') {
-    rutaDestino = '/dashboard'
+    rutaDestino = esPerfilCompleto ? '/dashboard' : '/completar-perfil/exalumno'
   } else {
-    // estudiante -> va directo al directorio de exalumnos
-    rutaDestino = '/network'
+    rutaDestino = esPerfilCompleto ? '/student-dashboard' : '/completar-perfil/estudiante'
   }
 
   return { success: true, rol, rutaDestino }

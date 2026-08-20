@@ -16,8 +16,15 @@ export default async function ExalumnoOnboardingPage() {
   const { data: { user } } = await supabase.auth.getUser();
   
   let userName = 'No disponible';
+  let initialData: any = undefined;
+
   if (user) {
-    const { data: profile } = await supabase.from('profiles').select('full_name, nombre, apellidos').eq('id', user.id).single();
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('full_name, nombre, apellidos, academic, carrera_principal, escuela_principal, anio_graduacion, phone, linkedin_url, bio, foto_url')
+      .eq('id', user.id)
+      .maybeSingle();
+
     if (profile && profile.full_name) {
       userName = profile.full_name;
     } else if (profile && profile.nombre) {
@@ -25,6 +32,22 @@ export default async function ExalumnoOnboardingPage() {
     } else if (user.user_metadata?.nombre) {
       userName = user.user_metadata.nombre;
     }
+
+    const firstAcademic = Array.isArray(profile?.academic) ? (profile?.academic[0] as any) : null;
+    const carreraUcr = firstAcademic?.carrera || profile?.carrera_principal || '';
+    const escuelaUcr = firstAcademic?.escuela || profile?.escuela_principal || '';
+    const anioGrad = Number(firstAcademic?.anio) || profile?.anio_graduacion || (new Date().getFullYear() - 1);
+
+    initialData = {
+      full_name: userName !== 'No disponible' ? userName : '',
+      carrera_ucr: carreraUcr,
+      escuela_facultad: escuelaUcr,
+      anio_graduacion: anioGrad,
+      phone: profile?.phone || '',
+      linkedin_url: profile?.linkedin_url || '',
+      bio: profile?.bio || '',
+      foto_url: profile?.foto_url || '',
+    };
   }
 
   return (
@@ -50,7 +73,7 @@ export default async function ExalumnoOnboardingPage() {
         </div>
         
         <div className="bg-white/95 backdrop-blur-md border border-slate-200/80 rounded-3xl p-6 sm:p-10 shadow-xl hover:shadow-2xl transition-all duration-300 relative z-20">
-          <ExalumnoOnboardingForm userName={userName} userEmail={user?.email || 'No disponible'} />
+          <ExalumnoOnboardingForm initialData={initialData} userName={userName} userEmail={user?.email || 'No disponible'} />
         </div>
         
       </div>

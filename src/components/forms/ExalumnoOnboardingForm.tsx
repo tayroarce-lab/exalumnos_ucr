@@ -78,7 +78,7 @@ export default function ExalumnoOnboardingForm({
 }) {
   const router = useRouter();
   const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState<ExalumnoFormData>(initialData || defaultFormData);
+  const [formData, setFormData] = useState<ExalumnoFormData>({ ...defaultFormData, ...(initialData || {}) });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [globalError, setGlobalError] = useState('');

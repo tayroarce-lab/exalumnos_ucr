@@ -142,10 +142,11 @@ export async function completarOnboardingExalumno(datos: {
       // No lanzamos error para no bloquear, profile ya está
     }
 
-    // 4. Actualizar tabla "users" - guardar hobbies
+    // 4. Actualizar tabla "users" - guardar hobbies y visibilidad
     const userUpdatePayload: any = {
       ofrece_mentoria: datos.ofrece_mentoria,
-      hobbies: datos.hobbies || []
+      hobbies: datos.hobbies || [],
+      visible_en_directorio: true
     }
     if (datos.full_name) {
       userUpdatePayload.nombre = datos.full_name;

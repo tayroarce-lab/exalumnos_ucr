@@ -99,7 +99,7 @@ export default function StudentOnboardingForm({
   const router = useRouter();
   const searchParams = useSearchParams();
   const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState<StudentFormData>(initialData || defaultFormData);
+  const [formData, setFormData] = useState<StudentFormData>({ ...defaultFormData, ...(initialData || {}) });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [globalError, setGlobalError] = useState('');

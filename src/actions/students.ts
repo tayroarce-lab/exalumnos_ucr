@@ -195,12 +195,13 @@ export async function completarOnboardingEstudiante(datos: {
       }
     }
 
-    // 3. Actualizar flags de búsqueda en users, incluyendo hobbies
+    // 3. Actualizar flags de búsqueda en users, incluyendo hobbies y visibilidad
     const { error: usersError } = await adminClient.from('users').update({
       busca_mentoria: datos.busca_mentoria,
       busca_empleo: datos.busca_empleo,
       busca_pasantia: datos.busca_pasantia,
-      hobbies: datos.hobbies || []
+      hobbies: datos.hobbies || [],
+      visible_en_directorio: true
     }).eq('id', user.id)
 
     if (usersError) {

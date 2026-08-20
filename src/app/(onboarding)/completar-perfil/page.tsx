@@ -30,7 +30,7 @@ export default async function CompletarPerfilRedirect() {
     .single();
 
   if (userData?.perfil_completo) {
-    redirect('/dashboard');
+    redirect(userData.rol === 'estudiante' ? '/student-dashboard' : '/dashboard');
   }
 
   if (userData?.rol === 'estudiante') {

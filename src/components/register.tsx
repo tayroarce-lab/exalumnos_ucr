@@ -9,11 +9,15 @@ import CycleWisdomOption3 from '@/components/CycleWisdomOption3';
 import { User, Mail, Lock, AlertCircle, ArrowRight, CheckCircle2, GraduationCap, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { useProfile } from '@/contexts/ProfileContext';
 import logoUCR from '@/images/Logo_UCR.png';
 import { registrarEstudiante, registrarExalumno } from '@/actions/auth';
 import { CARRERAS_UCR, CARRERA_TO_ESCUELA } from '@/constants/catalogs';
 
 export default function Register() {
+  const router = useRouter();
+  const { refreshProfile } = useProfile();
   const [tipoRegistro, setTipoRegistro] = useState<'estudiante' | 'exalumno'>('estudiante');
 
   //  Estado Estudiante (flujo email+password) 
@@ -35,8 +39,6 @@ export default function Register() {
 
   //  General 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [successMode, setSuccessMode] = useState(false);
-  const [successMsg, setSuccessMsg] = useState('');
 
   //  Submit Estudiante (email+password) 
   const handleEstudianteSubmit = async (e: React.FormEvent) => {
@@ -77,16 +79,19 @@ export default function Register() {
         ? `${estudianteData.nombre} ${estudianteData.apellidos}`
         : estudianteData.nombre;
 
-      await registrarEstudiante({
+      const result = await registrarEstudiante({
         nombre: nombreCompleto,
         email: estudianteData.correo,
         password: estudianteData.password,
       });
-      setSuccessMode(true);
-      setSuccessMsg('estudiante');
+
+      if (result && result.success && result.rutaDestino) {
+        await refreshProfile();
+        router.push(result.rutaDestino);
+        router.refresh();
+      }
     } catch (err: any) {
       setEstError(err.message || 'Error en el registro.');
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -121,18 +126,21 @@ export default function Register() {
     }
 
     try {
-      await registrarExalumno({
+      const result = await registrarExalumno({
         nombre: exalumnoData.nombre,
         email: exalumnoData.correo,
         password: exalumnoData.password,
         carreras: exalumnoData.carreras,
         anio_graduacion: anio
       });
-      setSuccessMode(true);
-      setSuccessMsg('exalumno');
+
+      if (result && result.success && result.rutaDestino) {
+        await refreshProfile();
+        router.push(result.rutaDestino);
+        router.refresh();
+      }
     } catch (err: any) {
       setExError(err.message || 'Error en el registro');
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -156,47 +164,6 @@ export default function Register() {
 
   // Extraer las facultades únicas basadas en las carreras seleccionadas
   const derivedFaculties = Array.from(new Set(exalumnoData.carreras.map(c => CARRERA_TO_ESCUELA[c]).filter(Boolean)));
-
-  // 
-  // PANTALLA DE ÉXITO
-  // 
-  if (successMode) {
-    if (successMsg === 'estudiante') {
-      return (
-        <div className="register-container">
-          <div className="register-success text-center p-8 bg-white rounded-2xl shadow-sm border border-slate-200 max-w-md mx-auto mt-20 space-y-5">
-            <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-2">
-              <CheckCircle2 className="w-10 h-10 text-blue-600" />
-            </div>
-            <h2 className="text-2xl font-black text-slate-900 uppercase tracking-wide">Registro Completado</h2>
-            <p className="text-sm text-slate-600 leading-relaxed font-medium">
-              ¡Bienvenido a la comunidad Alumni UCR! Tu cuenta ha sido creada exitosamente. Ya puedes iniciar sesión con tu correo y contraseña.
-            </p>
-            <Link href="/login" className="submit-btn inline-flex items-center justify-center gap-2 w-full" style={{ background: 'linear-gradient(135deg, #0284C7 0%, #0369A1 100%)' }}>
-              Ir a Iniciar Sesión <ArrowRight size={18} />
-            </Link>
-          </div>
-        </div>
-      );
-    }
-
-    return (
-      <div className="register-container">
-        <div className="register-success text-center p-8 bg-white rounded-2xl shadow-sm border border-slate-200 max-w-md mx-auto mt-20 space-y-5">
-          <div className="w-20 h-20 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-2">
-            <CheckCircle2 className="w-10 h-10 text-orange-600" />
-          </div>
-          <h2 className="text-2xl font-black text-slate-900 uppercase tracking-wide">Registro Completado</h2>
-          <p className="text-sm text-slate-600 leading-relaxed font-medium">
-            ¡Bienvenido de vuelta a la comunidad UCR! Tu cuenta ha sido creada exitosamente. Ya puedes iniciar sesión con tu correo y contraseña.
-          </p>
-          <Link href="/login" className="submit-btn inline-flex items-center justify-center gap-2 w-full" style={{ background: 'linear-gradient(135deg, #F34B26 0%, #b83318 100%)' }}>
-            Ir a Iniciar Sesión <ArrowRight size={18} />
-          </Link>
-        </div>
-      </div>
-    );
-  }
 
   // 
   // FORMULARIO PRINCIPAL
